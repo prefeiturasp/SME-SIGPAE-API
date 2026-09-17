@@ -18,7 +18,7 @@ class EOLUsuarioCoreSSO:
 
             }
         """
-        from requests import ConnectTimeout, ReadTimeout
+        import httpx
 
         from utility.carga_dados.perfil.importa_dados import (
             ProcessaPlanilhaUsuarioServidorCoreSSOException,
@@ -70,12 +70,7 @@ class EOLUsuarioCoreSSO:
                 f"Erro {str(e)} ao criar/atualizar usuário {login} no CoreSSO."
             )
 
-        except ReadTimeout:
+        except httpx.TimeoutException:
             raise ProcessaPlanilhaUsuarioServidorCoreSSOException(
-                f"Erro de ReadTimeout ao tentar criar/atualizar usuário {login} no CoreSSO."
-            )
-
-        except ConnectTimeout:
-            raise ProcessaPlanilhaUsuarioServidorCoreSSOException(
-                f"Erro de ConnectTimeout ao tentar criar/atualizar usuário {login} no CoreSSO."
+                f"Erro de timeout ao tentar criar/atualizar usuário {login} no CoreSSO."
             )

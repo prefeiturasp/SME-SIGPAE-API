@@ -1,7 +1,6 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
-from django_prometheus.models import ExportModelOperationsMixin
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -51,7 +50,6 @@ from .managers import (
 
 
 class QuantidadePorPeriodo(
-    ExportModelOperationsMixin("quantidade_periodo"),
     DiasSemana,
     TemChaveExterna,
     CanceladoIndividualmente,
@@ -94,9 +92,7 @@ class QuantidadePorPeriodo(
         verbose_name_plural = "Quantidades por periodo"
 
 
-class MotivoInclusaoContinua(
-    ExportModelOperationsMixin("motivo_inclusao_continua"), Nomeavel, TemChaveExterna
-):
+class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
     """Funciona em conjunto com InclusaoAlimentacaoContinua.
 
     - continuo -  mais educacao
@@ -113,7 +109,6 @@ class MotivoInclusaoContinua(
 
 
 class InclusaoAlimentacaoContinua(
-    ExportModelOperationsMixin("inclusao_continua"),
     IntervaloDeDia,
     Descritivel,
     TemChaveExterna,
@@ -316,9 +311,7 @@ class InclusaoAlimentacaoContinua(
         ordering = ["data_inicial"]
 
 
-class MotivoInclusaoNormal(
-    ExportModelOperationsMixin("motivo_inclusao_normal"), Nomeavel, TemChaveExterna
-):
+class MotivoInclusaoNormal(Nomeavel, TemChaveExterna):
     """Funciona em conjunto com InclusaoAlimentacaoNormal.
 
     - reposicao de aula
@@ -335,7 +328,6 @@ class MotivoInclusaoNormal(
 
 
 class InclusaoAlimentacaoNormal(
-    ExportModelOperationsMixin("inclusao_normal"),
     TemData,
     TemChaveExterna,
     TemTerceirizadaConferiuGestaoAlimentacao,
@@ -364,7 +356,6 @@ class InclusaoAlimentacaoNormal(
 
 
 class GrupoInclusaoAlimentacaoNormal(
-    ExportModelOperationsMixin("grupo_inclusao"),
     Descritivel,
     TemChaveExterna,
     FluxoAprovacaoPartindoDaEscola,

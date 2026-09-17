@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Sum
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.base.models import TipoAlimentacao
 from src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers import (
@@ -26,9 +25,7 @@ from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
 
-class MotivoSuspensao(
-    ExportModelOperationsMixin("motivo_suspensao"), Nomeavel, TemChaveExterna
-):
+class MotivoSuspensao(Nomeavel, TemChaveExterna):
     """Motivo de Suspensão de um dia letivo em uma unidade educacional.
 
     Exemplos:
@@ -51,7 +48,6 @@ class MotivoSuspensao(
 
 
 class SuspensaoAlimentacao(
-    ExportModelOperationsMixin("suspensao_alimentacao"),
     TemData,
     TemChaveExterna,
     CanceladoIndividualmente,
@@ -87,9 +83,7 @@ class SuspensaoAlimentacao(
         verbose_name_plural = "Suspensões de alimentação"
 
 
-class QuantidadePorPeriodoSuspensaoAlimentacao(
-    ExportModelOperationsMixin("quantidade_periodo"), TemChaveExterna
-):
+class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
     """Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.
 
     Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.
@@ -137,7 +131,6 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(
 
 
 class GrupoSuspensaoAlimentacao(
-    ExportModelOperationsMixin("grupo_suspensao_alimentacao"),
     TemChaveExterna,
     CriadoPor,
     TemIdentificadorExternoAmigavel,

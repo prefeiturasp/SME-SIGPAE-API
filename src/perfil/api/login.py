@@ -2,8 +2,8 @@ import datetime
 import logging
 import re
 
+import httpx
 from django.contrib.auth import get_user_model
-from requests.exceptions import Timeout
 from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -277,7 +277,7 @@ class LoginView(TokenObtainPairView):
             return self.handle_unauthorized_error(e, login)
         except EOLException as e:
             return self.handle_bad_request_error(e, login)
-        except Timeout as e:
+        except httpx.TimeoutException as e:
             return self.handle_timeout_error(e, login)
 
     def autenticar_usuario(self, login, senha):
