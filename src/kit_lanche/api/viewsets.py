@@ -1,7 +1,7 @@
 import datetime
 
 from django_filters import rest_framework as filters
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
@@ -20,6 +20,12 @@ from ...dados_comuns.permissions import (
     UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
 )
+from ...dados_comuns.utils import (
+    eh_dia_util,
+    obter_dias_uteis_apos,
+    queryset_por_data,
+)
+from ...escola.models import DiaSuspensaoAtividades
 from ...inclusao_alimentacao.api.viewsets import (
     CodaeAutoriza,
     CodaeQuestionaTerceirizadaResponde,
@@ -45,6 +51,7 @@ from ..models import (
 from ..utils import (
     KitLanchePagination,
     cancela_solicitacao_kit_lanche_unificada,
+    filtra_solicitacoes_por_busca,
     prepara_solicitacoes_listagem_similares,
     prepara_solicitacoes_listagem_similares_cemei,
 )
@@ -125,6 +132,7 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
     lookup_field = "uuid"
     queryset = SolicitacaoKitLancheAvulsa.objects.all()
     serializer_class = serializers.SolicitacaoKitLancheAvulsaSerializer
+    pagination_class = KitLanchePagination
 
     def get_permissions(self):
         if self.action in ["list"]:
@@ -139,67 +147,6 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
         if self.action in ["create", "update", "partial_update"]:
             return serializers_create.SolicitacaoKitLancheAvulsaCreationSerializer
         return serializers.SolicitacaoKitLancheAvulsaSerializer
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(self, request, filtro_aplicado="sem_filtro"):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        kit_lanches_avulso = (
-            diretoria_regional.solicitacoes_kit_lanche_das_minhas_escolas_a_validar(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        kit_lanches_avulso = kit_lanches_avulso.select_related(
-            "solicitacao_kit_lanche",
-            "escola",
-            "escola__tipo_unidade",
-            "escola__lote",
-        )
-        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
-            kit_lanches_avulso, SolicitacaoKitLancheAvulsa
-        )
-        serializer = serializers_listagem.SolicitacaoKitLancheAvulsaListagemSerializer(
-            kit_lanches_avulso, many=True, context={"request": request}
-        )
-        return Response({"results": serializer.data})
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado="sem_filtro"):
-        usuario = request.user
-        codae = usuario.vinculo_atual.instituicao
-        kit_lanches_avulso = codae.solicitacoes_kit_lanche_das_minhas_escolas_a_validar(
-            filtro_aplicado
-        )
-        if request.query_params.get("diretoria_regional"):
-            dre_uuid = request.query_params.get("diretoria_regional")
-            kit_lanches_avulso = kit_lanches_avulso.filter(rastro_dre__uuid=dre_uuid)
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        kit_lanches_avulso = kit_lanches_avulso.select_related(
-            "solicitacao_kit_lanche",
-            "escola",
-            "escola__tipo_unidade",
-            "escola__lote",
-        )
-        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
-            kit_lanches_avulso, SolicitacaoKitLancheAvulsa
-        )
-        serializer = serializers_listagem.SolicitacaoKitLancheAvulsaListagemSerializer(
-            kit_lanches_avulso, many=True, context={"request": request}
-        )
-        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -795,6 +742,7 @@ class SolicitacaoKitLancheUnificadaViewSet(DataSolicitacaoContextMixin, ModelVie
 class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
     lookup_field = "uuid"
     queryset = SolicitacaoKitLancheCEIAvulsa.objects.all()
+    pagination_class = KitLanchePagination
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -802,73 +750,6 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
                 serializers_create_cei.SolicitacaoKitLancheCEIAvulsaCreationSerializer
             )
         return serializers.SolicitacaoKitLancheCEIAvulsaSerializer
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(self, request, filtro_aplicado="sem_filtro"):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        kit_lanches_avulso = (
-            diretoria_regional.solicitacoes_kit_lanche_cei_das_minhas_escolas_a_validar(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        kit_lanches_avulso = kit_lanches_avulso.select_related(
-            "solicitacao_kit_lanche",
-            "escola",
-            "escola__tipo_unidade",
-            "escola__lote",
-        )
-        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
-            kit_lanches_avulso, SolicitacaoKitLancheCEIAvulsa
-        )
-        serializer = (
-            serializers_listagem.SolicitacaoKitLancheCEIAvulsaListagemSerializer(
-                kit_lanches_avulso, many=True, context={"request": request}
-            )
-        )
-        return Response({"results": serializer.data})
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado="sem_filtro"):
-        usuario = request.user
-        codae = usuario.vinculo_atual.instituicao
-        kit_lanches_avulso = (
-            codae.solicitacoes_kit_lanche_cei_das_minhas_escolas_a_validar(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("diretoria_regional"):
-            dre_uuid = request.query_params.get("diretoria_regional")
-            kit_lanches_avulso = kit_lanches_avulso.filter(rastro_dre__uuid=dre_uuid)
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            kit_lanches_avulso = kit_lanches_avulso.filter(rastro_lote__uuid=lote_uuid)
-        kit_lanches_avulso = kit_lanches_avulso.select_related(
-            "solicitacao_kit_lanche",
-            "escola",
-            "escola__tipo_unidade",
-            "escola__lote",
-        )
-        kit_lanches_avulso = prepara_solicitacoes_listagem_similares(
-            kit_lanches_avulso, SolicitacaoKitLancheCEIAvulsa
-        )
-        serializer = (
-            serializers_listagem.SolicitacaoKitLancheCEIAvulsaListagemSerializer(
-                kit_lanches_avulso, many=True, context={"request": request}
-            )
-        )
-        return Response({"results": serializer.data})
 
     @action(
         detail=False,
@@ -939,6 +820,7 @@ class SolicitacaoKitLancheCEMEIViewSet(
     lookup_field = "uuid"
     queryset = SolicitacaoKitLancheCEMEI.objects.all()
     permission_classes = (IsAuthenticated,)
+    pagination_class = KitLanchePagination
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
@@ -978,63 +860,205 @@ class SolicitacaoKitLancheCEMEIViewSet(
             )
         return super().destroy(request, *args, **kwargs)
 
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(self, request, filtro_aplicado="sem_filtro"):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        kit_lanches_cemei = diretoria_regional.solicitacoes_kit_lanche_cemei_das_minhas_escolas_a_validar(
-            filtro_aplicado
-        )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            kit_lanches_cemei = kit_lanches_cemei.filter(rastro_lote__uuid=lote_uuid)
-        kit_lanches_cemei = kit_lanches_cemei.select_related(
-            "escola", "escola__tipo_unidade", "escola__lote"
-        )
-        kit_lanches_cemei = prepara_solicitacoes_listagem_similares_cemei(
-            kit_lanches_cemei
-        )
-        serializer = serializers_listagem.SolicitacaoKitLancheCEMEIListagemSerializer(
-            kit_lanches_cemei, many=True, context={"request": request}
-        )
-        return Response({"results": serializer.data})
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado="sem_filtro"):
-        usuario = request.user
-        codae = usuario.vinculo_atual.instituicao
-        kit_lanches_cemei = (
-            codae.solicitacoes_kit_lanche_cemei_das_minhas_escolas_a_validar(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("diretoria_regional"):
-            dre_uuid = request.query_params.get("diretoria_regional")
-            kit_lanches_cemei = kit_lanches_cemei.filter(rastro_dre__uuid=dre_uuid)
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            kit_lanches_cemei = kit_lanches_cemei.filter(rastro_lote__uuid=lote_uuid)
-        kit_lanches_cemei = kit_lanches_cemei.select_related(
-            "escola", "escola__tipo_unidade", "escola__lote"
-        )
-        kit_lanches_cemei = prepara_solicitacoes_listagem_similares_cemei(
-            kit_lanches_cemei
-        )
-        serializer = serializers_listagem.SolicitacaoKitLancheCEMEIListagemSerializer(
-            kit_lanches_cemei, many=True, context={"request": request}
-        )
-        return Response({"results": serializer.data})
-
     @action(detail=True, url_path=constants.RELATORIO, methods=["get"])
     def relatorio(self, request, uuid=None):
         return relatorio_kit_lanche_passeio_cemei(
             request, solicitacao=self.get_object()
         )
+
+
+class SolicitacaoKitLanchePainelViewSet(viewsets.GenericViewSet):
+    lookup_field = "uuid"
+    permission_classes = (IsAuthenticated,)
+    pagination_class = KitLanchePagination
+
+    def get_permissions(self):
+        if self.action == "solicitacoes_diretoria_regional":
+            self.permission_classes = (UsuarioDiretoriaRegional,)
+        elif self.action == "solicitacoes_codae":
+            self.permission_classes = (UsuarioCODAEGestaoAlimentacao,)
+        return super().get_permissions()
+
+    @action(
+        detail=False,
+        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
+    )
+    def solicitacoes_diretoria_regional(self, request, filtro_aplicado="sem_filtro"):
+        return self._processar_painel(request, filtro_aplicado, visao="dre")
+
+    @action(
+        detail=False,
+        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
+    )
+    def solicitacoes_codae(self, request, filtro_aplicado="sem_filtro"):
+        return self._processar_painel(request, filtro_aplicado, visao="codae")
+
+    def _processar_painel(self, request, filtro_aplicado, visao):
+        prazo = request.query_params.get("prazo", "").upper()
+        instituicao = request.user.vinculo_atual.instituicao
+        querysets = self._base_querysets(filtro_aplicado, instituicao, visao)
+        querysets = self._aplicar_filtros(querysets, request)
+        objetos, escolas, totais = self._classificar_por_prioridade(querysets, prazo)
+        objetos = sorted(objetos, key=lambda obj: (obj.data, str(obj.uuid)))
+        page = self.paginate_queryset(objetos)
+        uuids = [obj.uuid for obj in page]
+        objetos_pagina = self._objetos_da_pagina(uuids)
+        resultados = self._serializar_pagina(objetos_pagina, uuids, request)
+        response = self.get_paginated_response(resultados)
+        if prazo in escolas:
+            escolas_solicitantes = len(escolas[prazo])
+        else:
+            escolas_solicitantes = len(set().union(*escolas.values()))
+        response.data["escolas_solicitantes"] = escolas_solicitantes
+        response.data["totais"] = totais
+        return response
+
+    def _base_querysets(self, filtro_aplicado, instituicao, visao):
+        modelos = [
+            SolicitacaoKitLancheAvulsa,
+            SolicitacaoKitLancheCEIAvulsa,
+            SolicitacaoKitLancheCEMEI,
+        ]
+        querysets = []
+        for modelo in modelos:
+            queryset = queryset_por_data(filtro_aplicado, modelo)
+            if visao == "dre":
+                queryset = queryset.filter(
+                    escola__in=instituicao.escolas.all(),
+                    status=modelo.workflow_class.DRE_A_VALIDAR,
+                )
+            else:
+                queryset = queryset.filter(
+                    status__in=[
+                        modelo.workflow_class.DRE_VALIDADO,
+                        modelo.workflow_class.TERCEIRIZADA_RESPONDEU_QUESTIONAMENTO,
+                    ]
+                )
+            querysets.append(queryset)
+        return querysets
+
+    def _aplicar_filtros(self, querysets, request):
+        query_params = request.query_params
+        if query_params.get("lote"):
+            lote_uuid = query_params.get("lote")
+            querysets = [qs.filter(rastro_lote__uuid=lote_uuid) for qs in querysets]
+        if query_params.get("diretoria_regional"):
+            dre_uuid = query_params.get("diretoria_regional")
+            querysets = [qs.filter(rastro_dre__uuid=dre_uuid) for qs in querysets]
+        if query_params.get("busca"):
+            busca = query_params.get("busca")
+            querysets = [filtra_solicitacoes_por_busca(qs, busca) for qs in querysets]
+        return querysets
+
+    def _objetos_da_pagina(self, uuids):
+        objetos = {}
+        avulsa = SolicitacaoKitLancheAvulsa.objects.filter(uuid__in=uuids)
+        cei = SolicitacaoKitLancheCEIAvulsa.objects.filter(uuid__in=uuids)
+        cemei = SolicitacaoKitLancheCEMEI.objects.filter(uuid__in=uuids)
+        avulsa = prepara_solicitacoes_listagem_similares(
+            list(avulsa), SolicitacaoKitLancheAvulsa
+        )
+        cei = prepara_solicitacoes_listagem_similares(
+            list(cei), SolicitacaoKitLancheCEIAvulsa
+        )
+        cemei = prepara_solicitacoes_listagem_similares_cemei(list(cemei))
+        for obj in avulsa + cei + cemei:
+            objetos[obj.uuid] = obj
+        return objetos
+
+    def _serializar_pagina(self, objetos, uuids, request):
+        resultados_por_uuid = {}
+        grupos = [
+            (
+                SolicitacaoKitLancheAvulsa,
+                serializers_listagem.SolicitacaoKitLancheAvulsaListagemSerializer,
+            ),
+            (
+                SolicitacaoKitLancheCEIAvulsa,
+                serializers_listagem.SolicitacaoKitLancheCEIAvulsaListagemSerializer,
+            ),
+            (
+                SolicitacaoKitLancheCEMEI,
+                serializers_listagem.SolicitacaoKitLancheCEMEIListagemSerializer,
+            ),
+        ]
+        for modelo, serializer_class in grupos:
+            objs_modelo = [objetos[u] for u in uuids if isinstance(objetos[u], modelo)]
+            if objs_modelo:
+                data = serializer_class(
+                    objs_modelo, many=True, context={"request": request}
+                ).data
+                for obj, item in zip(objs_modelo, data):
+                    resultados_por_uuid[obj.uuid] = item
+        return [resultados_por_uuid[u] for u in uuids]
+
+    def _classificar_por_prioridade(self, querysets, prazo):
+        objetos = []
+        escolas = {"PRIORITARIO": set(), "LIMITE": set(), "REGULAR": set()}
+        totais = {"PRIORITARIO": 0, "LIMITE": 0, "REGULAR": 0}
+        cache_dias = {}
+        avulsa, cei, cemei = querysets
+        avulsa = avulsa.select_related(
+            "escola", "escola__tipo_unidade", "solicitacao_kit_lanche"
+        )
+        cei = cei.select_related(
+            "escola", "escola__tipo_unidade", "solicitacao_kit_lanche"
+        )
+        cemei = cemei.select_related("escola", "escola__tipo_unidade")
+        for queryset in [avulsa, cei, cemei]:
+            for obj in queryset.iterator():
+                escola = obj.escola
+                if escola.id not in cache_dias:
+                    cache_dias[escola.id] = (
+                        DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+                            escola, constants.PRIORITARIO
+                        ),
+                        DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+                            escola, constants.LIMITE_INFERIOR
+                        ),
+                        DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
+                            escola, constants.LIMITE_SUPERIOR
+                        ),
+                    )
+                prioridade = self._calcular_prioridade(obj.data, cache_dias[escola.id])
+                if prioridade in totais:
+                    escolas[prioridade].add(escola.id)
+                    totais[prioridade] += 1
+                    if not prazo or prioridade == prazo:
+                        objetos.append(obj)
+        return objetos, escolas, totais
+
+    def _calcular_prioridade(self, data_pedido, dias_suspensao):
+        if data_pedido is None:
+            return "VENCIDO"
+        hoje = datetime.date.today()
+        dias_prioritario, dias_inferior, dias_superior = dias_suspensao
+        minimo_dias_para_pedido = obter_dias_uteis_apos(
+            hoje, constants.PRIORITARIO + dias_prioritario
+        )
+        dias_uteis_limite_inferior = obter_dias_uteis_apos(
+            hoje, constants.LIMITE_INFERIOR + dias_inferior
+        )
+        dias_uteis_limite_superior = obter_dias_uteis_apos(
+            hoje, constants.LIMITE_SUPERIOR + dias_superior
+        )
+        ultimo_dia_util = self._ultimo_dia_util(data_pedido)
+        if ultimo_dia_util and minimo_dias_para_pedido >= ultimo_dia_util >= hoje:
+            return "PRIORITARIO"
+        if (
+            ultimo_dia_util
+            and dias_uteis_limite_superior >= data_pedido >= dias_uteis_limite_inferior
+        ):
+            return "LIMITE"
+        if ultimo_dia_util and ultimo_dia_util >= dias_uteis_limite_superior:
+            return "REGULAR"
+        return "VENCIDO"
+
+    def _ultimo_dia_util(self, data):
+        data_retorno = data
+        if data_retorno:
+            while not eh_dia_util(data_retorno):
+                data_retorno -= datetime.timedelta(days=1)
+            if isinstance(data_retorno, datetime.datetime):
+                return data_retorno.date()
+        return data_retorno
