@@ -1,7 +1,7 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .api import viewsets
+from .api import viewsets, viewsets_painel
 
 router = routers.DefaultRouter()
 
@@ -34,6 +34,12 @@ router.register(
     "inclusao-alimentacao-cemei",
     viewsets.InclusaoAlimentacaoCEMEIViewSet,
     basename="inclusao-alimentacao-cemei",
+)
+
+router.register(
+    "inclusao-alimentacao",
+    viewsets_painel.InclusaoAlimentacaoPainelViewSet,
+    basename="inclusao-alimentacao",
 )
 
 urlpatterns = [path("", include(router.urls))]
