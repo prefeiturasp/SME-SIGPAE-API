@@ -13,6 +13,7 @@ def _cria_pedidos(
     grupo_inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_da_cei_factory,
+    quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     dias_motivos_inclusao_de_alimentacao_cei_factory,
     inclusao_alimentacao_continua_factory,
     inclusao_de_alimentacao_cemei_factory,
@@ -33,6 +34,9 @@ def _cria_pedidos(
         rastro_lote=escola.lote,
         rastro_dre=escola.diretoria_regional,
         status=status_pedido,
+    )
+    quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory.create(
+        inclusao_alimentacao_da_cei=cei,
     )
     dias_motivos_inclusao_de_alimentacao_cei_factory.create(inclusao_cei=cei, data=data)
 
@@ -59,9 +63,12 @@ def _cria_pedidos(
 def test_solicitacoes_diretoria_regional_unificado(
     client_autenticado_vinculo_dre_inclusao,
     escola,
+    eolservicosgp_get_lista_alunos,
+    periodo_escolar,
     grupo_inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_da_cei_factory,
+    quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     dias_motivos_inclusao_de_alimentacao_cei_factory,
     inclusao_alimentacao_continua_factory,
     inclusao_de_alimentacao_cemei_factory,
@@ -73,6 +80,7 @@ def test_solicitacoes_diretoria_regional_unificado(
         grupo_inclusao_alimentacao_normal_factory,
         inclusao_alimentacao_normal_factory,
         inclusao_alimentacao_da_cei_factory,
+        quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
         dias_motivos_inclusao_de_alimentacao_cei_factory,
         inclusao_alimentacao_continua_factory,
         inclusao_de_alimentacao_cemei_factory,
@@ -95,9 +103,12 @@ def test_solicitacoes_diretoria_regional_unificado(
 def test_solicitacoes_diretoria_regional_unificado_busca(
     client_autenticado_vinculo_dre_inclusao,
     escola,
+    eolservicosgp_get_lista_alunos,
+    periodo_escolar,
     grupo_inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_da_cei_factory,
+    quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     dias_motivos_inclusao_de_alimentacao_cei_factory,
     inclusao_alimentacao_continua_factory,
     inclusao_de_alimentacao_cemei_factory,
@@ -109,6 +120,7 @@ def test_solicitacoes_diretoria_regional_unificado_busca(
         grupo_inclusao_alimentacao_normal_factory,
         inclusao_alimentacao_normal_factory,
         inclusao_alimentacao_da_cei_factory,
+        quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
         dias_motivos_inclusao_de_alimentacao_cei_factory,
         inclusao_alimentacao_continua_factory,
         inclusao_de_alimentacao_cemei_factory,
@@ -135,9 +147,12 @@ def test_solicitacoes_diretoria_regional_unificado_busca(
 def test_solicitacoes_codae_unificado(
     client_autenticado_vinculo_codae_inclusao,
     escola,
+    eolservicosgp_get_lista_alunos,
+    periodo_escolar,
     grupo_inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_normal_factory,
     inclusao_alimentacao_da_cei_factory,
+    quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
     dias_motivos_inclusao_de_alimentacao_cei_factory,
     inclusao_alimentacao_continua_factory,
     inclusao_de_alimentacao_cemei_factory,
@@ -149,6 +164,7 @@ def test_solicitacoes_codae_unificado(
         grupo_inclusao_alimentacao_normal_factory,
         inclusao_alimentacao_normal_factory,
         inclusao_alimentacao_da_cei_factory,
+        quantidade_de_alunos_por_faixa_etaria_da_inclusao_de_alimentacao_da_cei_factory,
         dias_motivos_inclusao_de_alimentacao_cei_factory,
         inclusao_alimentacao_continua_factory,
         inclusao_de_alimentacao_cemei_factory,
