@@ -9,6 +9,7 @@ import './commands_api/commands_alimentos'
 import './commands_api/commands_alergias_intolerancias'
 import './commands_api/commands_alimentos_da_guia'
 import './commands_api/commands_alteracoes_cardapio'
+import './commands_api/commands_alteracoes_cardapio_cemei'
 import './commands_api/commands_alunos'
 import './commands_api/commands_cadastro_atualizar_senha'
 import './commands_api/commands_cadastro_produtos_edital'
@@ -133,3 +134,5 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 		return false
 	}
 })
+import './commands_api/commands_cadastro_com_coresso'
+import './step_definitions/cadastro_com_coresso'
