@@ -134,3 +134,5 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 		return false
 	}
 })
+import './commands_api/commands_cadastro_com_coresso'
+import './step_definitions/cadastro_com_coresso'
