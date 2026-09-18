@@ -59,3 +59,39 @@ Feature: Validar alunos da aplicacao SIGPAE
   Scenario: Consultar quantidade CEMEI sem codigo da escola
     When consulto quantidade CEMEI por CEI e EMEI sem codigo da escola
     Then deve informar que codigo_eol_escola e obrigatorio
+
+  Scenario: Filtrar alunos pelo codigo EOL com sucesso
+    When filtro alunos por um codigo EOL existente
+    Then a listagem deve conter somente o aluno solicitado
+
+  Scenario: Filtrar alunos por codigo EOL inexistente
+    When filtro alunos pelo codigo EOL inexistente
+    Then a listagem de alunos deve estar vazia
+
+  Scenario: Paginar alunos com limite e deslocamento
+    When consulto duas paginas consecutivas de alunos
+    Then as paginas devem respeitar o limite sem repetir o primeiro aluno
+
+  Scenario: Verificar pertencimento de aluno inexistente
+    When verifico se o aluno 0 pertence a escola "019769"
+    Then o resultado de pertencimento deve ser "false"
+
+  Scenario Outline: Rejeitar operacao de foto para aluno inexistente
+    When executo "<acao>" para foto de aluno inexistente
+    Then a operacao de foto do aluno deve retornar 404
+
+    Examples:
+      | acao           |
+      | ver-foto       |
+      | atualizar-foto |
+      | deletar-foto   |
+
+  Scenario Outline: Rejeitar operacao de foto sem autenticacao
+    When executo "<acao>" para foto de aluno sem autenticacao
+    Then a operacao de foto do aluno deve retornar 401
+
+    Examples:
+      | acao           |
+      | ver-foto       |
+      | atualizar-foto |
+      | deletar-foto   |
