@@ -6,10 +6,16 @@ from django.http import QueryDict
 
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
+    ORDEM_UNIDADES_GRUPO_CEI,
+    ORDEM_UNIDADES_GRUPO_CEMEI,
+    ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
+    ORDEM_UNIDADES_GRUPO_EMEBS,
+    ORDEM_UNIDADES_GRUPO_EMEF,
+    ORDEM_UNIDADES_GRUPO_EMEI,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.escola.models import Escola
+from src.escola.models import Escola, GrupoUnidadeEscolar, TipoUnidadeEscolar
 from src.medicao_inicial.models import Medicao, ValorMedicao
 
 ORDEM_PERIODOS = {
@@ -26,6 +32,15 @@ ORDEM_ALIMENTACOES = {
     "REFEIÇÃO": 2,
     "SOBREMESA": 3,
     "LANCHE 4H": 4,
+}
+
+ORDEM_TIPOS_UNIDADE = {
+    **ORDEM_UNIDADES_GRUPO_CEI,
+    **ORDEM_UNIDADES_GRUPO_CEMEI,
+    **ORDEM_UNIDADES_GRUPO_EMEI,
+    **ORDEM_UNIDADES_GRUPO_EMEF,
+    **ORDEM_UNIDADES_GRUPO_EMEBS,
+    **ORDEM_UNIDADES_GRUPO_CIEJA_CMCT,
 }
 
 
@@ -247,7 +262,7 @@ def _aplica_filtro_lista(
     return filtros
 
 
-def _cria_filtros(query_params: QueryDict) -> dict:
+def _cria_filtros(query_params: QueryDict, ignorar_escolas: bool = False) -> dict:
     """
     Cria um dicionário de filtros para consulta de medições a partir de parâmetros de URL.
     Converte os parâmetros recebidos na requisição em filtros compatíveis com o ORM do Django,
@@ -255,6 +270,7 @@ def _cria_filtros(query_params: QueryDict) -> dict:
 
     Args:
         query_params (QueryDict): objeto QueryDict contendo os parâmetros da requisição HTTP.
+        ignorar_escolas (bool): se True, não aplica filtros de escola mesmo que informados.
 
     Returns:
         dict: dicionário contendo os filtros formatados para uso em querysets Django
@@ -277,17 +293,18 @@ def _cria_filtros(query_params: QueryDict) -> dict:
         "tipos_unidades[]",
         "solicitacao_medicao_inicial__escola__tipo_unidade__uuid__in",
     )
-    filtros = _aplica_filtro_lista(
-        query_params,
-        filtros,
-        "escola__uuid[]",
-        "solicitacao_medicao_inicial__escola__uuid__in",
-    )
+    if not ignorar_escolas:
+        filtros = _aplica_filtro_lista(
+            query_params,
+            filtros,
+            "escola__uuid[]",
+            "solicitacao_medicao_inicial__escola__uuid__in",
+        )
 
-    escola = query_params.get("escola")
-    if escola:
-        escola = escola.split("-")[0].strip()
-        filtros["solicitacao_medicao_inicial__escola__codigo_eol"] = escola
+        escola = query_params.get("escola")
+        if escola:
+            escola = escola.split("-")[0].strip()
+            filtros["solicitacao_medicao_inicial__escola__codigo_eol"] = escola
 
     filtros = _aplica_filtro_lista(
         query_params, filtros, "periodos_escolares[]", "periodo_escolar__uuid__in"
@@ -490,6 +507,134 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
         obtem_resultados_para_escola(escola, query_params)
         for escola in obtem_escolas_ordenadas(escolas_uuid)
     ]
+
+
+def _obtem_tipos_unidades_selecionados(query_params: QueryDict) -> list[str]:
+    """
+    Retorna os UUIDs de tipos de unidade informados, ignorando valores vazios.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        list[str]: UUIDs de tipos de unidade.
+    """
+    return [
+        valor
+        for valor in query_params.getlist("tipos_unidades[]")
+        if valor not in (None, "", "None")
+    ]
+
+
+def valida_parametros_resultado_individual_por_data(query_params: QueryDict) -> None:
+    """
+    Valida os parâmetros obrigatórios do modo resultado individual por data.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Raises:
+        ValidationError: se o período de lançamento ou o tipo de unidade não forem informados.
+    """
+    if not query_params.get("periodo_lancamento_de") or not query_params.get(
+        "periodo_lancamento_ate"
+    ):
+        raise ValidationError(
+            "Para resultado individual por data, 'periodo_lancamento_de' e "
+            "'periodo_lancamento_ate' são obrigatórios"
+        )
+
+    if not _obtem_tipos_unidades_selecionados(query_params):
+        raise ValidationError(
+            "Para resultado individual por data, 'tipos_unidades' é obrigatório"
+        )
+
+
+def obtem_identificacao_tipo_unidade(query_params: QueryDict) -> str:
+    """
+    Monta o rótulo do grupo/tipo de unidade exibido no resultado individual por data.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        str: identificação no formato ``Grupo 3 - EMEI, CEU EMEI``.
+    """
+    tipos_uuids = _obtem_tipos_unidades_selecionados(query_params)
+    tipos = list(TipoUnidadeEscolar.objects.filter(uuid__in=tipos_uuids))
+    tipos.sort(
+        key=lambda tipo: ORDEM_TIPOS_UNIDADE.get(
+            tipo.iniciais, len(ORDEM_TIPOS_UNIDADE) + 1
+        )
+    )
+
+    grupo = (
+        GrupoUnidadeEscolar.objects.filter(tipos_unidades__uuid__in=tipos_uuids)
+        .distinct()
+        .order_by("nome")
+        .first()
+    )
+
+    iniciais = ", ".join(tipo.iniciais for tipo in tipos)
+    if grupo and iniciais:
+        return f"{grupo.nome} - {iniciais}"
+    if grupo:
+        return grupo.nome
+    return iniciais
+
+
+def obtem_dias_com_dados(query_params: QueryDict) -> list[str]:
+    """
+    Retorna os dias do período de lançamento que possuem dados compatíveis com os filtros.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        list[str]: dias no formato ``DD``, ordenados crescentemente.
+    """
+    mes, ano, dia_inicial, dia_final, tipos_alimentacao = _parametros_consulta(
+        query_params
+    )
+    filtros = _cria_filtros(query_params, ignorar_escolas=True)
+    medicoes = _obtem_medicoes(mes, ano, filtros)
+
+    queryset = ValorMedicao.objects.filter(
+        medicao__in=medicoes,
+        tipo_alimentacao__isnull=False,
+    ).exclude(categoria_medicao__nome__icontains="DIETA")
+
+    if dia_inicial and dia_final:
+        queryset = queryset.filter(dia__gte=dia_inicial, dia__lte=dia_final)
+
+    if tipos_alimentacao:
+        queryset = queryset.filter(tipo_alimentacao__uuid__in=tipos_alimentacao)
+
+    return list(queryset.values_list("dia", flat=True).distinct().order_by("dia"))
+
+
+def obtem_resultados_para_dia(dia: str, query_params: QueryDict) -> dict:
+    """
+    Calcula os resultados consolidados de uma data para o grupo/tipo de unidade selecionado.
+
+    Args:
+        dia (str): dia da medição no formato ``DD``.
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        dict: dicionário com a data, a identificação do tipo/grupo e os resultados.
+    """
+    mes, ano, _, _, tipos_alimentacao = _parametros_consulta(query_params)
+    filtros = _cria_filtros(query_params, ignorar_escolas=True)
+    resultados = _calcula_resultados(mes, ano, filtros, tipos_alimentacao, dia, dia)
+
+    data = datetime(int(ano), int(mes), int(dia)).strftime(FORMATO_DATA_BRASILEIRO)
+
+    return {
+        "data": data,
+        "tipo_unidade": obtem_identificacao_tipo_unidade(query_params),
+        "resultados": resultados,
+    }
 
 
 def _valida_ano_mes(mes_ano: str) -> tuple[int, int]:

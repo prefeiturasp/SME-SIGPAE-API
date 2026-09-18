@@ -25,11 +25,14 @@ from xworkflows import InvalidTransitionError
 from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_dias_com_dados,
     obtem_escolas_ordenadas,
     obtem_resultados,
+    obtem_resultados_para_dia,
     obtem_resultados_para_escola,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
+    valida_parametros_resultado_individual_por_data,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
 
@@ -2278,11 +2281,7 @@ class RelatoriosViewSet(ViewSet):
                 else convert_dict_to_querydict(request.data)
             )
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
-                return self._relatorio_adesao_por_escola(request, query_params)
-            resultados = obtem_resultados(query_params)
-
-            return Response(data=resultados, status=status.HTTP_200_OK)
+            return self._resolver_relatorio_adesao(request, query_params)
         except ValidationError as e:
             return Response(
                 dict(detail=e.messages[0]), status=status.HTTP_400_BAD_REQUEST
@@ -2293,15 +2292,31 @@ class RelatoriosViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def _resolver_relatorio_adesao(self, request: Request, query_params) -> Response:
+        if query_params.get("resultado_individual_por_data"):
+            valida_parametros_resultado_individual_por_data(query_params)
+            return self._relatorio_adesao_por_data(request, query_params)
+        if query_params.getlist("escola__uuid[]"):
+            return self._relatorio_adesao_por_escola(request, query_params)
+        return Response(data=obtem_resultados(query_params), status=status.HTTP_200_OK)
+
     def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
         escolas_uuid = query_params.getlist("escola__uuid[]")
         escolas = obtem_escolas_ordenadas(escolas_uuid)
-        return self._pagina_resultados(request, query_params, escolas)
+        return self._pagina_resultados(
+            request, query_params, escolas, obtem_resultados_para_escola
+        )
+
+    def _relatorio_adesao_por_data(self, request: Request, query_params) -> Response:
+        dias = obtem_dias_com_dados(query_params)
+        return self._pagina_resultados(
+            request, query_params, dias, obtem_resultados_para_dia
+        )
 
     def _pagina_resultados(
-        self, request: Request, query_params, escolas: list
+        self, request: Request, query_params, itens: list, obter_resultado
     ) -> Response:
-        paginator = Paginator(escolas, 1)
+        paginator = Paginator(itens, 1)
         page_number = query_params.get("page") or request.query_params.get("page", 1)
         try:
             page_number = int(page_number)
@@ -2312,9 +2327,7 @@ class RelatoriosViewSet(ViewSet):
         except EmptyPage:
             raise ValidationError("Página inválida")
 
-        resultados = [
-            obtem_resultados_para_escola(escola, query_params) for escola in page
-        ]
+        resultados = [obter_resultado(item, query_params) for item in page]
 
         url = request.build_absolute_uri()
         next_page = (
