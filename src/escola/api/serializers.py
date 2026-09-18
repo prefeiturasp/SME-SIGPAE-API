@@ -840,6 +840,12 @@ class AlunoSimplesSerializer(serializers.ModelSerializer):
         fields = ("uuid", "nome", "data_nascimento", "codigo_eol", "escola")
 
 
+class AlunoNomeUuidCodigoEolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Aluno
+        fields = ("uuid", "nome", "codigo_eol")
+
+
 class AlunoNaoMatriculadoSerializer(serializers.ModelSerializer):
     responsavel = ReponsavelSerializer()
     codigo_eol_escola = serializers.CharField()
