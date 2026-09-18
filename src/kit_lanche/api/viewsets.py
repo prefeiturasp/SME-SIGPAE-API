@@ -146,7 +146,9 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return serializers_create.SolicitacaoKitLancheAvulsaCreationSerializer
-        return serializers.SolicitacaoKitLancheAvulsaSerializer
+        if self.action in ["list", "minhas_solicitacoes"]:
+            return serializers.SolicitacaoKitLancheAvulsaSerializer
+        return serializers.SolicitacaoKitLancheAvulsaSerializerLeve
 
     @action(
         detail=False,
@@ -749,7 +751,9 @@ class SolicitacaoKitLancheCEIAvulsaViewSet(SolicitacaoKitLancheAvulsaViewSet):
             return (
                 serializers_create_cei.SolicitacaoKitLancheCEIAvulsaCreationSerializer
             )
-        return serializers.SolicitacaoKitLancheCEIAvulsaSerializer
+        if self.action in ["list", "minhas_solicitacoes", "solicitacoes_terceirizadas"]:
+            return serializers.SolicitacaoKitLancheCEIAvulsaSerializer
+        return serializers.SolicitacaoKitLancheCEIAvulsaSerializerLeve
 
     @action(
         detail=False,
