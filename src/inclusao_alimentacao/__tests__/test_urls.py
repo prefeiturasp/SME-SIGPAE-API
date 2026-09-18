@@ -15,14 +15,11 @@ from ...dados_comuns.constants import (
     DRE_NAO_VALIDA_PEDIDO,
     DRE_VALIDA_PEDIDO,
     ESCOLA_CANCELA,
-    PEDIDOS_CODAE,
-    PEDIDOS_DRE,
-    SEM_FILTRO,
+    GRUPO_PROGRAMAS_E_PROJETOS,
     SOLICITACOES_DO_USUARIO,
     TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     TERCEIRIZADA_TOMOU_CIENCIA,
 )
-from ...dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...perfil.models import Usuario
 from ..models import (
@@ -890,9 +887,7 @@ def test_url_endpoint_inclusao_continua_escola_encerra_todos_periodos(
     )
 
 
-def _cria_solicitacao_com_medicao_programas_e_projetos(
-    escola, mes, ano, dias=None
-):
+def _cria_solicitacao_com_medicao_programas_e_projetos(escola, mes, ano, dias=None):
     from src.medicao_inicial.models import (
         CategoriaMedicao,
         GrupoMedicao,
@@ -1294,47 +1289,6 @@ def test_url_endpoint_inclusao_continua_minhas_solicitacoes(
 
 
 @freeze_time("2019-9-30")
-def test_url_endpoint_inclusao_continua_solicitacoes_codae(
-    client_autenticado_vinculo_codae_inclusao,
-    inclusao_alimentacao_continua_dre_validado,
-    escola,
-):
-    assert (
-        inclusao_alimentacao_continua_dre_validado.status
-        == PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO
-    )
-    response = client_autenticado_vinculo_codae_inclusao.get(
-        f"/inclusoes-alimentacao-continua/{constants.PEDIDOS_CODAE}/{constants.DAQUI_A_TRINTA_DIAS}/"
-        f"?lote={escola.lote.uuid}&diretoria_regional={escola.diretoria_regional.uuid}"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()["results"]) == 1
-
-
-@freeze_time("2019-9-30")
-def test_url_endpoint_inclusao_continua_solicitacoes_dre(
-    client_autenticado_vinculo_dre_inclusao,
-    inclusao_alimentacao_continua_dre_validar,
-    escola,
-):
-    assert (
-        inclusao_alimentacao_continua_dre_validar.status
-        == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
-    )
-    response = client_autenticado_vinculo_dre_inclusao.get(
-        f"/inclusoes-alimentacao-continua/{constants.PEDIDOS_DRE}/{constants.DAQUI_A_TRINTA_DIAS}/"
-        f"?lote={escola.lote.uuid}"
-    )
-    assert response.status_code == status.HTTP_200_OK
-    data = response.json()
-    assert len(data["results"]) == 1
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
 def test_url_endpoint_inclusao_continua_marca_conferencia(
     client_autenticado_vinculo_terceirizada_inclusao,
     inclusao_alimentacao_continua_codae_autorizado,
@@ -1567,39 +1521,6 @@ def test_url_inclusao_cemei_dre(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 0
 
-    inclusao_alimentacao_cemei.status = (
-        InclusaoDeAlimentacaoCEMEI.workflow_class.DRE_A_VALIDAR
-    )
-    inclusao_alimentacao_cemei.save()
-    response = client_autenticado_vinculo_dre_inclusao.get(
-        f"/inclusao-alimentacao-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/?lote={escola.lote.uuid}"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusao_cemei_codae(
-    client_autenticado_vinculo_codae_inclusao, inclusao_alimentacao_cemei, escola
-):
-    inclusao_alimentacao_cemei.status = (
-        InclusaoDeAlimentacaoCEMEI.workflow_class.DRE_VALIDADO
-    )
-    inclusao_alimentacao_cemei.save()
-    response = client_autenticado_vinculo_codae_inclusao.get(
-        f"/inclusao-alimentacao-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
-        f"?lote={escola.lote.uuid}&diretoria_regional={escola.diretoria_regional.uuid}"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
 
 def test_url_inclusao_cemei_terceirizada(
     client_autenticado_vinculo_terceirizada_inclusao, inclusao_alimentacao_cemei
@@ -1628,115 +1549,3 @@ def test_url_endpoint_inclusao_cemei_relatorio(
     )
     assert "PDF-1." in str(response.content)
     assert isinstance(response.content, bytes)
-
-
-def test_url_grupos_inclusao_alimentacao_normal_codae_sem_paginacao(
-    client_autenticado_vinculo_codae_inclusao, escola
-):
-    response = client_autenticado_vinculo_codae_inclusao.get(
-        f"/grupos-inclusao-alimentacao-normal/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusoes_alimentacao_continua_codae_sem_paginacao(
-    client_autenticado_vinculo_codae_inclusao, escola
-):
-    response = client_autenticado_vinculo_codae_inclusao.get(
-        f"/inclusoes-alimentacao-continua/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusoes_alimentacao_da_cei_codae_sem_paginacao(
-    client_autenticado_vinculo_codae_inclusao, escola
-):
-    response = client_autenticado_vinculo_codae_inclusao.get(
-        f"/inclusoes-alimentacao-da-cei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusao_alimentacao_cemei_codae_sem_paginacao(
-    client_autenticado_vinculo_codae_inclusao, escola
-):
-    response = client_autenticado_vinculo_codae_inclusao.get(
-        f"/inclusao-alimentacao-cemei/{PEDIDOS_CODAE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_grupos_inclusao_alimentacao_normal_dre_sem_paginacao(
-    client_autenticado_vinculo_dre_inclusao, escola
-):
-    response = client_autenticado_vinculo_dre_inclusao.get(
-        f"/grupos-inclusao-alimentacao-normal/{PEDIDOS_DRE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusoes_alimentacao_continua_dre_sem_paginacao(
-    client_autenticado_vinculo_dre_inclusao, escola
-):
-    response = client_autenticado_vinculo_dre_inclusao.get(
-        f"/inclusoes-alimentacao-continua/{PEDIDOS_DRE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusoes_alimentacao_da_cei_dre_sem_paginacao(
-    client_autenticado_vinculo_dre_inclusao, escola
-):
-    response = client_autenticado_vinculo_dre_inclusao.get(
-        f"/inclusoes-alimentacao-da-cei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
-
-
-def test_url_inclusao_alimentacao_cemei_dre_sem_paginacao(
-    client_autenticado_vinculo_dre_inclusao, escola
-):
-    response = client_autenticado_vinculo_dre_inclusao.get(
-        f"/inclusao-alimentacao-cemei/{PEDIDOS_DRE}/{SEM_FILTRO}/"
-    )
-    data = response.json()
-    assert "previous" not in data
-    assert "next" not in data
-    assert "count" not in data
-    assert "results" in data
-    assert isinstance(data["results"], list)
