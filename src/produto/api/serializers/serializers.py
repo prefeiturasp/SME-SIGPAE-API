@@ -33,6 +33,7 @@ from ....terceirizada.api.serializers.serializers import (
 from ...models import (
     AnaliseSensorial,
     AnexoReclamacaoDeProduto,
+    DadosHistoricosProduto,
     EmbalagemProduto,
     EspecificacaoProduto,
     Fabricante,
@@ -141,9 +142,47 @@ class InformacoesNutricionaisDoProdutoSerializer(serializers.ModelSerializer):
         exclude = ("id", "produto")
 
 
-class LogHistoricoReclamacaoProdutoSerializer(
-    LogSolicitacoesUsuarioComAnexosSerializer
-):
+class DadosHistoricosProdutoSerializer(serializers.ModelSerializer):
+    criado_em = serializers.DateTimeField(source="criado_em_produto")
+    produto = serializers.CharField(source="nome_produto")
+
+    class Meta:
+        model = DadosHistoricosProduto
+        fields = (
+            "produto_uuid",
+            "empresa",
+            "criado_em",
+            "produto",
+            "marca",
+            "fabricante",
+            "eh_para_alunos_com_dieta",
+            "componentes",
+            "perfil_responsavel",
+            "nome_instituicao",
+        )
+
+
+class LogProdutoComAnexosSerializer(LogSolicitacoesUsuarioComAnexosSerializer):
+    dados_produto = DadosHistoricosProdutoSerializer(read_only=True, allow_null=True)
+
+    class Meta(LogSolicitacoesUsuarioComAnexosSerializer.Meta):
+        fields = LogSolicitacoesUsuarioComAnexosSerializer.Meta.fields + (
+            "uuid",
+            "dados_produto",
+        )
+
+
+class LogProdutoComVinculoSerializer(LogSolicitacoesUsuarioComVinculoSerializer):
+    dados_produto = DadosHistoricosProdutoSerializer(read_only=True, allow_null=True)
+
+    class Meta(LogSolicitacoesUsuarioComVinculoSerializer.Meta):
+        fields = LogSolicitacoesUsuarioComVinculoSerializer.Meta.fields + (
+            "uuid",
+            "dados_produto",
+        )
+
+
+class LogHistoricoReclamacaoProdutoSerializer(LogProdutoComAnexosSerializer):
     arquivos_disponiveis = serializers.SerializerMethodField()
 
     def get_arquivos_disponiveis(self, obj):
@@ -153,9 +192,8 @@ class LogHistoricoReclamacaoProdutoSerializer(
         )
         return ServicoHistoricoReclamacaoProduto.obter_resumo_arquivos(anexos)
 
-    class Meta(LogSolicitacoesUsuarioComAnexosSerializer.Meta):
-        fields = LogSolicitacoesUsuarioComAnexosSerializer.Meta.fields + (
-            "uuid",
+    class Meta(LogProdutoComAnexosSerializer.Meta):
+        fields = LogProdutoComAnexosSerializer.Meta.fields + (
             "status_evento",
             "arquivos_disponiveis",
         )
@@ -192,6 +230,7 @@ class ReclamacaoDeProdutoSerializer(serializers.ModelSerializer):
             )
         )
         if acao_inicial:
+            acao_inicial["dados_produto"] = None
             acao_inicial["anexos"] = AnexoReclamacaoDeProdutoSerializer(
                 acao_inicial["anexos"],
                 context=self.context,
@@ -248,7 +287,7 @@ class ReclamacaoDeProdutoSimplesSerializer(serializers.ModelSerializer):
 class HomologacaoProdutoSimplesSerializer(serializers.ModelSerializer):
     reclamacoes = serializers.SerializerMethodField()
     rastro_terceirizada = TerceirizadaSimplesSerializer()
-    logs = LogSolicitacoesUsuarioComVinculoSerializer(many=True)
+    logs = LogProdutoComVinculoSerializer(many=True)
 
     def get_reclamacoes(self, obj):
         return ReclamacaoDeProdutoSerializer(
@@ -279,8 +318,8 @@ class AnaliseSensorialSerializer(serializers.ModelSerializer):
 class HomologacaoProdutoComUltimoLogSerializer(serializers.ModelSerializer):
     reclamacoes = serializers.SerializerMethodField()
     rastro_terceirizada = TerceirizadaSimplesSerializer()
-    logs = LogSolicitacoesUsuarioComVinculoSerializer(many=True)
-    ultimo_log = LogSolicitacoesUsuarioComVinculoSerializer()
+    logs = LogProdutoComVinculoSerializer(many=True)
+    ultimo_log = LogProdutoComVinculoSerializer()
     status_titulo = serializers.CharField(source="status.state.title")
     data_cadastro = serializers.DateField()
     ultima_analise = AnaliseSensorialSerializer()
@@ -492,7 +531,7 @@ class ProtocoloSimplesSerializer(serializers.ModelSerializer):
 
 class HomologacaoProdutoSerializer(serializers.ModelSerializer):
     produto = ProdutoSerializer()
-    logs = LogSolicitacoesUsuarioComAnexosSerializer(many=True)
+    logs = LogProdutoComAnexosSerializer(many=True)
     rastro_terceirizada = TerceirizadaSimplesSerializer()
     ultima_analise = AnaliseSensorialSerializer()
     esta_homologado = serializers.SerializerMethodField()
@@ -644,7 +683,7 @@ class HomologacaoProdutoPainelGerencialSerializer(HomologacaoProdutoBase):
 
 class HomologacaoProdutoComLogsDetalhadosSerializer(serializers.ModelSerializer):
     produto = ProdutoSemAnexoSerializer()
-    logs = LogSolicitacoesUsuarioComAnexosSerializer(many=True)
+    logs = LogProdutoComAnexosSerializer(many=True)
     rastro_terceirizada = TerceirizadaSimplesSerializer()
 
     class Meta:
@@ -1075,8 +1114,8 @@ class ProdutoHomologadosPorParametrosSerializer(serializers.ModelSerializer):
 
 
 class HomologacaoProdutoSuspensoSerializer(serializers.ModelSerializer):
-    ultimo_log = LogSolicitacoesUsuarioComAnexosSerializer()
-    logs = LogSolicitacoesUsuarioComAnexosSerializer(many=True)
+    ultimo_log = LogProdutoComAnexosSerializer()
+    logs = LogProdutoComAnexosSerializer(many=True)
 
     class Meta:
         model = HomologacaoProduto

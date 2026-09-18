@@ -286,6 +286,31 @@ class Produto(
         verbose_name_plural = StringsVerboseNameModels.PRODUTOS.value
 
 
+class DadosHistoricosProduto(models.Model):
+    log = models.OneToOneField(
+        LogSolicitacoesUsuario,
+        on_delete=models.CASCADE,
+        related_name="dados_produto",
+    )
+    produto_uuid = models.UUIDField()
+    empresa = models.CharField(max_length=255, blank=True)
+    criado_em_produto = models.DateTimeField(null=True, blank=True)
+    nome_produto = models.CharField(max_length=255)
+    marca = models.CharField(max_length=255, blank=True)
+    fabricante = models.CharField(max_length=255, blank=True)
+    eh_para_alunos_com_dieta = models.BooleanField(default=False)
+    componentes = models.TextField(blank=True)
+    perfil_responsavel = models.CharField(max_length=100, blank=True)
+    nome_instituicao = models.CharField(max_length=255, blank=True)
+
+    def __str__(self):
+        return f"Dados históricos de {self.nome_produto} - {self.log}"
+
+    class Meta:
+        verbose_name = "Dados históricos do produto"
+        verbose_name_plural = "Dados históricos dos produtos"
+
+
 class ProdutoEdital(TemChaveExterna, CriadoEm):
     COMUM = "Comum"
     DIETA_ESPECIAL = "Dieta especial"
@@ -646,15 +671,36 @@ class HomologacaoProduto(
         produto_copia.delete()
         return original
 
-    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
-        justificativa = kwargs.get("justificativa", "")
-        return LogSolicitacoesUsuario.objects.create(
-            descricao=str(self),
+    @transaction.atomic
+    def _criar_log_com_dados_historicos(
+        self,
+        status_evento: int,
+        usuario: Usuario,
+        justificativa: str = "",
+        descricao: str = "",
+    ) -> LogSolicitacoesUsuario:
+        from src.produto.services.dados_historicos_produto import (
+            ServicoDadosHistoricosProduto,
+        )
+
+        log = LogSolicitacoesUsuario.objects.create(
+            descricao=descricao,
             status_evento=status_evento,
             solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
             usuario=usuario,
             uuid_original=self.uuid,
             justificativa=justificativa,
+        )
+        ServicoDadosHistoricosProduto.registrar(log, self)
+        return log
+
+    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        justificativa = kwargs.get("justificativa", "")
+        return self._criar_log_com_dados_historicos(
+            status_evento=status_evento,
+            usuario=usuario,
+            justificativa=justificativa,
+            descricao=str(self),
         )
 
     def cria_copia_produto(self):
@@ -751,6 +797,10 @@ class HomologacaoProduto(
 
     @staticmethod
     def _criar_log_copia(log_original, reclamacao_copia):
+        from src.produto.services.dados_historicos_produto import (
+            ServicoDadosHistoricosProduto,
+        )
+
         log_copia = LogSolicitacoesUsuario()
         campos_log = [
             "descricao",
@@ -772,6 +822,7 @@ class HomologacaoProduto(
         LogSolicitacoesUsuario.objects.filter(id=log_copia.id).update(
             criado_em=log_original.criado_em
         )
+        ServicoDadosHistoricosProduto.copiar(log_original, log_copia)
         return log_copia
 
     @staticmethod
@@ -810,6 +861,10 @@ class HomologacaoProduto(
                 )
 
     def cria_copia_homologacao_produto(self, produto_copia, terceirizada):
+        from src.produto.services.dados_historicos_produto import (
+            ServicoDadosHistoricosProduto,
+        )
+
         hom_copia = deepcopy(self)
         hom_copia.id = None
         hom_copia.status = None
@@ -830,6 +885,7 @@ class HomologacaoProduto(
             LogSolicitacoesUsuario.objects.filter(id=log_copia.id).update(
                 criado_em=log.criado_em
             )
+            ServicoDadosHistoricosProduto.copiar(log, log_copia)
 
         for reclamacao in self.reclamacoes.all():
             self.cria_copia_reclamacao(reclamacao, hom_copia)
@@ -847,12 +903,10 @@ class HomologacaoProduto(
         numeros_editais_para_justificativa = ", ".join(list_editais_suspensos)
         justificativa += "<br><br><p>Editais suspensos:</p>"
         justificativa += f"<p>{numeros_editais_para_justificativa}</p>"
-        LogSolicitacoesUsuario.objects.create(
-            uuid_original=self.uuid,
-            justificativa=justificativa,
+        self._criar_log_com_dados_historicos(
             status_evento=LogSolicitacoesUsuario.SUSPENSO_EM_ALGUNS_EDITAIS,
-            solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
             usuario=usuario,
+            justificativa=justificativa,
         )
 
     def cria_log_editais_vinculados(
@@ -861,12 +915,10 @@ class HomologacaoProduto(
         numeros_editais_para_justificativa = ", ".join(list_editais_vinculados)
         justificativa = "<p>Editais vinculados:</p>"
         justificativa += f"<p>{numeros_editais_para_justificativa}</p>"
-        LogSolicitacoesUsuario.objects.create(
-            uuid_original=self.uuid,
-            justificativa=justificativa,
+        self._criar_log_com_dados_historicos(
             status_evento=LogSolicitacoesUsuario.ATIVO_EM_ALGUNS_EDITAIS,
-            solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
             usuario=usuario,
+            justificativa=justificativa,
         )
 
     def suspende_editais(
@@ -975,7 +1027,12 @@ class ReclamacaoDeProduto(
         auto_now=False, auto_now_add=False, blank=True, null=True
     )
 
+    @transaction.atomic
     def salvar_log_transicao(self, status_evento, **kwargs):
+        from src.produto.services.dados_historicos_produto import (
+            ServicoDadosHistoricosProduto,
+        )
+
         justificativa = kwargs.get("justificativa", "")
         user = kwargs["user"]
         if user:
@@ -987,6 +1044,11 @@ class ReclamacaoDeProduto(
                 uuid_original=self.uuid,
                 justificativa=justificativa,
             )
+            if self.homologacao_produto:
+                ServicoDadosHistoricosProduto.registrar(
+                    log_transicao,
+                    self.homologacao_produto,
+                )
             for anexo in kwargs.get("anexos", []):
                 arquivo = convert_base64_to_contentfile(anexo.get("base64"))
                 AnexoLogSolicitacoesUsuario.objects.create(
