@@ -20,6 +20,7 @@ from src.dados_comuns.constants import (
     MENSAGEM_PERMISSAO_NEGADA,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
+    PayloadVariaveis,
 )
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
@@ -399,7 +400,9 @@ def test_url_endpoint_solicitacao_medicao_inicial(
     assert response.json()["logs"][0]["usuario"]["email"] != usuario_admin.email
     data_update = {
         "escola": str(escola.uuid),
-        "tipo_contagem_alimentacoes[]": [tipo_contagem_alimentacao.uuid],
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: [
+            tipo_contagem_alimentacao.uuid
+        ],
         "com_ocorrencias": True,
     }
     response = client_autenticado_da_escola.patch(
@@ -1622,7 +1625,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_teste_salvar_logs.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1739,7 +1742,7 @@ def test_finaliza_medicao_inicial_salva_logs_cei(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_teste_salvar_logs_cei.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1807,7 +1810,7 @@ def test_finaliza_medicao_inicial_salva_logs_ceu_gestao(
         "escola": str(
             solicitacao_medicao_inicial_varios_valores_ceu_gestao.escola.uuid
         ),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1837,7 +1840,7 @@ def test_finaliza_medicao_inicial_salva_logs_emebs(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_varios_valores_emebs.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -2223,7 +2226,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
 
     url_params = {
         "mes_ano": f"{mes}_{ano}",
-        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+        PayloadVariaveis.ESCOLA_UUID.value: [str(escola.uuid), str(escola2.uuid)],
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
@@ -2442,7 +2445,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_calcula_apenas_pagina_solicit
 
     url_params = {
         "mes_ano": f"{mes}_{ano}",
-        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+        PayloadVariaveis.ESCOLA_UUID.value: [str(escola.uuid), str(escola2.uuid)],
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
@@ -3268,7 +3271,9 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_nao_existe(
             {"nome": "Responsável 1", "rf": "123456"},
             {"nome": "Responsável 2", "rf": "789012"},
         ],
-        "tipos_contagem_alimentacao[]": str(tipo_contagem_alimentacao.uuid),
+        PayloadVariaveis.TIPOS_CONTAGEM_ALIMENTACAO.value: str(
+            tipo_contagem_alimentacao.uuid
+        ),
     }
     response = client_autenticado_da_escola.patch(
         f"/medicao-inicial/solicitacao-medicao-inicial/5555/informacoes-basicas/",

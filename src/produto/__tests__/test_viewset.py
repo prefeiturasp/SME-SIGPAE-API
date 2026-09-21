@@ -2,6 +2,7 @@ import pytest
 from django.db.models.query import RawQuerySet
 from rest_framework import status
 
+from src.dados_comuns.constants import PayloadVariaveis
 from src.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
     ReclamacaoProdutoWorkflow,
@@ -227,7 +228,7 @@ def test_obter_produtos_ordenados_por_edital_e_reclamacoes_filtro_edital(
     mock_view_de_produtos, hom_produto_com_editais
 ):
     mock_request, viewset = mock_view_de_produtos
-    editais = mock_request.query_params.getlist("editais[]")
+    editais = mock_request.query_params.getlist(PayloadVariaveis.EDITAIS.value)
     filtro_reclamacao = {
         "escola__lote__contratos_do_lote__edital__numero__in": editais,
         "escola__lote__contratos_do_lote__encerrado": False,

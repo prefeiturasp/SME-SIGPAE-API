@@ -2125,7 +2125,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf(
     response = client.get(
         "/produtos/relatorio-reclamacao/",
         {
-            "editais[]": [
+            constants.PayloadVariaveis.EDITAIS.value: [
                 "Edital de Pregão nº 78/sme/2022",
                 "Edital de Pregão nº 41/sme/2017",
                 "Edital de Pregão nº 78/sme/2016",
@@ -2143,7 +2143,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf_edital_vazio(
     client = client_autenticado_vinculo_terceirizada[0]
     response = client.get(
         "/produtos/relatorio-reclamacao/",
-        {"editais[]": []},
+        {constants.PayloadVariaveis.EDITAIS.value: []},
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2172,7 +2172,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_excel(
     response = client.get(
         "/produtos/relatorio-reclamacao-excel/",
         {
-            "editais[]": [
+            constants.PayloadVariaveis.EDITAIS.value: [
                 "Edital de Pregão nº 78/sme/2022",
                 "Edital de Pregão nº 41/sme/2017",
                 "Edital de Pregão nº 78/sme/2016",
@@ -2190,7 +2190,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_excel_edital_vazio(
     client = client_autenticado_vinculo_terceirizada[0]
     response = client.get(
         "/produtos/relatorio-reclamacao-excel/",
-        {"editais[]": []},
+        {constants.PayloadVariaveis.EDITAIS.value: []},
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST

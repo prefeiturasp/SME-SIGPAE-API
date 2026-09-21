@@ -1402,22 +1402,22 @@ def filtro_historico_relatorio_dietas(
 
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "unidades_educacionais_selecionadas[]",
+        constants.PayloadVariaveis.UNIDADES_EDUCACIONAIS_SELECIONADAS.value,
         [
             str(escola.uuid),
             str(escola_emebs.uuid),
         ],
     )
     query_params.setlist(
-        "tipos_unidades_selecionadas[]",
+        constants.PayloadVariaveis.TIPOS_UNIDADES_SELECIONADAS.value,
         [str(escola_emebs.tipo_unidade.uuid)],
     )
     query_params.setlist(
-        "periodos_escolares_selecionadas[]",
+        constants.PayloadVariaveis.PERIODOS_ESCOLARES_SELECIONADAS.value,
         [str(periodo_escolar_integral.uuid)],
     )
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        constants.PayloadVariaveis.CLASSIFICACOES_SELECIONADAS.value,
         [classificacao.id for classificacao in classificacoes_dietas],
     )
     query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)

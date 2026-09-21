@@ -3395,7 +3395,7 @@ def mock_query_params_excel_emef(
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_emef.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_emef.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid],
     }
 
@@ -3427,7 +3427,7 @@ def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_emei.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_emei.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_emei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_emei.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emei.escola.lote.uuid],
     }
 
@@ -3742,7 +3742,7 @@ def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_cei.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_cei.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_cei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_cei.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_cei.escola.lote.uuid],
     }
 
@@ -4073,7 +4073,7 @@ def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei)
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_cemei.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_cemei.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid],
     }
 
@@ -4401,7 +4401,7 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_emebs.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_emebs.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid],
     }
 
@@ -4625,9 +4625,9 @@ def mock_exportacao_relatorio_adesao(diretoria_regional, escola):
     query_params = {
         "mes_ano": "03_2025",
         "diretoria_regional": str(diretoria_regional.uuid),
-        "lotes[]": str(lotes[0].uuid),
-        "lotes[]": str(lotes[1].uuid),
-        "lotes[]": str(lotes[2].uuid),
+        constants.PayloadVariaveis.LOTES.value: str(lotes[0].uuid),
+        constants.PayloadVariaveis.LOTES.value: str(lotes[1].uuid),
+        constants.PayloadVariaveis.LOTES.value: str(lotes[2].uuid),
         "escola": f"{escola.codigo_eol} - {escola.nome} - 3567-2",
         "periodo_lancamento_de": "05/03/2025",
         "periodo_lancamento_ate": "15/03/2025",
@@ -4859,7 +4859,7 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_escola_cieja.mes,
         "ano": solicitacao_relatorio_consolidado_escola_cieja.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid],
     }
 
@@ -7596,7 +7596,7 @@ def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_recreio_emei.mes,
         "ano": solicitacao_recreio_emei.ano,
-        "lotes[]": solicitacao_recreio_emei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_emei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emei.escola.lote.uuid],
     }
 
@@ -7707,7 +7707,7 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_recreio_cei.mes,
         "ano": solicitacao_recreio_cei.ano,
-        "lotes[]": solicitacao_recreio_cei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_cei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_cei.escola.lote.uuid],
     }
 
@@ -7763,7 +7763,7 @@ def mock_query_params_excel_recreio_emef(solicitacao_recreio_emef, grupo_escolar
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_recreio_emef.mes,
         "ano": solicitacao_recreio_emef.ano,
-        "lotes[]": solicitacao_recreio_emef.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_emef.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emef.escola.lote.uuid],
     }
 
@@ -7909,7 +7909,7 @@ def mock_query_params_excel_recreio_cemei(
         "grupo_escolar": grupo_unidade_escolar_cemei,
         "mes": solicitacao_recreio_cemei.mes,
         "ano": solicitacao_recreio_cemei.ano,
-        "lotes[]": solicitacao_recreio_cemei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_cemei.escola.lote.uuid,
         "lotes": [
             solicitacao_recreio_cemei.escola.lote.uuid,
         ],

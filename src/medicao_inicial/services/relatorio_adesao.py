@@ -14,6 +14,7 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    PayloadVariaveis,
 )
 from src.escola.models import Escola, GrupoUnidadeEscolar, TipoUnidadeEscolar
 from src.medicao_inicial.models import Medicao, ValorMedicao
@@ -284,20 +285,20 @@ def _cria_filtros(query_params: QueryDict, ignorar_escolas: bool = False) -> dic
     filtros = _aplica_filtro_lista(
         query_params,
         filtros,
-        "lotes[]",
+        PayloadVariaveis.LOTES.value,
         "solicitacao_medicao_inicial__escola__lote__uuid__in",
     )
     filtros = _aplica_filtro_lista(
         query_params,
         filtros,
-        "tipos_unidades[]",
+        PayloadVariaveis.TIPOS_UNIDADES.value,
         "solicitacao_medicao_inicial__escola__tipo_unidade__uuid__in",
     )
     if not ignorar_escolas:
         filtros = _aplica_filtro_lista(
             query_params,
             filtros,
-            "escola__uuid[]",
+            PayloadVariaveis.ESCOLA_UUID.value,
             "solicitacao_medicao_inicial__escola__uuid__in",
         )
 
@@ -307,7 +308,10 @@ def _cria_filtros(query_params: QueryDict, ignorar_escolas: bool = False) -> dic
             filtros["solicitacao_medicao_inicial__escola__codigo_eol"] = escola
 
     filtros = _aplica_filtro_lista(
-        query_params, filtros, "periodos_escolares[]", "periodo_escolar__uuid__in"
+        query_params,
+        filtros,
+        PayloadVariaveis.PERIODOS_ESCOLARES.value,
+        "periodo_escolar__uuid__in",
     )
 
     return filtros
@@ -336,7 +340,7 @@ def _parametros_consulta(
         dia_inicial = periodo_lancamento_de.split("/")[0]
         dia_final = periodo_lancamento_ate.split("/")[0]
 
-    tipos_alimentacao = query_params.getlist("tipos_alimentacao[]")
+    tipos_alimentacao = query_params.getlist(PayloadVariaveis.TIPOS_ALIMENTACAO.value)
 
     return mes, ano, dia_inicial, dia_final, tipos_alimentacao
 
@@ -502,7 +506,7 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
         list[dict]: lista de dicionários no formato
         ``{"escola": {"nome": str, "codigo_eol": str}, "resultados": dict}``
     """
-    escolas_uuid = query_params.getlist("escola__uuid[]")
+    escolas_uuid = query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value)
     return [
         obtem_resultados_para_escola(escola, query_params)
         for escola in obtem_escolas_ordenadas(escolas_uuid)

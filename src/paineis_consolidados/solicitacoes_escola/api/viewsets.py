@@ -15,6 +15,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.utils import ordem_periodos
+from src.dados_comuns.constants import PayloadVariaveis
 from src.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial
 from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.escola.models import Escola, PeriodoEscolar
@@ -774,7 +775,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
     @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_AUTORIZADAS}")
     def inclusoes_autorizadas(self, request):
         query_set, mes, ano, escola_uuid = self.filtra_inclusoes(request)
-        periodos_escolares = request.query_params.getlist("periodos_escolares[]")
+        periodos_escolares = request.query_params.getlist(
+            PayloadVariaveis.PERIODOS_ESCOLARES.value
+        )
         cemei_cei = request.query_params.get("cemei_cei", False) == "true"
         cemei_emei = request.query_params.get("cemei_emei", False) == "true"
 

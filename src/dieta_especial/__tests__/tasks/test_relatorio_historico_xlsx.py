@@ -4,7 +4,7 @@ import pytest
 from freezegun.api import freeze_time
 from openpyxl import load_workbook
 
-from src.dados_comuns.constants import FaixasEtarias
+from src.dados_comuns.constants import FaixasEtarias, PayloadVariaveis
 from src.dados_comuns.models import CentralDeDownload
 from src.dieta_especial.tasks import (
     gera_xlsx_relatorio_historico_dietas_especiais_async,
@@ -80,7 +80,9 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync(BaseSetupHistoricoDieta
             {
                 "lote": str(self.lote.uuid),
                 "data": "09/05/2025",
-                "periodos_escolares_selecionadas[]": str(self.periodo_integral.uuid),
+                PayloadVariaveis.PERIODOS_ESCOLARES_SELECIONADAS.value: str(
+                    self.periodo_integral.uuid
+                ),
             }
         )
         gera_xlsx_relatorio_historico_dietas_especiais_async(user, nome_arquivo, data)
