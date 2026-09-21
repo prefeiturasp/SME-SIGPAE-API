@@ -20,6 +20,7 @@ from src.dados_comuns.constants import (
     FaixasEtarias,
     NomesParaTesteDiretoriaRegional,
     StatusProcessamentoArquivo,
+    StringsDatasISO,
 )
 from src.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
@@ -1447,7 +1448,7 @@ def grupos_da_dre(tipo_unidade_escolar):
 @pytest.fixture
 def dias_letivos_mock():
     return [
-        {"data": "2025-01-01T00:00:00", "ehLetivo": True},
+        {"data": StringsDatasISO.DATA_PADRAO_2025_01_01.value, "ehLetivo": True},
         {"data": "2025-01-02T00:00:00", "ehLetivo": False},
         {"data": "2025-01-03T00:00:00", "ehLetivo": True},
         {"data": "2025-01-04T00:00:00", "ehLetivo": True},
