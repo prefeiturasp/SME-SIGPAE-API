@@ -612,6 +612,17 @@ class NomesParaTesteDiretoriaRegional(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsValidationErrors(Enum):
+    CODIGO_EOL_ESCOLA_OBRIGATORIO = "`codigo_eol_escola` como query_param é obrigatório"
+    PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
+    ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
+    DIETA_ESPECIAL_PENDENTE = "Aluno já possui Solicitação de Dieta Especial pendente"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class PayloadVariaveis(Enum):
     LOTES = "lotes[]"
     EDITAIS = "editais[]"
@@ -778,7 +789,6 @@ TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA = "fluxo_codae_autoriza_ou_nega.html"
 MODULO_GESTAO_PRODUTO = "Gestão de Produto"
 MODULO_GESTAO_ALIMENTACAO = "Gestão de Alimentação"
 MODULO_DIETA_ESPECIAL = "Dieta Especial"
-MENSAGEM_PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
 CRIADO_EM = "Criado em"
 MODEL_USUARIO = "perfil.Usuario"
 STATUS_ENVIADO_PARA_ANALISE = "Enviado para Análise"
@@ -787,10 +797,6 @@ RELATED_NAME_RASTRO_TERCEIRIZADA = "%(app_label)s_%(class)s_rastro_terceirizada"
 RELATED_NAME_RASTRO_LOTE = "%(app_label)s_%(class)s_rastro_lote"
 RELATED_NAME_RASTRO_DRE = "%(app_label)s_%(class)s_rastro_dre"
 RELATED_NAME_RASTRO_ESCOLA = "%(app_label)s_%(class)s_rastro_escola"
-MENSAGEM_ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
-MENSAGEM_DIETA_ESPECIAL_PENDENTE = (
-    "Aluno já possui Solicitação de Dieta Especial pendente"
-)
 MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO = (
     "Solicitação de geração de arquivo recebida com sucesso."
 )

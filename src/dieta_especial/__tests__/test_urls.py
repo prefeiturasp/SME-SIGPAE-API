@@ -137,7 +137,9 @@ def test_url_criar_dieta(
         "/solicitacoes-dieta-especial/", content_type="application/json", data=payload
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == [constants.MENSAGEM_DIETA_ESPECIAL_PENDENTE]
+    assert response.json() == [
+        constants.StringsValidationErrors.DIETA_ESPECIAL_PENDENTE.value
+    ]
 
 
 def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
@@ -1191,7 +1193,9 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_relatorio_recreio_nas_ferias(
@@ -1252,7 +1256,9 @@ def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_codae_atualiza_protocolo(
