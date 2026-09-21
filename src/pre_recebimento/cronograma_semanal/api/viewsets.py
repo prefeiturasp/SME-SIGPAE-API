@@ -215,14 +215,6 @@ class CronogramaSemanalViewSet(
         """Solicita a geração assíncrona do relatório em XLSX.
 
         Endpoint: ``GET /cronogramas-semanais/gerar-relatorio-xlsx-async/``
-
-        Recebe os mesmos filtros da tela do relatório e responde de
-        imediato; o arquivo fica disponível na Central de Downloads quando
-        a task termina.
-
-        Só os ids atravessam a fila. O mês de entrega vai junto porque é o
-        único filtro que ainda atua na montagem das linhas — ele decide
-        quais programações de cada cronograma viram linha da planilha.
         """
         ids_cronogramas = list(
             self.filter_queryset(self.get_queryset())

@@ -103,7 +103,7 @@ def test_filtro_de_mes_recorta_as_linhas(
     cronograma_semanal_completo_para_excel, programacao_de_julho
 ):
     """Com três programações (duas em junho, uma em julho), filtrar julho
-    deixa só a linha de julho."""
+    para deixar só a linha de julho."""
     arquivo = gera_relatorio_cronogramas_semanais_xlsx(
         [cronograma_semanal_completo_para_excel.id],
         {"mes_inicial": "07/2026", "mes_final": "07/2026"},
