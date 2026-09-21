@@ -2679,6 +2679,8 @@ class Codae(
         )
 
     def delete(self, *args, **kwargs):
+        # CODAE é uma entidade única do sistema: o registro não pode ser
+        # excluído, por isso a exclusão é propositalmente ignorada.
         pass
 
     def __str__(self):
