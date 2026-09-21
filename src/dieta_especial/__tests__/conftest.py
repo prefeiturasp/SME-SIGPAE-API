@@ -1592,7 +1592,10 @@ def escolas_tipo_cei():
                     "fundamental": {},
                     "periodos": {
                         "INTEGRAL": [
-                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                            {
+                                "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                                "autorizadas": 1,
+                            }
                         ]
                     },
                     "por_idade": {},
@@ -1647,7 +1650,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
                     "periodos": {},
                     "por_idade": {
                         "INTEGRAL": [
-                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                            {
+                                "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                                "autorizadas": 1,
+                            }
                         ]
                     },
                     "turma_infantil": {},
@@ -1909,19 +1915,43 @@ def unidade_educacional():
             {
                 "periodo": "TARDE",
                 "faixa_etaria": [
-                    {"faixa": "01 a 03 meses", "autorizadas": 5},
-                    {"faixa": "07 a 11 meses", "autorizadas": 2},
-                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1},
-                    {"faixa": "04 anos a 06 anos", "autorizadas": 2},
+                    {
+                        "faixa": constants.FaixasEtarias.UM_A_TRES_MESES.value,
+                        "autorizadas": 5,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                        "autorizadas": 1,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
+                        "autorizadas": 2,
+                    },
                 ],
             },
             {
                 "periodo": "MANHA",
                 "faixa_etaria": [
-                    {"faixa": "01 a 03 meses", "autorizadas": 3},
-                    {"faixa": "07 a 11 meses", "autorizadas": 2},
-                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 2},
-                    {"faixa": "04 anos a 06 anos", "autorizadas": 3},
+                    {
+                        "faixa": constants.FaixasEtarias.UM_A_TRES_MESES.value,
+                        "autorizadas": 3,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
+                        "autorizadas": 3,
+                    },
                 ],
             },
         ],

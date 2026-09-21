@@ -573,6 +573,28 @@ ORDEM_HEADERS_RECREIO_CEMEI = {
 }
 
 
+class FaixasEtarias(Enum):
+    ZERO_A_UM_MES = "0 a 1 mes"
+    UM_A_TRES_MESES = "01 a 03 meses"
+    QUATRO_A_CINCO_MESES = "04 a 05 meses"
+    SEIS_MESES = "06 meses"
+    SEIS_A_SETE_MESES = "06 a 07 meses"
+    SETE_A_ONZE_MESES = "07 a 11 meses"
+    OITO_A_ONZE_MESES = "08 a 11 meses"
+    UM_ANO_A_UM_ANO_E_ONZE_MESES = "01 ano a 01 ano e 11 meses"
+    UM_ANO_A_TRES_ANOS_E_ONZE_MESES = "01 ano a 03 anos e 11 meses"
+    DOIS_ANOS_A_TRES_ANOS_E_ONZE_MESES = "02 anos a 03 anos e 11 meses"
+    QUATRO_ANOS_A_SEIS_ANOS = "04 anos a 06 anos"
+    ZERO_MESES_A_CINCO_MESES = "0 meses a 05 meses"
+    ZERO_MESES_A_ONZE_MESES = "0 meses a 11 meses"
+    UM_A_NOVE_MESES = "01 a 09 meses"
+    UM_A_DOIS_MESES = "01 a 02 meses"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StatusProcessamentoArquivo(Enum):
     PENDENTE = "PENDENTE"
     SUCESSO = "SUCESSO"
