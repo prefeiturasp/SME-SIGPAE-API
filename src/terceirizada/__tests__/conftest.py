@@ -9,6 +9,7 @@ from rest_framework.test import APIClient
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
     MODULO_DIETA_ESPECIAL,
+    NomesParaTesteDiretoriaRegional,
 )
 
 from ...perfil.models import Perfil, Usuario
@@ -399,7 +400,8 @@ def tercerizada_com_acesso_medicao():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     baker.make(
         "Escola",
