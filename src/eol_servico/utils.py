@@ -316,7 +316,7 @@ class EOLServicoSGP:
             raise EOLException(str(err))
 
     @classmethod
-    def get_alunos_ano_seguinte(self, codigo_eol):
+    def get_alunos_ano_seguinte(cls, codigo_eol):
         ano_seguinte = datetime.today().year + 1
         return EOLServicoSGP.get_alunos_por_escola_por_ano_letivo(
             codigo_eol, ano_seguinte
