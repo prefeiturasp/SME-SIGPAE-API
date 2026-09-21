@@ -162,6 +162,7 @@ class DadosHistoricosProdutoSerializer(serializers.ModelSerializer):
             "nome_instituicao",
         )
 
+
 class ListaLogsProdutoSerializer(serializers.ListSerializer):
     def to_representation(self, data):
         if isinstance(data, QuerySet):
