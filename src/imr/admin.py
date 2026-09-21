@@ -4,6 +4,7 @@ from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
 from src.dados_comuns.behaviors import PerfilDiretorSupervisao
+from src.dados_comuns.constants import MENSAGEM_ESCOLHA_UMA_PLANILHA
 from src.dados_comuns.utils import custom_titled_filter
 from src.imr.api.services import (
     exportar_planilha_importacao_tipos_ocorrencia,
@@ -120,7 +121,7 @@ class ImportacaoPlanilhaTipoPenalidadeAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -215,7 +216,7 @@ class ImportacaoPlanilhaTipoOcorrenciaAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
