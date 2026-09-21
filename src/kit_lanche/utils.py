@@ -133,7 +133,7 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
     solicitacoes = list(solicitacoes)
     escolas_ids = {s.escola_id for s in solicitacoes}
     if not escolas_ids:
-        return solicitacoes
+        return
     eh_cei = model is SolicitacaoKitLancheCEIAvulsa
     select = SELECT_RELATED_SIMILAR_PASSEIO if eh_cei else ("solicitacao_kit_lanche",)
     prefetch = [_PREFETCH_KITS]
@@ -162,7 +162,6 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
         solicitacao._prefetched_solicitacoes_similares = [
             c for c in por_chave.get(chave, []) if c.uuid != solicitacao.uuid
         ]
-    return solicitacoes
 
 
 def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
@@ -170,7 +169,7 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
     solicitacoes = list(solicitacoes)
     escolas_ids = {s.escola_id for s in solicitacoes}
     if not escolas_ids:
-        return solicitacoes
+        return
     pool = (
         SolicitacaoKitLancheCEMEI.objects.filter(escola_id__in=escolas_ids)
         .exclude(status=SolicitacaoKitLancheCEMEI.workflow_class.RASCUNHO)
@@ -206,4 +205,3 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
             )
             if candidato.uuid != solicitacao.uuid
         ]
-    return solicitacoes
