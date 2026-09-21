@@ -10,7 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
-from src.dados_comuns.constants import FaixasEtarias
+from src.dados_comuns.constants import FaixasEtarias, StringsDatasISO
 from src.escola.models import (
     AlunoPeriodoParcial,
     AlunosMatriculadosPeriodoEscola,
@@ -364,7 +364,10 @@ def test_calendario_sgp(mock_escolas):
         with patch.object(
             NovoSGPServico,
             "dias_letivos",
-            return_value={"data": "2025-01-01T00:00:00", "ehLetivo": True},
+            return_value={
+                "data": StringsDatasISO.DATA_PADRAO_2025_01_01.value,
+                "ehLetivo": True,
+            },
         ) as mock_dias_letivos:
             with patch(
                 "src.escola.utils.processa_dias_letivos"
@@ -381,7 +384,11 @@ def test_calendario_sgp(mock_escolas):
                     data_fim=data_fim,
                 )
                 mock_processa_dias_letivos.assert_called_once_with(
-                    {"data": "2025-01-01T00:00:00", "ehLetivo": True}, escola_mock
+                    {
+                        "data": StringsDatasISO.DATA_PADRAO_2025_01_01.value,
+                        "ehLetivo": True,
+                    },
+                    escola_mock,
                 )
 
 
