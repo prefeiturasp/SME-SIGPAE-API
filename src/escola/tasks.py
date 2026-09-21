@@ -210,6 +210,28 @@ def nega_solicitacoes_vencidas():
             )
 
 
+def _solicitacoes_da_classe(classe_solicitacao, uuids_solicitacoes):
+    solicitacoes = classe_solicitacao.objects.filter(uuid__in=uuids_solicitacoes)
+    if classe_solicitacao == AlteracaoCardapio:
+        solicitacoes = solicitacoes.exclude(
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+        )
+    return solicitacoes
+
+
+def _nega_solicitacao_vencida(solicitacao, justificativa):
+    usuario = Usuario.objects.filter(email="system@admin.com").first()
+    user = usuario if usuario else None
+    if solicitacao.status in [
+        PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
+        PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO,
+        PedidoAPartirDaDiretoriaRegionalWorkflow.CODAE_A_AUTORIZAR,
+    ]:
+        solicitacao.codae_nega(user=user, justificativa=justificativa)
+    else:
+        solicitacao.codae_nega_questionamento(user=user, justificativa=justificativa)
+
+
 @shared_task(
     autoretry_for=(httpx.TransportError,),
     retry_backoff=2,
@@ -254,27 +276,11 @@ def nega_solicitacoes_pendentes_autorizacao_vencidas():
     ]
 
     for classe_solicitacao in classes_solicitacoes:
-        solicitacoes = classe_solicitacao.objects.filter(
-            uuid__in=uuids_solicitacoes_dre_a_validar
+        solicitacoes = _solicitacoes_da_classe(
+            classe_solicitacao, uuids_solicitacoes_dre_a_validar
         )
-        if classe_solicitacao == AlteracaoCardapio:
-            solicitacoes = solicitacoes.exclude(
-                motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
-            )
         for solicitacao in solicitacoes.all():
-            usuario = Usuario.objects.filter(email="system@admin.com").first()
-            if solicitacao.status in [
-                PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
-                PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO,
-                PedidoAPartirDaDiretoriaRegionalWorkflow.CODAE_A_AUTORIZAR,
-            ]:
-                solicitacao.codae_nega(
-                    user=usuario if usuario else None, justificativa=justificativa
-                )
-            else:
-                solicitacao.codae_nega_questionamento(
-                    user=usuario if usuario else None, justificativa=justificativa
-                )
+            _nega_solicitacao_vencida(solicitacao, justificativa)
 
 
 @shared_task(
