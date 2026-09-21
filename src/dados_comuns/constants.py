@@ -604,6 +604,14 @@ class ClassificacoesDietasDeprecadas(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class NomesParaTesteDiretoriaRegional(Enum):
+    DIRETORIA_REGIONAL_TESTE = "DIRETORIA REGIONAL TESTE"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class PayloadVariaveis(Enum):
     LOTES = "lotes[]"
     EDITAIS = "editais[]"

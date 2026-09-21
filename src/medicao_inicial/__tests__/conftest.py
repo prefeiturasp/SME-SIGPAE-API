@@ -440,7 +440,8 @@ def escola_emefm(diretoria_regional):
 def escola_emei():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote",
@@ -468,7 +469,8 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
@@ -487,7 +489,8 @@ def escola_cei(tipo_unidade_escolar_cei_diret):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
@@ -506,7 +509,8 @@ def escola_cci():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -550,7 +554,8 @@ def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
 def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote",
@@ -578,7 +583,8 @@ def escola_ceu_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -600,7 +606,7 @@ def escola_emebs():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL TESTE",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -624,7 +630,8 @@ def escola_emebs():
 def escola_ceu_gestao():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -647,7 +654,8 @@ def escola_ceu_gestao():
 def escola_cmct():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -670,7 +678,8 @@ def escola_cmct():
 def escola_cieja(tipo_unidade_escolar_cieja):
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional

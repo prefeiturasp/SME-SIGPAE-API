@@ -13,6 +13,7 @@ from src.dados_comuns.constants import (
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import CentralDeDownload
@@ -62,7 +63,7 @@ class TestGeraRelatorioUnificado:
     def setup_infraestrutura_comum(self):
         terceirizada = EmpresaFactory.create()
         diretoria_regional = DiretoriaRegionalFactory.create(
-            nome="DIRETORIA REGIONAL TESTE"
+            nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value
         )
         lote = LoteFactory.create(
             terceirizada=terceirizada,

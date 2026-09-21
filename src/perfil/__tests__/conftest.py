@@ -17,6 +17,7 @@ from ...dados_comuns.constants import (
     EMAIL_ADMIN,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
 )
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
@@ -1437,7 +1438,8 @@ def client_tercerizada_com_acesso_medicao(client, django_user_model, terceirizad
 
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     baker.make(
         "Escola",
