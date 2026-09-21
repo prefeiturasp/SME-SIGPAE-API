@@ -1,6 +1,7 @@
 import datetime
 
 import environ
+from django.db.models import QuerySet, prefetch_related_objects
 from rest_framework import serializers
 
 from src.dieta_especial.protocolo_padrao.api import serializers as des
@@ -161,11 +162,22 @@ class DadosHistoricosProdutoSerializer(serializers.ModelSerializer):
             "nome_instituicao",
         )
 
+class ListaLogsProdutoSerializer(serializers.ListSerializer):
+    def to_representation(self, data):
+        if isinstance(data, QuerySet):
+            logs = data.select_related("dados_produto")
+        else:
+            logs = list(data)
+            prefetch_related_objects(logs, "dados_produto")
+
+        return super().to_representation(logs)
+
 
 class LogProdutoComAnexosSerializer(LogSolicitacoesUsuarioComAnexosSerializer):
     dados_produto = DadosHistoricosProdutoSerializer(read_only=True, allow_null=True)
 
     class Meta(LogSolicitacoesUsuarioComAnexosSerializer.Meta):
+        list_serializer_class = ListaLogsProdutoSerializer
         fields = LogSolicitacoesUsuarioComAnexosSerializer.Meta.fields + (
             "uuid",
             "dados_produto",
@@ -176,6 +188,7 @@ class LogProdutoComVinculoSerializer(LogSolicitacoesUsuarioComVinculoSerializer)
     dados_produto = DadosHistoricosProdutoSerializer(read_only=True, allow_null=True)
 
     class Meta(LogSolicitacoesUsuarioComVinculoSerializer.Meta):
+        list_serializer_class = ListaLogsProdutoSerializer
         fields = LogSolicitacoesUsuarioComVinculoSerializer.Meta.fields + (
             "uuid",
             "dados_produto",
