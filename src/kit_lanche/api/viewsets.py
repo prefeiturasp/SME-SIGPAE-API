@@ -959,13 +959,12 @@ class SolicitacaoKitLanchePainelViewSet(viewsets.GenericViewSet):
         avulsa = SolicitacaoKitLancheAvulsa.objects.filter(uuid__in=uuids)
         cei = SolicitacaoKitLancheCEIAvulsa.objects.filter(uuid__in=uuids)
         cemei = SolicitacaoKitLancheCEMEI.objects.filter(uuid__in=uuids)
-        avulsa = prepara_solicitacoes_listagem_similares(
-            list(avulsa), SolicitacaoKitLancheAvulsa
-        )
-        cei = prepara_solicitacoes_listagem_similares(
-            list(cei), SolicitacaoKitLancheCEIAvulsa
-        )
-        cemei = prepara_solicitacoes_listagem_similares_cemei(list(cemei))
+        avulsa = list(avulsa)
+        cei = list(cei)
+        cemei = list(cemei)
+        prepara_solicitacoes_listagem_similares(avulsa, SolicitacaoKitLancheAvulsa)
+        prepara_solicitacoes_listagem_similares(cei, SolicitacaoKitLancheCEIAvulsa)
+        prepara_solicitacoes_listagem_similares_cemei(cemei)
         for obj in avulsa + cei + cemei:
             objetos[obj.uuid] = obj
         return objetos
