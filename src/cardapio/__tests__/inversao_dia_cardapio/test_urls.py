@@ -37,7 +37,9 @@ def test_permissoes_inversao_cardapio_viewset(
     # não pode ver os dados de TODAS as inversões de dia de cardápio
     response = client_autenticado_vinculo_escola_cardapio.get(f"/{ENDPOINT_INVERSOES}/")
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
     # pode deletar somente se for escola e se estiver como rascunho
     inversao_dia_cardapio.status = PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
     inversao_dia_cardapio.save()

@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
-from src.dados_comuns.constants import MENSAGEM_ESCOLHA_UMA_PLANILHA
+from src.dados_comuns.constants import StringsValidationErrors
 
 from .api.viewsets import exportar_planilha_importacao_tipo_gestao_escola
 from .dias_letivos.admin import DiaLetivoSIGPAEAdmin
@@ -139,7 +139,11 @@ class PlanilhaEscolaDeParaCodigoEolCodigoCoadeAdmin(admin.ModelAdmin):
 
     def vincular_codigos_codae_da_planilha(self, request, queryset):
         if len(queryset) > 1:
-            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
 
         arquivo = queryset.first()
@@ -211,7 +215,11 @@ class PlanilhaAtualizacaoTipoGestaoEscolaAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not self.valida_arquivo_importacao(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)

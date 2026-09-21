@@ -32,6 +32,7 @@ from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     PayloadVariaveis,
+    StringsValidationErrors,
 )
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -332,7 +333,7 @@ class SolicitacaoDietaEspecialViewSet(
             nome_aluno = request.query_params.get("nome_aluno", False)
             if not codigo_eol_escola:
                 raise ValidationError(
-                    "`codigo_eol_escola` como query_param é obrigatório"
+                    StringsValidationErrors.CODIGO_EOL_ESCOLA_OBRIGATORIO.value
                 )
             if not nome_aluno:
                 raise ValidationError("`nome_aluno` como query_param é obrigatório")

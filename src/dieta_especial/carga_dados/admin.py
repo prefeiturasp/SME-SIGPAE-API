@@ -3,7 +3,7 @@ from datetime import date
 from django.contrib import admin, messages
 from django.http import HttpResponse
 
-from src.dados_comuns.constants import MENSAGEM_ESCOLHA_UMA_PLANILHA
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dieta_especial.tasks.admin_actions import get_escolas_task
 from src.escola.utils_analise_dietas_ativas import main
 from src.escola.utils_escola import create_tempfile, escreve_escolas_json
@@ -33,7 +33,11 @@ class PlanilhaDietasAtivasAdmin(admin.ModelAdmin):
 
     def analisar_planilha_dietas_ativas(self, request, queryset):
         if len(queryset) > 1:
-            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
 
         count = 1
@@ -65,7 +69,11 @@ class PlanilhaDietasAtivasAdmin(admin.ModelAdmin):
 
     def gerar_json_do_eol(self, request, queryset):
         if len(queryset) > 1:
-            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
 
         count = 1
@@ -86,7 +94,11 @@ class ArquivoCargaDietaEspecialAdmin(admin.ModelAdmin):
 
     def processa_carga(self, request, queryset):
         if len(queryset) > 1:
-            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
 
         importa_dietas_especiais(usuario=request.user, arquivo=queryset.first())
@@ -109,7 +121,11 @@ class ArquivoCargaAlimentosSubstitutosAdmin(admin.ModelAdmin):
 
     def processa_carga(self, request, queryset):
         if len(queryset) > 1:
-            self.message_user(request, MENSAGEM_ESCOLHA_UMA_PLANILHA, messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
 
         importa_alimentos(arquivo=queryset.first())
