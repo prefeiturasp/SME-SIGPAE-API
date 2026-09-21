@@ -22,6 +22,8 @@ from django.db import models, transaction
 from django.db.models import F, Q, Sum
 from rest_framework import status
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
 from ..cardapio.alteracao_tipo_alimentacao_cemei.models import AlteracaoCardapioCEMEI
@@ -400,8 +402,8 @@ class DiretoriaRegional(
         return self.nome
 
     class Meta:
-        verbose_name = "Diretoria regional"
-        verbose_name_plural = "Diretorias regionais"
+        verbose_name = StringsVerboseNameModels.DIRETORIA_REGIONAL.value
+        verbose_name_plural = StringsVerboseNameModels.DIRETORIAS_REGIONAIS.value
         ordering = ("nome",)
 
 
@@ -412,8 +414,8 @@ class FaixaIdadeEscolar(Nomeavel, Ativavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = "Idade escolar"
-        verbose_name_plural = "Idades escolares"
+        verbose_name = StringsVerboseNameModels.IDADE_ESCOLAR.value
+        verbose_name_plural = StringsVerboseNameModels.IDADES_ESCOLARES.value
         ordering = ("nome",)
 
 
@@ -441,8 +443,8 @@ class TipoUnidadeEscolar(Iniciais, Ativavel, TemChaveExterna):
         return self.iniciais
 
     class Meta:
-        verbose_name = "Tipo de unidade escolar"
-        verbose_name_plural = "Tipos de unidade escolar"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_UNIDADE_ESCOLAR.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_UNIDADE_ESCOLAR.value
         ordering = ("iniciais",)
 
 
@@ -453,8 +455,8 @@ class TipoGestao(Nomeavel, Ativavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = "Tipo de gestão"
-        verbose_name_plural = "Tipos de gestão"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_GESTAO.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_GESTAO.value
 
 
 class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
@@ -484,8 +486,8 @@ class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
 
     class Meta:
         ordering = ("posicao",)
-        verbose_name = "Período escolar"
-        verbose_name_plural = "Períodos escolares"
+        verbose_name = StringsVerboseNameModels.PERIODO_ESCOLAR.value
+        verbose_name_plural = StringsVerboseNameModels.PERIODOS_ESCOLARES.value
 
     def __str__(self):
         return self.nome
@@ -499,17 +501,22 @@ class Escola(
     AcessoModuloMedicaoInicial,
 ):
     acesso_desde = models.DateField(
-        "Acesso módulo medição desde",
+        StringsVerboseNameModels.ACESSO_MODULO_MEDICAO_DESDE.value,
         null=True,
         blank=True,
         help_text="Define o mês a partir do qual a escola poderá realizar o lançamento da medição inicial.",
     )
-    nome = models.CharField("Nome", max_length=160, blank=True)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=160, blank=True
+    )
     codigo_eol = models.CharField(
-        "Código EOL", max_length=6, unique=True, validators=[MinLengthValidator(6)]
+        StringsVerboseNameModels.CODIGO_EOL.value,
+        max_length=6,
+        unique=True,
+        validators=[MinLengthValidator(6)],
     )
     codigo_codae = models.CharField(  # noqa: DJ01
-        "Código CODAE",
+        StringsVerboseNameModels.CODIGO_CODAE.value,
         max_length=10,
         blank=True,
         null=True,
@@ -1682,8 +1689,8 @@ class Escola(
         return lista_medicoes
 
     class Meta:
-        verbose_name = "Escola"
-        verbose_name_plural = "Escolas"
+        verbose_name = StringsVerboseNameModels.ESCOLA.value
+        verbose_name_plural = StringsVerboseNameModels.ESCOLAS.value
         ordering = ("codigo_eol",)
 
 
@@ -1700,7 +1707,7 @@ class EscolaPeriodoEscolar(Ativavel, TemChaveExterna):
         PeriodoEscolar, related_name="escolas_periodos", on_delete=models.DO_NOTHING
     )
     quantidade_alunos = models.PositiveSmallIntegerField(
-        "Quantidade de alunos", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS.value, default=0
     )
     horas_atendimento = models.IntegerField(null=True)
 
@@ -1750,8 +1757,10 @@ class EscolaPeriodoEscolar(Ativavel, TemChaveExterna):
         return faixa_alunos
 
     class Meta:
-        verbose_name = "Escola com período escolar"
-        verbose_name_plural = "Escola com períodos escolares"
+        verbose_name = StringsVerboseNameModels.ESCOLA_COM_PERIODO_ESCOLAR.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.ESCOLA_COM_PERIODOS_ESCOLARES.value
+        )
         unique_together = [["periodo_escolar", "escola"]]
 
 
@@ -1769,10 +1778,10 @@ class LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar(
         on_delete=models.DO_NOTHING,
     )
     quantidade_alunos_de = models.PositiveSmallIntegerField(
-        "Quantidade de alunos anterior", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ANTERIOR.value, default=0
     )
     quantidade_alunos_para = models.PositiveSmallIntegerField(
-        "Quantidade de alunos alterada", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ALTERADA.value, default=0
     )
 
     def __str__(self):
@@ -1782,17 +1791,19 @@ class LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar(
         return f"Alteração de: {quantidade_anterior} alunos, para: {quantidade_atual} alunos na escola: {escola}"
 
     class Meta:
-        verbose_name = "Log Alteração quantidade de alunos"
-        verbose_name_plural = "Logs de Alteração quantidade de alunos"
+        verbose_name = StringsVerboseNameModels.LOG_ALTERACAO_QUANTIDADE_DE_ALUNOS.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOGS_DE_ALTERACAO_QUANTIDADE_DE_ALUNOS.value
+        )
         ordering = ("criado_em",)
 
 
 class LogRotinaDiariaAlunos(TemChaveExterna, CriadoEm):
     quantidade_alunos_antes = models.PositiveIntegerField(
-        "Quantidade de alunos antes", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ANTES.value, default=0
     )
     quantidade_alunos_atual = models.PositiveIntegerField(
-        "Quantidade de alunos atual", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ATUAL.value, default=0
     )
 
     def __str__(self):
@@ -1802,8 +1813,12 @@ class LogRotinaDiariaAlunos(TemChaveExterna, CriadoEm):
         return f"Criado em {criado_em} - Quant. de alunos antes: {quant_antes}. Quant. de alunos atual: {quant_atual}"
 
     class Meta:
-        verbose_name = "Log Rotina Diária quantidade de alunos"
-        verbose_name_plural = "Logs Rotina Diária quantidade de alunos"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_ROTINA_DIARIA_QUANTIDADE_DE_ALUNOS.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOGS_ROTINA_DIARIA_QUANTIDADE_DE_ALUNOS.value
+        )
         ordering = ("-criado_em",)
 
 
@@ -2363,8 +2378,8 @@ class Lote(TemChaveExterna, Nomeavel, Iniciais):
         return f"{self.nome} - {nome_dre}"
 
     class Meta:
-        verbose_name = "Lote"
-        verbose_name_plural = "Lotes"
+        verbose_name = StringsVerboseNameModels.LOTE.value
+        verbose_name_plural = StringsVerboseNameModels.LOTES.value
         ordering = ("nome",)
 
 
@@ -2377,7 +2392,11 @@ class Subprefeitura(Nomeavel, TemChaveExterna):
     )
 
     codigo_eol = models.CharField(  # noqa DJ01
-        "Código EOL", max_length=6, unique=True, null=True, blank=True
+        StringsVerboseNameModels.CODIGO_EOL.value,
+        max_length=6,
+        unique=True,
+        null=True,
+        blank=True,
     )
     diretoria_regional = models.ManyToManyField(
         DiretoriaRegional, related_name="subprefeituras", blank=True
@@ -2397,8 +2416,8 @@ class Subprefeitura(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = "Subprefeitura"
-        verbose_name_plural = "Subprefeituras"
+        verbose_name = StringsVerboseNameModels.SUBPREFEITURA.value
+        verbose_name_plural = StringsVerboseNameModels.SUBPREFEITURAS.value
         ordering = ("nome",)
 
 
@@ -2666,8 +2685,8 @@ class Codae(
         return self.nome
 
     class Meta:
-        verbose_name = "CODAE"
-        verbose_name_plural = "CODAE"
+        verbose_name = StringsVerboseNameModels.CODAE.value
+        verbose_name_plural = StringsVerboseNameModels.CODAE.value
 
 
 class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
@@ -2683,8 +2702,8 @@ class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
         return self.nome
 
     class Meta:
-        verbose_name = "Responsável"
-        verbose_name_plural = "Reponsáveis"
+        verbose_name = StringsVerboseNameModels.RESPONSAVEL.value
+        verbose_name_plural = StringsVerboseNameModels.REPONSAVEIS.value
 
 
 class FaixaEtaria(Ativavel, TemChaveExterna):
@@ -2709,9 +2728,11 @@ class Aluno(TemChaveExterna):
     CICLO_ALUNO_CEI = 1
     CICLO_ALUNO_EMEI = 2
 
-    nome = models.CharField("Nome Completo do Aluno", max_length=100)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME_COMPLETO_DO_ALUNO.value, max_length=100
+    )
     codigo_eol = models.CharField(  # noqa DJ01
-        "Código EOL",
+        StringsVerboseNameModels.CODIGO_EOL.value,
         max_length=7,
         unique=True,
         validators=[MinLengthValidator(7)],
@@ -2739,8 +2760,12 @@ class Aluno(TemChaveExterna):
 
     etapa = models.PositiveSmallIntegerField(blank=True, null=True)
     ciclo = models.PositiveSmallIntegerField(blank=True, null=True)
-    desc_etapa = models.CharField("Descrição etapa", max_length=50, blank=True)
-    desc_ciclo = models.CharField("Descrição ciclo", max_length=50, blank=True)
+    desc_etapa = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_ETAPA.value, max_length=50, blank=True
+    )
+    desc_ciclo = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_CICLO.value, max_length=50, blank=True
+    )
 
     def __str__(self):
         if self.nao_matriculado:
@@ -2850,8 +2875,8 @@ class Aluno(TemChaveExterna):
         return historico
 
     class Meta:
-        verbose_name = "Aluno"
-        verbose_name_plural = "Alunos"
+        verbose_name = StringsVerboseNameModels.ALUNO.value
+        verbose_name_plural = StringsVerboseNameModels.ALUNOS.value
 
 
 class MudancaFaixasEtarias(Justificativa, TemChaveExterna):
@@ -2866,12 +2891,18 @@ class PlanilhaEscolaDeParaCodigoEolCodigoCoade(CriadoEm, TemAlteradoEm):
         "<b>codigo_eol</b> e <b>codigo_unidade</b>"
     )
     codigos_codae_vinculados = models.BooleanField(
-        "Códigos Codae Vinculados?", default=False, editable=False
+        StringsVerboseNameModels.CODIGOS_CODAE_VINCULADOS.value,
+        default=False,
+        editable=False,
     )
 
     class Meta:
-        verbose_name = "Planilha De-Para: Código EOL x Código Codae"
-        verbose_name_plural = "Planilhas De-Para: Código EOL x Código Codae"
+        verbose_name = (
+            StringsVerboseNameModels.PLANILHA_DE_PARA_CODIGO_EOL_X_CODIGO_CODAE.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.PLANILHAS_DE_PARA_CODIGO_EOL_X_CODIGO_CODAE.value
+        )
 
     def __str__(self):
         return str(self.planilha)
@@ -2879,8 +2910,12 @@ class PlanilhaEscolaDeParaCodigoEolCodigoCoade(CriadoEm, TemAlteradoEm):
 
 class PlanilhaAtualizacaoTipoGestaoEscola(ArquivoCargaBase):
     class Meta:
-        verbose_name = "Planilha Atualização Tipo Gestão Escola"
-        verbose_name_plural = "Planilha Atualização Tipo Gestão Escola"
+        verbose_name = (
+            StringsVerboseNameModels.PLANILHA_ATUALIZACAO_TIPO_GESTAO_ESCOLA.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.PLANILHA_ATUALIZACAO_TIPO_GESTAO_ESCOLA.value
+        )
 
     def __str__(self):
         return str(self.conteudo)
@@ -2910,7 +2945,7 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
         PeriodoEscolar, related_name="alunos_matriculados", on_delete=models.DO_NOTHING
     )
     quantidade_alunos = models.PositiveSmallIntegerField(
-        "Quantidade de alunos", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS.value, default=0
     )
 
     tipo_turma = models.CharField(
@@ -2962,8 +2997,12 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
         }
 
     class Meta:
-        verbose_name = "Alunos Matriculados por Período e Escola"
-        verbose_name_plural = "Alunos Matriculados por Períodos e Escolas"
+        verbose_name = (
+            StringsVerboseNameModels.ALUNOS_MATRICULADOS_POR_PERIODO_E_ESCOLA.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.ALUNOS_MATRICULADOS_POR_PERIODOS_E_ESCOLAS.value
+        )
 
 
 class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservacao):
@@ -2980,7 +3019,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
         on_delete=models.DO_NOTHING,
     )
     quantidade_alunos = models.PositiveSmallIntegerField(
-        "Quantidade de alunos", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS.value, default=0
     )
 
     tipo_turma = models.CharField(
@@ -3115,9 +3154,11 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
         tem {self.quantidade_alunos} alunos no dia {self.criado_em}"""
 
     class Meta:
-        verbose_name = "Log Alteração quantidade de alunos regular e programa"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_ALTERACAO_QUANTIDADE_DE_ALUNOS_REGULAR_E_PROGRAMA.value
+        )
         verbose_name_plural = (
-            "Logs de Alteração quantidade de alunos regulares e de programas"
+            StringsVerboseNameModels.LOGS_DE_ALTERACAO_QUANTIDADE_DE_ALUNOS_REGULARES_E_DE_PROGRAMAS.value
         )
         ordering = ("-criado_em",)
 
@@ -3136,7 +3177,9 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
         null=True,
         blank=True,
     )
-    dia_letivo = models.BooleanField("É dia Letivo?", default=True)
+    dia_letivo = models.BooleanField(
+        StringsVerboseNameModels.E_DIA_LETIVO.value, default=True
+    )
 
     @classmethod
     def existe_inclusao_continua(
@@ -3198,16 +3241,22 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
         {"é dia letivo" if self.dia_letivo else "não é dia letivo"} para escola {self.escola}"""
 
     class Meta:
-        verbose_name = "Dia"
-        verbose_name_plural = "Dias"
+        verbose_name = StringsVerboseNameModels.DIA.value
+        verbose_name_plural = StringsVerboseNameModels.DIAS.value
         ordering = ("data",)
 
 
 class LogAtualizaDadosAluno(models.Model):
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
-    codigo_eol = models.CharField("Codigo EOL da escola", max_length=50)
-    status = models.PositiveSmallIntegerField("Status da requisição", default=0)
-    msg_erro = models.TextField("Mensagem erro", blank=True)
+    codigo_eol = models.CharField(
+        StringsVerboseNameModels.CODIGO_EOL_DA_ESCOLA.value, max_length=50
+    )
+    status = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.STATUS_DA_REQUISICAO.value, default=0
+    )
+    msg_erro = models.TextField(
+        StringsVerboseNameModels.MENSAGEM_ERRO.value, blank=True
+    )
 
     def __str__(self):
         retorno = f'Requisicao para Escola: "#{str(self.codigo_eol)}"'
@@ -3238,9 +3287,11 @@ class LogAlunosMatriculadosFaixaEtariaDia(
         tem {self.quantidade} aluno(s) no dia {self.data} faixa etária {self.faixa_etaria}"""
 
     class Meta:
-        verbose_name = "Log quantidade de alunos por faixa etária, dia e período"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DIA_E_PERIODO.value
+        )
         verbose_name_plural = (
-            "Logs quantidades de alunos por faixas etárias, dias e períodos"
+            StringsVerboseNameModels.LOGS_QUANTIDADES_DE_ALUNOS_POR_FAIXAS_ETARIAS_DIAS_E_PERIODOS.value
         )
         ordering = ("criado_em",)
 
@@ -3258,8 +3309,8 @@ class LogAlunoPorDia(TemChaveExterna, CriadoEm):
     )
 
     class Meta:
-        verbose_name = "Log aluno por dia"
-        verbose_name_plural = "Logs alunos por dia"
+        verbose_name = StringsVerboseNameModels.LOG_ALUNO_POR_DIA.value
+        verbose_name_plural = StringsVerboseNameModels.LOGS_ALUNOS_POR_DIA.value
         ordering = ("criado_em",)
 
 
@@ -3277,8 +3328,12 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
         related_name="alunos_periodo_parcial",
         on_delete=models.CASCADE,
     )
-    data = models.DateField("Aluno no período parcial a partir de", null=True)
-    data_removido = models.DateField("Aluno no período parcial a partir de", null=True)
+    data = models.DateField(
+        StringsVerboseNameModels.ALUNO_NO_PERIODO_PARCIAL_A_PARTIR_DE.value, null=True
+    )
+    data_removido = models.DateField(
+        StringsVerboseNameModels.ALUNO_NO_PERIODO_PARCIAL_A_PARTIR_DE.value, null=True
+    )
 
     def __str__(self):
         retorno = f"{self.aluno.nome} para SMI {self.solicitacao_medicao_inicial.mes}/"
@@ -3288,8 +3343,8 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
         return retorno
 
     class Meta:
-        verbose_name = "Aluno no período parcial"
-        verbose_name_plural = "Alunos no período parcial"
+        verbose_name = StringsVerboseNameModels.ALUNO_NO_PERIODO_PARCIAL.value
+        verbose_name_plural = StringsVerboseNameModels.ALUNOS_NO_PERIODO_PARCIAL.value
         unique_together = ("escola", "aluno", "solicitacao_medicao_inicial")
         ordering = ("criado_em",)
 
@@ -3344,8 +3399,10 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
-        verbose_name = "Dia de suspensão de atividades"
-        verbose_name_plural = "Dias de suspensão de atividades"
+        verbose_name = StringsVerboseNameModels.DIA_DE_SUSPENSAO_DE_ATIVIDADES.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.DIAS_DE_SUSPENSAO_DE_ATIVIDADES.value
+        )
         unique_together = ("tipo_unidade", "data", "edital")
         ordering = ("data",)
 
@@ -3381,8 +3438,8 @@ class GrupoUnidadeEscolar(TemChaveExterna, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = "Grupo de unidade escolar"
-        verbose_name_plural = "Grupos de unidade escolar"
+        verbose_name = StringsVerboseNameModels.GRUPO_DE_UNIDADE_ESCOLAR.value
+        verbose_name_plural = StringsVerboseNameModels.GRUPOS_DE_UNIDADE_ESCOLAR.value
         ordering = ("nome",)
 
 
@@ -3399,8 +3456,10 @@ class HistoricoMatriculaAluno(TemChaveExterna):
     situacao = models.CharField(blank=True)
 
     class Meta:
-        verbose_name = "Histórico de Matrícula do Aluno"
-        verbose_name_plural = "Históricos de Matrículas dos Alunos"
+        verbose_name = StringsVerboseNameModels.HISTORICO_DE_MATRICULA_DO_ALUNO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.HISTORICOS_DE_MATRICULAS_DOS_ALUNOS.value
+        )
 
     def __str__(self) -> str:
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"
@@ -3422,5 +3481,5 @@ class HistoricoEscola(Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"{self.nome} (ATUAL {self.escola.nome})"
 
     class Meta:
-        verbose_name = "Histórico da Escola"
-        verbose_name_plural = "Históricos da escola"
+        verbose_name = StringsVerboseNameModels.HISTORICO_DA_ESCOLA.value
+        verbose_name_plural = StringsVerboseNameModels.HISTORICOS_DA_ESCOLA.value

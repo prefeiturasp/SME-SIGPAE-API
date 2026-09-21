@@ -10,6 +10,8 @@ from django.core.validators import (
 )
 from django.db import models
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..cardapio.base.models import TipoAlimentacao
 from ..dados_comuns.behaviors import (
     ArquivoCargaBase,
@@ -33,14 +35,14 @@ from ..perfil.models import Usuario
 
 
 class TipoGravidade(ModeloBase):
-    tipo = models.CharField("Tipo de Gravidade")
+    tipo = models.CharField(StringsVerboseNameModels.TIPO_DE_GRAVIDADE.value)
 
     def __str__(self):
         return f"{self.tipo}"
 
     class Meta:
-        verbose_name = "Tipo de Gravidade"
-        verbose_name_plural = "Tipos de Gravidades"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_GRAVIDADE.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_GRAVIDADES.value
 
 
 class TipoPenalidade(ModeloBase, CriadoPor, StatusAtivoInativo):
@@ -49,37 +51,43 @@ class TipoPenalidade(ModeloBase, CriadoPor, StatusAtivoInativo):
         on_delete=models.PROTECT,
         related_name="tipos_penalidades",
     )
-    numero_clausula = models.CharField("Número da Cláusula/Item", max_length=300)
+    numero_clausula = models.CharField(
+        StringsVerboseNameModels.NUMERO_DA_CLAUSULA_ITEM.value, max_length=300
+    )
     gravidade = models.ForeignKey(
         TipoGravidade, on_delete=models.PROTECT, related_name="tipos_penalidades"
     )
-    descricao = models.TextField("Descrição da Cláusula/Item")
+    descricao = models.TextField(
+        StringsVerboseNameModels.DESCRICAO_DA_CLAUSULA_ITEM.value
+    )
 
     def __str__(self):
         return f"Item: {self.numero_clausula} - Edital: {self.edital.numero}"
 
     class Meta:
         ordering = ("edital__numero", "numero_clausula")
-        verbose_name = "Tipo de Penalidade"
-        verbose_name_plural = "Tipos de Penalidades"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_PENALIDADE.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_PENALIDADES.value
         unique_together = ("edital", "numero_clausula")
 
 
 class ObrigacaoPenalidade(ModeloBase):
     tipo_penalidade = models.ForeignKey(
         TipoPenalidade,
-        verbose_name="Tipo de Penalidade",
+        verbose_name=StringsVerboseNameModels.TIPO_DE_PENALIDADE.value,
         on_delete=models.CASCADE,
         related_name="obrigacoes",
     )
-    descricao = models.CharField("Descrição", max_length=300)
+    descricao = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_2.value, max_length=300
+    )
 
     def __str__(self):
         return f"{self.descricao}"
 
     class Meta:
-        verbose_name = "Obrigação da Penalidade"
-        verbose_name_plural = "Obrigações das Penalidades"
+        verbose_name = StringsVerboseNameModels.OBRIGACAO_DA_PENALIDADE.value
+        verbose_name_plural = StringsVerboseNameModels.OBRIGACOES_DAS_PENALIDADES.value
 
 
 class ImportacaoPlanilhaTipoPenalidade(ArquivoCargaBase):
@@ -88,9 +96,11 @@ class ImportacaoPlanilhaTipoPenalidade(ArquivoCargaBase):
     resultado = models.FileField(blank=True, default="")
 
     class Meta:
-        verbose_name = "Arquivo para importação/atualização de tipos de penalidade"
+        verbose_name = (
+            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_ATUALIZACAO_DE_TIPOS_DE_PENALIDADE.value
+        )
         verbose_name_plural = (
-            "Arquivos para importação/atualização de tipos de penalidade"
+            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_ATUALIZACAO_DE_TIPOS_DE_PENALIDADE.value
         )
 
     def __str__(self) -> str:
@@ -106,22 +116,24 @@ class CategoriaOcorrencia(ModeloBase, Nomeavel, Posicao, PerfilDiretorSupervisao
         (False, NAO),
     )
     gera_notificacao = models.BooleanField(
-        "Gera Notificação?", choices=STATUS_CHOICES, default=False
+        StringsVerboseNameModels.GERA_NOTIFICACAO.value,
+        choices=STATUS_CHOICES,
+        default=False,
     )
 
     def __str__(self):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = "Categoria das Ocorrências"
-        verbose_name_plural = "Categorias das Ocorrências"
+        verbose_name = StringsVerboseNameModels.CATEGORIA_DAS_OCORRENCIAS.value
+        verbose_name_plural = StringsVerboseNameModels.CATEGORIAS_DAS_OCORRENCIAS.value
         ordering = ("posicao", "nome")
 
 
 class FormularioOcorrenciasBase(ModeloBase):
     usuario = models.ForeignKey(
         Usuario,
-        verbose_name="Usuário",
+        verbose_name=StringsVerboseNameModels.USUARIO.value,
         on_delete=models.PROTECT,
         related_name="formularios_ocorrencias",
     )
@@ -150,8 +162,10 @@ class FormularioOcorrenciasBase(ModeloBase):
         return respostas_por_formulario
 
     class Meta:
-        verbose_name = "Formulário Base - Ocorrências"
-        verbose_name_plural = "Formulários Base - Ocorrências"
+        verbose_name = StringsVerboseNameModels.FORMULARIO_BASE_OCORRENCIAS.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.FORMULARIOS_BASE_OCORRENCIAS.value
+        )
 
 
 class TipoOcorrenciaParaNutriSupervisor(models.Manager):
@@ -198,25 +212,27 @@ class TipoOcorrencia(
     )
     categoria = models.ForeignKey(
         CategoriaOcorrencia,
-        verbose_name="Categoria da Ocorrência",
+        verbose_name=StringsVerboseNameModels.CATEGORIA_DA_OCORRENCIA.value,
         on_delete=models.PROTECT,
         related_name="tipos_ocorrencia",
     )
-    titulo = models.CharField("Titulo", max_length=100)
-    descricao = models.TextField("Descrição")
+    titulo = models.CharField(StringsVerboseNameModels.TITULO.value, max_length=100)
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO_2.value)
     penalidade = models.ForeignKey(
         TipoPenalidade,
-        verbose_name="Penalidade do Item",
+        verbose_name=StringsVerboseNameModels.PENALIDADE_DO_ITEM.value,
         on_delete=models.PROTECT,
         related_name="tipos_ocorrencia",
     )
-    eh_imr = models.BooleanField("É IMR?", default=False)
+    eh_imr = models.BooleanField(StringsVerboseNameModels.E_IMR.value, default=False)
     pontuacao = models.PositiveSmallIntegerField(
-        "Pontuação (IMR)", blank=True, null=True
+        StringsVerboseNameModels.PONTUACAO_IMR.value, blank=True, null=True
     )
-    tolerancia = models.PositiveSmallIntegerField("Tolerância", blank=True, null=True)
+    tolerancia = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.TOLERANCIA.value, blank=True, null=True
+    )
     porcentagem_desconto = models.FloatField(
-        "% de desconto",
+        StringsVerboseNameModels.DE_DESCONTO_2.value,
         null=True,
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
         help_text=(
@@ -225,7 +241,9 @@ class TipoOcorrencia(
         ),
     )
     aceita_multiplas_respostas = models.BooleanField(
-        "Aceita múltiplas respostas?", choices=CHOICES, default=False
+        StringsVerboseNameModels.ACEITA_MULTIPLAS_RESPOSTAS.value,
+        choices=CHOICES,
+        default=False,
     )
 
     objects = models.Manager()
@@ -265,8 +283,8 @@ class TipoOcorrencia(
         return f"{self.edital.numero} - {self.titulo}"
 
     class Meta:
-        verbose_name = "Tipo de Ocorrência"
-        verbose_name_plural = "Tipos de Ocorrência"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_OCORRENCIA.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_OCORRENCIA.value
         unique_together = ("edital", "categoria", "penalidade", "titulo")
         ordering = ("categoria__posicao", "posicao", "titulo")
 
@@ -311,9 +329,11 @@ class ImportacaoPlanilhaTipoOcorrencia(ArquivoCargaBase):
     resultado = models.FileField(blank=True, default="")
 
     class Meta:
-        verbose_name = "Arquivo para importação/atualização de tipos de ocorrência"
+        verbose_name = (
+            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_ATUALIZACAO_DE_TIPOS_DE_OCORRENCIA.value
+        )
         verbose_name_plural = (
-            "Arquivos para importação/atualização de tipos de ocorrência"
+            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_ATUALIZACAO_DE_TIPOS_DE_OCORRENCIA.value
         )
 
     def __str__(self) -> str:
@@ -329,13 +349,15 @@ class TipoRespostaModelo(ModeloBase, Nomeavel):
         return apps.get_model("imr", self.nome)
 
     class Meta:
-        verbose_name = "Tipo de Resposta (Modelo)"
-        verbose_name_plural = "Tipos de Resposta (Modelo)"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_RESPOSTA_MODELO.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_RESPOSTA_MODELO.value
 
 
 class TipoPerguntaParametrizacaoOcorrencia(ModeloBase, Nomeavel):
     tipo_resposta = models.OneToOneField(
-        TipoRespostaModelo, verbose_name="Tipo de resposta", on_delete=models.CASCADE
+        TipoRespostaModelo,
+        verbose_name=StringsVerboseNameModels.TIPO_DE_RESPOSTA.value,
+        on_delete=models.CASCADE,
     )
 
     def get_model_tipo_resposta(self):
@@ -345,14 +367,16 @@ class TipoPerguntaParametrizacaoOcorrencia(ModeloBase, Nomeavel):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = "Tipo de Pergunta para Parametrização de Tipo de Ocorrência"
+        verbose_name = (
+            StringsVerboseNameModels.TIPO_DE_PERGUNTA_PARA_PARAMETRIZACAO_DE_TIPO_DE_OCORRENCIA.value
+        )
         verbose_name_plural = (
-            "Tipos de Pergunta para Parametrização de Tipo de Ocorrência"
+            StringsVerboseNameModels.TIPOS_DE_PERGUNTA_PARA_PARAMETRIZACAO_DE_TIPO_DE_OCORRENCIA.value
         )
 
 
 class ParametrizacaoOcorrencia(ModeloBase, Posicao):
-    titulo = models.CharField("Titulo", max_length=100)
+    titulo = models.CharField(StringsVerboseNameModels.TITULO.value, max_length=100)
     tipo_ocorrencia = models.ForeignKey(
         TipoOcorrencia, on_delete=models.PROTECT, related_name="parametrizacoes"
     )
@@ -374,8 +398,12 @@ class ParametrizacaoOcorrencia(ModeloBase, Posicao):
         return f"{self.tipo_ocorrencia.__str__()} {self.tipo_pergunta} - {self.posicao} - {self.titulo}"
 
     class Meta:
-        verbose_name = "Parametrização de Tipo de Ocorrência"
-        verbose_name_plural = "Parametrizações de Tipo de Ocorrência"
+        verbose_name = (
+            StringsVerboseNameModels.PARAMETRIZACAO_DE_TIPO_DE_OCORRENCIA.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.PARAMETRIZACOES_DE_TIPO_DE_OCORRENCIA.value
+        )
         ordering = (
             "tipo_ocorrencia__categoria__posicao",
             "tipo_ocorrencia__posicao",
@@ -388,13 +416,13 @@ class PeriodoVisita(ModeloBase, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = "Período de Visita"
-        verbose_name_plural = "Períodos de Visita"
+        verbose_name = StringsVerboseNameModels.PERIODO_DE_VISITA.value
+        verbose_name_plural = StringsVerboseNameModels.PERIODOS_DE_VISITA.value
 
 
 class AnexosFormularioBase(ModeloBase):
     anexo = models.FileField(
-        "Anexo",
+        StringsVerboseNameModels.ANEXO.value,
         upload_to="IMR",
         validators=[
             FileExtensionValidator(
@@ -428,13 +456,13 @@ class AnexosFormularioBase(ModeloBase):
         super().delete(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Anexo Formulário Base"
-        verbose_name_plural = "Anexos Formulário Base"
+        verbose_name = StringsVerboseNameModels.ANEXO_FORMULARIO_BASE.value
+        verbose_name_plural = StringsVerboseNameModels.ANEXOS_FORMULARIO_BASE.value
 
 
 class NotificacoesAssinadasFormularioBase(ModeloBase):
     notificacao_assinada = models.FileField(
-        "Notificação Assinada",
+        StringsVerboseNameModels.NOTIFICACAO_ASSINADA.value,
         upload_to="IMR",
         validators=[
             FileExtensionValidator(
@@ -462,8 +490,12 @@ class NotificacoesAssinadasFormularioBase(ModeloBase):
         super().delete(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Notificação Assinada Formulário Base"
-        verbose_name_plural = "Notificações Assinadas Formulário Base"
+        verbose_name = (
+            StringsVerboseNameModels.NOTIFICACAO_ASSINADA_FORMULARIO_BASE.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.NOTIFICACOES_ASSINADAS_FORMULARIO_BASE.value
+        )
 
 
 class FormularioDiretor(ModeloBase):
@@ -472,7 +504,7 @@ class FormularioDiretor(ModeloBase):
     )
     solicitacao_medicao_inicial = models.ForeignKey(
         SolicitacaoMedicaoInicial,
-        verbose_name="Solicitação Medição Inicial",
+        verbose_name=StringsVerboseNameModels.SOLICITACAO_MEDICAO_INICIAL.value,
         on_delete=models.PROTECT,
         related_name="formularios_ocorrencias",
     )
@@ -481,8 +513,10 @@ class FormularioDiretor(ModeloBase):
         return f"{self.solicitacao_medicao_inicial.escola.nome} - {self.formulario_base.data}"
 
     class Meta:
-        verbose_name = "Formulário do Diretor - Ocorrências"
-        verbose_name_plural = "Formulários do Diretor - Ocorrências"
+        verbose_name = StringsVerboseNameModels.FORMULARIO_DO_DIRETOR_OCORRENCIAS.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.FORMULARIOS_DO_DIRETOR_OCORRENCIAS.value
+        )
 
 
 class FormularioSupervisao(ModeloBase, FluxoFormularioSupervisao, Logs):
@@ -494,23 +528,25 @@ class FormularioSupervisao(ModeloBase, FluxoFormularioSupervisao, Logs):
     )
     periodo_visita = models.ForeignKey(
         PeriodoVisita,
-        verbose_name="Período da Visita",
+        verbose_name=StringsVerboseNameModels.PERIODO_DA_VISITA.value,
         on_delete=models.PROTECT,
         related_name="formularios_supervisao",
         null=True,
         blank=True,
     )
     nome_nutricionista_empresa = models.CharField(
-        "Nome da Nutricionista RT da Empresa",
+        StringsVerboseNameModels.NOME_DA_NUTRICIONISTA_RT_DA_EMPRESA.value,
         max_length=100,
         null=True,
         blank=True,
     )
 
-    acompanhou_visita = models.BooleanField("Acompanhou a visita?", default=False)
+    acompanhou_visita = models.BooleanField(
+        StringsVerboseNameModels.ACOMPANHOU_A_VISITA.value, default=False
+    )
 
     maior_frequencia_no_periodo = models.PositiveIntegerField(
-        "Maior Nº de Frequentes no Período",
+        StringsVerboseNameModels.MAIOR_NO_DE_FREQUENTES_NO_PERIODO.value,
         null=True,
         blank=True,
     )
@@ -530,8 +566,12 @@ class FormularioSupervisao(ModeloBase, FluxoFormularioSupervisao, Logs):
         return f"{self.escola.nome} - {self.formulario_base.data}"
 
     class Meta:
-        verbose_name = "Formulário da Supervisão - Ocorrências"
-        verbose_name_plural = "Formulários da Supervisão - Ocorrências"
+        verbose_name = (
+            StringsVerboseNameModels.FORMULARIO_DA_SUPERVISAO_OCORRENCIAS.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.FORMULARIOS_DA_SUPERVISAO_OCORRENCIAS.value
+        )
 
 
 class RespostaSimNao(ModeloBase, Grupo):
@@ -539,10 +579,12 @@ class RespostaSimNao(ModeloBase, Grupo):
     NAO = "Não"
 
     CHOICES = ((SIM, SIM), (NAO, NAO))
-    resposta = models.CharField("Opção", choices=CHOICES, max_length=3)
+    resposta = models.CharField(
+        StringsVerboseNameModels.OPCAO.value, choices=CHOICES, max_length=3
+    )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_sim_nao",
         null=True,
@@ -561,8 +603,8 @@ class RespostaSimNao(ModeloBase, Grupo):
         return self.resposta
 
     class Meta:
-        verbose_name = "Resposta Sim/Não"
-        verbose_name_plural = "Respostas Sim/Não"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_SIM_NAO_2.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_SIM_NAO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -570,7 +612,7 @@ class RespostaCampoNumerico(ModeloBase, Grupo):
     resposta = models.FloatField()
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_campo_numerico",
         null=True,
@@ -589,8 +631,8 @@ class RespostaCampoNumerico(ModeloBase, Grupo):
         return str(self.resposta)
 
     class Meta:
-        verbose_name = "Resposta Campo Numérico"
-        verbose_name_plural = "Respostas Campo Numérico"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_CAMPO_NUMERICO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_CAMPO_NUMERICO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -598,7 +640,7 @@ class RespostaCampoTextoSimples(ModeloBase, Grupo):
     resposta = models.CharField(max_length=500)
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_campo_texto_simples",
         null=True,
@@ -617,8 +659,10 @@ class RespostaCampoTextoSimples(ModeloBase, Grupo):
         return self.resposta
 
     class Meta:
-        verbose_name = "Resposta Campo Texto Simples"
-        verbose_name_plural = "Respostas Campo Texto Simples"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_CAMPO_TEXTO_SIMPLES.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.RESPOSTAS_CAMPO_TEXTO_SIMPLES.value
+        )
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -626,7 +670,7 @@ class RespostaCampoTextoLongo(ModeloBase, Grupo):
     resposta = models.TextField()
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_campo_texto_longo",
         null=True,
@@ -645,8 +689,8 @@ class RespostaCampoTextoLongo(ModeloBase, Grupo):
         return self.resposta
 
     class Meta:
-        verbose_name = "Resposta Campo Texto Longo"
-        verbose_name_plural = "Respostas Campo Texto Longo"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_CAMPO_TEXTO_LONGO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_CAMPO_TEXTO_LONGO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -654,7 +698,7 @@ class RespostaDatas(ModeloBase, Grupo):
     resposta = ArrayField(models.DateField())
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_datas",
         null=True,
@@ -675,8 +719,8 @@ class RespostaDatas(ModeloBase, Grupo):
         )
 
     class Meta:
-        verbose_name = "Resposta Datas"
-        verbose_name_plural = "Respostas Datas"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_DATAS.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_DATAS.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -688,7 +732,7 @@ class RespostaPeriodo(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_periodo",
         null=True,
@@ -707,8 +751,8 @@ class RespostaPeriodo(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Período"
-        verbose_name_plural = "Respostas Período"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_PERIODO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_PERIODO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -720,7 +764,7 @@ class RespostaFaixaEtaria(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_faixa_etaria",
         null=True,
@@ -739,8 +783,8 @@ class RespostaFaixaEtaria(ModeloBase, Grupo):
         return self.resposta.__str__()
 
     class Meta:
-        verbose_name = "Resposta Faixa Etária"
-        verbose_name_plural = "Respostas Faixa Etária"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_FAIXA_ETARIA.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_FAIXA_ETARIA.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -752,7 +796,7 @@ class RespostaTipoAlimentacao(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_tipos_alimentacao",
         null=True,
@@ -771,8 +815,8 @@ class RespostaTipoAlimentacao(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Tipo Alimentação"
-        verbose_name_plural = "Respostas Tipo Alimentação"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_TIPO_ALIMENTACAO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_TIPO_ALIMENTACAO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -782,10 +826,12 @@ class RespostaSimNaoNaoSeAplica(ModeloBase, Grupo):
     NAO_SE_APLICA = "Não se aplica"
 
     CHOICES = ((SIM, SIM), (NAO, NAO), (NAO_SE_APLICA, NAO_SE_APLICA))
-    resposta = models.CharField("Opção", choices=CHOICES, max_length=13)
+    resposta = models.CharField(
+        StringsVerboseNameModels.OPCAO.value, choices=CHOICES, max_length=13
+    )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_sim_nao_nao_se_aplica",
         null=True,
@@ -804,16 +850,18 @@ class RespostaSimNaoNaoSeAplica(ModeloBase, Grupo):
         return self.resposta
 
     class Meta:
-        verbose_name = "Resposta Sim/Não/Não se aplica"
-        verbose_name_plural = "Respostas Sim/Não/Não se aplica"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_SIM_NAO_NAO_SE_APLICA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.RESPOSTAS_SIM_NAO_NAO_SE_APLICA.value
+        )
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
 class OcorrenciaNaoSeAplica(ModeloBase, Grupo):
-    descricao = models.TextField("Descrição", blank=True)
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO_2.value, blank=True)
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_nao_se_aplica",
         null=True,
@@ -828,18 +876,20 @@ class OcorrenciaNaoSeAplica(ModeloBase, Grupo):
         return self.descricao
 
     class Meta:
-        verbose_name = "Ocorrência Não se aplica"
-        verbose_name_plural = "Ocorrências Não se aplica"
+        verbose_name = StringsVerboseNameModels.OCORRENCIA_NAO_SE_APLICA.value
+        verbose_name_plural = StringsVerboseNameModels.OCORRENCIAS_NAO_SE_APLICA.value
         unique_together = ("formulario_base", "tipo_ocorrencia", "grupo")
 
 
 class FaixaPontuacaoIMR(ModeloBase):
-    pontuacao_minima = models.PositiveSmallIntegerField("Pontuação Mínima")
+    pontuacao_minima = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.PONTUACAO_MINIMA.value
+    )
     pontuacao_maxima = models.PositiveSmallIntegerField(
-        "Pontuação Máxima", blank=True, null=True
+        StringsVerboseNameModels.PONTUACAO_MAXIMA.value, blank=True, null=True
     )
     porcentagem_desconto = models.FloatField(
-        "% de Desconto",
+        StringsVerboseNameModels.DE_DESCONTO.value,
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
         help_text="Desconto no faturamento do dia",
     )
@@ -879,8 +929,8 @@ class FaixaPontuacaoIMR(ModeloBase):
         )
 
     class Meta:
-        verbose_name = "Faixa de Pontuação - IMR"
-        verbose_name_plural = "Faixas de Pontuação - IMR"
+        verbose_name = StringsVerboseNameModels.FAIXA_DE_PONTUACAO_IMR.value
+        verbose_name_plural = StringsVerboseNameModels.FAIXAS_DE_PONTUACAO_IMR.value
         ordering = ("pontuacao_minima",)
 
 
@@ -889,8 +939,8 @@ class UtensilioMesa(ModeloBase, Nomeavel, StatusAtivoInativo):
         return self.nome
 
     class Meta:
-        verbose_name = "Utensílio de Mesa"
-        verbose_name_plural = "Utensílios de Mesa"
+        verbose_name = StringsVerboseNameModels.UTENSILIO_DE_MESA.value
+        verbose_name_plural = StringsVerboseNameModels.UTENSILIOS_DE_MESA.value
         ordering = ("nome",)
 
 
@@ -902,7 +952,7 @@ class EditalUtensilioMesa(ModeloBase):
 
     utensilios_mesa = models.ManyToManyField(
         "UtensilioMesa",
-        verbose_name="Utensílios de Mesa",
+        verbose_name=StringsVerboseNameModels.UTENSILIOS_DE_MESA.value,
         blank=True,
     )
 
@@ -910,8 +960,10 @@ class EditalUtensilioMesa(ModeloBase):
         return f"Edital: {self.edital} - {self.utensilios_mesa.count()} utensílios"
 
     class Meta:
-        verbose_name = "Utensílio de Mesa Por Edital"
-        verbose_name_plural = "Utensílios de Mesa Por Edital"
+        verbose_name = StringsVerboseNameModels.UTENSILIO_DE_MESA_POR_EDITAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.UTENSILIOS_DE_MESA_POR_EDITAL.value
+        )
 
 
 class UtensilioCozinha(ModeloBase, Nomeavel, StatusAtivoInativo):
@@ -919,8 +971,8 @@ class UtensilioCozinha(ModeloBase, Nomeavel, StatusAtivoInativo):
         return self.nome
 
     class Meta:
-        verbose_name = "Utensílio de Cozinha"
-        verbose_name_plural = "Utensílios de Cozinha"
+        verbose_name = StringsVerboseNameModels.UTENSILIO_DE_COZINHA.value
+        verbose_name_plural = StringsVerboseNameModels.UTENSILIOS_DE_COZINHA.value
         ordering = ("nome",)
 
 
@@ -932,7 +984,7 @@ class EditalUtensilioCozinha(ModeloBase):
 
     utensilios_cozinha = models.ManyToManyField(
         "UtensilioCozinha",
-        verbose_name="Utensílios de Cozinha",
+        verbose_name=StringsVerboseNameModels.UTENSILIOS_DE_COZINHA.value,
         blank=True,
     )
 
@@ -940,8 +992,10 @@ class EditalUtensilioCozinha(ModeloBase):
         return f"Edital: {self.edital} - {self.utensilios_cozinha.count()} utensílios"
 
     class Meta:
-        verbose_name = "Utensílio de Cozinha Por Edital"
-        verbose_name_plural = "Utensílios de Cozinha Por Edital"
+        verbose_name = StringsVerboseNameModels.UTENSILIO_DE_COZINHA_POR_EDITAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.UTENSILIOS_DE_COZINHA_POR_EDITAL.value
+        )
 
 
 class Equipamento(ModeloBase, Nomeavel, StatusAtivoInativo):
@@ -949,8 +1003,8 @@ class Equipamento(ModeloBase, Nomeavel, StatusAtivoInativo):
         return self.nome
 
     class Meta:
-        verbose_name = "Equipamento"
-        verbose_name_plural = "Equipamentos"
+        verbose_name = StringsVerboseNameModels.EQUIPAMENTO.value
+        verbose_name_plural = StringsVerboseNameModels.EQUIPAMENTOS.value
         ordering = ("nome",)
 
 
@@ -962,7 +1016,7 @@ class EditalEquipamento(ModeloBase):
 
     equipamentos = models.ManyToManyField(
         "Equipamento",
-        verbose_name="Equipamentos",
+        verbose_name=StringsVerboseNameModels.EQUIPAMENTOS.value,
         blank=True,
     )
 
@@ -970,8 +1024,8 @@ class EditalEquipamento(ModeloBase):
         return f"Edital: {self.edital} - {self.equipamentos.count()} equipamentos"
 
     class Meta:
-        verbose_name = "Equipamento Por Edital"
-        verbose_name_plural = "Equipamentos Por Edital"
+        verbose_name = StringsVerboseNameModels.EQUIPAMENTO_POR_EDITAL.value
+        verbose_name_plural = StringsVerboseNameModels.EQUIPAMENTOS_POR_EDITAL.value
 
 
 class Mobiliario(ModeloBase, Nomeavel, StatusAtivoInativo):
@@ -979,8 +1033,8 @@ class Mobiliario(ModeloBase, Nomeavel, StatusAtivoInativo):
         return self.nome
 
     class Meta:
-        verbose_name = "Mobiliário"
-        verbose_name_plural = "Mobiliários"
+        verbose_name = StringsVerboseNameModels.MOBILIARIO.value
+        verbose_name_plural = StringsVerboseNameModels.MOBILIARIOS.value
         ordering = ("nome",)
 
 
@@ -992,7 +1046,7 @@ class EditalMobiliario(ModeloBase):
 
     mobiliarios = models.ManyToManyField(
         "Mobiliario",
-        verbose_name="Mobiliários",
+        verbose_name=StringsVerboseNameModels.MOBILIARIOS.value,
         blank=True,
     )
 
@@ -1000,8 +1054,8 @@ class EditalMobiliario(ModeloBase):
         return f"Edital: {self.edital} - {self.mobiliarios.count()} mobiliários"
 
     class Meta:
-        verbose_name = "Mobiliário Por Edital"
-        verbose_name_plural = "Mobiliários Por Edital"
+        verbose_name = StringsVerboseNameModels.MOBILIARIO_POR_EDITAL.value
+        verbose_name_plural = StringsVerboseNameModels.MOBILIARIOS_POR_EDITAL.value
 
 
 class ReparoEAdaptacao(ModeloBase, Nomeavel, StatusAtivoInativo):
@@ -1009,8 +1063,8 @@ class ReparoEAdaptacao(ModeloBase, Nomeavel, StatusAtivoInativo):
         return self.nome
 
     class Meta:
-        verbose_name = "Reparo e Adaptação"
-        verbose_name_plural = "Reparos e Adaptações"
+        verbose_name = StringsVerboseNameModels.REPARO_E_ADAPTACAO.value
+        verbose_name_plural = StringsVerboseNameModels.REPAROS_E_ADAPTACOES.value
         ordering = ("nome",)
 
 
@@ -1022,7 +1076,7 @@ class EditalReparoEAdaptacao(ModeloBase):
 
     reparos_e_adaptacoes = models.ManyToManyField(
         "ReparoEAdaptacao",
-        verbose_name="Reparos e Adaptações",
+        verbose_name=StringsVerboseNameModels.REPAROS_E_ADAPTACOES.value,
         blank=True,
     )
 
@@ -1030,8 +1084,10 @@ class EditalReparoEAdaptacao(ModeloBase):
         return f"Edital: {self.edital} - {self.reparos_e_adaptacoes.count()} reparos e adaptações"
 
     class Meta:
-        verbose_name = "Reparo e Adaptação Por Edital"
-        verbose_name_plural = "Reparos e Adaptações Por Edital"
+        verbose_name = StringsVerboseNameModels.REPARO_E_ADAPTACAO_POR_EDITAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.REPAROS_E_ADAPTACOES_POR_EDITAL.value
+        )
 
 
 class Insumo(ModeloBase, TemNomeMaior, StatusAtivoInativo):
@@ -1039,8 +1095,8 @@ class Insumo(ModeloBase, TemNomeMaior, StatusAtivoInativo):
         return self.nome
 
     class Meta:
-        verbose_name = "Insumo"
-        verbose_name_plural = "Insumos"
+        verbose_name = StringsVerboseNameModels.INSUMO.value
+        verbose_name_plural = StringsVerboseNameModels.INSUMOS.value
         ordering = ("nome",)
 
 
@@ -1052,7 +1108,7 @@ class EditalInsumo(ModeloBase):
 
     insumos = models.ManyToManyField(
         "Insumo",
-        verbose_name="Insumos",
+        verbose_name=StringsVerboseNameModels.INSUMOS.value,
         blank=True,
     )
 
@@ -1060,8 +1116,8 @@ class EditalInsumo(ModeloBase):
         return f"Edital: {self.edital} - {self.insumos.count()} insumos"
 
     class Meta:
-        verbose_name = "Insumo Por Edital"
-        verbose_name_plural = "Insumos Por Edital"
+        verbose_name = StringsVerboseNameModels.INSUMO_POR_EDITAL.value
+        verbose_name_plural = StringsVerboseNameModels.INSUMOS_POR_EDITAL.value
 
 
 class RespostaUtensilioMesa(ModeloBase, Grupo):
@@ -1072,7 +1128,7 @@ class RespostaUtensilioMesa(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_utensilios_mesa",
         null=True,
@@ -1091,8 +1147,8 @@ class RespostaUtensilioMesa(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Utensílio de Mesa"
-        verbose_name_plural = "Respostas Utensílio de Mesa"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_UTENSILIO_DE_MESA.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_UTENSILIO_DE_MESA.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -1104,7 +1160,7 @@ class RespostaUtensilioCozinha(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_utensilios_cozinha",
         null=True,
@@ -1123,8 +1179,10 @@ class RespostaUtensilioCozinha(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Utensílio de Cozinha"
-        verbose_name_plural = "Respostas Utensílio de Cozinha"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_UTENSILIO_DE_COZINHA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.RESPOSTAS_UTENSILIO_DE_COZINHA.value
+        )
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -1136,7 +1194,7 @@ class RespostaEquipamento(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_equipamentos",
         null=True,
@@ -1155,8 +1213,8 @@ class RespostaEquipamento(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Equipamento"
-        verbose_name_plural = "Respostas Equipamento"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_EQUIPAMENTO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_EQUIPAMENTO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -1168,7 +1226,7 @@ class RespostaMobiliario(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_mobiliarios",
         null=True,
@@ -1187,8 +1245,8 @@ class RespostaMobiliario(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Mobiliário"
-        verbose_name_plural = "Respostas Mobiliário"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_MOBILIARIO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_MOBILIARIO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -1200,7 +1258,7 @@ class RespostaReparoEAdaptacao(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_reparos_e_adaptacoes",
         null=True,
@@ -1219,8 +1277,10 @@ class RespostaReparoEAdaptacao(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Reparo e Adaptação"
-        verbose_name_plural = "Respostas Reparo e Adaptação"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_REPARO_E_ADAPTACAO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.RESPOSTAS_REPARO_E_ADAPTACAO.value
+        )
         unique_together = ("formulario_base", "parametrizacao", "grupo")
 
 
@@ -1232,7 +1292,7 @@ class RespostaInsumo(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_insumos",
         null=True,
@@ -1251,6 +1311,6 @@ class RespostaInsumo(ModeloBase, Grupo):
         return self.resposta.nome
 
     class Meta:
-        verbose_name = "Resposta Insumo"
-        verbose_name_plural = "Respostas Insumo"
+        verbose_name = StringsVerboseNameModels.RESPOSTA_INSUMO.value
+        verbose_name_plural = StringsVerboseNameModels.RESPOSTAS_INSUMO.value
         unique_together = ("formulario_base", "parametrizacao", "grupo")

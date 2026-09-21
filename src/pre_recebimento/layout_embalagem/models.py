@@ -11,6 +11,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 from ...dados_comuns.behaviors import (
@@ -72,8 +73,10 @@ class ImagemDoTipoDeEmbalagem(TemChaveExterna):
         super().delete(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Imagem do Tipo de Embalagem"
-        verbose_name_plural = "Imagens dos Tipos de Embalagens"
+        verbose_name = StringsVerboseNameModels.IMAGEM_DO_TIPO_DE_EMBALAGEM.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.IMAGENS_DOS_TIPOS_DE_EMBALAGENS.value
+        )
 
 
 class TipoDeEmbalagemDeLayout(TemChaveExterna):
@@ -116,7 +119,9 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
     status = models.CharField(
         choices=STATUS_CHOICES, max_length=10, default=STATUS_EM_ANALISE
     )
-    complemento_do_status = models.TextField("Complemento do status", blank=True)
+    complemento_do_status = models.TextField(
+        StringsVerboseNameModels.COMPLEMENTO_DO_STATUS.value, blank=True
+    )
 
     def __str__(self):
         """Retorna a representação textual do tipo de embalagem."""
@@ -127,8 +132,10 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
         )
 
     class Meta:
-        verbose_name = "Tipo de Embalagem de Layout"
-        verbose_name_plural = "Tipos de Embalagens de Layout"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_EMBALAGEM_DE_LAYOUT.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.TIPOS_DE_EMBALAGENS_DE_LAYOUT.value
+        )
         unique_together = ["layout_de_embalagem", "tipo_embalagem"]
 
 
@@ -153,7 +160,9 @@ class LayoutDeEmbalagem(
         null=True,
         related_name="layout_embalagem",
     )
-    observacoes = models.TextField("Observações", blank=True)
+    observacoes = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES.value, blank=True
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         """Registra o log de transição de status do layout.
@@ -259,5 +268,5 @@ class LayoutDeEmbalagem(
         )
 
     class Meta:
-        verbose_name = "Layout de Embalagem"
-        verbose_name_plural = "Layouts de Embalagem"
+        verbose_name = StringsVerboseNameModels.LAYOUT_DE_EMBALAGEM.value
+        verbose_name_plural = StringsVerboseNameModels.LAYOUTS_DE_EMBALAGEM.value
