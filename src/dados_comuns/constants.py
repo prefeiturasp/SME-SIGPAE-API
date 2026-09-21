@@ -612,6 +612,17 @@ class NomesParaTesteDiretoriaRegional(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsInformacoesPessoais(Enum):
+    NOME_ALUNO_PADRAO = "Roberto Alves da Silva"
+    CODIGO_ALUNO = "1234567"
+    NOME_ALUNO = "MARIA CLARA DOS SANTOS"
+    NOME_RESPONSAVEL = "JOSE CARLOS DOS SANTOS"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsValidationErrors(Enum):
     CODIGO_EOL_ESCOLA_OBRIGATORIO = "`codigo_eol_escola` como query_param é obrigatório"
     PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
@@ -724,7 +735,6 @@ class TIPOS_UNIDADE_ESCOLAR(Enum):
 
 
 TIPO_UNIDADE_CEI_DIRET = TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
-NOME_ALUNO_PADRAO = "Roberto Alves da Silva"
 MODEL_PERFIL = "perfil.Perfil"
 MODEL_VINCULO = "perfil.Vinculo"
 EMAIL_TESTE = "test@test.com"
