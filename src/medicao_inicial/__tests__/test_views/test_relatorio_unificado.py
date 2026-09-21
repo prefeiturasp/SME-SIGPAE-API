@@ -10,6 +10,7 @@ from rest_framework.test import APIClient
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
     GRUPO_RECREIO_NAS_FERIAS,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
@@ -235,10 +236,7 @@ class TestGeraRelatorioUnificado:
         )
 
         assert response.status_code == 200
-        assert (
-            response.json()["detail"]
-            == "Solicitação de geração de arquivo recebida com sucesso."
-        )
+        assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
         assert mock_delay.called
         assert mock_delay.call_count == 1
@@ -430,10 +428,7 @@ class TestGeraRelatorioUnificado:
         )
 
         assert response.status_code == 200
-        assert (
-            response.json()["detail"]
-            == "Solicitação de geração de arquivo recebida com sucesso."
-        )
+        assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
         assert mock_delay.called
         assert mock_delay.call_count == 1

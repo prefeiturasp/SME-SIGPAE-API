@@ -19,7 +19,10 @@ from rest_framework.status import (
 )
 from xworkflows.base import InvalidTransitionError
 
-from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA
+from src.dados_comuns.constants import (
+    ADMINISTRADOR_EMPRESA,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+)
 from src.dados_comuns.fluxo_status import (
     CronogramaWorkflow,
 )
@@ -678,7 +681,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         )
 
         return Response(
-            {"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=HTTP_200_OK,
         )
 
@@ -715,7 +718,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         )
 
         return Response(
-            {"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=HTTP_200_OK,
         )
 

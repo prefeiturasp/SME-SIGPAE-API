@@ -11,6 +11,7 @@ from rest_framework.status import HTTP_200_OK
 from ...dados_comuns.constants import (
     FILTRO_PADRAO_PEDIDOS,
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     MODULO_DIETA_ESPECIAL,
     SEM_FILTRO,
     TIPOS_ALIMENTACAO,
@@ -550,7 +551,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             unidades_educacionais=unidades_educacionais,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -570,7 +571,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             status=request.data.get("status", None),
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 

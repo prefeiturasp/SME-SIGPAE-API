@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     ADMINISTRADOR_GESTAO_PRODUTO,
     COORDENADOR_GESTAO_PRODUTO,
     DJANGO_ADMIN_PASSWORD,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import CentralDeDownload
@@ -28,7 +29,7 @@ from src.produto.models import NomeDeProdutoEdital
 
 URL_EXPORTAR_EXCEL = "/ficha-tecnica/exportar-excel/"
 URL_LISTAGEM_RELATORIO = "/ficha-tecnica/listagem-relatorio/"
-DETAIL_SUCESSO = "Solicitação de geração de arquivo recebida com sucesso."
+DETAIL_SUCESSO = MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 REGEX_NOME_ARQUIVO = r"Relatorio_Fichas_Tecnicas_\d{4}-\d{2}-\d{2}_\d{6}\.xlsx"
 
 

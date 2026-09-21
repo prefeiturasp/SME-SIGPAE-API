@@ -1373,10 +1373,7 @@ def test_relatorio_recreio_exportar_xlsx(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_relatorio_recreio_exportar_xlsx(
@@ -1388,10 +1385,7 @@ def test_relatorio_recreio_exportar_xlsx(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_logs_dieta_recreio_nas_ferias_escola_sem_log(

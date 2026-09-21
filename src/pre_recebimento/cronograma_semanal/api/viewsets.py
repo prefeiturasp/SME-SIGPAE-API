@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     USUARIO_EMPRESA,
 )
 from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
@@ -235,7 +236,7 @@ class CronogramaSemanalViewSet(
         )
 
         return Response(
-            {"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 

@@ -27,6 +27,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TEMPO_CACHE_6H,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
@@ -1214,7 +1215,7 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             user=user, nome_arquivo="relatorio_alunos_matriculados.pdf", uuids=uuids
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1231,7 +1232,7 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             user=user, nome_arquivo="relatorio_alunos_matriculados.xlsx", uuids=uuids
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1653,9 +1654,7 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except Exception:

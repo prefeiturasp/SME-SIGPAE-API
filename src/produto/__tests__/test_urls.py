@@ -2134,9 +2134,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_produtos_relatorio_reclamacoes_pdf_edital_vazio(
@@ -2183,9 +2181,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_excel(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_produtos_relatorio_reclamacoes_excel_edital_vazio(
