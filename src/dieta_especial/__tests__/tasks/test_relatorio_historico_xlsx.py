@@ -4,6 +4,7 @@ import pytest
 from freezegun.api import freeze_time
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import FaixasEtarias
 from src.dados_comuns.models import CentralDeDownload
 from src.dieta_especial.tasks import (
     gera_xlsx_relatorio_historico_dietas_especiais_async,
@@ -38,14 +39,18 @@ class TestGeraXlsxRelatorioHistoricoDietasEspeciaisAsync(BaseSetupHistoricoDieta
             )
 
             assert sheet["C5"].value == "CEI DIRET HAROLDO"
-            assert sheet["F5"].value == "07 a 11 meses"
-            assert sheet["F6"].value == "07 a 11 meses"
-            assert sheet["F7"].value == "01 ano a 03 anos e 11 meses"
-            assert sheet["F8"].value == "01 ano a 03 anos e 11 meses"
+            assert sheet["F5"].value == FaixasEtarias.SETE_A_ONZE_MESES.value
+            assert sheet["F6"].value == FaixasEtarias.SETE_A_ONZE_MESES.value
+            assert (
+                sheet["F7"].value == FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value
+            )
+            assert (
+                sheet["F8"].value == FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value
+            )
 
             assert sheet["C9"].value == "CEMEI ALZIRA"
-            assert sheet["F9"].value == "07 a 11 meses"
-            assert sheet["F10"].value == "07 a 11 meses"
+            assert sheet["F9"].value == FaixasEtarias.SETE_A_ONZE_MESES.value
+            assert sheet["F10"].value == FaixasEtarias.SETE_A_ONZE_MESES.value
             assert sheet["F11"].value == "Infantil"
             assert sheet["F12"].value == "Infantil"
             assert sheet["F13"].value == "Infantil"

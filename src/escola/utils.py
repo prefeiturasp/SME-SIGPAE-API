@@ -9,6 +9,7 @@ from django.db.models import Case, Q, Value, When
 from openpyxl import Workbook
 from rest_framework.pagination import PageNumberPagination
 
+from src.dados_comuns.constants import FaixasEtarias
 from src.eol_servico.utils import EOLServicoSGP
 
 from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
@@ -47,7 +48,7 @@ def meses_to_mes_e_ano_string(total_meses):
 
 def faixa_to_string(inicio, fim):
     if inicio == 0 and fim == 1:
-        return "0 a 1 mes"
+        return FaixasEtarias.ZERO_A_UM_MES.value
     if fim - inicio == 1:
         return meses_to_mes_e_ano_string(inicio)
     if inicio == 0:
@@ -62,7 +63,7 @@ def faixa_to_string(inicio, fim):
 
 
 def string_to_faixa(faixa_str):
-    if faixa_str.strip() == "0 a 1 mes":
+    if faixa_str.strip() == FaixasEtarias.ZERO_A_UM_MES.value:
         return 0, 1
     if "a" in faixa_str:
         str_inicio, str_fim = faixa_str.split(" a ")
@@ -882,11 +883,11 @@ def formata_periodos_pdf_controle_frequencia(
 
 def ordena_faixas_por_idade(periodos: list) -> list:
     ORDEM_FAIXA_ETARIA = {
-        "0 a 1 mes": 1,
-        "01 a 03 meses": 2,
-        "04 a 05 meses": 3,
-        "06 meses": 4,
-        "07 a 11 meses": 5,
+        FaixasEtarias.ZERO_A_UM_MES.value: 1,
+        FaixasEtarias.UM_A_TRES_MESES.value: 2,
+        FaixasEtarias.QUATRO_A_CINCO_MESES.value: 3,
+        FaixasEtarias.SEIS_MESES.value: 4,
+        FaixasEtarias.SETE_A_ONZE_MESES.value: 5,
         "1 a 3 anos e 11 meses": 6,
         "4 a 6 anos": 7,
     }

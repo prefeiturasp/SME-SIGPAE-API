@@ -17,6 +17,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
     StatusProcessamentoArquivo,
 )
 from src.dados_comuns.fluxo_status import (
@@ -733,7 +734,9 @@ def dia_suspensao_atividades(tipo_unidade_escolar):
 
 @pytest.fixture
 def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regular):
-    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    faixas_etarias = [
+        {"nome": FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value, "uuid": uuid.uuid4()}
+    ]
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
@@ -765,7 +768,9 @@ def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regula
 def dados_planilha_alunos_matriculados_cei_cemei(
     alunos_matriculados_periodo_escola_regular,
 ):
-    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    faixas_etarias = [
+        {"nome": FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value, "uuid": uuid.uuid4()}
+    ]
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
