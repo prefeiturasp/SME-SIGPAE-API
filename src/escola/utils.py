@@ -502,41 +502,10 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
         datetime_autorizacao = datetime.strptime(
             dieta.data_autorizacao, FORMATO_DATA_BRASILEIRO
         )
-        if data_inicial and data_final:
-            if (
-                datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
-                and datetime_autorizacao <= datetime.strptime(data_final, "%Y-%m-%d")
-            ) or (datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")):
-                alunos_com_dietas_autorizadas.append(
-                    {
-                        "aluno": dieta.aluno.nome,
-                        "tipo_dieta": dieta.classificacao.nome,
-                        "data_autorizacao": dieta.data_autorizacao,
-                    }
-                )
-        elif not data_inicial and not data_final:
-            mes_ano = query_params.get("mes_ano")
-            mes, ano = mes_ano.split("_")
-            _, num_dias = monthrange(
-                int(ano),
-                int(mes),
-            )
-            if (
-                datetime_autorizacao
-                >= datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
-                and datetime_autorizacao
-                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
-            ) or (
-                datetime_autorizacao
-                < datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
-            ):
-                alunos_com_dietas_autorizadas.append(
-                    {
-                        "aluno": dieta.aluno.nome,
-                        "tipo_dieta": dieta.classificacao.nome,
-                        "data_autorizacao": dieta.data_autorizacao,
-                    }
-                )
+        if _dieta_no_periodo(
+            datetime_autorizacao, data_inicial, data_final, query_params
+        ):
+            alunos_com_dietas_autorizadas.append(_monta_dict_dieta(dieta))
         alunos_com_dietas_autorizadas = analise_alunos_dietas_somente_uma_data(
             datetime_autorizacao,
             data_inicial,
@@ -545,6 +514,39 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
             alunos_com_dietas_autorizadas,
         )
     return alunos_com_dietas_autorizadas
+
+
+def _monta_dict_dieta(dieta):
+    return {
+        "aluno": dieta.aluno.nome,
+        "tipo_dieta": dieta.classificacao.nome,
+        "data_autorizacao": dieta.data_autorizacao,
+    }
+
+
+def _dieta_no_periodo(datetime_autorizacao, data_inicial, data_final, query_params):
+    if data_inicial and data_final:
+        return (
+            datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
+            and datetime_autorizacao <= datetime.strptime(data_final, "%Y-%m-%d")
+        ) or (datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d"))
+    if not data_inicial and not data_final:
+        return _dieta_no_mes(datetime_autorizacao, query_params.get("mes_ano"))
+    return False
+
+
+def _dieta_no_mes(datetime_autorizacao, mes_ano):
+    mes, ano = mes_ano.split("_")
+    _, num_dias = monthrange(int(ano), int(mes))
+    return (
+        datetime_autorizacao
+        >= datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
+        and datetime_autorizacao
+        <= datetime.strptime(f"{num_dias}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
+    ) or (
+        datetime_autorizacao
+        < datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
+    )
 
 
 def trata_filtro_data_relatorio_controle_frequencia_pdf(
