@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
-from src.dados_comuns.constants import StringsValidationErrors
+from src.dados_comuns.constants import StringsSearchHelpText, StringsValidationErrors
 from utility.carga_dados.escola.importa_dados import (
     cria_usuario_cogestor,
     cria_usuario_diretor,
@@ -209,7 +209,9 @@ class VinculoAdmin(admin.ModelAdmin):
         "usuario__registro_funcional",
         "usuario__cpf",
     )
-    search_help_text = "Pesquisa por: nome do usuário, username, email, CPF ou RF"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_NOME_DO_USUARIO_USERNAME_EMAIL_CPF_OU_RF.value
+    )
     list_filter = (
         "ativo",
         "content_type",
