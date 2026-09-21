@@ -139,12 +139,18 @@ group by cardapio.id,
 union
 select inversao_cardapio.id,
        inversao_cardapio.uuid,
-       case
-           when inversao_cardapio.data_de_inversao is null then inversao_cardapio.data_para_inversao
-           when inversao_cardapio.data_para_inversao is null then inversao_cardapio.data_de_inversao
-           when inversao_cardapio.data_de_inversao <= inversao_cardapio.data_para_inversao then inversao_cardapio.data_de_inversao
-           else inversao_cardapio.data_para_inversao
-           end                       as data_evento,
+       (
+           select min(d)
+           from unnest(
+               array[
+                   inversao_cardapio.data_de_inversao,
+                   inversao_cardapio.data_para_inversao,
+                   inversao_cardapio.data_de_inversao_2,
+                   inversao_cardapio.data_para_inversao_2
+               ]
+           ) as d
+           where d is not null
+       )                         as data_evento,
        null                          as data_evento_fim,
        case
            when inversao_cardapio.data_de_inversao_2 is null then inversao_cardapio.data_para_inversao_2

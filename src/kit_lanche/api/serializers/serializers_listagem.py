@@ -25,7 +25,7 @@ CAMPOS_LISTAGEM = (
 class SolicitacaoKitLancheEscolaNomeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Escola
-        fields = ("uuid", "nome")
+        fields = ("uuid", "nome", "codigo_eol")
 
 
 class PrioridadeRequestCacheMixin:
