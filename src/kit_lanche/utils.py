@@ -112,7 +112,7 @@ def anexa_logs_prefetched(objetos):
     objetos = list(objetos)
     uuids = [obj.uuid for obj in objetos]
     if not uuids:
-        return objetos
+        return
     logs = list(
         LogSolicitacoesUsuario.objects.filter(uuid_original__in=uuids).order_by(
             "criado_em"
@@ -126,7 +126,6 @@ def anexa_logs_prefetched(objetos):
         logs_por_uuid[log.uuid_original].append(log)
     for obj in objetos:
         obj._prefetched_logs = logs_por_uuid.get(obj.uuid, [])
-    return objetos
 
 
 def prepara_solicitacoes_listagem_similares(solicitacoes, model):
@@ -152,7 +151,8 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
         .select_related(*select)
         .prefetch_related(*prefetch)
     )
-    pool = anexa_logs_prefetched(pool)
+    pool = list(pool)
+    anexa_logs_prefetched(pool)
     por_chave = defaultdict(list)
     for obj in pool:
         chave = (obj.escola_id, obj.solicitacao_kit_lanche.data)
@@ -193,7 +193,8 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
             "solicitacao_cei__faixas_quantidades__faixa_etaria",
         )
     )
-    pool = anexa_logs_prefetched(pool)
+    pool = list(pool)
+    anexa_logs_prefetched(pool)
     por_chave = defaultdict(list)
     for obj in pool:
         por_chave[(obj.escola_id, obj.data)].append(obj)
