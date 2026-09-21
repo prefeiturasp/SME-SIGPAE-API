@@ -11,6 +11,7 @@ from rest_framework.viewsets import ModelViewSet
 from xworkflows import InvalidTransitionError
 
 from ...dados_comuns import constants
+from ...dados_comuns.constants import PayloadVariaveis
 from ...dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarObjeto,
@@ -108,7 +109,9 @@ class KitLancheViewSet(ModelViewSet):
         try:
             nome = request.query_params.get("nome").upper()
             edital = request.query_params.get("edital")
-            tipos_unidades = request.query_params.getlist("tipos_unidades[]")
+            tipos_unidades = request.query_params.getlist(
+                PayloadVariaveis.TIPOS_UNIDADES.value
+            )
             uuid = request.query_params.get("uuid")
             kit_lanche = self.queryset.distinct().get(
                 nome=nome,

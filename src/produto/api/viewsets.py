@@ -50,6 +50,7 @@ from ...dados_comuns.constants import (
     TIPO_USUARIO_NUTRISUPERVISOR,
     TIPO_USUARIO_ORGAO_FISCALIZADOR,
     TIPO_USUARIO_TERCEIRIZADA,
+    PayloadVariaveis,
 )
 from ...dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
@@ -2416,8 +2417,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao")
     def relatorio_reclamacao(self, request):
         if (
-            request.query_params.getlist("editais[]") == []
-            or request.query_params.getlist("editais[]") is None
+            request.query_params.getlist(PayloadVariaveis.EDITAIS.value) == []
+            or request.query_params.getlist(PayloadVariaveis.EDITAIS.value) is None
         ):
             return Response(
                 dict(
@@ -2431,8 +2432,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtro_reclamacao, filtro_homologacao
         )
         filtros = {
-            "editais": request.query_params.getlist("editais[]"),
-            "lotes": request.query_params.getlist("lotes[]"),
+            "editais": request.query_params.getlist(PayloadVariaveis.EDITAIS.value),
+            "lotes": request.query_params.getlist(PayloadVariaveis.LOTES.value),
             "data_inicial_reclamacao": request.query_params.get(
                 "data_inicial_reclamacao"
             ),
@@ -2525,8 +2526,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao-excel")
     def relatorio_reclamacao_excel(self, request):
         if (
-            request.query_params.getlist("editais[]") == []
-            or request.query_params.getlist("editais[]") is None
+            request.query_params.getlist(PayloadVariaveis.EDITAIS.value) == []
+            or request.query_params.getlist(PayloadVariaveis.EDITAIS.value) is None
         ):
             return Response(
                 dict(
@@ -2540,8 +2541,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtro_reclamacao, filtro_homologacao
         )
         filtros = {
-            "editais": request.query_params.getlist("editais[]"),
-            "lotes": request.query_params.getlist("lotes[]"),
+            "editais": request.query_params.getlist(PayloadVariaveis.EDITAIS.value),
+            "lotes": request.query_params.getlist(PayloadVariaveis.LOTES.value),
             "data_inicial_reclamacao": request.query_params.get(
                 "data_inicial_reclamacao"
             ),

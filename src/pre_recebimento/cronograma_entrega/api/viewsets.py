@@ -22,6 +22,7 @@ from xworkflows.base import InvalidTransitionError
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    PayloadVariaveis,
 )
 from src.dados_comuns.fluxo_status import (
     CronogramaWorkflow,
@@ -1174,8 +1175,10 @@ class InterrupcaoProgramadaEntregaViewSet(
         qs = super().get_queryset()
         mes = self.request.query_params.get("mes")
         ano = self.request.query_params.get("ano")
-        motivo = self.request.query_params.getlist("motivo[]")
-        tipo_calendario = self.request.query_params.getlist("tipo_calendario[]")
+        motivo = self.request.query_params.getlist(PayloadVariaveis.MOTIVO.value)
+        tipo_calendario = self.request.query_params.getlist(
+            PayloadVariaveis.TIPO_CALENDARIO.value
+        )
 
         if mes and ano:
             qs = qs.filter(data__month=mes, data__year=ano)

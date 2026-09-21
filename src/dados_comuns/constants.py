@@ -604,6 +604,39 @@ class ClassificacoesDietasDeprecadas(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class PayloadVariaveis(Enum):
+    LOTES = "lotes[]"
+    EDITAIS = "editais[]"
+    ESCOLA_UUID = "escola__uuid[]"
+    TIPO_CONTAGEM_ALIMENTACOES = "tipo_contagem_alimentacoes[]"
+    LOTES_SELECIONADOS = "lotes_selecionados[]"
+    TIPOS_UNIDADES = "tipos_unidades[]"
+    DIRETORIAS_REGIONAIS = "diretorias_regionais[]"
+    CLASSIFICACOES_SELECIONADAS = "classificacoes_selecionadas[]"
+    TIPO_UNIDADE_UUID = "tipo_unidade__uuid[]"
+    TIPOS_CONTAGEM_ALIMENTACAO = "tipos_contagem_alimentacao[]"
+    PROTOCOLOS_PADRAO_SELECIONADOS = "protocolos_padrao_selecionados[]"
+    PERIODOS_ESCOLARES_SELECIONADAS = "periodos_escolares_selecionadas[]"
+    UNIDADES_EDUCACIONAIS_SELECIONADAS = "unidades_educacionais_selecionadas[]"
+    UNIDADES_EDUCACIONAIS = "unidades_educacionais[]"
+    TIPOS_UNIDADES_SELECIONADAS = "tipos_unidades_selecionadas[]"
+    TIPOS_TURMAS = "tipos_turmas[]"
+    TERCEIRIZADAS = "terceirizadas[]"
+    STATUS_RECLAMACAO = "status_reclamacao[]"
+    PERIODOS_ESCOLARES = "periodos_escolares[]"
+    LOTE_UUID = "lote__uuid[]"
+    EXCLUIR_TIPO_UNIDADE_UUID = "excluir_tipo_unidade__uuid[]"
+    ALERGIAS_INTOLERANCIAS_SELECIONADAS = "alergias_intolerancias_selecionadas[]"
+    TIPOS_ALIMENTACAO = "tipos_alimentacao[]"
+    TIPO_CALENDARIO = "tipo_calendario[]"
+    SOLICITACOES = "solicitacoes[]"
+    MOTIVO = "motivo[]"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StatusProcessamentoArquivo(Enum):
     PENDENTE = "PENDENTE"
     SUCESSO = "SUCESSO"
