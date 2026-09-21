@@ -69,7 +69,7 @@ def arquivo_docx_base64():
 def aluno():
     return baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -233,7 +233,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -1027,7 +1027,7 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola,
@@ -1058,7 +1058,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1099,7 +1099,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
     baker.make(FaixaEtaria, inicio=32, fim=88)
     aluno_a = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cemei,
@@ -1176,7 +1176,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_emebs,
@@ -1271,7 +1271,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
     baker.make(ClassificacaoDieta, nome="Tipo C")
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1332,7 +1332,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
     with freeze_time("2025-1-10"):
         aluno = baker.make(
             Aluno,
-            nome=constants.NOME_ALUNO_PADRAO,
+            nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
             codigo_eol="123456",
             data_nascimento="2022-01-01",
             escola=escola_cei,

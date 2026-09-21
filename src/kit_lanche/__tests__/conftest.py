@@ -11,9 +11,9 @@ from ...dados_comuns.constants import (
     MODEL_DIRETORIA_REGIONAL,
     MODEL_ESCOLA,
     MODEL_LOTE,
-    NOME_ALUNO_PADRAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsInformacoesPessoais,
 )
 from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
@@ -104,7 +104,7 @@ def dia_suspensao_atividades_2019_11_13(escola):
 def aluno():
     return baker.make(
         Aluno,
-        nome=NOME_ALUNO_PADRAO,
+        nome=StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
         uuid="2d20157a-4e52-4d25-a4c7-9c0e6b67ee18",
