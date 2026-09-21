@@ -470,7 +470,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         )
 
         escola_particular = EscolaFactory.create(
-            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+            codigo_eol="000222",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.ESC_PART.value,
         )
 
         mock_coleta_dados.return_value = []
@@ -504,7 +505,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         )
 
         escola_particular = EscolaFactory.create(
-            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+            codigo_eol="000222",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.ESC_PART.value,
         )
         mock_obtem_alunos.return_value = [{}]
         command = Command()
@@ -542,7 +544,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         )
 
         escola_particular = EscolaFactory.create(
-            codigo_eol="000221", tipo_unidade__iniciais="ESC.PART."
+            codigo_eol="000221",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.ESC_PART.value,
         )
         aluno_particulas = AlunoFactory.create(
             codigo_eol="8899999",
