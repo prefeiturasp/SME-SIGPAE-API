@@ -13,6 +13,7 @@ from src.dados_comuns.behaviors import (
     Nomeavel,
     TemChaveExterna,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 
 
 class Perfil(
@@ -36,9 +37,11 @@ class Perfil(
         (EMPRESA, "Empresa"),
     )
 
-    super_usuario = models.BooleanField("Super usuario na instiuição?", default=False)
+    super_usuario = models.BooleanField(
+        StringsVerboseNameModels.SUPER_USUARIO_NA_INSTIUICAO.value, default=False
+    )
     visao = models.CharField(  # noqa
-        "Visão",
+        StringsVerboseNameModels.VISAO.value,
         choices=VISAO_CHOICES,
         max_length=25,
         blank=True,
@@ -69,8 +72,8 @@ class Perfil(
         ]
 
     class Meta:
-        verbose_name = "Perfil"
-        verbose_name_plural = "Perfis"
+        verbose_name = StringsVerboseNameModels.PERFIL.value
+        verbose_name_plural = StringsVerboseNameModels.PERFIS.value
 
     def __str__(self):
         return self.nome
@@ -99,8 +102,12 @@ class Vinculo(Ativavel, TemChaveExterna):
 
     STATUS_AGUARDANDO_ATIVACAO, STATUS_ATIVO, STATUS_FINALIZADO = range(3)
 
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
     perfil = models.ForeignKey("Perfil", on_delete=models.PROTECT)
     usuario = models.ForeignKey(
         "Usuario", on_delete=models.PROTECT, related_name="vinculos"
@@ -179,8 +186,8 @@ class Vinculo(Ativavel, TemChaveExterna):
         )
 
     class Meta:
-        verbose_name = "Vínculo"
-        verbose_name_plural = "Vínculos"
+        verbose_name = StringsVerboseNameModels.VINCULO.value
+        verbose_name_plural = StringsVerboseNameModels.VINCULOS.value
 
     def __str__(self):
         return f"{self.usuario.username} - {self.usuario.nome} - de {self.data_inicial} até {self.data_final}"
@@ -197,8 +204,8 @@ class PerfisVinculados(models.Model):
     )
 
     class Meta:
-        verbose_name = "Perfis Vinculados"
-        verbose_name_plural = "Perfis Vinculados"
+        verbose_name = StringsVerboseNameModels.PERFIS_VINCULADOS.value
+        verbose_name_plural = StringsVerboseNameModels.PERFIS_VINCULADOS.value
 
     def __str__(self):
         return self.perfil_master.nome

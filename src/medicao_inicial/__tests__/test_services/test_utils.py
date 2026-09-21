@@ -14,6 +14,7 @@ from src.dados_comuns.constants import (
     NOMES_CAMPOS,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
 )
 from src.medicao_inicial.services.utils import (
     generate_columns,
@@ -481,19 +482,64 @@ def test_gera_colunas_alimentacao_cemei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "0 a 1 mes") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 6
     assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 6
-    )
-    assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        sum(1 for tupla in colunas_df if tupla[1] == FaixasEtarias.ZERO_A_UM_MES.value)
         == 6
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == FaixasEtarias.UM_A_TRES_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.QUATRO_A_CINCO_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.SEIS_A_SETE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.OITO_A_ONZE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.UM_ANO_A_UM_ANO_E_ONZE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.DOIS_ANOS_A_TRES_ANOS_E_ONZE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value
+        )
+        == 6
+    )
 
     assert (
         sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)

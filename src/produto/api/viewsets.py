@@ -42,6 +42,7 @@ from src.produto.utils.genericos import (
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPO_USUARIO_CODAE_GABINETE,
     TIPO_USUARIO_DIRETORIA_REGIONAL,
     TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -49,6 +50,7 @@ from ...dados_comuns.constants import (
     TIPO_USUARIO_NUTRISUPERVISOR,
     TIPO_USUARIO_ORGAO_FISCALIZADOR,
     TIPO_USUARIO_TERCEIRIZADA,
+    PayloadVariaveis,
 )
 from ...dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
@@ -111,6 +113,9 @@ from ..models import (
     SolicitacaoCadastroProdutoDieta,
     UnidadeMedida,
 )
+from ..services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
+)
 from ..tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
     gera_imagens_historico_reclamacao_produto_async,
@@ -141,6 +146,7 @@ from .filters import (
     ProdutoFilter,
     filtros_produto_reclamacoes,
 )
+from .permissions import PermissaoArquivosHistoricoReclamacao
 from .serializers.serializers import (
     CadastroProdutosEditalSerializer,
     EmbalagemProdutoSerialzer,
@@ -175,10 +181,6 @@ from .serializers.serializers import (
     UnidadeMedidaSerialzer,
     VinculosProdutosEditalAtivosSerializer,
 )
-from ..services.historico_reclamacao_produto import (
-    ServicoHistoricoReclamacaoProduto,
-)
-from .permissions import PermissaoArquivosHistoricoReclamacao
 from .serializers.serializers_create import (
     CadastroProdutosEditalCreateSerializer,
     ProdutoEditalCreateSerializer,
@@ -387,7 +389,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             object_id=request.user.vinculo_atual.object_id,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1908,7 +1910,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1945,7 +1947,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             object_id=request.user.vinculo_atual.object_id,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2297,7 +2299,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2415,8 +2417,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao")
     def relatorio_reclamacao(self, request):
         if (
-            request.query_params.getlist("editais[]") == []
-            or request.query_params.getlist("editais[]") is None
+            request.query_params.getlist(PayloadVariaveis.EDITAIS.value) == []
+            or request.query_params.getlist(PayloadVariaveis.EDITAIS.value) is None
         ):
             return Response(
                 dict(
@@ -2430,8 +2432,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtro_reclamacao, filtro_homologacao
         )
         filtros = {
-            "editais": request.query_params.getlist("editais[]"),
-            "lotes": request.query_params.getlist("lotes[]"),
+            "editais": request.query_params.getlist(PayloadVariaveis.EDITAIS.value),
+            "lotes": request.query_params.getlist(PayloadVariaveis.LOTES.value),
             "data_inicial_reclamacao": request.query_params.get(
                 "data_inicial_reclamacao"
             ),
@@ -2446,7 +2448,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2524,8 +2526,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["GET"], url_path="relatorio-reclamacao-excel")
     def relatorio_reclamacao_excel(self, request):
         if (
-            request.query_params.getlist("editais[]") == []
-            or request.query_params.getlist("editais[]") is None
+            request.query_params.getlist(PayloadVariaveis.EDITAIS.value) == []
+            or request.query_params.getlist(PayloadVariaveis.EDITAIS.value) is None
         ):
             return Response(
                 dict(
@@ -2539,8 +2541,8 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtro_reclamacao, filtro_homologacao
         )
         filtros = {
-            "editais": request.query_params.getlist("editais[]"),
-            "lotes": request.query_params.getlist("lotes[]"),
+            "editais": request.query_params.getlist(PayloadVariaveis.EDITAIS.value),
+            "lotes": request.query_params.getlist(PayloadVariaveis.LOTES.value),
             "data_inicial_reclamacao": request.query_params.get(
                 "data_inicial_reclamacao"
             ),
@@ -2557,7 +2559,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -3563,9 +3565,7 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
     def _obter_configuracao_download_historico(tipo_arquivo):
         return {
             "pdf": {
-                "obter_anexos": (
-                    ServicoHistoricoReclamacaoProduto.obter_pdfs_acao
-                ),
+                "obter_anexos": (ServicoHistoricoReclamacaoProduto.obter_pdfs_acao),
                 "obter_nome": (
                     ServicoHistoricoReclamacaoProduto.obter_nome_download_pdfs
                 ),
@@ -3578,9 +3578,7 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                 ),
             },
             "imagens": {
-                "obter_anexos": (
-                    ServicoHistoricoReclamacaoProduto.obter_imagens_acao
-                ),
+                "obter_anexos": (ServicoHistoricoReclamacaoProduto.obter_imagens_acao),
                 "obter_nome": (
                     ServicoHistoricoReclamacaoProduto.obter_nome_download_imagens
                 ),

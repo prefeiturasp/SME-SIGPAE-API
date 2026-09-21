@@ -3,6 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
+from src.dados_comuns.constants import PayloadVariaveis
 from src.produto.api.filters import (
     CadastroProdutosEditalFilter,
     FabricanteFilter,
@@ -162,12 +163,15 @@ def test_filtros_produto_reclamacoes():
 
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "status_reclamacao[]",
+        PayloadVariaveis.STATUS_RECLAMACAO.value,
         ["APROVADO", "REPROVADO"],
     )
-    query_params.setlist("editais[]", ["Edital 1", "Edital 2"])
-    query_params.setlist("lotes[]", ["Lote 1", "Lote 2"])
-    query_params.setlist("terceirizadas[]", ["Terceirizada 1", "Terceirizada 2"])
+    query_params.setlist(PayloadVariaveis.EDITAIS.value, ["Edital 1", "Edital 2"])
+    query_params.setlist(PayloadVariaveis.LOTES.value, ["Lote 1", "Lote 2"])
+    query_params.setlist(
+        PayloadVariaveis.TERCEIRIZADAS.value,
+        ["Terceirizada 1", "Terceirizada 2"],
+    )
     query_params["data_inicial_reclamacao"] = "01/04/2025"
     query_params["data_final_reclamacao"] = "12/04/2025"
 

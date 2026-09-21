@@ -27,9 +27,12 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TEMPO_CACHE_6H,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    PayloadVariaveis,
+    StringsValidationErrors,
 )
 from src.medicao_inicial.tasks import (
     exporta_relatorio_controle_frequencia_para_pdf,
@@ -961,7 +964,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
             )
             if not codigo_eol_escola:
                 raise ValidationError(
-                    "`codigo_eol_escola` como query_param é obrigatório"
+                    StringsValidationErrors.CODIGO_EOL_ESCOLA_OBRIGATORIO.value
                 )
             escola = Escola.objects.get(codigo_eol=codigo_eol_escola)
             if not escola.eh_cemei:
@@ -984,7 +987,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
             codigo_eol_escola = request.query_params.get("codigo_eol_escola", None)
             if not codigo_eol_escola:
                 raise ValidationError(
-                    "`codigo_eol_escola` como query_param é obrigatório"
+                    StringsValidationErrors.CODIGO_EOL_ESCOLA_OBRIGATORIO.value
                 )
             escola = Escola.objects.get(codigo_eol=codigo_eol_escola)
             if not escola.eh_cemei:
@@ -1007,7 +1010,7 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
             nome_aluno = request.query_params.get("nome_aluno", False)
             if not codigo_eol_escola:
                 raise ValidationError(
-                    "`codigo_eol_escola` como query_param é obrigatório"
+                    StringsValidationErrors.CODIGO_EOL_ESCOLA_OBRIGATORIO.value
                 )
             if not nome_aluno:
                 raise ValidationError("`nome_aluno` como query_param é obrigatório")
@@ -1112,12 +1115,14 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
 
     def obter_alunos_matriculados(self, request, lotes):
         query_params = request.query_params
-        if query_params.getlist("lotes[]"):
-            lotes = lotes.filter(uuid__in=query_params.getlist("lotes[]"))
-        if query_params.getlist("diretorias_regionais[]"):
+        if query_params.getlist(PayloadVariaveis.LOTES.value):
+            lotes = lotes.filter(
+                uuid__in=query_params.getlist(PayloadVariaveis.LOTES.value)
+            )
+        if query_params.getlist(PayloadVariaveis.DIRETORIAS_REGIONAIS.value):
             lotes = lotes.filter(
                 diretoria_regional__uuid__in=query_params.getlist(
-                    "diretorias_regionais[]"
+                    PayloadVariaveis.DIRETORIAS_REGIONAIS.value
                 )
             )
         escolas_uuids = lotes.values_list("escolas__uuid", flat=True).distinct()
@@ -1131,20 +1136,22 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
         return alunos_matriculados
 
     def filtra_alunos_matriculados(self, queryset, query_params):
-        if query_params.getlist("diretorias_regionais[]"):
+        if query_params.getlist(PayloadVariaveis.DIRETORIAS_REGIONAIS.value):
             queryset = queryset.filter(
                 escola__diretoria_regional__uuid__in=query_params.getlist(
-                    "diretorias_regionais[]"
+                    PayloadVariaveis.DIRETORIAS_REGIONAIS.value
                 )
             )
-        if query_params.getlist("tipos_unidades[]"):
-            tipos = query_params.getlist("tipos_unidades[]")
+        if query_params.getlist(PayloadVariaveis.TIPOS_UNIDADES.value):
+            tipos = query_params.getlist(PayloadVariaveis.TIPOS_UNIDADES.value)
             queryset = queryset.filter(escola__tipo_unidade__uuid__in=tipos)
-        if query_params.getlist("unidades_educacionais[]"):
-            unidades_eudacionais = query_params.getlist("unidades_educacionais[]")
+        if query_params.getlist(PayloadVariaveis.UNIDADES_EDUCACIONAIS.value):
+            unidades_eudacionais = query_params.getlist(
+                PayloadVariaveis.UNIDADES_EDUCACIONAIS.value
+            )
             queryset = queryset.filter(escola__uuid__in=unidades_eudacionais)
-        if query_params.getlist("tipos_turmas[]"):
-            tipos_turmas = query_params.getlist("tipos_turmas[]")
+        if query_params.getlist(PayloadVariaveis.TIPOS_TURMAS.value):
+            tipos_turmas = query_params.getlist(PayloadVariaveis.TIPOS_TURMAS.value)
             queryset = queryset.filter(tipo_turma__in=tipos_turmas)
         return queryset
 
@@ -1214,7 +1221,7 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             user=user, nome_arquivo="relatorio_alunos_matriculados.pdf", uuids=uuids
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1231,7 +1238,7 @@ class RelatorioAlunosMatriculadosViewSet(ModelViewSet):
             user=user, nome_arquivo="relatorio_alunos_matriculados.xlsx", uuids=uuids
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1653,9 +1660,7 @@ class RelatorioControleDeFrequenciaViewSet(ModelViewSet):
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except Exception:

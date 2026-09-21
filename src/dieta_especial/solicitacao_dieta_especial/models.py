@@ -35,6 +35,7 @@ from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     MODEL_ESCOLA,
     MODULO_DIETA_ESPECIAL,
+    StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -127,8 +128,8 @@ class MotivoAlteracaoUE(Descritivel, Nomeavel, TemChaveExterna, Ativavel):
         return self.nome
 
     class Meta:
-        verbose_name = "Motivo Alteração U.E"
-        verbose_name_plural = "Motivo Alteração U.E"
+        verbose_name = StringsVerboseNameModels.MOTIVO_ALTERACAO_U_E.value
+        verbose_name_plural = StringsVerboseNameModels.MOTIVO_ALTERACAO_U_E.value
 
 
 class AlergiaIntolerancia(Descritivel):
@@ -214,30 +215,34 @@ class SolicitacaoDietaEspecial(
         related_name="dietas_especiais",
     )
     nome_completo_pescritor = models.CharField(
-        "Nome completo do pescritor da receita",
+        StringsVerboseNameModels.NOME_COMPLETO_DO_PESCRITOR_DA_RECEITA.value,
         max_length=200,
         validators=[MinLengthValidator(6)],
         blank=True,
     )
     registro_funcional_pescritor = models.CharField(
-        "Registro funcional do pescritor da receita",
+        StringsVerboseNameModels.REGISTRO_FUNCIONAL_DO_PESCRITOR_DA_RECEITA.value,
         help_text="CRN/CRM/CRFa...",
         max_length=200,
         validators=[MinLengthValidator(4), MaxLengthValidator(6)],
         blank=True,
     )
     registro_funcional_nutricionista = models.CharField(
-        "Registro funcional do nutricionista",
+        StringsVerboseNameModels.REGISTRO_FUNCIONAL_DO_NUTRICIONISTA.value,
         help_text="CRN/CRM/CRFa...",
         max_length=200,
         validators=[MinLengthValidator(6)],
         blank=True,
     )
     # Preenchido pela Escola
-    observacoes = models.TextField("Observações", blank=True)
+    observacoes = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES.value, blank=True
+    )
 
     # Preenchido pela_ CODAE ao autorizar a dieta
-    informacoes_adicionais = models.TextField("Informações Adicionais", blank=True)
+    informacoes_adicionais = models.TextField(
+        StringsVerboseNameModels.INFORMACOES_ADICIONAIS.value, blank=True
+    )
 
     protocolo_padrao = models.ForeignKey(
         "ProtocoloPadraoDietaEspecial",
@@ -247,10 +252,14 @@ class SolicitacaoDietaEspecial(
         null=True,
     )
 
-    nome_protocolo = models.TextField("Nome do Protocolo", blank=True)
+    nome_protocolo = models.TextField(
+        StringsVerboseNameModels.NOME_DO_PROTOCOLO.value, blank=True
+    )
 
     # Preenchido pela NutriCODAE ao autorizar a dieta
-    orientacoes_gerais = models.TextField("Orientações Gerais", blank=True)
+    orientacoes_gerais = models.TextField(
+        StringsVerboseNameModels.ORIENTACOES_GERAIS.value, blank=True
+    )
 
     # TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo
     classificacao = models.ForeignKey(
@@ -288,18 +297,24 @@ class SolicitacaoDietaEspecial(
         default="COMUM",
     )
 
-    observacoes_alteracao = models.TextField("Observações Alteração", blank=True)
-
-    caracteristicas_do_alimento = models.TextField(
-        "Características dos alimentos", blank=True
+    observacoes_alteracao = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES_ALTERACAO.value, blank=True
     )
 
-    conferido = models.BooleanField("Marcar como conferido?", default=False)
+    caracteristicas_do_alimento = models.TextField(
+        StringsVerboseNameModels.CARACTERISTICAS_DOS_ALIMENTOS.value, blank=True
+    )
 
-    eh_importado = models.BooleanField("Proveniente de importacao?", default=False)
+    conferido = models.BooleanField(
+        StringsVerboseNameModels.MARCAR_COMO_CONFERIDO.value, default=False
+    )
+
+    eh_importado = models.BooleanField(
+        StringsVerboseNameModels.PROVENIENTE_DE_IMPORTACAO.value, default=False
+    )
 
     dieta_para_recreio_ferias = models.BooleanField(
-        "Dieta para Recreio nas Férias", default=False
+        StringsVerboseNameModels.DIETA_PARA_RECREIO_NAS_FERIAS.value, default=False
     )
 
     @classmethod
@@ -686,8 +701,10 @@ class SolicitacaoDietaEspecial(
 
     class Meta:
         ordering = ("-ativo", "-criado_em")
-        verbose_name = "Solicitação de dieta especial"
-        verbose_name_plural = "Solicitações de dieta especial"
+        verbose_name = StringsVerboseNameModels.SOLICITACAO_DE_DIETA_ESPECIAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.SOLICITACOES_DE_DIETA_ESPECIAL.value
+        )
 
     def __str__(self) -> str:
         """Retorna a representação legível da solicitação.

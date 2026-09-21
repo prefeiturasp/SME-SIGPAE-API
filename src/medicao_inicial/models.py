@@ -8,6 +8,8 @@ import numpy
 from django.db import models
 from django.db.models import Q
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
@@ -59,8 +61,8 @@ class TipoSobremesaDoce(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel, Ativ
         return self.nome
 
     class Meta:
-        verbose_name = "Tipo de Sobremesa Doce"
-        verbose_name_plural = "Tipos de Sobremesa Doce"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_SOBREMESA_DOCE.value
+        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_SOBREMESA_DOCE.value
 
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
@@ -82,8 +84,8 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
-        verbose_name = "Dia de sobremesa doce"
-        verbose_name_plural = "Dias de sobremesa doce"
+        verbose_name = StringsVerboseNameModels.DIA_DE_SOBREMESA_DOCE.value
+        verbose_name_plural = StringsVerboseNameModels.DIAS_DE_SOBREMESA_DOCE.value
         unique_together = (
             "tipo_unidade",
             "data",
@@ -113,13 +115,16 @@ class SolicitacaoMedicaoInicial(
     tipos_contagem_alimentacao = models.ManyToManyField(
         "TipoContagemAlimentacao", related_name="solicitacoes_medicao_inicial"
     )
-    com_ocorrencias = models.BooleanField("Com ocorrências?", default=False)
+    com_ocorrencias = models.BooleanField(
+        StringsVerboseNameModels.COM_OCORRENCIAS.value, default=False
+    )
     historico = models.JSONField(blank=True, null=True)
     ue_possui_alunos_periodo_parcial = models.BooleanField(
-        "Possui alunos periodo parcial?", default=False
+        StringsVerboseNameModels.POSSUI_ALUNOS_PERIODO_PARCIAL.value, default=False
     )
     logs_salvos = models.BooleanField(
-        "Logs de matriculados, dietas autorizadas, etc foram salvos?", default=False
+        StringsVerboseNameModels.LOGS_DE_MATRICULADOS_DIETAS_AUTORIZADAS_ETC_FORAM_SALVOS.value,
+        default=False,
     )
     dre_ciencia_correcao_data = models.DateTimeField(blank=True, null=True)
     dre_ciencia_correcao_usuario = models.ForeignKey(
@@ -144,7 +149,7 @@ class SolicitacaoMedicaoInicial(
         null=True,
     )
     descricao_metodo = models.CharField(
-        "Descrição do método de contagem",
+        StringsVerboseNameModels.DESCRICAO_DO_METODO_DE_CONTAGEM.value,
         max_length=100,
         blank=True,
         null=True,
@@ -525,8 +530,10 @@ class SolicitacaoMedicaoInicial(
         return medicao_legada
 
     class Meta:
-        verbose_name = "Solicitação de medição inicial"
-        verbose_name_plural = "Solicitações de medição inicial"
+        verbose_name = StringsVerboseNameModels.SOLICITACAO_DE_MEDICAO_INICIAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.SOLICITACOES_DE_MEDICAO_INICIAL.value
+        )
         unique_together = (
             "escola",
             "mes",
@@ -581,7 +588,7 @@ class OcorrenciaMedicaoInicial(TemChaveExterna, Logs, FluxoSolicitacaoMedicaoIni
 
 
 class Responsavel(models.Model):
-    nome = models.CharField("Nome", max_length=100)
+    nome = models.CharField(StringsVerboseNameModels.NOME.value, max_length=100)
     rf = models.CharField(max_length=11)
     solicitacao_medicao_inicial = models.ForeignKey(
         SolicitacaoMedicaoInicial, related_name="responsaveis", on_delete=models.CASCADE
@@ -593,8 +600,10 @@ class Responsavel(models.Model):
 
 class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
     class Meta:
-        verbose_name = "Tipo de contagem das alimentações"
-        verbose_name_plural = "Tipos de contagem das alimentações"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_CONTAGEM_DAS_ALIMENTACOES.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.TIPOS_DE_CONTAGEM_DAS_ALIMENTACOES.value
+        )
 
     def __str__(self):
         return self.nome
@@ -602,8 +611,8 @@ class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
 
 class GrupoMedicao(Nomeavel, TemChaveExterna, Ativavel):
     class Meta:
-        verbose_name = "Grupo de medição"
-        verbose_name_plural = "Grupos de medição"
+        verbose_name = StringsVerboseNameModels.GRUPO_DE_MEDICAO.value
+        verbose_name_plural = StringsVerboseNameModels.GRUPOS_DE_MEDICAO.value
 
     def __str__(self):
         return self.nome
@@ -626,7 +635,9 @@ class Medicao(
     grupo = models.ForeignKey(
         GrupoMedicao, blank=True, null=True, on_delete=models.PROTECT
     )
-    alterado_em = models.DateTimeField("Alterado em", null=True, blank=True)
+    alterado_em = models.DateTimeField(
+        StringsVerboseNameModels.ALTERADO_EM.value, null=True, blank=True
+    )
 
     @property
     def escola(self):
@@ -688,8 +699,8 @@ class Medicao(
         )
 
     class Meta:
-        verbose_name = "Medição"
-        verbose_name_plural = "Medições"
+        verbose_name = StringsVerboseNameModels.MEDICAO.value
+        verbose_name_plural = StringsVerboseNameModels.MEDICOES.value
         constraints = [
             models.UniqueConstraint(
                 fields=["solicitacao_medicao_inicial", "periodo_escolar"],
@@ -717,8 +728,8 @@ class Medicao(
 
 class CategoriaMedicao(Nomeavel, Ativavel, TemChaveExterna):
     class Meta:
-        verbose_name = "Categoria de medição"
-        verbose_name_plural = "Categorias de medições"
+        verbose_name = StringsVerboseNameModels.CATEGORIA_DE_MEDICAO.value
+        verbose_name_plural = StringsVerboseNameModels.CATEGORIAS_DE_MEDICOES.value
 
     def __str__(self):
         return self.nome
@@ -731,7 +742,7 @@ class ValorMedicao(
     FUNDAMENTAL = "FUNDAMENTAL"
     NA = "N/A"
 
-    valor = models.TextField("Valor do Campo")
+    valor = models.TextField(StringsVerboseNameModels.VALOR_DO_CAMPO.value)
     nome_campo = models.CharField(max_length=100)
     medicao = models.ForeignKey(
         "Medicao", on_delete=models.CASCADE, related_name="valores_medicao"
@@ -765,14 +776,16 @@ class ValorMedicao(
         return f"#{self.id_externo} -- Categoria {categoria} -- Campo {nome_campo} -- Dia/Mês {dia}/{mes}"
 
     class Meta:
-        verbose_name = "Valor da Medição"
-        verbose_name_plural = "Valores das Medições"
+        verbose_name = StringsVerboseNameModels.VALOR_DA_MEDICAO.value
+        verbose_name_plural = StringsVerboseNameModels.VALORES_DAS_MEDICOES.value
 
 
 class AlimentacaoLancamentoEspecial(Nomeavel, Ativavel, TemChaveExterna, Posicao):
     class Meta:
-        verbose_name = "Alimentação de Lançamento Especial"
-        verbose_name_plural = "Alimentações de Lançamentos Especiais"
+        verbose_name = StringsVerboseNameModels.ALIMENTACAO_DE_LANCAMENTO_ESPECIAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.ALIMENTACOES_DE_LANCAMENTOS_ESPECIAIS.value
+        )
         ordering = ["posicao"]
 
     @property
@@ -807,8 +820,12 @@ class PermissaoLancamentoEspecial(
         related_name="permissoes_lancamento_especial",
         on_delete=models.DO_NOTHING,
     )
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
 
     @property
     def ativo(self):
@@ -823,8 +840,10 @@ class PermissaoLancamentoEspecial(
             return True
 
     class Meta:
-        verbose_name = "Permissão de Lançamento Especial"
-        verbose_name_plural = "Permissões de Lançamentos Especiais"
+        verbose_name = StringsVerboseNameModels.PERMISSAO_DE_LANCAMENTO_ESPECIAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.PERMISSOES_DE_LANCAMENTOS_ESPECIAIS.value
+        )
         ordering = ["-alterado_em"]
 
     def __str__(self):
@@ -839,15 +858,19 @@ class LancheEmergencialDiario(models.Model):
         on_delete=models.CASCADE,
         related_name="lanches_emergenciais_diarios",
     )
-    data_inicial = models.DateField("Data inicial")
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(StringsVerboseNameModels.DATA_INICIAL.value)
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.escola.codigo_eol}: {self.escola.nome} - {self.data_inicial} até {self.data_final or '--'}"
 
     class Meta:
-        verbose_name = "Lanche Emergencial Diário"
-        verbose_name_plural = "Lanches Emergenciais Diários"
+        verbose_name = StringsVerboseNameModels.LANCHE_EMERGENCIAL_DIARIO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.LANCHES_EMERGENCIAIS_DIARIOS.value
+        )
         ordering = ("escola__nome", "data_inicial")
 
 
@@ -901,8 +924,10 @@ class DiaParaCorrigir(
         return f"# {self.id_externo} - {escola} - {periodo_ou_grupo} - {self.dia}/{mes}/{ano} - {self.infantil_ou_fundamental}"
 
     class Meta:
-        verbose_name = "Dia da Medição para corrigir"
-        verbose_name_plural = "Dias da Medição para corrigir"
+        verbose_name = StringsVerboseNameModels.DIA_DA_MEDICAO_PARA_CORRIGIR.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.DIAS_DA_MEDICAO_PARA_CORRIGIR.value
+        )
 
 
 class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
@@ -912,7 +937,9 @@ class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
     # Status
     STATUS_CHOICES = (("ATIVO", "Ativo"), ("INATIVO", "Inativo"))
 
-    numero = models.CharField("Número do empenho", max_length=100, unique=True)
+    numero = models.CharField(
+        StringsVerboseNameModels.NUMERO_DO_EMPENHO_2.value, max_length=100, unique=True
+    )
     contrato = models.ForeignKey(
         "terceirizada.Contrato", on_delete=models.PROTECT, related_name="empenhos"
     )
@@ -929,8 +956,8 @@ class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Empenho: {self.numero}"
 
     class Meta:
-        verbose_name = "Empenho"
-        verbose_name_plural = "Empenhos"
+        verbose_name = StringsVerboseNameModels.EMPENHO.value
+        verbose_name_plural = StringsVerboseNameModels.EMPENHOS.value
         ordering = ["-alterado_em"]
 
 
@@ -940,17 +967,21 @@ class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
         on_delete=models.CASCADE,
         related_name="clausulas_desconto",
     )
-    numero_clausula = models.CharField("Número da Cláusula", max_length=100)
-    item_clausula = models.CharField("Item da Cláusula", max_length=100)
+    numero_clausula = models.CharField(
+        StringsVerboseNameModels.NUMERO_DA_CLAUSULA.value, max_length=100
+    )
+    item_clausula = models.CharField(
+        StringsVerboseNameModels.ITEM_DA_CLAUSULA.value, max_length=100
+    )
     porcentagem_desconto = models.DecimalField(max_digits=6, decimal_places=2)
-    descricao = models.TextField("Descrição")
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO_2.value)
 
     def __str__(self):
         return f"Edital: {self.edital.numero} - Cláusula {self.numero_clausula} - Item {self.item_clausula}"
 
     class Meta:
-        verbose_name = "Cláusula de Desconto"
-        verbose_name_plural = "Cláusulas de Descontos"
+        verbose_name = StringsVerboseNameModels.CLAUSULA_DE_DESCONTO.value
+        verbose_name_plural = StringsVerboseNameModels.CLAUSULAS_DE_DESCONTOS.value
         ordering = ["-alterado_em"]
         unique_together = ("edital", "numero_clausula", "item_clausula")
 
@@ -971,16 +1002,20 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         on_delete=models.PROTECT,
         related_name="parametrizacao_financeira_grupo_unidade_escolar",
     )
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
     legenda = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return f"Edital {self.edital} | Lote {self.lote} | DRE {self.lote.diretoria_regional} | Tipos de Unidades {', '.join(self.grupo_unidade_escolar.tipos_unidades.values_list('iniciais', flat=True))}"
 
     class Meta:
-        verbose_name = "Parametrização Financeira"
-        verbose_name_plural = "Parametrizações Financeiras"
+        verbose_name = StringsVerboseNameModels.PARAMETRIZACAO_FINANCEIRA.value
+        verbose_name_plural = StringsVerboseNameModels.PARAMETRIZACOES_FINANCEIRAS.value
         ordering = ["-alterado_em"]
 
 
@@ -1001,8 +1036,10 @@ class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Tabela {self.nome}"
 
     class Meta:
-        verbose_name = "Parametrização Financeira Tabela"
-        verbose_name_plural = "Parametrizações Financeiras Tabelas"
+        verbose_name = StringsVerboseNameModels.PARAMETRIZACAO_FINANCEIRA_TABELA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.PARAMETRIZACOES_FINANCEIRAS_TABELAS.value
+        )
         unique_together = ("nome", "parametrizacao_financeira", "periodo_escolar")
 
 
@@ -1046,8 +1083,12 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
         return f"Tabela {self.tabela} | {descricao}"
 
     class Meta:
-        verbose_name = "Parametrização Financeira Tabela Valor"
-        verbose_name_plural = "Parametrizações Financeiras Tabelas Valores"
+        verbose_name = (
+            StringsVerboseNameModels.PARAMETRIZACAO_FINANCEIRA_TABELA_VALOR.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.PARAMETRIZACOES_FINANCEIRAS_TABELAS_VALORES.value
+        )
         unique_together = ("tabela", "nome_campo", "tipo_valor")
 
 
@@ -1079,8 +1120,8 @@ class RelatorioFinanceiro(
         return f"{self.mes} / {self.ano} | Unidades {unidades} | Lote {self.lote} | Status {self.status}"
 
     class Meta:
-        verbose_name = "Relatório Financeiro"
-        verbose_name_plural = "Relatórios Financeiros"
+        verbose_name = StringsVerboseNameModels.RELATORIO_FINANCEIRO.value
+        verbose_name_plural = StringsVerboseNameModels.RELATORIOS_FINANCEIROS.value
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
 
@@ -1113,11 +1154,11 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="dados_liquidacao",
     )
     numero_empenho = models.CharField(
-        "Número do empenho",
+        StringsVerboseNameModels.NUMERO_DO_EMPENHO_2.value,
         max_length=40,
     )
     tipo_empenho = models.CharField(
-        "Tipo de empenho",
+        StringsVerboseNameModels.TIPO_DE_EMPENHO.value,
         max_length=100,
     )
     unidades_educacionais = models.ManyToManyField(
@@ -1130,8 +1171,8 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
 
     class Meta:
-        verbose_name = "Dado Liquidação"
-        verbose_name_plural = "Dados Liquidações"
+        verbose_name = StringsVerboseNameModels.DADO_LIQUIDACAO.value
+        verbose_name_plural = StringsVerboseNameModels.DADOS_LIQUIDACOES.value
         ordering = ["-alterado_em"]
         constraints = [
             models.UniqueConstraint(
@@ -1163,7 +1204,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="descontos_financeiros",
     )
     tipo_lancamento = models.CharField(
-        "Tipo de lançamento",
+        StringsVerboseNameModels.TIPO_DE_LANCAMENTO.value,
         max_length=30,
         choices=TIPO_LANCAMENTO_CHOICES,
     )
@@ -1198,7 +1239,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="descontos_financeiros",
     )
     quantidade = models.PositiveIntegerField(
-        "Quantidade",
+        StringsVerboseNameModels.QUANTIDADE.value,
     )
 
     def __str__(self):
@@ -1208,6 +1249,6 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         )
 
     class Meta:
-        verbose_name = "Desconto Financeiro"
-        verbose_name_plural = "Descontos Financeiros"
+        verbose_name = StringsVerboseNameModels.DESCONTO_FINANCEIRO.value
+        verbose_name_plural = StringsVerboseNameModels.DESCONTOS_FINANCEIROS.value
         ordering = ["-alterado_em"]

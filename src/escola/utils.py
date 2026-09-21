@@ -9,6 +9,7 @@ from django.db.models import Case, Q, Value, When
 from openpyxl import Workbook
 from rest_framework.pagination import PageNumberPagination
 
+from src.dados_comuns.constants import FaixasEtarias
 from src.eol_servico.utils import EOLServicoSGP
 
 from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
@@ -47,7 +48,7 @@ def meses_to_mes_e_ano_string(total_meses):
 
 def faixa_to_string(inicio, fim):
     if inicio == 0 and fim == 1:
-        return "0 a 1 mes"
+        return FaixasEtarias.ZERO_A_UM_MES.value
     if fim - inicio == 1:
         return meses_to_mes_e_ano_string(inicio)
     if inicio == 0:
@@ -62,7 +63,7 @@ def faixa_to_string(inicio, fim):
 
 
 def string_to_faixa(faixa_str):
-    if faixa_str.strip() == "0 a 1 mes":
+    if faixa_str.strip() == FaixasEtarias.ZERO_A_UM_MES.value:
         return 0, 1
     if "a" in faixa_str:
         str_inicio, str_fim = faixa_str.split(" a ")
@@ -501,41 +502,10 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
         datetime_autorizacao = datetime.strptime(
             dieta.data_autorizacao, FORMATO_DATA_BRASILEIRO
         )
-        if data_inicial and data_final:
-            if (
-                datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
-                and datetime_autorizacao <= datetime.strptime(data_final, "%Y-%m-%d")
-            ) or (datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")):
-                alunos_com_dietas_autorizadas.append(
-                    {
-                        "aluno": dieta.aluno.nome,
-                        "tipo_dieta": dieta.classificacao.nome,
-                        "data_autorizacao": dieta.data_autorizacao,
-                    }
-                )
-        elif not data_inicial and not data_final:
-            mes_ano = query_params.get("mes_ano")
-            mes, ano = mes_ano.split("_")
-            _, num_dias = monthrange(
-                int(ano),
-                int(mes),
-            )
-            if (
-                datetime_autorizacao
-                >= datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
-                and datetime_autorizacao
-                <= datetime.strptime(f"{num_dias}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
-            ) or (
-                datetime_autorizacao
-                < datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
-            ):
-                alunos_com_dietas_autorizadas.append(
-                    {
-                        "aluno": dieta.aluno.nome,
-                        "tipo_dieta": dieta.classificacao.nome,
-                        "data_autorizacao": dieta.data_autorizacao,
-                    }
-                )
+        if _dieta_no_periodo(
+            datetime_autorizacao, data_inicial, data_final, query_params
+        ):
+            alunos_com_dietas_autorizadas.append(_monta_dict_dieta(dieta))
         alunos_com_dietas_autorizadas = analise_alunos_dietas_somente_uma_data(
             datetime_autorizacao,
             data_inicial,
@@ -544,6 +514,39 @@ def get_alunos_com_dietas_autorizadas(query_params, escola):
             alunos_com_dietas_autorizadas,
         )
     return alunos_com_dietas_autorizadas
+
+
+def _monta_dict_dieta(dieta):
+    return {
+        "aluno": dieta.aluno.nome,
+        "tipo_dieta": dieta.classificacao.nome,
+        "data_autorizacao": dieta.data_autorizacao,
+    }
+
+
+def _dieta_no_periodo(datetime_autorizacao, data_inicial, data_final, query_params):
+    if data_inicial and data_final:
+        return (
+            datetime_autorizacao >= datetime.strptime(data_inicial, "%Y-%m-%d")
+            and datetime_autorizacao <= datetime.strptime(data_final, "%Y-%m-%d")
+        ) or (datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d"))
+    if not data_inicial and not data_final:
+        return _dieta_no_mes(datetime_autorizacao, query_params.get("mes_ano"))
+    return False
+
+
+def _dieta_no_mes(datetime_autorizacao, mes_ano):
+    mes, ano = mes_ano.split("_")
+    _, num_dias = monthrange(int(ano), int(mes))
+    return (
+        datetime_autorizacao
+        >= datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
+        and datetime_autorizacao
+        <= datetime.strptime(f"{num_dias}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
+    ) or (
+        datetime_autorizacao
+        < datetime.strptime(f"{1}/{mes}/{ano}", FORMATO_DATA_BRASILEIRO)
+    )
 
 
 def trata_filtro_data_relatorio_controle_frequencia_pdf(
@@ -882,11 +885,11 @@ def formata_periodos_pdf_controle_frequencia(
 
 def ordena_faixas_por_idade(periodos: list) -> list:
     ORDEM_FAIXA_ETARIA = {
-        "0 a 1 mes": 1,
-        "01 a 03 meses": 2,
-        "04 a 05 meses": 3,
-        "06 meses": 4,
-        "07 a 11 meses": 5,
+        FaixasEtarias.ZERO_A_UM_MES.value: 1,
+        FaixasEtarias.UM_A_TRES_MESES.value: 2,
+        FaixasEtarias.QUATRO_A_CINCO_MESES.value: 3,
+        FaixasEtarias.SEIS_MESES.value: 4,
+        FaixasEtarias.SETE_A_ONZE_MESES.value: 5,
         "1 a 3 anos e 11 meses": 6,
         "4 a 6 anos": 7,
     }

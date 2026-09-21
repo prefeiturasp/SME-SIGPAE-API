@@ -57,7 +57,9 @@ def test_permissoes_grupo_inclusao_normal_viewset(
         "/grupos-inclusao-alimentacao-normal/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_url_endpoint_grupos_inclusao_motivos_inclusao_normal(
@@ -451,7 +453,9 @@ def test_permissoes_grupo_inclusao_continua_viewset(
         "/inclusoes-alimentacao-continua/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
     inclusao_alimentacao_continua.status = PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
     inclusao_alimentacao_continua.save()
     response = client_autenticado_vinculo_escola_inclusao.delete(

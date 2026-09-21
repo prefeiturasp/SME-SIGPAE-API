@@ -1187,7 +1187,7 @@ def homologacao_e_copia(terceirizada):
 def numero_editais():
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "editais[]",
+        constants.PayloadVariaveis.EDITAIS.value,
         [
             "Edital de Pregão nº 78/sme/2022",
             "Edital de Pregão nº 78/sme/2016",

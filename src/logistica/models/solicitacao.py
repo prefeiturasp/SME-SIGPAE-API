@@ -4,7 +4,7 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from src.dados_comuns.behaviors import Logs, TemIdentificadorExternoAmigavel
-from src.dados_comuns.constants import MODEL_USUARIO
+from src.dados_comuns.constants import MODEL_USUARIO, StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import (
     FluxoSolicitacaoDeAlteracao,
     FluxoSolicitacaoRemessa,
@@ -48,15 +48,22 @@ class SolicitacaoRemessa(
         null=True,
         related_name="solicitacoes",
     )
-    cnpj = models.CharField("CNPJ", validators=[MinLengthValidator(14)], max_length=14)
+    cnpj = models.CharField(
+        StringsVerboseNameModels.CNPJ.value,
+        validators=[MinLengthValidator(14)],
+        max_length=14,
+    )
     numero_solicitacao = models.CharField(
-        "Número da solicitação", blank=True, max_length=100, unique=True
+        StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
+        blank=True,
+        max_length=100,
+        unique=True,
     )
     quantidade_total_guias = models.IntegerField(
-        "Qtd total de guias na requisição", null=True
+        StringsVerboseNameModels.QTD_TOTAL_DE_GUIAS_NA_REQUISICAO.value, null=True
     )
     sequencia_envio = models.IntegerField(
-        "Sequência de envio atribuído pelo papa", null=True
+        StringsVerboseNameModels.SEQUENCIA_DE_ENVIO_ATRIBUIDO_PELO_PAPA.value, null=True
     )
     situacao = models.CharField(choices=SITUACAO_CHOICES, max_length=10, default=ATIVA)
 
@@ -104,8 +111,8 @@ class SolicitacaoRemessa(
         return f"Solicitação: {self.numero_solicitacao} - Status: {self.get_status_display()}"
 
     class Meta:
-        verbose_name = "Solicitação Remessa"
-        verbose_name_plural = "Solicitações Remessas"
+        verbose_name = StringsVerboseNameModels.SOLICITACAO_REMESSA.value
+        verbose_name_plural = StringsVerboseNameModels.SOLICITACOES_REMESSAS.value
 
 
 class SolicitacaoDeAlteracaoRequisicao(
@@ -138,17 +145,21 @@ class SolicitacaoDeAlteracaoRequisicao(
     )
     motivo = MultiSelectField(choices=MOTIVO_CHOICES)
     justificativa = models.TextField(
-        "Justificativa de solicitação pelo distribuidor", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_SOLICITACAO_PELO_DISTRIBUIDOR.value,
+        blank=True,
     )
     justificativa_aceite = models.TextField(
-        "Justificativa de aceite pela dilog", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_ACEITE_PELA_DILOG.value, blank=True
     )
     justificativa_negacao = models.TextField(
-        "Justificativa de negacao pela dilog", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_NEGACAO_PELA_DILOG.value, blank=True
     )
     usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
     numero_solicitacao = models.CharField(
-        "Número da solicitação", blank=True, max_length=50, unique=True
+        StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
+        blank=True,
+        max_length=50,
+        unique=True,
     )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
@@ -169,8 +180,12 @@ class SolicitacaoDeAlteracaoRequisicao(
         return f"Solicitação de alteração: {self.numero_solicitacao}"
 
     class Meta:
-        verbose_name = "Solicitação de Alteração de Requisição"
-        verbose_name_plural = "Solicitações de Alteração de Requisição"
+        verbose_name = (
+            StringsVerboseNameModels.SOLICITACAO_DE_ALTERACAO_DE_REQUISICAO.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.SOLICITACOES_DE_ALTERACAO_DE_REQUISICAO.value
+        )
 
 
 class SolicitacaoCancelamentoException(Exception):
@@ -184,7 +199,9 @@ class LogSolicitacaoDeCancelamentoPeloPapa(ModeloBase):
         related_name="solicitacoes_de_cancelamento",
     )
     guias = ArrayField(models.CharField(max_length=100))
-    sequencia_envio = models.IntegerField("Sequência de envio atribuída pelo papa")
+    sequencia_envio = models.IntegerField(
+        StringsVerboseNameModels.SEQUENCIA_DE_ENVIO_ATRIBUIDA_PELO_PAPA.value
+    )
     foi_confirmada = models.BooleanField(default=False)
 
     def __str__(self):
@@ -208,5 +225,9 @@ class LogSolicitacaoDeCancelamentoPeloPapa(ModeloBase):
         self.save()
 
     class Meta:
-        verbose_name = "Log de Solicitação de Cancelamento do PAPA"
-        verbose_name_plural = "Logs de Solicitações de Cancelamento do PAPA"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DE_SOLICITACAO_DE_CANCELAMENTO_DO_PAPA.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOGS_DE_SOLICITACOES_DE_CANCELAMENTO_DO_PAPA.value
+        )

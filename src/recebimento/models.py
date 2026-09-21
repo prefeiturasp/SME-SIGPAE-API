@@ -19,6 +19,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoFichaDeRecebimento
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.validators import validate_file_size_10mb
@@ -36,6 +37,7 @@ class QuestaoConferencia(ModeloBase):
     secundária) respondidas durante o recebimento. Pode ser marcada como
     obrigatória, exigindo então uma ``posicao`` para ordenação.
     """
+
     # Tipo Questão Choice
     TIPO_QUESTAO_PRIMARIA = "PRIMARIA"
     TIPO_QUESTAO_SECUNDARIA = "SECUNDARIA"
@@ -59,10 +61,14 @@ class QuestaoConferencia(ModeloBase):
         (INATIVO, "Inativo"),
     )
 
-    questao = models.CharField("Questão")
+    questao = models.CharField(StringsVerboseNameModels.QUESTAO.value)
     tipo_questao = MultiSelectField("Tipo de Questão", choices=TIPO_QUESTAO_CHOICES)
-    pergunta_obrigatoria = models.BooleanField("Pergunta Obrigatória?", default=False)
-    posicao = models.PositiveSmallIntegerField("Posição", blank=True, null=True)
+    pergunta_obrigatoria = models.BooleanField(
+        StringsVerboseNameModels.PERGUNTA_OBRIGATORIA.value, default=False
+    )
+    posicao = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.POSICAO.value, blank=True, null=True
+    )
     status = models.CharField(choices=STATUS_CHOICES, max_length=10, default=ATIVO)
 
     def __str__(self):
@@ -70,8 +76,8 @@ class QuestaoConferencia(ModeloBase):
         return f"{self.questao}"
 
     class Meta:
-        verbose_name = "Questão para Conferência"
-        verbose_name_plural = "Questões para Conferência"
+        verbose_name = StringsVerboseNameModels.QUESTAO_PARA_CONFERENCIA.value
+        verbose_name_plural = StringsVerboseNameModels.QUESTOES_PARA_CONFERENCIA.value
 
     def clean(self):
         """Valida que a posição é informada quando a pergunta é obrigatória.
@@ -101,12 +107,12 @@ class QuestoesPorProduto(ModeloBase):
     )
     questoes_primarias = models.ManyToManyField(
         QuestaoConferencia,
-        verbose_name="Questões referentes à Embalagem Primária",
+        verbose_name=StringsVerboseNameModels.QUESTOES_REFERENTES_A_EMBALAGEM_PRIMARIA.value,
         related_name="questoes_primarias",
     )
     questoes_secundarias = models.ManyToManyField(
         QuestaoConferencia,
-        verbose_name="Questões referentes à Embalagem Secundária",
+        verbose_name=StringsVerboseNameModels.QUESTOES_REFERENTES_A_EMBALAGEM_SECUNDARIA.value,
         related_name="questoes_secundarias",
     )
 
@@ -115,8 +121,8 @@ class QuestoesPorProduto(ModeloBase):
         return f"Questões da Ficha: {self.ficha_tecnica}"
 
     class Meta:
-        verbose_name = "Questões por Produto"
-        verbose_name_plural = "Questões por Produtos"
+        verbose_name = StringsVerboseNameModels.QUESTOES_POR_PRODUTO.value
+        verbose_name_plural = StringsVerboseNameModels.QUESTOES_POR_PRODUTOS.value
 
 
 class ReposicaoCronogramaFichaRecebimento(ModeloBase):
@@ -134,12 +140,12 @@ class ReposicaoCronogramaFichaRecebimento(ModeloBase):
     )
 
     tipo = models.CharField(
-        "Tipo",
+        StringsVerboseNameModels.TIPO.value,
         max_length=7,
         choices=TIPO_CHOICES,
     )
     descricao = models.TextField(
-        "Descrição",
+        StringsVerboseNameModels.DESCRICAO_2.value,
         blank=True,
         null=True,
     )
@@ -149,8 +155,12 @@ class ReposicaoCronogramaFichaRecebimento(ModeloBase):
         return f"{self.tipo} - {self.descricao}"
 
     class Meta:
-        verbose_name = "Reposição Cronograma da Ficha de Recebimento"
-        verbose_name_plural = "Reposições Cronogramas das Fichas de Recebimento"
+        verbose_name = (
+            StringsVerboseNameModels.REPOSICAO_CRONOGRAMA_DA_FICHA_DE_RECEBIMENTO.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.REPOSICOES_CRONOGRAMAS_DAS_FICHAS_DE_RECEBIMENTO.value
+        )
         ordering = ["criado_em"]
 
 
@@ -177,10 +187,10 @@ class FichaDeRecebimento(
         EtapasDoCronograma,
         on_delete=models.PROTECT,
         related_name="ficha_recebimento",
-        verbose_name="Etapa do Cronograma",
+        verbose_name=StringsVerboseNameModels.ETAPA_DO_CRONOGRAMA.value,
     )
     data_entrega = models.DateField(
-        "Data de Entrega",
+        StringsVerboseNameModels.DATA_DE_ENTREGA.value,
         null=True,
         blank=True,
     )
@@ -192,64 +202,72 @@ class FichaDeRecebimento(
         related_name="fichas_recebimentos",
     )
     lote_fabricante_de_acordo = models.BooleanField(
-        "Lote(s) do Fabricante Observado(s) estão de acordo?",
+        StringsVerboseNameModels.LOTE_S_DO_FABRICANTE_OBSERVADO_S_ESTAO_DE_ACORDO.value,
         null=True,
         blank=True,
     )
     lote_fabricante_divergencia = models.CharField(
-        "Descrição da divergência nos Lote(s) do Fabricante",
+        StringsVerboseNameModels.DESCRICAO_DA_DIVERGENCIA_NOS_LOTE_S_DO_FABRICANTE.value,
         max_length=500,
         null=True,
         blank=True,
     )
     data_fabricacao_de_acordo = models.BooleanField(
-        "Data(s) de Fabricação Observada(s) estão de acordo?",
+        StringsVerboseNameModels.DATA_S_DE_FABRICACAO_OBSERVADA_S_ESTAO_DE_ACORDO.value,
         null=True,
         blank=True,
     )
     data_fabricacao_divergencia = models.CharField(
-        "Descrição da divergência nas Data(s) de Fabricação",
+        StringsVerboseNameModels.DESCRICAO_DA_DIVERGENCIA_NAS_DATA_S_DE_FABRICACAO.value,
         max_length=500,
         null=True,
         blank=True,
     )
     data_validade_de_acordo = models.BooleanField(
-        "Data(s) de Validades Observada(s) estão de acordo?",
+        StringsVerboseNameModels.DATA_S_DE_VALIDADES_OBSERVADA_S_ESTAO_DE_ACORDO.value,
         null=True,
         blank=True,
     )
     data_validade_divergencia = models.CharField(
-        "Descrição da divergência nas Data(s) de Validades",
+        StringsVerboseNameModels.DESCRICAO_DA_DIVERGENCIA_NAS_DATA_S_DE_VALIDADES.value,
         max_length=500,
         null=True,
         blank=True,
     )
     numero_lote_armazenagem = models.CharField(
-        "Nº do Lote Armazenagem",
+        StringsVerboseNameModels.NO_DO_LOTE_ARMAZENAGEM.value,
         max_length=50,
         null=True,
         blank=True,
     )
     numero_paletes = models.IntegerField(
-        "Nº de Paletes",
+        StringsVerboseNameModels.NO_DE_PALETES.value,
         null=True,
         blank=True,
     )
     peso_embalagem_primaria_1 = models.FloatField(
-        "Peso da Embalagem Primária (1)", null=True, blank=True
+        StringsVerboseNameModels.PESO_DA_EMBALAGEM_PRIMARIA_1.value,
+        null=True,
+        blank=True,
     )
     peso_embalagem_primaria_2 = models.FloatField(
-        "Peso da Embalagem Primária (2)", null=True, blank=True
+        StringsVerboseNameModels.PESO_DA_EMBALAGEM_PRIMARIA_2.value,
+        null=True,
+        blank=True,
     )
     peso_embalagem_primaria_3 = models.FloatField(
-        "Peso da Embalagem Primária (3)", null=True, blank=True
+        StringsVerboseNameModels.PESO_DA_EMBALAGEM_PRIMARIA_3.value,
+        null=True,
+        blank=True,
     )
     peso_embalagem_primaria_4 = models.FloatField(
-        "Peso da Embalagem Primária (4)", null=True, blank=True
+        StringsVerboseNameModels.PESO_DA_EMBALAGEM_PRIMARIA_4.value,
+        null=True,
+        blank=True,
     )
 
     sistema_vedacao_embalagem_secundaria = models.TextField(
-        "Sistema de Vedação da Embalagem Secundária",
+        StringsVerboseNameModels.SISTEMA_DE_VEDACAO_DA_EMBALAGEM_SECUNDARIA.value,
         null=True,
         blank=True,
     )
@@ -261,7 +279,7 @@ class FichaDeRecebimento(
     )
 
     houve_ocorrencia = models.BooleanField(
-        "Houve Ocorrência?",
+        StringsVerboseNameModels.HOUVE_OCORRENCIA.value,
         null=True,
         blank=True,
     )
@@ -318,8 +336,8 @@ class FichaDeRecebimento(
         return log_transicao
 
     class Meta:
-        verbose_name = "Ficha de Recebimento"
-        verbose_name_plural = "Fichas de Recebimentos"
+        verbose_name = StringsVerboseNameModels.FICHA_DE_RECEBIMENTO.value
+        verbose_name_plural = StringsVerboseNameModels.FICHAS_DE_RECEBIMENTOS.value
 
 
 class VeiculoFichaDeRecebimento(models.Model):
@@ -337,17 +355,17 @@ class VeiculoFichaDeRecebimento(models.Model):
         related_name="veiculos",
     )
     numero = models.CharField(
-        "Nº do Veículo",
+        StringsVerboseNameModels.NO_DO_VEICULO.value,
         max_length=25,
     )
     temperatura_recebimento = models.CharField(
-        "Temperatura da Área de Recebimento (°C)",
+        StringsVerboseNameModels.TEMPERATURA_DA_AREA_DE_RECEBIMENTO_C.value,
         max_length=10,
         null=True,
         blank=True,
     )
     temperatura_produto = models.CharField(
-        "Temperatura do Produto (°C)",
+        StringsVerboseNameModels.TEMPERATURA_DO_PRODUTO_C.value,
         max_length=10,
         null=True,
         blank=True,
@@ -363,7 +381,7 @@ class VeiculoFichaDeRecebimento(models.Model):
         blank=True,
     )
     numero_sif_sisbi_sisp = models.CharField(
-        "Nº SIF, SISBI ou SISP",
+        StringsVerboseNameModels.NO_SIF_SISBI_OU_SISP.value,
         max_length=100,
         null=True,
         blank=True,
@@ -380,7 +398,7 @@ class VeiculoFichaDeRecebimento(models.Model):
         blank=True,
     )
     embalagens_nota_fiscal = models.IntegerField(
-        "Quantidade de Embalagens da Nota Fiscal",
+        StringsVerboseNameModels.QUANTIDADE_DE_EMBALAGENS_DA_NOTA_FISCAL.value,
         null=True,
         blank=True,
     )
@@ -391,12 +409,12 @@ class VeiculoFichaDeRecebimento(models.Model):
         blank=True,
     )
     embalagens_recebidas = models.IntegerField(
-        "Quantidade de Embalagens Recebidas",
+        StringsVerboseNameModels.QUANTIDADE_DE_EMBALAGENS_RECEBIDAS.value,
         null=True,
         blank=True,
     )
     estado_higienico_adequado = models.BooleanField(
-        "Estado Higiênico-Sanitário adequado?",
+        StringsVerboseNameModels.ESTADO_HIGIENICO_SANITARIO_ADEQUADO.value,
         null=True,
         blank=True,
     )
@@ -410,8 +428,10 @@ class VeiculoFichaDeRecebimento(models.Model):
         return f"{self.numero} - {self.ficha_recebimento}"
 
     class Meta:
-        verbose_name = "Veículo Ficha de Recebimento"
-        verbose_name_plural = "Veículos Fichas de Recebimentos"
+        verbose_name = StringsVerboseNameModels.VEICULO_FICHA_DE_RECEBIMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.VEICULOS_FICHAS_DE_RECEBIMENTOS.value
+        )
 
 
 class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
@@ -451,8 +471,10 @@ class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
         )
 
     class Meta:
-        verbose_name = "Arquivo Ficha de Recebimento"
-        verbose_name_plural = "Arquivos Fichas de Recebimentos"
+        verbose_name = StringsVerboseNameModels.ARQUIVO_FICHA_DE_RECEBIMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.ARQUIVOS_FICHAS_DE_RECEBIMENTOS.value
+        )
 
 
 class QuestaoFichaRecebimento(ModeloBase):
@@ -462,6 +484,7 @@ class QuestaoFichaRecebimento(ModeloBase):
     ficha, com o tipo de embalagem (primária ou secundária). A combinação
     de ficha, questão e tipo é única (``unique_together``).
     """
+
     TIPO_QUESTAO_PRIMARIA = "PRIMARIA"
     TIPO_QUESTAO_SECUNDARIA = "SECUNDARIA"
 
@@ -478,20 +501,24 @@ class QuestaoFichaRecebimento(ModeloBase):
     ficha_recebimento = models.ForeignKey(
         FichaDeRecebimento,
         on_delete=models.CASCADE,
-        verbose_name="Ficha de Recebimento",
+        verbose_name=StringsVerboseNameModels.FICHA_DE_RECEBIMENTO.value,
     )
     questao_conferencia = models.ForeignKey(
         QuestaoConferencia,
         on_delete=models.CASCADE,
-        verbose_name="Questão de Conferência",
+        verbose_name=StringsVerboseNameModels.QUESTAO_DE_CONFERENCIA.value,
     )
-    resposta = models.BooleanField("Resposta (Sim/Não)", null=True, blank=True)
+    resposta = models.BooleanField(
+        StringsVerboseNameModels.RESPOSTA_SIM_NAO.value, null=True, blank=True
+    )
 
     tipo_questao = models.CharField(choices=TIPO_QUESTAO_CHOICES)
 
     class Meta:
-        verbose_name = "Questão por Ficha de Recebimento"
-        verbose_name_plural = "Questões por Fichas de Recebimento"
+        verbose_name = StringsVerboseNameModels.QUESTAO_POR_FICHA_DE_RECEBIMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.QUESTOES_POR_FICHAS_DE_RECEBIMENTO.value
+        )
         unique_together = ("ficha_recebimento", "questao_conferencia", "tipo_questao")
 
     def __str__(self):
@@ -512,16 +539,16 @@ class DocumentoFichaDeRecebimento(ModeloBase):
         FichaDeRecebimento,
         on_delete=models.CASCADE,
         related_name="documentos_ficha",
-        verbose_name="Ficha de Recebimento",
+        verbose_name=StringsVerboseNameModels.FICHA_DE_RECEBIMENTO.value,
     )
     documento_recebimento = models.ForeignKey(
         DocumentoDeRecebimento,
         on_delete=models.CASCADE,
         related_name="fichas_documentos",
-        verbose_name="Documento de Recebimento",
+        verbose_name=StringsVerboseNameModels.DOCUMENTO_DE_RECEBIMENTO.value,
     )
     quantidade_recebida = models.DecimalField(
-        "Quantidade Recebida",
+        StringsVerboseNameModels.QUANTIDADE_RECEBIDA.value,
         max_digits=15,
         decimal_places=2,
         help_text="Quantidade recebida do documento",
@@ -534,8 +561,10 @@ class DocumentoFichaDeRecebimento(ModeloBase):
         return f"{self.documento_recebimento} - {self.ficha_recebimento} ({self.quantidade_recebida})"
 
     class Meta:
-        verbose_name = "Documento Ficha de Recebimento"
-        verbose_name_plural = "Documentos Fichas de Recebimento"
+        verbose_name = StringsVerboseNameModels.DOCUMENTO_FICHA_DE_RECEBIMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.DOCUMENTOS_FICHAS_DE_RECEBIMENTO.value
+        )
         unique_together = ("ficha_recebimento", "documento_recebimento")
 
 
@@ -548,6 +577,7 @@ class OcorrenciaFichaRecebimento(ModeloBase):
     do tipo ``RECUSA`` é permitida por ficha (validado no helper de
     criação).
     """
+
     TIPO_FALTA = "FALTA"
     TIPO_RECUSA = "RECUSA"
     TIPO_OUTROS = "OUTROS_MOTIVOS"
@@ -574,34 +604,34 @@ class OcorrenciaFichaRecebimento(ModeloBase):
         FichaDeRecebimento,
         on_delete=models.CASCADE,
         related_name="ocorrencias",
-        verbose_name="Ficha de Recebimento",
+        verbose_name=StringsVerboseNameModels.FICHA_DE_RECEBIMENTO.value,
     )
     tipo = models.CharField(
-        "Tipo de Ocorrência",
+        StringsVerboseNameModels.TIPO_DE_OCORRENCIA.value,
         max_length=20,
         choices=TIPO_CHOICES,
     )
     relacao = models.CharField(
-        "Relação",
+        StringsVerboseNameModels.RELACAO.value,
         max_length=20,
         choices=RELACAO_CHOICES,
         blank=True,
         null=True,
     )
     numero_nota = models.CharField(
-        "Número da Nota",
+        StringsVerboseNameModels.NUMERO_DA_NOTA.value,
         max_length=100,
         blank=True,
         null=True,
     )
     quantidade = models.CharField(
-        "Quantidade",
+        StringsVerboseNameModels.QUANTIDADE.value,
         max_length=100,
         blank=True,
         null=True,
     )
     descricao = models.TextField(
-        "Descrição",
+        StringsVerboseNameModels.DESCRICAO_2.value,
         blank=True,
         null=True,
     )
@@ -611,6 +641,8 @@ class OcorrenciaFichaRecebimento(ModeloBase):
         return f"{self.ficha_recebimento} - {self.get_tipo_display()}"
 
     class Meta:
-        verbose_name = "Ocorrência da Ficha de Recebimento"
-        verbose_name_plural = "Ocorrências das Fichas de Recebimento"
+        verbose_name = StringsVerboseNameModels.OCORRENCIA_DA_FICHA_DE_RECEBIMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.OCORRENCIAS_DAS_FICHAS_DE_RECEBIMENTO.value
+        )
         ordering = ["criado_em"]

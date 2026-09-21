@@ -10,6 +10,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -92,18 +93,22 @@ class ProtocoloPadraoDietaEspecial(
         (STATUS_NAO_LIBERADO, STATUS_NOMES[STATUS_NAO_LIBERADO]),
     )
 
-    nome_protocolo = models.TextField("Nome do Protocolo")
+    nome_protocolo = models.TextField(StringsVerboseNameModels.NOME_DO_PROTOCOLO.value)
 
-    orientacoes_gerais = models.TextField("Orientações Gerais", blank=True)
+    orientacoes_gerais = models.TextField(
+        StringsVerboseNameModels.ORIENTACOES_GERAIS.value, blank=True
+    )
 
     status = models.CharField(
-        "Status da guia",
+        StringsVerboseNameModels.STATUS_DA_GUIA.value,
         max_length=25,
         choices=STATUS_CHOICES,
         default=STATUS_NAO_LIBERADO,
     )
 
-    outras_informacoes = models.TextField("Outras Informações", blank=True)
+    outras_informacoes = models.TextField(
+        StringsVerboseNameModels.OUTRAS_INFORMACOES.value, blank=True
+    )
 
     editais = models.ManyToManyField(
         "terceirizada.Edital", related_name="protocolos_padroes_dieta_especial"
@@ -113,8 +118,10 @@ class ProtocoloPadraoDietaEspecial(
 
     class Meta:
         ordering = ("nome_protocolo",)
-        verbose_name = "Protocolo padrão de dieta especial"
-        verbose_name_plural = "Protocolos padrões de dieta especial"
+        verbose_name = StringsVerboseNameModels.PROTOCOLO_PADRAO_DE_DIETA_ESPECIAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.PROTOCOLOS_PADROES_DE_DIETA_ESPECIAL.value
+        )
 
     def __str__(self):
         return str(self.nome_protocolo)
@@ -147,9 +154,11 @@ class SubstituicaoAlimentoProtocoloPadrao(models.Model):
     )
 
     class Meta:
-        verbose_name = "Substituição de alimento para protocolo padrão de dieta"
+        verbose_name = (
+            StringsVerboseNameModels.SUBSTITUICAO_DE_ALIMENTO_PARA_PROTOCOLO_PADRAO_DE_DIETA.value
+        )
         verbose_name_plural = (
-            "Substituições de alimentos para protocolos padrões de dietas"
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTOS_PARA_PROTOCOLOS_PADROES_DE_DIETAS.value
         )
 
     def __str__(self):

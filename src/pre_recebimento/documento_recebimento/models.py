@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from rest_framework.exceptions import ValidationError
 
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.utils import convert_image_to_base64
 from src.pre_recebimento.base.models import UnidadeMedida
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
@@ -58,8 +59,10 @@ class ArquivoDoTipoDeDocumento(TemChaveExterna):
         super().delete(*args, **kwargs)
 
     class Meta:
-        verbose_name = "Arquivo do Tipo de Documento"
-        verbose_name_plural = "Arquivos dos Tipos de Documentos"
+        verbose_name = StringsVerboseNameModels.ARQUIVO_DO_TIPO_DE_DOCUMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.ARQUIVOS_DOS_TIPOS_DE_DOCUMENTOS.value
+        )
 
 
 class TipoDeDocumentoDeRecebimento(TemChaveExterna):
@@ -91,7 +94,9 @@ class TipoDeDocumentoDeRecebimento(TemChaveExterna):
     tipo_documento = models.CharField(
         choices=TIPO_DOC_CHOICES, max_length=35, blank=True
     )
-    descricao_documento = models.TextField("Descrição do Documento", blank=True)
+    descricao_documento = models.TextField(
+        StringsVerboseNameModels.DESCRICAO_DO_DOCUMENTO.value, blank=True
+    )
 
     def __str__(self):
         if self.documento_recebimento:
@@ -100,8 +105,10 @@ class TipoDeDocumentoDeRecebimento(TemChaveExterna):
             return str(self.id)
 
     class Meta:
-        verbose_name = "Tipo de Documento de Recebimento"
-        verbose_name_plural = "Tipos de Documentos de Recebimento"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_DOCUMENTO_DE_RECEBIMENTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.TIPOS_DE_DOCUMENTOS_DE_RECEBIMENTO.value
+        )
         unique_together = ["documento_recebimento", "tipo_documento"]
 
 
@@ -113,7 +120,9 @@ class DocumentoDeRecebimento(
         on_delete=models.PROTECT,
         related_name="documentos_de_recebimento",
     )
-    numero_laudo = models.CharField("Número do Laudo", blank=True, max_length=50)
+    numero_laudo = models.CharField(
+        StringsVerboseNameModels.NUMERO_DO_LAUDO.value, blank=True, max_length=50
+    )
     laboratorio = models.ForeignKey(
         "Laboratorio",
         on_delete=models.PROTECT,
@@ -129,12 +138,18 @@ class DocumentoDeRecebimento(
         null=True,
         help_text="Quantidade do laudo com 2 casas decimais",
     )
-    numero_lote_laudo = models.CharField("Número do Laudo", blank=True, max_length=200)
+    numero_lote_laudo = models.CharField(
+        StringsVerboseNameModels.NUMERO_DO_LAUDO.value, blank=True, max_length=200
+    )
     unidade_medida = models.ForeignKey(
         UnidadeMedida, on_delete=models.PROTECT, blank=True, null=True, default=None
     )
-    data_final_lote = models.DateField("Data Final do Lote", blank=True, null=True)
-    correcao_solicitada = models.TextField("Correção Solicitada", blank=True)
+    data_final_lote = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL_DO_LOTE.value, blank=True, null=True
+    )
+    correcao_solicitada = models.TextField(
+        StringsVerboseNameModels.CORRECAO_SOLICITADA.value, blank=True
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
@@ -190,8 +205,8 @@ class DocumentoDeRecebimento(
         )
 
     class Meta:
-        verbose_name = "Documento de Recebimento"
-        verbose_name_plural = "Documentos de Recebimento"
+        verbose_name = StringsVerboseNameModels.DOCUMENTO_DE_RECEBIMENTO.value
+        verbose_name_plural = StringsVerboseNameModels.DOCUMENTOS_DE_RECEBIMENTO.value
 
 
 class DataDeFabricaoEPrazo(TemChaveExterna):
@@ -217,15 +232,24 @@ class DataDeFabricaoEPrazo(TemChaveExterna):
         blank=True,
         related_name="datas_fabricacao_e_prazos",
     )
-    data_fabricacao = models.DateField("Data Fabricação", blank=True, null=True)
-    data_validade = models.DateField("Data Validade", blank=True, null=True)
+    data_fabricacao = models.DateField(
+        StringsVerboseNameModels.DATA_FABRICACAO.value, blank=True, null=True
+    )
+    data_validade = models.DateField(
+        StringsVerboseNameModels.DATA_VALIDADE.value, blank=True, null=True
+    )
     data_maxima_recebimento = models.DateField(
-        "Data Máxima de Recebimento", blank=True, null=True
+        StringsVerboseNameModels.DATA_MAXIMA_DE_RECEBIMENTO.value, blank=True, null=True
     )
     prazo_maximo_recebimento = models.CharField(
-        "Prazo Máximo para Recebimento", choices=PRAZO_CHOICES, max_length=5, blank=True
+        StringsVerboseNameModels.PRAZO_MAXIMO_PARA_RECEBIMENTO.value,
+        choices=PRAZO_CHOICES,
+        max_length=5,
+        blank=True,
     )
-    justificativa = models.TextField("Justificativa", blank=True)
+    justificativa = models.TextField(
+        StringsVerboseNameModels.JUSTIFICATIVA.value, blank=True
+    )
 
     def __str__(self):
         data_fabricacao = (
@@ -236,8 +260,10 @@ class DataDeFabricaoEPrazo(TemChaveExterna):
         return f"{self.documento_recebimento.cronograma.numero} - {data_fabricacao}"
 
     class Meta:
-        verbose_name = "Data de Fabricação e Prazo"
-        verbose_name_plural = "Datas de Fabricação e Prazos"
+        verbose_name = StringsVerboseNameModels.DATA_DE_FABRICACAO_E_PRAZO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.DATAS_DE_FABRICACAO_E_PRAZOS.value
+        )
 
 
 @receiver(pre_save, sender=DataDeFabricaoEPrazo)

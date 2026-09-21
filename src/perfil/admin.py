@@ -5,6 +5,7 @@ from django.core.management import call_command
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
+from src.dados_comuns.constants import StringsSearchHelpText, StringsValidationErrors
 from utility.carga_dados.escola.importa_dados import (
     cria_usuario_cogestor,
     cria_usuario_diretor,
@@ -208,7 +209,9 @@ class VinculoAdmin(admin.ModelAdmin):
         "usuario__registro_funcional",
         "usuario__cpf",
     )
-    search_help_text = "Pesquisa por: nome do usuário, username, email, CPF ou RF"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_NOME_DO_USUARIO_USERNAME_EMAIL_CPF_OU_RF.value
+    )
     list_filter = (
         "ativo",
         "content_type",
@@ -285,7 +288,11 @@ class ImportacaoPlanilhaUsuarioPerfilEscolaAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -328,7 +335,11 @@ class ImportacaoPlanilhaUsuarioPerfilCodaeAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -371,7 +382,11 @@ class ImportacaoPlanilhaUsuarioPerfilDreAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -414,7 +429,11 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -457,7 +476,11 @@ class ImportacaoPlanilhaUsuarioExternoCoreSSOAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -500,7 +523,11 @@ class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)

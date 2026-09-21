@@ -6,7 +6,11 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemData,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MODEL_ESCOLA,
+    StringsVerboseNameModels,
+)
 from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from src.escola.models import Escola
 
@@ -18,40 +22,53 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
         related_name="dietas_especiais",
     )
     codigo_eol_aluno = models.CharField(  # noqa DJ01
-        "Código EOL aluno",
+        StringsVerboseNameModels.CODIGO_EOL_ALUNO.value,
         max_length=7,
         validators=[MinLengthValidator(7)],
         null=True,
         blank=True,
     )
     nome_aluno = models.CharField(
-        "Nome do Aluno", max_length=100, null=True, blank=True
+        StringsVerboseNameModels.NOME_DO_ALUNO.value,
+        max_length=100,
+        null=True,
+        blank=True,
     )
     codigo_eol_escola_origem = models.CharField(
-        "Código EOL escola origem",
+        StringsVerboseNameModels.CODIGO_EOL_ESCOLA_ORIGEM.value,
         max_length=6,
         validators=[MinLengthValidator(6)],
         null=True,
         blank=True,
     )
     nome_escola_origem = models.CharField(
-        "Nome da Escola origem", max_length=160, null=True, blank=True
+        StringsVerboseNameModels.NOME_DA_ESCOLA_ORIGEM.value,
+        max_length=160,
+        null=True,
+        blank=True,
     )
     codigo_eol_escola_destino = models.CharField(
-        "Código EOL escola destino",
+        StringsVerboseNameModels.CODIGO_EOL_ESCOLA_DESTINO.value,
         max_length=6,
         validators=[MinLengthValidator(6)],
         null=True,
         blank=True,
     )
     nome_escola_destino = models.CharField(
-        "Nome da Escola destino", max_length=160, null=True, blank=True
+        StringsVerboseNameModels.NOME_DA_ESCOLA_DESTINO.value,
+        max_length=160,
+        null=True,
+        blank=True,
     )
 
     class Meta:
         ordering = ("-criado_em",)
-        verbose_name = "log dietas ativas canceladas automaticamente"
-        verbose_name_plural = "log dietas ativas canceladas automaticamente"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DIETAS_ATIVAS_CANCELADAS_AUTOMATICAMENTE.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOG_DIETAS_ATIVAS_CANCELADAS_AUTOMATICAMENTE.value
+        )
 
     def __str__(self):
         return str(self.pk)
@@ -98,9 +115,11 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
         )
 
     class Meta:
-        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR.value
+        )
         verbose_name_plural = (
-            "Logs da quantidade de dietas autorizadas por unidade escolar"
+            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR.value
         )
         ordering = ("-data", "escola__nome")
 
@@ -133,9 +152,11 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         )
 
     class Meta:
-        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar CEI"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI.value
+        )
         verbose_name_plural = (
-            "Logs da quantidade de dietas autorizadas por unidade escolar CEI"
+            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI.value
         )
         ordering = ("-data", "escola__nome")
 
@@ -162,8 +183,12 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
         )
 
     class Meta:
-        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
-        verbose_name_plural = "Logs da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_RECREIO_NAS_FERIAS.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_RECREIO_NAS_FERIAS.value
+        )
         ordering = ("-data", "escola__nome")
 
 
@@ -195,6 +220,10 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
         )
 
     class Meta:
-        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
-        verbose_name_plural = "Logs da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI_RECREIO_NAS_FERIAS.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI_RECREIO_NAS_FERIAS.value
+        )
         ordering = ("-data", "escola__nome")

@@ -5,7 +5,12 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from model_bakery import baker
 
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    MODEL_ESCOLA,
+    MODEL_LOTE,
+    TIPOS_UNIDADE_ESCOLAR,
+    StringsSearchHelpText,
+)
 from src.escola.dias_letivos.admin import (
     DIAS_SEMANA,
     DiaLetivoSIGPAEAdmin,
@@ -82,7 +87,7 @@ def test_dia_letivo_admin_search_help_text() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
     assert (
         admin_instance.search_help_text
-        == "Pesquise por: nome da escola ou código eol da escola"
+        == StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA.value
     )
 
 

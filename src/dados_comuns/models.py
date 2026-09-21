@@ -4,6 +4,8 @@ from datetime import datetime
 from django.core.validators import MinLengthValidator
 from django.db import models
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from .constants import (
     CRIADO_EM,
     ESCOLA_CANCELOU_LABEL,
@@ -403,9 +405,13 @@ class LogSolicitacoesUsuario(models.Model):
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
-    descricao = models.TextField("Descricao", blank=True)
-    justificativa = models.TextField("Justificativa", blank=True)
-    resposta_sim_nao = models.BooleanField("Resposta - Sim ou Não", default=False)
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO.value, blank=True)
+    justificativa = models.TextField(
+        StringsVerboseNameModels.JUSTIFICATIVA.value, blank=True
+    )
+    resposta_sim_nao = models.BooleanField(
+        StringsVerboseNameModels.RESPOSTA_SIM_OU_NAO.value, default=False
+    )
     status_evento = models.PositiveSmallIntegerField(choices=STATUS_POSSIVEIS)
     solicitacao_tipo = models.PositiveSmallIntegerField(choices=TIPOS_SOLICITACOES)
     uuid_original = models.UUIDField()
@@ -451,7 +457,9 @@ class Endereco(models.Model):
 
 
 class Contato(models.Model):
-    nome = models.CharField("Nome", max_length=160, blank=True)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=160, blank=True
+    )
     telefone = models.CharField(
         max_length=13, validators=[MinLengthValidator(8)], blank=True
     )
@@ -462,8 +470,12 @@ class Contato(models.Model):
         max_length=11, validators=[MinLengthValidator(8)], blank=True
     )
     email = models.EmailField(blank=True)
-    eh_nutricionista = models.BooleanField("É nutricionista?", default=False)
-    crn_numero = models.CharField("Nutricionista crn", max_length=160, blank=True)
+    eh_nutricionista = models.BooleanField(
+        StringsVerboseNameModels.E_NUTRICIONISTA.value, default=False
+    )
+    crn_numero = models.CharField(
+        StringsVerboseNameModels.NUTRICIONISTA_CRN.value, max_length=160, blank=True
+    )
 
     def __str__(self):
         if self.nome and self.telefone:
@@ -477,7 +489,9 @@ class Contato(models.Model):
 
 
 class CategoriaPerguntaFrequente(models.Model):
-    nome = models.CharField("Nome", blank=True, max_length=100)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, blank=True, max_length=100
+    )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
@@ -494,8 +508,8 @@ class PerguntaFrequente(models.Model):
         blank=True,
     )
     todos_os_perfis = models.BooleanField(default=False)
-    pergunta = models.TextField("Pergunta")
-    resposta = models.TextField("Resposta")
+    pergunta = models.TextField(StringsVerboseNameModels.PERGUNTA.value)
+    resposta = models.TextField(StringsVerboseNameModels.RESPOSTA.value)
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
@@ -603,27 +617,38 @@ class Notificacao(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     tipo = models.CharField(
-        "Tipo",
+        StringsVerboseNameModels.TIPO.value,
         max_length=15,
         choices=TIPO_NOTIFICACAO_CHOICES,
         default=TIPO_NOTIFICACAO_AVISO,
     )
 
     categoria = models.CharField(
-        "Categoria",
+        StringsVerboseNameModels.CATEGORIA.value,
         max_length=50,
         choices=CATEGORIA_NOTIFICACAO_CHOICES,
     )
 
-    titulo = models.CharField("Título", max_length=200, default="", blank=True)
+    titulo = models.CharField(
+        StringsVerboseNameModels.TITULO_2.value, max_length=200, default="", blank=True
+    )
 
-    descricao = models.TextField("Descrição", max_length=5000, default="", blank=True)
+    descricao = models.TextField(
+        StringsVerboseNameModels.DESCRICAO_2.value,
+        max_length=5000,
+        default="",
+        blank=True,
+    )
 
-    hora = models.TimeField("Hora", editable=False, auto_now_add=True)
+    hora = models.TimeField(
+        StringsVerboseNameModels.HORA.value, editable=False, auto_now_add=True
+    )
 
-    lido = models.BooleanField("Foi Lido?", default=False)
+    lido = models.BooleanField(StringsVerboseNameModels.FOI_LIDO.value, default=False)
 
-    resolvido = models.BooleanField("Foi resolvido?", default=False)
+    resolvido = models.BooleanField(
+        StringsVerboseNameModels.FOI_RESOLVIDO.value, default=False
+    )
 
     usuario = models.ForeignKey(
         MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
@@ -631,7 +656,9 @@ class Notificacao(models.Model):
 
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
-    link = models.CharField("Link", max_length=200, default="", blank=True)
+    link = models.CharField(
+        StringsVerboseNameModels.LINK.value, max_length=200, default="", blank=True
+    )
 
     requisicao = models.ForeignKey(
         "logistica.SolicitacaoRemessa",
@@ -666,8 +693,8 @@ class Notificacao(models.Model):
     )
 
     class Meta:
-        verbose_name = "Notificação"
-        verbose_name_plural = "Notificações"
+        verbose_name = StringsVerboseNameModels.NOTIFICACAO.value
+        verbose_name_plural = StringsVerboseNameModels.NOTIFICACOES.value
 
     def __str__(self):
         return self.titulo
@@ -769,23 +796,32 @@ class CentralDeDownload(models.Model):
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    identificador = models.CharField("Nome do arquivo", max_length=200, default="")
+    identificador = models.CharField(
+        StringsVerboseNameModels.NOME_DO_ARQUIVO.value, max_length=200, default=""
+    )
     arquivo = models.FileField(
-        blank=True, verbose_name="Arquivo", upload_to="cental_downloads"
+        blank=True,
+        verbose_name=StringsVerboseNameModels.ARQUIVO.value,
+        upload_to="cental_downloads",
     )
     status = models.CharField(
-        "status", max_length=20, choices=STATUS_CHOICES, default=STATUS_EM_PROCESSAMENTO
+        StringsVerboseNameModels.STATUS_2.value,
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_EM_PROCESSAMENTO,
     )
-    msg_erro = models.CharField("Mensagem erro", max_length=300, blank=True)
-    visto = models.BooleanField("Foi visto?", default=False)
+    msg_erro = models.CharField(
+        StringsVerboseNameModels.MENSAGEM_ERRO.value, max_length=300, blank=True
+    )
+    visto = models.BooleanField(StringsVerboseNameModels.FOI_VISTO.value, default=False)
     usuario = models.ForeignKey(
         MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
     )
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     class Meta:
-        verbose_name = "Central de Download"
-        verbose_name_plural = "Central de Downloads"
+        verbose_name = StringsVerboseNameModels.CENTRAL_DE_DOWNLOAD.value
+        verbose_name_plural = StringsVerboseNameModels.CENTRAL_DE_DOWNLOADS.value
 
     def __str__(self):
         return self.identificador
@@ -821,8 +857,8 @@ class VersaoSistema(models.Model):
     objects = VersaoSistemaManager()
 
     class Meta:
-        verbose_name = "Versão do Sistema"
-        verbose_name_plural = "Versões do Sistema"
+        verbose_name = StringsVerboseNameModels.VERSAO_DO_SISTEMA.value
+        verbose_name_plural = StringsVerboseNameModels.VERSOES_DO_SISTEMA.value
 
     def save(self, *args, **kwargs):
         self.id = 1

@@ -9,7 +9,7 @@ from freezegun.api import freeze_time
 from requests.models import Response
 from rest_framework import status
 
-from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR, StringsDatasISO
 from src.escola.__tests__.conftest import mocked_response
 from src.escola.fixtures.factories.escola_factory import (
     AlunoFactory,
@@ -356,14 +356,14 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
                 "nomeResponsavel": None,
                 "tipoResponsavel": None,
                 "celularResponsavel": None,
-                "dataAtualizacaoContato": "0001-01-01T00:00:00",
+                "dataAtualizacaoContato": StringsDatasISO.DATA_PADRAO_0001_01_01.value,
                 "codigoTipoTurma": 1,
                 "turmaNome": "6A",
                 "etapaEnsino": 2,
                 "cicloEnsino": 3,
                 "descEtapaEnsino": "ENSINO FUNDAMENTAL",
                 "descCicloEnsino": "ALFABETIZACAO",
-                "dataAtualizacaoTabela": "0001-01-01T00:00:00",
+                "dataAtualizacaoTabela": StringsDatasISO.DATA_PADRAO_0001_01_01.value,
             }
         ]
 
@@ -431,14 +431,14 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
                 "nomeResponsavel": None,
                 "tipoResponsavel": None,
                 "celularResponsavel": None,
-                "dataAtualizacaoContato": "0001-01-01T00:00:00",
+                "dataAtualizacaoContato": StringsDatasISO.DATA_PADRAO_0001_01_01.value,
                 "codigoTipoTurma": 1,
                 "turmaNome": "3A",
                 "etapaEnsino": 2,
                 "cicloEnsino": 3,
                 "descEtapaEnsino": "ENSINO FUNDAMENTAL",
                 "descCicloEnsino": "ALFABETIZACAO",
-                "dataAtualizacaoTabela": "0001-01-01T00:00:00",
+                "dataAtualizacaoTabela": StringsDatasISO.DATA_PADRAO_0001_01_01.value,
             }
         ]
 
@@ -470,7 +470,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         )
 
         escola_particular = EscolaFactory.create(
-            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+            codigo_eol="000222",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.ESC_PART.value,
         )
 
         mock_coleta_dados.return_value = []
@@ -504,7 +505,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         )
 
         escola_particular = EscolaFactory.create(
-            codigo_eol="000222", tipo_unidade__iniciais="ESC.PART."
+            codigo_eol="000222",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.ESC_PART.value,
         )
         mock_obtem_alunos.return_value = [{}]
         command = Command()
@@ -542,7 +544,8 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         )
 
         escola_particular = EscolaFactory.create(
-            codigo_eol="000221", tipo_unidade__iniciais="ESC.PART."
+            codigo_eol="000221",
+            tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.ESC_PART.value,
         )
         aluno_particulas = AlunoFactory.create(
             codigo_eol="8899999",
@@ -559,7 +562,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
                 "codigoEolEscola": "000112",
                 "codigoTipoTurma": 1,
                 "codigoSituacaoMatricula": 1,
-                "dataNascimento": "2010-01-01T00:00:00",
+                "dataNascimento": StringsDatasISO.DATA_NASCIMENTO_2010_01_01.value,
                 "nomeAluno": "Teste",
                 "tipoTurno": 1,
                 "turmaNome": "7A",
@@ -570,7 +573,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
                 "codigoEolEscola": "000221",
                 "codigoTipoTurma": 1,
                 "codigoSituacaoMatricula": 1,
-                "dataNascimento": "2010-01-01T00:00:00",
+                "dataNascimento": StringsDatasISO.DATA_NASCIMENTO_2010_01_01.value,
                 "nomeAluno": "Teste 2",
                 "tipoTurno": 1,
                 "turmaNome": "9A",

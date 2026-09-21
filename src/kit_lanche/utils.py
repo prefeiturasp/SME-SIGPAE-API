@@ -112,7 +112,7 @@ def anexa_logs_prefetched(objetos):
     objetos = list(objetos)
     uuids = [obj.uuid for obj in objetos]
     if not uuids:
-        return objetos
+        return
     logs = list(
         LogSolicitacoesUsuario.objects.filter(uuid_original__in=uuids).order_by(
             "criado_em"
@@ -126,7 +126,6 @@ def anexa_logs_prefetched(objetos):
         logs_por_uuid[log.uuid_original].append(log)
     for obj in objetos:
         obj._prefetched_logs = logs_por_uuid.get(obj.uuid, [])
-    return objetos
 
 
 def prepara_solicitacoes_listagem_similares(solicitacoes, model):
@@ -134,7 +133,7 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
     solicitacoes = list(solicitacoes)
     escolas_ids = {s.escola_id for s in solicitacoes}
     if not escolas_ids:
-        return solicitacoes
+        return
     eh_cei = model is SolicitacaoKitLancheCEIAvulsa
     select = SELECT_RELATED_SIMILAR_PASSEIO if eh_cei else ("solicitacao_kit_lanche",)
     prefetch = [_PREFETCH_KITS]
@@ -152,7 +151,8 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
         .select_related(*select)
         .prefetch_related(*prefetch)
     )
-    pool = anexa_logs_prefetched(pool)
+    pool = list(pool)
+    anexa_logs_prefetched(pool)
     por_chave = defaultdict(list)
     for obj in pool:
         chave = (obj.escola_id, obj.solicitacao_kit_lanche.data)
@@ -162,7 +162,6 @@ def prepara_solicitacoes_listagem_similares(solicitacoes, model):
         solicitacao._prefetched_solicitacoes_similares = [
             c for c in por_chave.get(chave, []) if c.uuid != solicitacao.uuid
         ]
-    return solicitacoes
 
 
 def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
@@ -170,7 +169,7 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
     solicitacoes = list(solicitacoes)
     escolas_ids = {s.escola_id for s in solicitacoes}
     if not escolas_ids:
-        return solicitacoes
+        return
     pool = (
         SolicitacaoKitLancheCEMEI.objects.filter(escola_id__in=escolas_ids)
         .exclude(status=SolicitacaoKitLancheCEMEI.workflow_class.RASCUNHO)
@@ -193,7 +192,8 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
             "solicitacao_cei__faixas_quantidades__faixa_etaria",
         )
     )
-    pool = anexa_logs_prefetched(pool)
+    pool = list(pool)
+    anexa_logs_prefetched(pool)
     por_chave = defaultdict(list)
     for obj in pool:
         por_chave[(obj.escola_id, obj.data)].append(obj)
@@ -205,4 +205,3 @@ def prepara_solicitacoes_listagem_similares_cemei(solicitacoes):
             )
             if candidato.uuid != solicitacao.uuid
         ]
-    return solicitacoes

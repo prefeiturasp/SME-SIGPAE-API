@@ -36,7 +36,11 @@ from src.medicao_inicial.utils import process_anexos_from_request
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
 from ...dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ...dados_comuns.constants import TRADUCOES_FERIADOS
+from ...dados_comuns.constants import (
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    TRADUCOES_FERIADOS,
+    PayloadVariaveis,
+)
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.permissions import (
     UsuarioAdministradorEmpresaTerceirizada,
@@ -502,8 +506,10 @@ class SolicitacaoMedicaoInicialViewSet(
             "mes_ano": lambda params: dict(
                 zip(["mes", "ano"], params["mes_ano"].split("_"))
             ),
-            "lotes_selecionados[]": lambda params: {
-                "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
+            PayloadVariaveis.LOTES_SELECIONADOS.value: lambda params: {
+                "escola__lote__uuid__in": params.getlist(
+                    PayloadVariaveis.LOTES_SELECIONADOS.value
+                )
             },
             "escola": lambda params: {
                 "escola__codigo_eol": params.get("escola").split(" - ")[0]
@@ -674,7 +680,7 @@ class SolicitacaoMedicaoInicialViewSet(
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -691,7 +697,7 @@ class SolicitacaoMedicaoInicialViewSet(
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -776,9 +782,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     contem_recreio=contem_recreio,
                 )
                 return Response(
-                    dict(
-                        detail="Solicitação de geração de arquivo recebida com sucesso."
-                    ),
+                    dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                     status=status.HTTP_200_OK,
                 )
         return Response(
@@ -839,7 +843,7 @@ class SolicitacaoMedicaoInicialViewSet(
         uuid_grupo_escolar = request.query_params.get("grupo_escolar")
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
-        uuid_lotes = request.query_params.getlist("lotes[]", None)
+        uuid_lotes = request.query_params.getlist(PayloadVariaveis.LOTES.value, None)
         uuid_recreio = request.query_params.get("recreio_uuid", False)
         contem_recreio = False
 
@@ -849,7 +853,9 @@ class SolicitacaoMedicaoInicialViewSet(
         if uuid_lotes:
             lotes = Lote.objects.filter(uuid__in=uuid_lotes)
             filtros["escola__lote__in"] = lotes
-            query_params["lotes"] = request.query_params.getlist("lotes[]")
+            query_params["lotes"] = request.query_params.getlist(
+                PayloadVariaveis.LOTES.value
+            )
 
         diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
         filtros["escola__diretoria_regional"] = diretoria_regional
@@ -910,7 +916,7 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
         return Response(
-            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 
@@ -1569,7 +1575,7 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
         return Response(
-            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 
@@ -2278,7 +2284,7 @@ class RelatoriosViewSet(ViewSet):
                 else convert_dict_to_querydict(request.data)
             )
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
+            if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
                 return self._relatorio_adesao_por_escola(request, query_params)
             resultados = obtem_resultados(query_params)
 
@@ -2294,7 +2300,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
     def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
-        escolas_uuid = query_params.getlist("escola__uuid[]")
+        escolas_uuid = query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value)
         escolas = obtem_escolas_ordenadas(escolas_uuid)
         return self._pagina_resultados(request, query_params, escolas)
 
@@ -2347,15 +2353,17 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
+            if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
                 resultados = obtem_resultados_por_escola(query_params)
             else:
                 resultados = obtem_resultados(query_params)
 
             query_params_dict = query_params.dict()
 
-            if query_params.get("lotes[]"):
-                query_params_dict["lotes"] = query_params.getlist("lotes[]")
+            if query_params.get(PayloadVariaveis.LOTES.value):
+                query_params_dict["lotes"] = query_params.getlist(
+                    PayloadVariaveis.LOTES.value
+                )
 
             exporta_relatorio_adesao_para_xlsx.delay(
                 user=request.user.get_username(),
@@ -2365,9 +2373,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -2389,14 +2395,16 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
+            if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
                 resultados = obtem_resultados_por_escola(query_params)
             else:
                 resultados = obtem_resultados(query_params)
             query_params_dict = query_params.dict()
 
-            if query_params.get("lotes[]"):
-                query_params_dict["lotes"] = query_params.getlist("lotes[]")
+            if query_params.get(PayloadVariaveis.LOTES.value):
+                query_params_dict["lotes"] = query_params.getlist(
+                    PayloadVariaveis.LOTES.value
+                )
 
             exporta_relatorio_adesao_para_pdf.delay(
                 user=request.user.get_username(),
@@ -2406,9 +2414,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -2670,7 +2676,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 

@@ -22,6 +22,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -242,8 +243,8 @@ class AlteracaoCardapioCEI(
         return f"Alteração de cardápio CEI de {self.data}"
 
     class Meta:
-        verbose_name = "Alteração de cardápio CEI"
-        verbose_name_plural = "Alterações de cardápio CEI"
+        verbose_name = StringsVerboseNameModels.ALTERACAO_DE_CARDAPIO_CEI.value
+        verbose_name_plural = StringsVerboseNameModels.ALTERACOES_DE_CARDAPIO_CEI.value
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEI(
@@ -290,8 +291,12 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEI(
         return f"Substituições de alimentação CEI: {self.uuid} da Alteração de Cardápio: {self.alteracao_cardapio.uuid}"
 
     class Meta:
-        verbose_name = "Substituições de alimentação CEI no período"
-        verbose_name_plural = "Substituições de alimentação CEI no período"
+        verbose_name = (
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEI_NO_PERIODO.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEI_NO_PERIODO.value
+        )
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEI(
@@ -319,8 +324,12 @@ class FaixaEtariaSubstituicaoAlimentacaoCEI(
         return retorno
 
     class Meta:
-        verbose_name = "Faixa Etária de substituição de alimentação CEI"
-        verbose_name_plural = "Faixas Etárias de substituição de alimentação CEI"
+        verbose_name = (
+            StringsVerboseNameModels.FAIXA_ETARIA_DE_SUBSTITUICAO_DE_ALIMENTACAO_CEI.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.FAIXAS_ETARIAS_DE_SUBSTITUICAO_DE_ALIMENTACAO_CEI.value
+        )
 
 
 patch_docs(AlteracaoCardapioCEI)
