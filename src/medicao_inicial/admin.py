@@ -4,7 +4,7 @@ import importlib
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSearchHelpText
 
 from .models import (
     AlimentacaoLancamentoEspecial,
@@ -40,7 +40,9 @@ class LancheEmergencialDiarioAdmin(admin.ModelAdmin):
     list_display = ("escola", "data_inicial", "data_final")
     search_fields = ("escola__nome", "escola__codigo_eol")
     list_filter = (("data_inicial", DateRangeFilter), ("data_final", DateRangeFilter))
-    search_help_text = "Pesquisa por: nome da escola, código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2.value
+    )
 
 
 @admin.register(DiaSobremesaDoce)
@@ -66,8 +68,7 @@ class DiaSobremesaDoceAdmin(admin.ModelAdmin):
         "tipo",
     )
     search_help_text = (
-        "Pesquise por: iniciais ou nome do tipo de unidade, "
-        "número do edital, tipo de sobremesa"
+        StringsSearchHelpText.PESQUISE_POR_INICIAIS_OU_NOME_DO_TIPO_DE_UNIDADE_NUMERO_DO_EDITAL_TIPO_DE_SOBREMESA.value
     )
 
 
@@ -75,7 +76,9 @@ class DiaSobremesaDoceAdmin(admin.ModelAdmin):
 class SolicitacaoMedicaoInicialAdmin(admin.ModelAdmin):
     list_display = ("id_externo", "escola", "mes", "ano", "criado_em", "status")
     search_fields = ("escola__nome", "escola__codigo_eol")
-    search_help_text = "Pesquise por: nome da escola ou código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = (
         "mes",
         "ano",
@@ -101,7 +104,9 @@ class MedicaoAdmin(admin.ModelAdmin):
         "solicitacao_medicao_inicial__escola__nome",
         "solicitacao_medicao_inicial__escola__codigo_eol",
     )
-    search_help_text = "Pesquise por: nome da escola ou código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = (
         "periodo_escolar__nome",
         "grupo",

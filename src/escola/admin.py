@@ -6,7 +6,7 @@ from django.shortcuts import redirect
 from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
-from src.dados_comuns.constants import StringsValidationErrors
+from src.dados_comuns.constants import StringsSearchHelpText, StringsValidationErrors
 
 from .api.viewsets import exportar_planilha_importacao_tipo_gestao_escola
 from .dias_letivos.admin import DiaLetivoSIGPAEAdmin
@@ -267,7 +267,7 @@ class LogAlunosMatriculadosPeriodoEscolaAdmin(admin.ModelAdmin):
     )
     search_fields = ("escola__nome", "escola__codigo_eol", "periodo_escolar__nome")
     search_help_text = (
-        "Pesquise por: nome da escola, código eol da escola ou período escolar"
+        StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_OU_PERIODO_ESCOLAR.value
     )
     list_filter = (
         ("criado_em", DateRangeFilter),
@@ -295,7 +295,7 @@ class LogAlunosMatriculadosFaixaEtariaDiaAdmin(admin.ModelAdmin):
     )
     search_fields = ("escola__nome", "escola__codigo_eol", "periodo_escolar__nome")
     search_help_text = (
-        "Pesquise por: nome da escola, código eol da escola ou período escolar"
+        StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_OU_PERIODO_ESCOLAR.value
     )
     list_filter = (
         ("data", DateRangeFilter),
@@ -322,7 +322,9 @@ class LogAlunoPorDiaAdmin(admin.ModelAdmin):
         "log_alunos_matriculados_faixa_dia__escola__nome",
         "log_alunos_matriculados_faixa_dia__escola__codigo_eol",
     )
-    search_help_text = "Pesquise por: nome do aluno, código eol do aluno, nome da escola ou código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_ALUNO_CODIGO_EOL_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = (("log_alunos_matriculados_faixa_dia__data", DateRangeFilter),)
     ordering = ("-criado_em",)
 
@@ -347,7 +349,9 @@ class LogAlunoPorDiaAdmin(admin.ModelAdmin):
 class DiaCalendarioAdmin(admin.ModelAdmin):
     list_display = ("escola", "data", "dia_letivo", "periodo_escolar", "__str__")
     search_fields = ("escola__nome", "escola__codigo_eol")
-    search_help_text = "Pesquise por: nome da escola, código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = (("data", DateRangeFilter), "periodo_escolar", "dia_letivo")
     ordering = ("-data",)
 
@@ -364,7 +368,7 @@ class HistoricoMatriculaAlunoAdmin(admin.ModelAdmin):
     list_display = ("aluno", "escola", "data_inicio", "data_fim", "situacao")
     search_fields = ("aluno__nome", "escola__nome", "aluno__codigo_eol")
     search_help_text = (
-        "Pesquise por: nome do aluno, nome da escola ou código eol do aluno"
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DO_ALUNO.value
     )
     list_filter = (
         "situacao",
@@ -384,7 +388,9 @@ class AlunoPeriodoParcialAdmin(admin.ModelAdmin):
         "escola__nome",
         "escola__codigo_eol",
     )
-    search_help_text = "Pesquise por: nome do aluno, código eol do aluno, nome da escola ou código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_ALUNO_CODIGO_EOL_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA.value
+    )
 
 
 admin.site.register(Codae)

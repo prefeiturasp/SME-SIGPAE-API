@@ -756,6 +756,65 @@ class TIPOS_GESTAO(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsSearchHelpText(Enum):
+    PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquisa por: nome da escola, codigo eol da escola"
+    )
+    PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2 = (
+        "Pesquisa por: nome da escola, código eol da escola"
+    )
+    PESQUISA_POR_NOME_DO_USUARIO_USERNAME_EMAIL_CPF_OU_RF = (
+        "Pesquisa por: nome do usuário, username, email, CPF ou RF"
+    )
+    PESQUISA_POR_TITULO_DO_RECREIO_NAS_FERIAS = (
+        "Pesquisa por: título do recreio nas férias"
+    )
+    PESQUISA_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquisa por: uuid, nome da escola, código eol da escola"
+    )
+    PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquisar por: UUID, nome da escola, codigo eol da escola"
+    )
+    PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2 = (
+        "Pesquisar por: UUID, nome da escola, código EOL da escola"
+    )
+    PESQUISE_POR_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquise por: nome da escola ou código eol da escola"
+    )
+    PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquise por: nome da escola, código eol da escola"
+    )
+    PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_OU_PERIODO_ESCOLAR = (
+        "Pesquise por: nome da escola, código eol da escola ou período escolar"
+    )
+    PESQUISE_POR_NOME_DO_ALUNO_CODIGO_EOL_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA = "Pesquise por: nome do aluno, código eol do aluno, nome da escola ou código eol da escola"
+    PESQUISE_POR_NOME_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DO_ALUNO = (
+        "Pesquise por: nome do aluno, nome da escola ou código eol do aluno"
+    )
+    PESQUISE_POR_NOME_DO_EQUIPAMENTO = "Pesquise por: nome do equipamento"
+    PESQUISE_POR_NOME_DO_INSUMO = "Pesquise por: nome do insumo"
+    PESQUISE_POR_NOME_DO_MOBILIARIO = "Pesquise por: nome do mobiliário"
+    PESQUISE_POR_NOME_DO_PRODUTO = "Pesquise por: nome do produto"
+    PESQUISE_POR_NOME_DO_PRODUTO_NUMERO_CATEGORIA_NOME_DA_EMPRESA_NOME_DO_FABRICANTE = "Pesquise por: nome do produto, número, categoria, nome da empresa, nome do fabricante"
+    PESQUISE_POR_NOME_DO_REPARO_E_ADAPTACAO = "Pesquise por: nome do reparo e adaptação"
+    PESQUISE_POR_NOME_DO_UTENSILIO_DE_COZINHA = (
+        "Pesquise por: nome do utensílio de cozinha"
+    )
+    PESQUISE_POR_NOME_DO_UTENSILIO_DE_MESA = "Pesquise por: nome do utensílio de mesa"
+    PESQUISE_POR_NUMERO_DA_CLAUSULA = "Pesquise por: número da cláusula"
+    PESQUISE_POR_NUMERO_DO_EDITAL = "Pesquise por: número do edital"
+    PESQUISE_POR_NUMERO_DO_EDITAL_TITULO = "Pesquise por: número do edital, título"
+    PESQUISE_POR_NUMERO_DO_EDITAL_EMAIL_NOME_DO_USUARIO_DO_FORMULARIO = (
+        "Pesquise por: número do edital; (email, nome) do usuário do formulário."
+    )
+    PESQUISE_POR_TITULO = "Pesquise por: título"
+    PESQUISE_POR_INICIAIS_OU_NOME_DO_TIPO_DE_UNIDADE_NUMERO_DO_EDITAL_TIPO_DE_SOBREMESA = "Pesquise por: iniciais ou nome do tipo de unidade, número do edital, tipo de sobremesa"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsVerboseNameModels(Enum):
     DE_DESCONTO = "% de Desconto"
     DE_DESCONTO_2 = "% de desconto"

@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from src.dados_comuns.constants import StringsSearchHelpText
+
 from .models import (
     AnaliseFichaTecnica,
     FabricanteFichaTecnica,
@@ -37,7 +39,9 @@ class FichaTecnicaDoProdutoAdmin(admin.ModelAdmin):
         "empresa__nome_fantasia",
         "fabricante__fabricante__nome",
     )
-    search_help_text = "Pesquise por: nome do produto, número, categoria, nome da empresa, nome do fabricante"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_PRODUTO_NUMERO_CATEGORIA_NOME_DA_EMPRESA_NOME_DO_FABRICANTE.value
+    )
     list_filter = ("status",)
 
 
