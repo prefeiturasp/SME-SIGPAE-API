@@ -3,7 +3,10 @@ import logging
 import environ
 from django.core.management import BaseCommand
 
-from src.dados_comuns.constants import DIETA_ESPECIAL_TIPO_B
+from src.dados_comuns.constants import (
+    DIETA_ESPECIAL_TIPO_B,
+    ClassificacoesDietasDeprecadas,
+)
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -28,10 +31,10 @@ class Command(BaseCommand):
         classificacoes_existem = self.checa_se_classificacoes_exitem()
         if classificacoes_existem:
             classificacao_tipo_b_lanche = ClassificacaoDieta.objects.get(
-                nome="Tipo B - LANCHE"
+                nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value
             )
             classificacao_tipo_b_lanche_refeicao = ClassificacaoDieta.objects.get(
-                nome="Tipo B - LANCHE e REFEIÇÃO"
+                nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value
             )
             self.unifica_fks_classificacao_tipo_b(
                 classificacao_tipo_b_lanche, classificacao_tipo_b_lanche_refeicao
@@ -47,17 +50,21 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Checa se classificações existem"))
         classificacoes_existem = True
         if not ClassificacaoDieta.objects.filter(
-            nome="Tipo B - LANCHE e REFEIÇÃO"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value
         ).exists():
             self.stdout.write(
                 self.style.ERROR(
-                    "Classificação `Tipo B - LANCHE e REFEIÇÃO` não encontrada"
+                    f"Classificação `{ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value}` não encontrada"
                 )
             )
             classificacoes_existem = False
-        if not ClassificacaoDieta.objects.filter(nome="Tipo B - LANCHE").exists():
+        if not ClassificacaoDieta.objects.filter(
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value
+        ).exists():
             self.stdout.write(
-                self.style.ERROR("Classificação `Tipo B - LANCHE` não encontrada")
+                self.style.ERROR(
+                    f"Classificação `{ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value}` não encontrada"
+                )
             )
             classificacoes_existem = False
         return classificacoes_existem
@@ -111,9 +118,11 @@ class Command(BaseCommand):
         model_class.objects.bulk_update(objetos_para_atualizar, ["quantidade"])
 
     def atualizar_quantidades_log_escolas_gerais(self):
-        classificacao_lanche = ClassificacaoDieta.objects.get(nome="Tipo B - LANCHE")
+        classificacao_lanche = ClassificacaoDieta.objects.get(
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value
+        )
         classificacao_lanche_refeicao = ClassificacaoDieta.objects.get(
-            nome="Tipo B - LANCHE e REFEIÇÃO"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value
         )
         key_fields = [
             "escola_id",
@@ -130,9 +139,11 @@ class Command(BaseCommand):
         )
 
     def atualizar_quantidades_log_escolas_cei(self):
-        classificacao_lanche = ClassificacaoDieta.objects.get(nome="Tipo B - LANCHE")
+        classificacao_lanche = ClassificacaoDieta.objects.get(
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value
+        )
         classificacao_lanche_refeicao = ClassificacaoDieta.objects.get(
-            nome="Tipo B - LANCHE e REFEIÇÃO"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value
         )
         key_fields = ["escola_id", "periodo_escolar_id", "faixa_etaria_id", "data"]
         self.atualizar_quantidades_log(

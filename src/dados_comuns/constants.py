@@ -595,6 +595,15 @@ class FaixasEtarias(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class ClassificacoesDietasDeprecadas(Enum):
+    TIPO_B_LANCHE = "Tipo B - LANCHE"
+    TIPO_B_LANCHE_REFEICAO = "Tipo B - LANCHE e REFEIÇÃO"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StatusProcessamentoArquivo(Enum):
     PENDENTE = "PENDENTE"
     SUCESSO = "SUCESSO"

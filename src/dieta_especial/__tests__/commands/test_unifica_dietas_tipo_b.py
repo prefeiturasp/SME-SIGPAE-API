@@ -4,6 +4,7 @@ from unittest import TestCase
 import pytest
 from django.core.management import call_command
 
+from src.dados_comuns.constants import ClassificacoesDietasDeprecadas
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     SolicitacaoDietaEspecialFactory,
@@ -36,10 +37,10 @@ class UnificaDietasTipoBCommandTest(TestCase):
 
     def setup_dietas(self):
         self.classificacao_tipo_b_lanche = ClassificacaoDietaFactory.create(
-            nome="Tipo B - LANCHE"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value
         )
         self.classificacao_tipo_b_lanche_refeicao = ClassificacaoDietaFactory.create(
-            nome="Tipo B - LANCHE e REFEIÇÃO"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value
         )
 
         SolicitacaoDietaEspecialFactory.create(
