@@ -31,3 +31,16 @@ Then('a atualizacao de senha deve retornar erro de validacao ou recurso nao enco
 	expect(this.response.status).to.be.oneOf([400, 404])
 	expect(this.response.body).to.exist
 })
+
+When('solicito recuperacao de senha para o identificador {string}', function (identificador) {
+	cy.recuperar_senha_cadastro(identificador).then((response) => {
+		this.response = response
+	})
+})
+
+Then('o cadastro informa que nao existe usuario com esse CPF ou RF', function () {
+	expect(this.response.status).to.eq(400)
+	expect(this.response.body.detail).to.be.a('string')
+	const mensagem = this.response.body.detail.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	expect(mensagem).to.eq('Nao existe usuario com este CPF ou RF')
+})
