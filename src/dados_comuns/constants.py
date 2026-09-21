@@ -1794,3 +1794,4 @@ RELATED_NAME_RASTRO_ESCOLA = "%(app_label)s_%(class)s_rastro_escola"
 MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO = (
     "Solicitação de geração de arquivo recebida com sucesso."
 )
+ESCREVENDO = "Escrevendo..."
