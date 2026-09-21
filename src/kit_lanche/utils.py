@@ -1,7 +1,7 @@
 import datetime
 from collections import defaultdict
 
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from rest_framework.pagination import PageNumberPagination
 
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
@@ -30,6 +30,14 @@ class KitLanchePagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = "page_size"
     max_page_size = 100
+
+
+def filtra_solicitacoes_por_busca(solicitacoes, busca):
+    return solicitacoes.filter(
+        Q(escola__nome__icontains=busca)
+        | Q(escola__codigo_eol__icontains=busca)
+        | Q(uuid__icontains=busca)
+    )
 
 
 def cancela_solicitacao_kit_lanche_unificada(

@@ -488,7 +488,7 @@ def test_login_coresso_login_cpf_erro(client_autenticado_da_escola_adm, monkeypa
         "/login/", content_type="application/json", data=json.dumps(data)
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json() == {"detail": "Usuário não encontrado"}
+    assert response.json() == {"detail": "Usuário ou senha inválidos."}
 
 
 def test_login_coresso_dados_usuario_erro(
