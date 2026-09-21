@@ -3185,7 +3185,7 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
 
     @classmethod
     def existe_inclusao_continua(
-        self, escola, datas_nao_letivas, periodos_escolares_alteracao
+        cls, escola, datas_nao_letivas, periodos_escolares_alteracao
     ):
         dias_fim_de_semana = [
             data for data in datas_nao_letivas if eh_fim_de_semana(data)
@@ -3200,8 +3200,8 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
                     quantidades_por_periodo__cancelado=False,
                 )
                 .filter(
-                    Q(quantidades_por_periodo__dias_semana__icontains=self.SABADO)
-                    | Q(quantidades_por_periodo__dias_semana__icontains=self.DOMINGO)
+                    Q(quantidades_por_periodo__dias_semana__icontains=cls.SABADO)
+                    | Q(quantidades_por_periodo__dias_semana__icontains=cls.DOMINGO)
                 )
                 .exists()
             ):
