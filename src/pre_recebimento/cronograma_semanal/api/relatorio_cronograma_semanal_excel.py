@@ -196,8 +196,7 @@ def gera_relatorio_cronogramas_semanais_xlsx(ids_cronogramas, filtros=None):
     Args:
         ids_cronogramas: Lista de ids de CronogramaSemanal, já filtrados.
         filtros: Filtros da tela que ainda precisam ser aplicados sobre as
-            programações (``mes_inicial`` e ``mes_final``). Os demais
-            filtros já se esgotaram na seleção dos ids.
+            programações (``mes_inicial`` e ``mes_final``).
 
     Returns:
         bytes: Conteúdo do arquivo .xlsx.
