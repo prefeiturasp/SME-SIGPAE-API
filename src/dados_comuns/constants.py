@@ -747,3 +747,6 @@ RELATED_NAME_RASTRO_LOTE = "%(app_label)s_%(class)s_rastro_lote"
 RELATED_NAME_RASTRO_DRE = "%(app_label)s_%(class)s_rastro_dre"
 RELATED_NAME_RASTRO_ESCOLA = "%(app_label)s_%(class)s_rastro_escola"
 MENSAGEM_ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
+MENSAGEM_DIETA_ESPECIAL_PENDENTE = (
+    "Aluno já possui Solicitação de Dieta Especial pendente"
+)

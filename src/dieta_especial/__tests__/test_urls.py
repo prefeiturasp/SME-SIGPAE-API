@@ -137,7 +137,7 @@ def test_url_criar_dieta(
         "/solicitacoes-dieta-especial/", content_type="application/json", data=payload
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == ["Aluno já possui Solicitação de Dieta Especial pendente"]
+    assert response.json() == [constants.MENSAGEM_DIETA_ESPECIAL_PENDENTE]
 
 
 def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
