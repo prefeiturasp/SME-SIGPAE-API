@@ -15,6 +15,7 @@ from src.dados_comuns.behaviors import (
 from src.dados_comuns.constants import (
     DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI,
     MODEL_ESCOLA,
+    StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -46,7 +47,9 @@ class SuspensaoAlimentacaoDaCEI(
     DESCRICAO = DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
     escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
     motivo = models.ForeignKey(MotivoSuspensao, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
     periodos_escolares = models.ManyToManyField(
         "escola.PeriodoEscolar",
         related_name="%(app_label)s_%(class)s_periodos",
@@ -176,7 +179,9 @@ class SuspensaoAlimentacaoDaCEI(
 
     class Meta:
         verbose_name = DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
-        verbose_name_plural = "Suspensões de Alimentação de CEI"
+        verbose_name_plural = (
+            StringsVerboseNameModels.SUSPENSOES_DE_ALIMENTACAO_DE_CEI.value
+        )
 
 
 patch_docs(SuspensaoAlimentacaoDaCEI)
