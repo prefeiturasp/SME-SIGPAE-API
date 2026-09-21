@@ -776,6 +776,7 @@ class TIPOS_UNIDADE_ESCOLAR(Enum):
     EMEBS = "EMEBS"
     CIEJA = "CIEJA"
     CMCT = "CMCT"
+    ESC_PART = "ESC.PART."
 
     @classmethod
     def choices(cls):
