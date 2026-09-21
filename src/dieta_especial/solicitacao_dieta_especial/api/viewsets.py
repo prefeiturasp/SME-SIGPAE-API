@@ -28,7 +28,10 @@ from xworkflows import InvalidTransitionError
 
 from src.dados_comuns import constants
 from src.dados_comuns.api.paginations import HistoricoDietasPagination
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+)
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.permissions import (
@@ -1029,7 +1032,7 @@ class SolicitacaoDietaEspecialViewSet(
                 ids_dietas=ids_dietas,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as error:
@@ -1293,7 +1296,7 @@ class SolicitacaoDietaEspecialViewSet(
             protocolos_padrao=protocolos_padrao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1376,7 +1379,7 @@ class SolicitacaoDietaEspecialViewSet(
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1422,7 +1425,7 @@ class SolicitacaoDietaEspecialViewSet(
                 data=json.dumps(data),
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -1449,7 +1452,7 @@ class SolicitacaoDietaEspecialViewSet(
                 data=json.dumps(data),
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -1495,7 +1498,7 @@ class SolicitacaoDietaEspecialViewSet(
                 params=request.data,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -1516,7 +1519,7 @@ class SolicitacaoDietaEspecialViewSet(
                 params=request.data,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:

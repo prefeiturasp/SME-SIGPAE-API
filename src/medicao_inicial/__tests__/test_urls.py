@@ -18,6 +18,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MENSAGEM_PERMISSAO_NEGADA,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
@@ -724,9 +725,7 @@ def test_url_endpoint_historico_ocorrencias_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_relatorio_pdf(
@@ -739,9 +738,7 @@ def test_url_endpoint_relatorio_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_relatorio_unificado_pdf_sem_mes_referencia(
@@ -3950,9 +3947,7 @@ def test_url_endpoint_historico_correcoes_medicao_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_historico_correcoes_medicao_pdf_sem_historico(
@@ -3991,9 +3986,7 @@ def test_endpoint_exportar_pdf_relatorio_financeiro_com_sucesso(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.data == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 @pytest.mark.django_db

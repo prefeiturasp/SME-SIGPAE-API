@@ -4,6 +4,7 @@ import openpyxl
 import pytest
 from rest_framework import status
 
+from src.dados_comuns.constants import MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 from src.dados_comuns.models import CentralDeDownload
 from src.pre_recebimento.cronograma_semanal.api.relatorio_cronograma_semanal_excel import (
     COLUNAS,
@@ -222,9 +223,7 @@ def test_endpoint_enfileira_com_ids_filtrados_e_mes(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
     username, ids_cronogramas, filtros = chamadas[0]
     assert username == usuario.username

@@ -39,7 +39,10 @@ from src.medicao_inicial.utils import process_anexos_from_request
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
 from ...dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ...dados_comuns.constants import TRADUCOES_FERIADOS
+from ...dados_comuns.constants import (
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    TRADUCOES_FERIADOS,
+)
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.permissions import (
     UsuarioAdministradorEmpresaTerceirizada,
@@ -677,7 +680,7 @@ class SolicitacaoMedicaoInicialViewSet(
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -694,7 +697,7 @@ class SolicitacaoMedicaoInicialViewSet(
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -779,9 +782,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     contem_recreio=contem_recreio,
                 )
                 return Response(
-                    dict(
-                        detail="Solicitação de geração de arquivo recebida com sucesso."
-                    ),
+                    dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                     status=status.HTTP_200_OK,
                 )
         return Response(
@@ -913,7 +914,7 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
         return Response(
-            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 
@@ -1572,7 +1573,7 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
         return Response(
-            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 
@@ -2378,9 +2379,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -2419,9 +2418,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -2683,7 +2680,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 

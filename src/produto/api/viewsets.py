@@ -42,6 +42,7 @@ from src.produto.utils.genericos import (
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPO_USUARIO_CODAE_GABINETE,
     TIPO_USUARIO_DIRETORIA_REGIONAL,
     TIPO_USUARIO_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -111,6 +112,9 @@ from ..models import (
     SolicitacaoCadastroProdutoDieta,
     UnidadeMedida,
 )
+from ..services.historico_reclamacao_produto import (
+    ServicoHistoricoReclamacaoProduto,
+)
 from ..tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
     gera_imagens_historico_reclamacao_produto_async,
@@ -141,6 +145,7 @@ from .filters import (
     ProdutoFilter,
     filtros_produto_reclamacoes,
 )
+from .permissions import PermissaoArquivosHistoricoReclamacao
 from .serializers.serializers import (
     CadastroProdutosEditalSerializer,
     EmbalagemProdutoSerialzer,
@@ -175,10 +180,6 @@ from .serializers.serializers import (
     UnidadeMedidaSerialzer,
     VinculosProdutosEditalAtivosSerializer,
 )
-from ..services.historico_reclamacao_produto import (
-    ServicoHistoricoReclamacaoProduto,
-)
-from .permissions import PermissaoArquivosHistoricoReclamacao
 from .serializers.serializers_create import (
     CadastroProdutosEditalCreateSerializer,
     ProdutoEditalCreateSerializer,
@@ -387,7 +388,7 @@ class HomologacaoProdutoPainelGerencialViewSet(viewsets.ModelViewSet):
             object_id=request.user.vinculo_atual.object_id,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1908,7 +1909,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1945,7 +1946,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             object_id=request.user.vinculo_atual.object_id,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2297,7 +2298,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2446,7 +2447,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2557,7 +2558,7 @@ class ProdutoViewSet(viewsets.ModelViewSet):
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -3563,9 +3564,7 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
     def _obter_configuracao_download_historico(tipo_arquivo):
         return {
             "pdf": {
-                "obter_anexos": (
-                    ServicoHistoricoReclamacaoProduto.obter_pdfs_acao
-                ),
+                "obter_anexos": (ServicoHistoricoReclamacaoProduto.obter_pdfs_acao),
                 "obter_nome": (
                     ServicoHistoricoReclamacaoProduto.obter_nome_download_pdfs
                 ),
@@ -3578,9 +3577,7 @@ class ReclamacaoProdutoViewSet(viewsets.ModelViewSet):
                 ),
             },
             "imagens": {
-                "obter_anexos": (
-                    ServicoHistoricoReclamacaoProduto.obter_imagens_acao
-                ),
+                "obter_anexos": (ServicoHistoricoReclamacaoProduto.obter_imagens_acao),
                 "obter_nome": (
                     ServicoHistoricoReclamacaoProduto.obter_nome_download_imagens
                 ),

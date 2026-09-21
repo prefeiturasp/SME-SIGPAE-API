@@ -750,3 +750,6 @@ MENSAGEM_ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
 MENSAGEM_DIETA_ESPECIAL_PENDENTE = (
     "Aluno já possui Solicitação de Dieta Especial pendente"
 )
+MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO = (
+    "Solicitação de geração de arquivo recebida com sucesso."
+)
