@@ -78,7 +78,6 @@ from ...escola.models import DiretoriaRegional, Escola, Lote
 from ...relatorios.relatorios import (
     relatorio_produto_analise_sensorial,
     relatorio_produto_analise_sensorial_recebimento,
-    relatorio_produto_homologacao,
     relatorio_produtos_em_analise_sensorial,
     relatorio_produtos_suspensos,
 )
@@ -116,6 +115,7 @@ from ..tasks import (
     gera_imagens_historico_reclamacao_produto_async,
     gera_pdf_historico_reclamacao_produto_async,
     gera_pdf_relatorio_historico_produto_async,
+    gera_pdf_relatorio_produto_async,
     gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
@@ -1888,7 +1888,20 @@ class ProdutoViewSet(viewsets.ModelViewSet):
         permission_classes=(AllowAny,),
     )
     def relatorio(self, request, uuid=None):
-        return relatorio_produto_homologacao(request, produto=self.get_object())
+        user = request.user.get_username()
+        produto = self.get_object()
+        nome_arquivo = f"relatorio_produto_{produto.id_externo}.pdf"
+
+        gera_pdf_relatorio_produto_async.delay(
+            user=user,
+            nome_arquivo=nome_arquivo,
+            uuid_produto=str(produto.uuid),
+        )
+
+        return Response(
+            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            status=status.HTTP_200_OK,
+        )
 
     @action(
         detail=True,
