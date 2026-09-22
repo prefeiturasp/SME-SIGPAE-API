@@ -48,7 +48,7 @@ def test_permissoes_inversao_cardapio_viewset(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }
     response = client_autenticado_vinculo_escola_cardapio.delete(
         f"/{ENDPOINT_INVERSOES}/{inversao_dia_cardapio_outra_dre.uuid}/"

@@ -679,6 +679,7 @@ class StringsValidationErrors(Enum):
     ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
     DIETA_ESPECIAL_PENDENTE = "Aluno já possui Solicitação de Dieta Especial pendente"
     CAMPO_OBRIGATORIO = "Este campo é obrigatório!"
+    EXCLUSAO_SOMENTE_RASCUNHO = "Você só pode excluir quando o status for RASCUNHO."
 
     @classmethod
     def choices(cls):
