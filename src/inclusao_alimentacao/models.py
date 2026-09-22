@@ -61,7 +61,7 @@ class QuantidadePorPeriodo(
         blank=True,
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
     tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
     observacao = models.CharField(
@@ -585,10 +585,13 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
         validators=[MinValueValidator(1)]
     )
     periodo = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING, blank=True, null=True
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
     periodo_externo = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
@@ -627,7 +630,10 @@ class InclusaoAlimentacaoDaCEI(
         related_name="grupos_inclusoes_por_cei",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING, blank=True, null=True
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
     tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
 
@@ -1202,7 +1208,7 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
         validators=[MinValueValidator(1)]
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
 
     def __str__(self):
@@ -1229,7 +1235,7 @@ class QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI(
         validators=[MinValueValidator(1)]
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
     tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
 

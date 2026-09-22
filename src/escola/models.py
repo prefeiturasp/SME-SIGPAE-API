@@ -421,7 +421,9 @@ class TipoUnidadeEscolar(Iniciais, Ativavel, TemChaveExterna):
     """EMEF, CIEJA, EMEI, EMEBS, CEI, CEMEI..."""
 
     periodos_escolares = models.ManyToManyField(
-        "escola.PeriodoEscolar", blank=True, related_name="tipos_unidade_escolar"
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        blank=True,
+        related_name="tipos_unidade_escolar",
     )
     tem_somente_integral_e_parcial = models.BooleanField(
         help_text="Variável de controle para setar os períodos escolares na mão, válido para CEI CEU, CEI e CCI",

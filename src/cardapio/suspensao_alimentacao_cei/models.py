@@ -53,7 +53,7 @@ class SuspensaoAlimentacaoDaCEI(
         StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
     )
     periodos_escolares = models.ManyToManyField(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         related_name="%(app_label)s_%(class)s_periodos",
         help_text="Periodos escolares da suspensão",
         blank=True,

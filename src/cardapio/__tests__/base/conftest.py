@@ -89,7 +89,9 @@ def alterar_tipos_alimentacao_data():
     alimentacao3 = baker.make(
         StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="tp_alimentacao3"
     )
-    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    periodo_escolar = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="MANHA"
+    )
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
     )

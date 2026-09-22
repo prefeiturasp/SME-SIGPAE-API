@@ -1048,7 +1048,7 @@ def tipo_alimentacao_lanche_emergencial():
 @pytest.fixture
 def periodo_manha():
     return baker.make(
-        "escola.PeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="MANHA",
         uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
     )
@@ -1057,7 +1057,7 @@ def periodo_manha():
 @pytest.fixture
 def periodo_tarde():
     return baker.make(
-        "escola.PeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="TARDE",
         uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
     )

@@ -182,7 +182,7 @@ def test_grupo_inclusao_alimentacao_cei(
             )
         )
 
-    periodo_escolar = baker.make("escola.PeriodoEscolar")
+    periodo_escolar = baker.make(StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value)
     motivo = baker.make("MotivoInclusaoNormal")
 
     serializer_obj = InclusaoAlimentacaoDaCEICreateSerializer(

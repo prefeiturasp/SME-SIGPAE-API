@@ -47,7 +47,7 @@ from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
-MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+MODEL_PERIODO_ESCOLAR = StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value
 GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
 
 

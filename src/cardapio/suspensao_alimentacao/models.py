@@ -109,7 +109,7 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
     ]
     numero_alunos = models.SmallIntegerField()
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
     grupo_suspensao = models.ForeignKey(
         "GrupoSuspensaoAlimentacao",

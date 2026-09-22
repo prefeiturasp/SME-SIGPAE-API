@@ -23,7 +23,11 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsVerboseNameModels
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    StringsCaminhoModelos,
+    StringsVerboseNameModels,
+)
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -443,7 +447,7 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI(TemChaveExterna):
         related_name="substituicoes_cemei_cei_periodo_escolar",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.PROTECT,
         related_name="substituicoes_cemei_cei_periodo_escolar",
     )
@@ -489,7 +493,7 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI(
     qtd_alunos = models.PositiveSmallIntegerField(default=0)
 
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.PROTECT,
         related_name="substituicoes_cemei_emei_periodo_escolar",
     )

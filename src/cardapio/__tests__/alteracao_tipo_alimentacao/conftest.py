@@ -306,7 +306,9 @@ def alteracao_substituicoes_params(request, daqui_dez_dias_ou_ultimo_dia_do_ano)
     alimentacao3 = baker.make(
         StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="tp_alimentacao3"
     )
-    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    periodo_escolar = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="MANHA"
+    )
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
     )

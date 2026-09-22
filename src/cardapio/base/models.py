@@ -79,7 +79,10 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
         "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self):
@@ -105,7 +108,9 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
         "escola.TipoUnidadeEscolar", null=True, on_delete=models.DO_NOTHING
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     tipos_alimentacao = models.ManyToManyField(
         "TipoAlimentacao", related_name="vinculos", blank=True

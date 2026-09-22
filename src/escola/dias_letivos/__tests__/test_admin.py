@@ -149,8 +149,12 @@ def test_get_dia_semana_display_decorator() -> None:
 
 def test_get_periodos_escolares() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    periodo1 = baker.make("escola.PeriodoEscolar", nome="Manhã")
-    periodo2 = baker.make("escola.PeriodoEscolar", nome="Tarde")
+    periodo1 = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="Manhã"
+    )
+    periodo2 = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="Tarde"
+    )
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.periodos_escolares.set([periodo1, periodo2])

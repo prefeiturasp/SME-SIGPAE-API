@@ -92,7 +92,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
         related_name="logs_dietas_autorizadas",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -131,7 +131,7 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         related_name="logs_dietas_autorizadas_cei",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         related_name="logs_dietas_autorizadas_cei",
         on_delete=models.CASCADE,
     )

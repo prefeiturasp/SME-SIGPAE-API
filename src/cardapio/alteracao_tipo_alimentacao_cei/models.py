@@ -22,6 +22,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
+from src.dados_comuns.constants import StringsCaminhoModelos
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -269,7 +270,7 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEI(
         related_name="substituicoes_cei_periodo_escolar",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.PROTECT,
         related_name="substituicoes_cei_periodo_escolar",
     )

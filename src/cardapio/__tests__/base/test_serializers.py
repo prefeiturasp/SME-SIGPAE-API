@@ -4,7 +4,7 @@ from model_bakery import baker
 from src.cardapio.base.api.serializers import (
     TipoUnidadeEscolarAgrupadoSerializer,
 )
-from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR, StringsCaminhoModelos
 
 pytestmark = pytest.mark.django_db
 
@@ -77,7 +77,9 @@ def test_tipo_unidade_escolar_agrupado_serializer_metodo_agrupar():
         tipo_unidade_escolar=baker.make(
             "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
         ),
-        periodo_escolar=baker.make("escola.PeriodoEscolar", nome="MANHA"),
+        periodo_escolar=baker.make(
+            StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="MANHA"
+        ),
         ativo=True,
     )
 
@@ -86,7 +88,9 @@ def test_tipo_unidade_escolar_agrupado_serializer_metodo_agrupar():
         tipo_unidade_escolar=baker.make(
             "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
         ),
-        periodo_escolar=baker.make("escola.PeriodoEscolar", nome="TARDE"),
+        periodo_escolar=baker.make(
+            StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="TARDE"
+        ),
         ativo=True,
     )
 

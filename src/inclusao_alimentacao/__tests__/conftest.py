@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from model_bakery import baker
 
+from src.dados_comuns.constants import StringsCaminhoModelos
 from src.escola.__tests__.conftest import mocked_response
 
 from ...dados_comuns import constants
@@ -166,7 +167,7 @@ def make_motivo_inclusao_normal():
 
 @pytest.fixture
 def quantidade_por_periodo():
-    periodo_escolar = baker.make("escola.PeriodoEscolar")
+    periodo_escolar = baker.make(StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value)
     tipos_alimentacao = baker.make(
         "cardapio.TipoAlimentacao", _quantity=5, make_m2m=True
     )
