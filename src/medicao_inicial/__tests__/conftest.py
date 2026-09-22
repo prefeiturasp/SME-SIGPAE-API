@@ -1069,6 +1069,27 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
     return solicitacao_medicao
 
 
+def _cria_valores_medicao_emebs(medicoes, categorias, tipos_turmas, dias, campos):
+    for dia in dias:
+        for tipo_turma in tipos_turmas:
+            for campo in campos:
+                for categoria in categorias:
+                    for medicao_ in medicoes:
+                        baker.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao_,
+                            categoria_medicao=categoria,
+                            valor=(
+                                "10"
+                                if campo != "observacoes"
+                                else f"observação {tipo_turma} dia {dia}"
+                            ),
+                            infantil_ou_fundamental=tipo_turma,
+                        )
+
+
 @pytest.fixture
 def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_medicao):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
@@ -1107,28 +1128,13 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
             dia_letivo=True,
         )
 
-    for dia in ["01", "02", "03", "04", "05"]:
-        for tipo_turma in tipos_turmas:
-            for campo in ["lanche", "refeicao", "sobremesa", "observacoes"]:
-                for categoria in [
-                    categoria_medicao,
-                    categoria_dieta_a,
-                    categoria_dieta_b,
-                ]:
-                    for medicao_ in [medicao_manha, medicao_tarde]:
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao_,
-                            categoria_medicao=categoria,
-                            valor=(
-                                "10"
-                                if campo != "observacoes"
-                                else f"observação {tipo_turma} dia {dia}"
-                            ),
-                            infantil_ou_fundamental=tipo_turma,
-                        )
+    _cria_valores_medicao_emebs(
+        medicoes=[medicao_manha, medicao_tarde],
+        categorias=[categoria_medicao, categoria_dieta_a, categoria_dieta_b],
+        tipos_turmas=tipos_turmas,
+        dias=["01", "02", "03", "04", "05"],
+        campos=["lanche", "refeicao", "sobremesa", "observacoes"],
+    )
     return solicitacao_medicao
 
 
