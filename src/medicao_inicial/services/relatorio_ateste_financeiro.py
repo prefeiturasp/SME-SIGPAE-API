@@ -11,7 +11,7 @@ from src.cardapio.base.models import (
 )
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
-from src.escola.models import FaixaEtaria
+from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     normalizar_nome_campo,
@@ -31,17 +31,17 @@ ORDEM_PRIORIDADE = {
 
 def obter_config_grupo(grupo_nome):
     grupos_relatorio = {
-        "GRUPO 1": {
+        GrupoUnidadeEscolar.GRUPO_1.value.upper(): {
             "builder": build_relatorio_financeiro_grupo_cei,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html",
             "tipo_calculo": "faixa_etaria",
         },
-        "GRUPO 2": {
+        GrupoUnidadeEscolar.GRUPO_2.value.upper(): {
             "builder": build_relatorio_financeiro_grupo_cemei,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
             "tipo_calculo": None,
         },
-        "GRUPO 5": {
+        GrupoUnidadeEscolar.GRUPO_5.value.upper(): {
             "builder": build_relatorio_financeiro_grupo_emebs,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html",
             "tipo_calculo": "tipo_alimentacao",
@@ -471,7 +471,7 @@ def _build_tabela_alimentacao_emei(
         else:
             nome_consumo = normalizar_nome_campo(
                 tipo["nome"],
-                "GRUPO 3",
+                GrupoUnidadeEscolar.GRUPO_3.value.upper(),
             ).lower()
 
         numero_atendimentos = totais_consumo.get(
@@ -492,7 +492,8 @@ def _build_tabela_alimentacao_emei(
             {
                 "tipo": (
                     f"{alimentacao_nome} CIEJA E CMCT"
-                    if grupo_nome == "GRUPO 6" and alimentacao_nome == "REFEIÇÃO"
+                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.value.upper()
+                    and alimentacao_nome == "REFEIÇÃO"
                     else alimentacao_nome
                 ),
                 "valor_unitario": valor_unitario,
@@ -584,7 +585,8 @@ def _build_tabela_dieta_emei(
             {
                 "tipo": (
                     f"{dieta_nome} CIEJA E CMCT"
-                    if grupo_nome == "GRUPO 6" and dieta_nome == "REFEIÇÃO"
+                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.value.upper()
+                    and dieta_nome == "REFEIÇÃO"
                     else dieta_nome
                 ),
                 "valor_unitario": valor_unitario,
@@ -623,8 +625,8 @@ def build_relatorio_financeiro_grupo_emei(
     tipos_unidades = grupo_unidade.tipos_unidades.all()
     grupo_nome = grupo_unidade.nome.upper()
 
-    eh_cieja = "GRUPO 6" in grupo_nome
-    eh_emef = "GRUPO 4" in grupo_nome
+    eh_cieja = GrupoUnidadeEscolar.GRUPO_6.value.upper() in grupo_nome
+    eh_emef = GrupoUnidadeEscolar.GRUPO_4.value.upper() in grupo_nome
 
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)
