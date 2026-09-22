@@ -806,6 +806,23 @@ class StringsPatterns(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsObservacaoValorMedicao(Enum):
+    OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
+    OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"
+    OBSERVACAO_FUNDAMENTAL_DIA_03 = "observação FUNDAMENTAL dia 03"
+    OBSERVACAO_FUNDAMENTAL_DIA_04 = "observação FUNDAMENTAL dia 04"
+    OBSERVACAO_FUNDAMENTAL_DIA_05 = "observação FUNDAMENTAL dia 05"
+    OBSERVACAO_INFANTIL_DIA_01 = "observação INFANTIL dia 01"
+    OBSERVACAO_INFANTIL_DIA_02 = "observação INFANTIL dia 02"
+    OBSERVACAO_INFANTIL_DIA_03 = "observação INFANTIL dia 03"
+    OBSERVACAO_INFANTIL_DIA_04 = "observação INFANTIL dia 04"
+    OBSERVACAO_INFANTIL_DIA_05 = "observação INFANTIL dia 05"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsNomesArquivos(Enum):
     ARQUIVO_TESTE_PDF = "arquivo_teste.pdf"
 
