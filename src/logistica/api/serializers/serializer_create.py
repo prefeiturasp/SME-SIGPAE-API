@@ -402,7 +402,9 @@ class NotificacaoOcorrenciasCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         guias = attrs.get("guias", None)
         if not guias:
-            raise serializers.ValidationError({"guias": ["Este campo é obrigatório."]})
+            raise serializers.ValidationError(
+                {"guias": [StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value]}
+            )
         existe_guia_notificada = Guia.objects.filter(
             uuid__in=guias, notificacao__isnull=False
         )
@@ -438,7 +440,9 @@ class NotificacaoOcorrenciasUpdateRascunhoSerializer(serializers.ModelSerializer
     def validate(self, attrs, instance):
         guias = attrs.get("guias", None)
         if not guias:
-            raise serializers.ValidationError({"guias": ["Este campo é obrigatório."]})
+            raise serializers.ValidationError(
+                {"guias": [StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value]}
+            )
         existe_guia_notificada = Guia.objects.filter(
             uuid__in=guias, notificacao__isnull=False
         )
@@ -478,12 +482,20 @@ class NotificacaoOcorrenciasUpdateSerializer(serializers.ModelSerializer):
 
         if not previsoes:
             raise serializers.ValidationError(
-                {"previsoes": ["Este campo é obrigatório."]}
+                {
+                    "previsoes": [
+                        StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                    ]
+                }
             )
 
         if not processo_sei:
             raise serializers.ValidationError(
-                {"processo_sei": ["Este campo é obrigatório."]}
+                {
+                    "processo_sei": [
+                        StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                    ]
+                }
             )
 
         return attrs

@@ -91,7 +91,9 @@ def test_ficha_recebimento_rascunho_serializer_erro_sem_etapa(
     ficha_recebimento_rascunho.pop("etapa")
     serializer = FichaDeRecebimentoRascunhoSerializer(data=ficha_recebimento_rascunho)
     assert serializer.is_valid() is False
-    assert serializer.errors == {"etapa": ["Este campo é obrigatório."]}
+    assert serializer.errors == {
+        "etapa": [constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value]
+    }
 
 
 def test_ficha_recebimento_rascunho_serializer_erro_etapa_invalida(

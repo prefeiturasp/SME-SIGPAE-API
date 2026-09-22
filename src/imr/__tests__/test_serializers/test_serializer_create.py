@@ -86,7 +86,7 @@ def test_serializer_nutri_sem_serializer_class_erro():
 def test_serializer_nutri_validate_erro():
     with pytest.raises(
         ValidationError,
-        match=StringsValidationErrors.CAMPO_OBRIGATORIO.value,
+        match=StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value,
     ):
         data = {}
         serializer = FormularioSupervisaoRascunhoCreateSerializer()
@@ -105,7 +105,7 @@ def test_serializer_diretor_sem_serializer_class_erro():
 def test_serializer_diretor_validate_erro():
     with pytest.raises(
         ValidationError,
-        match=StringsValidationErrors.CAMPO_OBRIGATORIO.value,
+        match=StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value,
     ):
         data = {}
         serializer = FormularioDiretorCreateSerializer()

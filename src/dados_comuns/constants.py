@@ -709,7 +709,8 @@ class StringsValidationErrors(Enum):
     PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
     ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
     DIETA_ESPECIAL_PENDENTE = "Aluno já possui Solicitação de Dieta Especial pendente"
-    CAMPO_OBRIGATORIO = "Este campo é obrigatório!"
+    CAMPO_OBRIGATORIO_EXCLAMACAO = "Este campo é obrigatório!"
+    CAMPO_OBRIGATORIO_PONTO_FINAL = "Este campo é obrigatório."
     EXCLUSAO_SOMENTE_RASCUNHO = "Você só pode excluir quando o status for RASCUNHO."
     GUIA_DE_REMESSA_NAO_EXISTE = "Guia de remessa não existe."
 

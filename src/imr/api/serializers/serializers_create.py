@@ -366,7 +366,7 @@ class FormularioSupervisaoRascunhoCreateSerializer(
     def validate(self, attrs):
         if "data" not in attrs:
             raise serializers.ValidationError(
-                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO.value]}
+                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value]}
             )
 
         return attrs
@@ -462,7 +462,7 @@ class FormularioSupervisaoCreateSerializer(
     def validate(self, attrs):
         if "data" not in attrs:
             raise serializers.ValidationError(
-                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO.value]}
+                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value]}
             )
         if attrs["acompanhou_visita"] is True and (
             "nome_nutricionista_empresa" not in attrs
@@ -552,7 +552,7 @@ class FormularioDiretorCreateSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if "data" not in attrs:
             raise serializers.ValidationError(
-                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO.value]}
+                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value]}
             )
 
         return attrs

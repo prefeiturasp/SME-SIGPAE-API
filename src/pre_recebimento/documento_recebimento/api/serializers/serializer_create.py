@@ -2,6 +2,7 @@ from rest_framework import serializers
 from xworkflows.base import InvalidTransitionError
 
 from src.dados_comuns.api.serializers import CamposObrigatoriosMixin
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.utils import (
     update_instance_from_dict,
 )
@@ -44,7 +45,11 @@ class TipoDeDocumentoDeRecebimentoCreateSerializer(serializers.ModelSerializer):
             for doc in arquivos:
                 if not doc["arquivo"] or not doc["nome"]:
                     raise serializers.ValidationError(
-                        {f"{tipo_documento}": ["Este campo é obrigatório."]}
+                        {
+                            f"{tipo_documento}": [
+                                StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                            ]
+                        }
                     )
         return attrs
 
@@ -271,8 +276,7 @@ class DocumentoDeRecebimentoCorrecaoSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         tipos_documentos_recebidos = [
-            dados["tipo_documento"]
-            for dados in attrs.get("tipos_de_documentos", [])
+            dados["tipo_documento"] for dados in attrs.get("tipos_de_documentos", [])
         ]
         if (
             TipoDeDocumentoDeRecebimento.TIPO_DOC_LAUDO
