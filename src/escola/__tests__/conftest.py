@@ -1004,15 +1004,21 @@ def dicionario_de_alunos_matriculados():
 def lista_dias_letivos(escola, dia_calendario_letivo, dia_calendario_nao_letivo):
     dias_letivos = [
         {
-            "data": dia_calendario_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "data": dia_calendario_letivo.data.strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": dia_calendario_letivo.dia_letivo,
         },
         {
-            "data": dia_calendario_nao_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "data": dia_calendario_nao_letivo.data.strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": dia_calendario_nao_letivo.dia_letivo,
         },
         {
-            "data": datetime.datetime(2021, 9, 26).strftime("%Y-%m-%dT00:00:00"),
+            "data": datetime.datetime(2021, 9, 26).strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": False,
         },
     ]

@@ -9,7 +9,7 @@ from django.db.models import Case, Q, Value, When
 from openpyxl import Workbook
 from rest_framework.pagination import PageNumberPagination
 
-from src.dados_comuns.constants import FaixasEtarias
+from src.dados_comuns.constants import FaixasEtarias, StringsDatasISO
 from src.eol_servico.utils import EOLServicoSGP
 
 from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
@@ -268,7 +268,9 @@ def processa_dias_letivos(
     from src.escola.models import DiaCalendario
 
     for dia_dict in lista_dias_letivos:
-        data = datetime.strptime(dia_dict["data"], "%Y-%m-%dT00:00:00")
+        data = datetime.strptime(
+            dia_dict["data"], StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+        )
         dia_calendario: DiaCalendario = DiaCalendario.objects.filter(
             escola=escola,
             data__year=data.year,

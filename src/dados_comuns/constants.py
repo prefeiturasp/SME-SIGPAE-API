@@ -665,6 +665,7 @@ class StringsDatasISO(Enum):
     DATA_NASCIMENTO_2010_01_01 = "2010-01-01T00:00:00"
     DATA_PADRAO_0001_01_01 = "0001-01-01T00:00:00"
     DATA_PADRAO_2025_01_01 = "2025-01-01T00:00:00"
+    FORMATO_ISO_MEIA_NOITE = "%Y-%m-%dT00:00:00"
 
     @classmethod
     def choices(cls):
