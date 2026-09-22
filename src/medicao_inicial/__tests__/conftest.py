@@ -3901,6 +3901,121 @@ def solicitacao_escola_ceu_cemei(escola_ceu_cemei):
     )
 
 
+def _cria_valores_dia_05_programas_cemei(
+    dia,
+    solicitacao_alimentacao,
+    medicao_programas_e_projetos,
+    faixas_etarias_ativas,
+    categoria_medicao_solicitacoes_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+):
+    for campo in ["kit_lanche", "lanche_emergencial"]:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=solicitacao_alimentacao,
+            categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+            valor="5",
+        )
+    for campo in [
+        "numero_de_alunos",
+        "frequencia",
+        "dietas_autorizadas",
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+    ]:
+        if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao_dieta_a,
+                valor=1,
+            )
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao_dieta_b,
+                valor=1,
+            )
+        if campo != "dietas_autorizadas":
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao,
+                valor=1,
+                faixa_etaria=faixas_etarias_ativas[0],
+            )
+
+
+def _cria_valores_frequencia_cemei(dia, medicoes, faixas_etarias_ativas, categorias):
+    for medicao in medicoes:
+        for faixa in faixas_etarias_ativas:
+            for categoria, valor in categorias:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    valor=valor,
+                    faixa_etaria=faixa,
+                )
+
+
+def _cria_valores_infantil_cemei(
+    dia,
+    medicoes_infantil,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    for medicao in medicoes_infantil:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao,
+                categoria_medicao=categoria_medicao,
+                valor="30",
+            )
+            if campo in ["lanche", "lanche_4h"]:
+                for categoria in [
+                    categoria_medicao_dieta_a,
+                    categoria_medicao_dieta_b,
+                    categoria_medicao_dieta_a_enteral_aminoacidos,
+                ]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria,
+                        valor=1,
+                    )
+            elif campo == "refeicao":
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    valor=1,
+                )
+
+
 @pytest.fixture
 def relatorio_consolidado_xlsx_cemei(
     solicitacao_relatorio_consolidado_grupo_cemei,
@@ -3958,118 +4073,43 @@ def relatorio_consolidado_xlsx_cemei(
 
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=solicitacao_alimentacao,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="5",
-                )
-            for campo in [
-                "numero_de_alunos",
-                "frequencia",
-                "dietas_autorizadas",
-                "lanche",
-                "lanche_4h",
-                "refeicao",
-                "sobremesa",
-            ]:
-                if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_programas_e_projetos,
-                        categoria_medicao=categoria_medicao_dieta_a,
-                        valor=1,
-                    )
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_programas_e_projetos,
-                        categoria_medicao=categoria_medicao_dieta_b,
-                        valor=1,
-                    )
-                if campo != "dietas_autorizadas":
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_programas_e_projetos,
-                        categoria_medicao=categoria_medicao,
-                        valor=1,
-                        faixa_etaria=faixa,
-                    )
+            _cria_valores_dia_05_programas_cemei(
+                dia=dia,
+                solicitacao_alimentacao=solicitacao_alimentacao,
+                medicao_programas_e_projetos=medicao_programas_e_projetos,
+                faixas_etarias_ativas=faixas_etarias_ativas,
+                categoria_medicao_solicitacoes_alimentacao=(
+                    categoria_medicao_solicitacoes_alimentacao
+                ),
+                categoria_medicao=categoria_medicao,
+                categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+            )
 
-        for medicao in [medicao_integral, medicao_parcial]:
-            for faixa in faixas_etarias_ativas:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao,
-                    valor=20,
-                    faixa_etaria=faixa,
-                )
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao_dieta_a,
-                    valor=2,
-                    faixa_etaria=faixa,
-                )
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao_dieta_b,
-                    valor=3,
-                    faixa_etaria=faixa,
-                )
-        for medicao in [
-            medicao_infantil_integral,
-            medicao_infantil_manha,
-            medicao_infantil_tarde,
-        ]:
-            for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao,
-                    valor="30",
-                )
-                if campo in ["lanche", "lanche_4h"]:
-                    for categoria in [
-                        categoria_medicao_dieta_a,
-                        categoria_medicao_dieta_b,
-                        categoria_medicao_dieta_a_enteral_aminoacidos,
-                    ]:
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao,
-                            categoria_medicao=categoria,
-                            valor=1,
-                        )
-                elif campo == "refeicao":
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao,
-                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                        valor=1,
-                    )
+        _cria_valores_frequencia_cemei(
+            dia=dia,
+            medicoes=[medicao_integral, medicao_parcial],
+            faixas_etarias_ativas=faixas_etarias_ativas,
+            categorias=[
+                (categoria_medicao, 20),
+                (categoria_medicao_dieta_a, 2),
+                (categoria_medicao_dieta_b, 3),
+            ],
+        )
+        _cria_valores_infantil_cemei(
+            dia=dia,
+            medicoes_infantil=[
+                medicao_infantil_integral,
+                medicao_infantil_manha,
+                medicao_infantil_tarde,
+            ],
+            categoria_medicao=categoria_medicao,
+            categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+            categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+            categoria_medicao_dieta_a_enteral_aminoacidos=(
+                categoria_medicao_dieta_a_enteral_aminoacidos
+            ),
+        )
 
     return solicitacao_relatorio_consolidado_grupo_cemei
 
