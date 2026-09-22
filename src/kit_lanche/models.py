@@ -172,7 +172,9 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_avulsa",
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
 
     @property
     def solicitacoes_similares(self):
@@ -242,7 +244,9 @@ class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cei_avulsa",
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
 
     @property
     def observacao(self):
@@ -824,7 +828,9 @@ class SolicitacaoKitLancheCEMEI(
 
 class SolicitacaoKitLancheCEIdaCEMEI(TemChaveExterna, TempoPasseio):
     kits = models.ManyToManyField(KitLanche, blank=True)
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
     solicitacao_kit_lanche_cemei = models.OneToOneField(
         SolicitacaoKitLancheCEMEI,
         blank=True,
@@ -891,7 +897,9 @@ class SolicitacaoKitLancheEMEIdaCEMEI(
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
     solicitacao_kit_lanche_cemei = models.OneToOneField(
         SolicitacaoKitLancheCEMEI,
         blank=True,

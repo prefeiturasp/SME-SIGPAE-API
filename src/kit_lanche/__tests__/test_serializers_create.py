@@ -69,7 +69,7 @@ def test_kit_lanche_avulso_serializer_creators(kits_avulsos_param_serializer):
     )
     lote = baker.make("Lote")
     escola = baker.make("Escola", lote=lote)
-    aluno = baker.make("escola.Aluno")
+    aluno = baker.make(StringsCaminhoModelos.MODEL_ALUNO.value)
     validated_data_create = dict(
         quantidade_alunos=quantidade_alunos_pedido,
         escola=escola,

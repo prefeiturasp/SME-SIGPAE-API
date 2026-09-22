@@ -38,7 +38,7 @@ def test_kit_lanche_cei_avulsa_serializer_create_create():
     if data.year != hoje.year:
         return
 
-    alunos = baker.make("escola.Aluno", _quantity=4)
+    alunos = baker.make(StringsCaminhoModelos.MODEL_ALUNO.value, _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
     escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value)
@@ -84,7 +84,7 @@ def test_kit_lanche_cei_avulsa_serializer_create_update():
 
     solic = baker.make("kit_lanche.SolicitacaoKitLancheCEIAvulsa")
 
-    alunos = baker.make("escola.Aluno", _quantity=4)
+    alunos = baker.make(StringsCaminhoModelos.MODEL_ALUNO.value, _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
     escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value)

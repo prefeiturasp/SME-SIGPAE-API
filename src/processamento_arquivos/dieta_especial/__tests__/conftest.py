@@ -37,7 +37,11 @@ def arquivo_carga_alimentos_e_substitutos():
 
 @pytest.fixture
 def aluno():
-    return baker.make("escola.Aluno", codigo_eol="1234567", nome="TESTE ALUNO DIETA")
+    return baker.make(
+        StringsCaminhoModelos.MODEL_ALUNO.value,
+        codigo_eol="1234567",
+        nome="TESTE ALUNO DIETA",
+    )
 
 
 @pytest.fixture

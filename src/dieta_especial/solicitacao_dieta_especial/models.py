@@ -209,7 +209,7 @@ class SolicitacaoDietaEspecial(
     ]
 
     aluno = models.ForeignKey(
-        "escola.Aluno",
+        StringsCaminhoModelos.MODEL_ALUNO.value,
         null=True,
         on_delete=models.PROTECT,
         related_name="dietas_especiais",

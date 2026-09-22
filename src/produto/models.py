@@ -1114,7 +1114,7 @@ class SolicitacaoCadastroProdutoDieta(
         related_name="solicitacoes_cadastro_produto",
     )
     aluno = models.ForeignKey(
-        "escola.Aluno",
+        StringsCaminhoModelos.MODEL_ALUNO.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
