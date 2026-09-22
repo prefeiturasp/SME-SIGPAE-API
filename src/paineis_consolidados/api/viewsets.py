@@ -252,7 +252,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Kit Lanche Unificado": {
+            StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },

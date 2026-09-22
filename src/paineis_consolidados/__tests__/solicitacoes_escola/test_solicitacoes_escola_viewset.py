@@ -1600,7 +1600,7 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
             escola_uuid=escola.uuid,
             data_evento=datetime.date(2024, 12, 16),
             tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
-            desc_doc="Kit Lanche Unificado",
+            desc_doc=StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             status_atual="CODAE_AUTORIZADO",
         ),

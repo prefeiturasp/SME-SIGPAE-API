@@ -385,7 +385,7 @@ class SolicitacaoKitLancheUnificada(
 
     # TODO: ao deletar este, deletar solicitacao_kit_lanche também que é uma tabela acessória
     # TODO: passar `local` para solicitacao_kit_lanche
-    DESCRICAO = "Kit Lanche Unificado"
+    DESCRICAO = StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
 
     outro_motivo = models.TextField(blank=True)
     local = models.CharField(max_length=160)
@@ -416,7 +416,7 @@ class SolicitacaoKitLancheUnificada(
 
     @property
     def tipo(self):
-        return "Kit Lanche Unificado"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
 
     @property
     def path(self):
@@ -578,7 +578,7 @@ class SolicitacaoKitLancheUnificada(
                 else self.escolas_quantidades.get().escola.nome_historico(self.data)
             ),
             "terceirizada": "Várias Terceirizadas",
-            "tipo_doc": "Kit Lanche Unificado",
+            "tipo_doc": StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "local_passeio": self.local,
