@@ -621,6 +621,177 @@ class NomesParaTesteEscola(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsCabecalhoXLSXGuiaDaRemessa(Enum):
+    AGRUP = "Agrup"
+    AGRUPAMENTO = "Agrupamento"
+    ALIMENTO = "Alimento"
+    BAIRRO_UE = "Bairro UE"
+    BAIRRO_DA_UE = "Bairro da UE"
+    CEP_UE = "CEP UE"
+    CEP_DA_UE = "CEP da UE"
+    CAPACIDADE_EMBALAGEM_FECHADA = "Capacidade (Embalagem Fechada)"
+    CAPACIDADE_EMBALAGEM_FRACIONADA = "Capacidade (Embalagem Fracionada)"
+    CAPACIDADE_DA_EMBALAGEM_FECHADA = "Capacidade da Embalagem Fechada"
+    CAPACIDADE_DA_EMBALAGEM_FRACIONADA = "Capacidade da Embalagem Fracionada"
+    CEP_DA_UE_2 = "Cep da UE"
+    CIDADE_UE = "Cidade UE"
+    CONTATO_DA_ENTREGA = "Contato da Entrega"
+    CONTATO_DE_ENTREGA = "Contato de Entrega"
+    CODIGO_CODAE = "Código CODAE"
+    CODIGO_CODAE_DA_UE = "Código CODAE da UE"
+    CODIGO_EOL = "Código EOL"
+    CODIGO_EOL_DA_UE = "Código EOL da UE"
+    CODIGO_PAPA = "Código PAPA"
+    CODIGO_SUPRI = "Código SUPRI"
+    CODIGO_SUPRI_2 = "Código Supri"
+    DATA_DE_ENTREGA = "Data de Entrega"
+    DATA_DE_REGISTRO_DO_INSUCESSO = "Data de Registro do Insucesso"
+    DATA_DE_REGISTRO_DA_REPOSICAO_COM_HORA = "Data de registro da reposição (com hora)"
+    DATA_E_HORA_DE_REGISTRO_REPOSICAO = "Data e Hora de Registro (Reposição)"
+    DATA_E_HORA_DO_RECEBIMENTO_1A_CONFERENCIA = (
+        "Data e Hora do Recebimento (1ª Conferência)"
+    )
+    DATA_E_HORA_DO_RECEBIMENTO_1A_CONFERENCIA_2 = (
+        "Data e Hora do Recebimento (1ª Conferência) "
+    )
+    DATA_E_HORA_DO_RECEBIMENTO_REPOSICAO = "Data e Hora do Recebimento (Reposição)"
+    DATA_E_HORA_DO_REGISTRO_1A_CONFERENCIA = "Data e Hora do Registro (1ª Conferência)"
+    DATA_E_HORA_DO_REGISTRO_REPOSICAO = "Data e Hora do Registro (Reposição)"
+    DATA_E_HORA_DO_RECEBIMENTO_1A_CONFERENCIA_3 = (
+        "Data e Hora do recebimento (1ª Conferência)"
+    )
+    DATA_E_HORA_DO_REGISTRO_1A_CONFERENCIA_2 = (
+        "Data e hora do Registro (1ª Conferência) "
+    )
+    DESCRICAO_EMBALAGEM_FECHADA = "Descrição Embalagem Fechada"
+    DESCRICAO_EMBALAGEM_FRACIONADA = "Descrição Embalagem Fracionada"
+    DOCUMENTO_DO_CONFERENTE = "Documento do Conferente"
+    ENDERECO_UE = "Endereço UE"
+    ENDERECO_DA_UE = "Endereço da UE"
+    ENDERECO_DA_UE_2 = "Endereço da UE "
+    ESTADO_UE = "Estado UE"
+    HORA_DA_TENTATIVA_DE_ENTREGA = "Hora da tentativa de entrega"
+    HORA_DE_REGISTRO_DO_INSUCESSO = "Hora de Registro do Insucesso"
+    JUSTIFICATIVA = "Justificativa"
+    MOTIVO = "Motivo"
+    NOME_COMPLETO_DO_CONFERENTE = "Nome Completo do Conferente"
+    NOME_COMPLETO_DO_CONFERENTE_1A_CONFERENCIA = (
+        "Nome Completo do Conferente (1ª Conferência)"
+    )
+    NOME_COMPLETO_DO_CONFERENTE_REPOSICAO = "Nome Completo do Conferente (Reposição)"
+    NOME_UE = "Nome UE"
+    NOME_COMPLETO_DO_CONFERENTE_1A_CONFERENCIA_2 = (
+        "Nome completo do conferente (1ª Conferência)"
+    )
+    NOME_COMPLETO_DO_CONFERENTE_REPOSICAO_2 = "Nome completo do conferente (Reposição)"
+    NOME_DA_UE = "Nome da UE"
+    NOME_DO_ALIMENTO = "Nome do Alimento"
+    NOME_DO_DISTRIBUIDOR = "Nome do Distribuidor"
+    NOME_DO_MOTORISTA = "Nome do Motorista"
+    NOME_DO_MOTORISTA_1A_CONFERENCIA = "Nome do Motorista (1ª Conferência)"
+    NOME_DO_MOTORISTA_REPOSICAO = "Nome do Motorista (Reposição)"
+    NOME_DO_MOTORISTA_1A_CONFERENCIA_2 = "Nome do motorista (1ª Conferência)"
+    NOME_DO_MOTORISTA_REPOSICAO_2 = "Nome do motorista (Reposição)"
+    NO_DA_REQUISICAO = "Nº da Requisição"
+    NUMERO_UE = "Número UE"
+    NUMERO_DA_GUIA = "Número da Guia"
+    NUMERO_DA_GUIA_DE_REMESSA = "Número da Guia de Remessa"
+    NUMERO_DA_REQUISICAO = "Número da Requisição"
+    OBSERVACAO_1A_CONFERENCIA = "Observação (1ª Conferência)"
+    OBSERVACOES_1A_CONFERENCIA = "Observações (1ª Conferência)"
+    OBSERVACOES_REPOSICAO = "Observações (Reposição)"
+    OCORRENCIAS_1A_CONFERENCIA = "Ocorrências (1ª Conferência)"
+    OCORRENCIAS_REPOSICAO = "Ocorrências (Reposição)"
+    PLACA_DO_VEICULO = "Placa do Veículo"
+    PLACA_DO_VEICULO_1A_CONFERENCIA = "Placa do Veículo (1ª Conferência)"
+    PLACA_DO_VEICULO_REPOSICAO = "Placa do Veículo (Reposição)"
+    PLACA_DO_VEICULO_1A_CONFERENCIA_2 = "Placa do veículo (1ª Conferência)"
+    PLACA_DO_VEICULO_REPOSICAO_2 = "Placa do veículo (Reposição)"
+    QUANTIDADE = "Quantidade"
+    QUANTIDADE_FRACIONADA = "Quantidade (Fracionada)"
+    QUANTIDADE_PREVISTA_EMBALAGEM_FECHADA = "Quantidade Prevista (Embalagem Fechada)"
+    QUANTIDADE_PREVISTA_EMBALAGEM_FECHADA_2 = "Quantidade Prevista (Embalagem Fechada) "
+    QUANTIDADE_PREVISTA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Prevista (Embalagem Fracionada)"
+    )
+    QUANTIDADE_PREVISTA_EMBALAGEM_FRACIONADA_2 = (
+        "Quantidade Prevista (Embalagem Fracionada) "
+    )
+    QUANTIDADE_PREVISTA_VOLUMES_DA_EMBALAGEM_FECHADA = (
+        "Quantidade Prevista (Volumes da Embalagem Fechada)"
+    )
+    QUANTIDADE_PREVISTA_VOLUMES_DA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Prevista (Volumes da Embalagem Fracionada)"
+    )
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FECHADA = "Quantidade Recebida (Embalagem Fechada)"
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Recebida (Embalagem Fracionada)"
+    )
+    QUANTIDADE_REPOSTA_EMBALAGEM_FECHADA = "Quantidade Reposta (Embalagem Fechada)"
+    QUANTIDADE_REPOSTA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Reposta (Embalagem Fracionada)"
+    )
+    QUANTIDADE_TOTAL_DE_GUIAS = "Quantidade Total de Guias"
+    QUANTIDADE_A_REPOR_EMBALAGEM_FECHADA = "Quantidade a Repor (Embalagem Fechada)"
+    QUANTIDADE_A_REPOR_EMBALAGEM_FRACIONADA = (
+        "Quantidade a Repor (Embalagem Fracionada)"
+    )
+    QUANTIDADE_A_RECEBER_EMBALAGEM_FECHADA = (
+        "Quantidade a \u200bReceber (Embalagem Fechada)"
+    )
+    QUANTIDADE_A_RECEBER_EMBALAGEM_FRACIONADA = (
+        "Quantidade a \u200bReceber (Embalagem Fracionada)"
+    )
+    QUANTIDADE_A_REPOR_REFERENTE_A_QUANTIDADE_A_RECEBER_EMBALAGEM_FRACIONADA = "Quantidade a \u200brepor, referente a quantidade a receber (Embalagem Fracionada)"
+    QUANTIDADE_A_REPOR_REFERENTE_A_QUANTIDADE_A_RECEBER_EMBALAGEM_FECHADA = (
+        "Quantidade a \u200brepor, referente a quantidade a receber(Embalagem Fechada)"
+    )
+    QUANTIDADE_DE_VOLUMES_DA_EMBALAGEM_FECHADA = (
+        "Quantidade de Volumes da Embalagem Fechada"
+    )
+    QUANTIDADE_DE_VOLUMES_DA_EMBALAGEM_FRACIONADA = (
+        "Quantidade de Volumes da Embalagem Fracionada"
+    )
+    QUANTIDADE_PREVISTA_EMBALAGEM_FECHADA_3 = "Quantidade prevista (Embalagem Fechada)"
+    QUANTIDADE_PREVISTA_EMBALAGEM_FRACIONADA_3 = (
+        "Quantidade prevista (Embalagem Fracionada)"
+    )
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FECHADA_2 = "Quantidade recebida (Embalagem Fechada)"
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FRACIONADA_2 = (
+        "Quantidade recebida (Embalagem Fracionada)"
+    )
+    QUANTIDADE_REPOSTA_EMBALAGEM_FECHADA_2 = "Quantidade reposta (Embalagem Fechada)"
+    QUANTIDADE_REPOSTA_EMBALAGEM_FRACIONADA_2 = (
+        "Quantidade reposta (Embalagem Fracionada)"
+    )
+    REPOSICAO_DATA_E_HORA_DO_RECEBIMENTO = "Reposição (Data e Hora do recebimento)"
+    STATUS_DA_GUIA = "Status da Guia"
+    STATUS_DA_GUIA_DE_REMESSA = "Status da Guia de Remessa"
+    STATUS_DA_REQUISICAO = "Status da Requisição"
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_1A_CONFERENCIA = (
+        "Status de Recebimento do Alimento (1ª Conferência)"
+    )
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_REPOSICAO = (
+        "Status de Recebimento do Alimento (Reposição)"
+    )
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_1A_CONFERENCIA_2 = (
+        "Status de Recebimento do alimento (1ª Conferência)"
+    )
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_REPOSICAO_2 = (
+        "Status de recebimento do alimento (Reposição)"
+    )
+    TELEFONE_UE = "Telefone UE"
+    TELEFONE_DA_UE = "Telefone da UE"
+    UNIDADE_DE_MEDIDA_DA_EMBALAGEM_FECHADA = "Unidade de Medida da Embalagem Fechada"
+    UNIDADE_DE_MEDIDA_DA_EMBALAGEM_FRACIONADA = (
+        "Unidade de Medida da Embalagem Fracionada"
+    )
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsPatterns(Enum):
     CNPJ = "########0001##"
     CODIGO_UNIDADE = "UNI####"
