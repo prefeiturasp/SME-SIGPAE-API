@@ -884,6 +884,9 @@ class StringsValidationErrors(Enum):
     CAMPO_OBRIGATORIO_PONTO_FINAL = "Este campo é obrigatório."
     EXCLUSAO_SOMENTE_RASCUNHO = "Você só pode excluir quando o status for RASCUNHO."
     GUIA_DE_REMESSA_NAO_EXISTE = "Guia de remessa não existe."
+    INFORMAR_NUMERO_REQUISICAO = (
+        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    )
 
     @classmethod
     def choices(cls):
