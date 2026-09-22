@@ -76,7 +76,10 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
         on_delete=models.DO_NOTHING,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     periodo_escolar = models.ForeignKey(
         StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,

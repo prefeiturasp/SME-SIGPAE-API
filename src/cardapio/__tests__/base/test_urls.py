@@ -320,7 +320,9 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
 
     motivo = baker.make(MotivoInclusaoNormal, nome="Evento Específico")
     periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
-    refeicao = baker.make("cardapio.TipoAlimentacao", nome="Refeicao")
+    refeicao = baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="Refeicao"
+    )
 
     inclusao = baker.make(
         InclusaoDeAlimentacaoCEMEI,

@@ -743,7 +743,10 @@ class ValorMedicao(
         "CategoriaMedicao", on_delete=models.CASCADE, related_name="valores_medicao"
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria", blank=True, null=True, on_delete=models.DO_NOTHING
@@ -1045,7 +1048,7 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
         blank=True,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao",
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         on_delete=models.PROTECT,
         related_name="parametrizacao_valor_tipo_alimentacao",
         null=True,
@@ -1189,7 +1192,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         choices=TIPO_LANCAMENTO_CHOICES,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao",
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         on_delete=models.PROTECT,
         related_name="descontos_financeiros",
         null=True,

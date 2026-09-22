@@ -63,7 +63,9 @@ class QuantidadePorPeriodo(
     periodo_escolar = models.ForeignKey(
         StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
     observacao = models.CharField(
         StringsVerboseNameModels.OBSERVACAO.value, blank=True, max_length=1000
     )
@@ -635,7 +637,9 @@ class InclusaoAlimentacaoDaCEI(
         blank=True,
         null=True,
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
 
     objects = models.Manager()  # Manager Padrão
     desta_semana = InclusaoDeAlimentacaoDeCeiDestaSemanaManager()
@@ -1237,7 +1241,9 @@ class QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI(
     periodo_escolar = models.ForeignKey(
         StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
 
     def __str__(self):
         return f"{self.periodo_escolar.nome} - {self.quantidade_alunos} alunos"

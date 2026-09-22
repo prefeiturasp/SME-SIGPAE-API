@@ -20,6 +20,7 @@ from src.dados_comuns.constants import (
     FaixasEtarias,
     NomesParaTesteDiretoriaRegional,
     StatusProcessamentoArquivo,
+    StringsCaminhoModelos,
     StringsDatasISO,
 )
 from src.dados_comuns.fluxo_status import (
@@ -1341,13 +1342,17 @@ def escola_edital_41(escola):
 
 @pytest.fixture
 def tipo_alimentacao():
-    return baker.make("cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        "cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.SOBREMESA.value
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.SOBREMESA.value,
     )
 
 

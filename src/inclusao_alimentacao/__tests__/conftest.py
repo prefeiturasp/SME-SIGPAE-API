@@ -169,7 +169,7 @@ def make_motivo_inclusao_normal():
 def quantidade_por_periodo():
     periodo_escolar = baker.make(StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value)
     tipos_alimentacao = baker.make(
-        "cardapio.TipoAlimentacao", _quantity=5, make_m2m=True
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, _quantity=5, make_m2m=True
     )
 
     return baker.make(

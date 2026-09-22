@@ -463,7 +463,8 @@ class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
     """manhã, intermediário, tarde, vespertino, noturno, integral."""
 
     tipos_alimentacao = models.ManyToManyField(
-        "cardapio.TipoAlimentacao", related_name="periodos_escolares"
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        related_name="periodos_escolares",
     )
     tipo_turno = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)], blank=True, null=True
