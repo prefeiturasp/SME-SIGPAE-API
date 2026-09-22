@@ -677,6 +677,7 @@ class StringsValidationErrors(Enum):
     PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
     ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
     DIETA_ESPECIAL_PENDENTE = "Aluno já possui Solicitação de Dieta Especial pendente"
+    CAMPO_OBRIGATORIO = "Este campo é obrigatório!"
 
     @classmethod
     def choices(cls):

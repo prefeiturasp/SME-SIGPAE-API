@@ -2,6 +2,7 @@ import pytest
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.imr.api.serializers.serializers_create import (
     FormularioDiretorCreateSerializer,
     FormularioDiretorManyCreateSerializer,
@@ -85,7 +86,7 @@ def test_serializer_nutri_sem_serializer_class_erro():
 def test_serializer_nutri_validate_erro():
     with pytest.raises(
         ValidationError,
-        match="Este campo é obrigatório!",
+        match=StringsValidationErrors.CAMPO_OBRIGATORIO.value,
     ):
         data = {}
         serializer = FormularioSupervisaoRascunhoCreateSerializer()
@@ -104,7 +105,7 @@ def test_serializer_diretor_sem_serializer_class_erro():
 def test_serializer_diretor_validate_erro():
     with pytest.raises(
         ValidationError,
-        match="Este campo é obrigatório!",
+        match=StringsValidationErrors.CAMPO_OBRIGATORIO.value,
     ):
         data = {}
         serializer = FormularioDiretorCreateSerializer()
