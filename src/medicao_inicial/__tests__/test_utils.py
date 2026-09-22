@@ -87,7 +87,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             "refeicao",
             "sobremesa",
         ],
-        "DIETA ESPECIAL - TIPO A ENTERAL": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "aprovadas",
             "lanche",
             "lanche_emergencial",
@@ -110,7 +110,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "periodos": ["MANHA"],
             "categorias": [
                 CategoriaMedicao.ALIMENTACAO,
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             ],
             "nomes_campos": [
                 "matriculados",
@@ -135,7 +135,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
                 "MANHA": [
                     {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7},
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                 ]
@@ -173,7 +173,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
         {
             "periodos": ["TARDE"],
             "categorias": [
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                 DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
@@ -196,7 +196,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "categorias_dos_periodos": {
                 "TARDE": [
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                     {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
@@ -263,7 +263,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             "periodos": ["MANHA"],
             "categorias": [
                 CategoriaMedicao.ALIMENTACAO,
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             ],
             "nomes_campos": [
                 "matriculados",
@@ -354,7 +354,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
                 "MANHA": [
                     {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7},
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                 ]
@@ -458,7 +458,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
         {
             "periodos": ["TARDE"],
             "categorias": [
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                 DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
@@ -547,7 +547,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             "categorias_dos_periodos": {
                 "TARDE": [
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                     {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},

@@ -1050,7 +1050,8 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
         periodo_escolar=periodo_tarde,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     for dia in ["01", "02", "03", "04", "05"]:
@@ -1092,7 +1093,8 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
         periodo_escolar=periodo_tarde,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     tipos_turmas = ["INFANTIL", "FUNDAMENTAL"]
@@ -1236,7 +1238,8 @@ def solicitacao_medicao_inicial_varios_valores_escola_cei(
         periodo_escolar=periodo_tarde,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     for dia in ["01", "02", "03", "04"]:
         for categoria in [categoria_medicao, categoria_dieta_a]:
@@ -1263,7 +1266,8 @@ def medicao_infantil_manha(solicitacao_medicao, categoria_medicao):
         periodo_escolar=periodo_infantil_manha,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     for dia in ["01", "02"]:
         for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
@@ -1300,7 +1304,8 @@ def solicitacao_medicao_inicial_varios_valores_escola_cemei(
         periodo_escolar=periodo_parcial,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     for dia in ["01", "02", "03"]:
         for categoria in [categoria_medicao, categoria_dieta_a]:

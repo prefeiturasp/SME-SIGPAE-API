@@ -6,7 +6,7 @@ TABELAS_EMEBS = [
         "periodos": ["MANHA - INFANTIL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -179,7 +179,10 @@ TABELAS_EMEBS = [
         "categorias_dos_periodos": {
             "MANHA - INFANTIL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
-                {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
+                {
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+                    "numero_campos": 4,
+                },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
         },
@@ -188,7 +191,7 @@ TABELAS_EMEBS = [
         "periodos": ["MANHA - FUNDAMENTAL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -361,7 +364,10 @@ TABELAS_EMEBS = [
         "categorias_dos_periodos": {
             "MANHA - FUNDAMENTAL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
-                {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
+                {
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+                    "numero_campos": 4,
+                },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
         },
@@ -370,7 +376,7 @@ TABELAS_EMEBS = [
         "periodos": ["TARDE - INFANTIL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -543,7 +549,10 @@ TABELAS_EMEBS = [
         "categorias_dos_periodos": {
             "TARDE - INFANTIL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
-                {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
+                {
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+                    "numero_campos": 4,
+                },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
         },
@@ -552,7 +561,7 @@ TABELAS_EMEBS = [
         "periodos": ["TARDE - FUNDAMENTAL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -725,7 +734,10 @@ TABELAS_EMEBS = [
         "categorias_dos_periodos": {
             "TARDE - FUNDAMENTAL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
-                {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
+                {
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+                    "numero_campos": 4,
+                },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
         },
@@ -738,7 +750,7 @@ HEADERS_TABELAS_EMEBS = [
         "periodos": ["MANHA - INFANTIL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -766,7 +778,7 @@ HEADERS_TABELAS_EMEBS = [
             "MANHA - INFANTIL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
-                    "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                     "numero_campos": 4,
                 },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
@@ -777,7 +789,7 @@ HEADERS_TABELAS_EMEBS = [
         "periodos": ["MANHA - FUNDAMENTAL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -805,7 +817,7 @@ HEADERS_TABELAS_EMEBS = [
             "MANHA - FUNDAMENTAL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
-                    "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                     "numero_campos": 4,
                 },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
@@ -816,7 +828,7 @@ HEADERS_TABELAS_EMEBS = [
         "periodos": ["TARDE - INFANTIL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -844,7 +856,7 @@ HEADERS_TABELAS_EMEBS = [
             "TARDE - INFANTIL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
-                    "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                     "numero_campos": 4,
                 },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
@@ -855,7 +867,7 @@ HEADERS_TABELAS_EMEBS = [
         "periodos": ["TARDE - FUNDAMENTAL"],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
-            "DIETA ESPECIAL - TIPO A ENTERAL",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
             DIETA_ESPECIAL_TIPO_B,
         ],
         "nomes_campos": [
@@ -883,7 +895,7 @@ HEADERS_TABELAS_EMEBS = [
             "TARDE - FUNDAMENTAL": [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
-                    "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                    "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                     "numero_campos": 4,
                 },
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
@@ -898,7 +910,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "01",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 01",
         None,
     ),
@@ -907,7 +919,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "01",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 01",
         None,
     ),
@@ -916,7 +928,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "02",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 02",
         None,
     ),
@@ -925,7 +937,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "02",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 02",
         None,
     ),
@@ -934,7 +946,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "03",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 03",
         None,
     ),
@@ -943,7 +955,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "03",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 03",
         None,
     ),
@@ -952,7 +964,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "04",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 04",
         None,
     ),
@@ -961,7 +973,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "04",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 04",
         None,
     ),
@@ -970,7 +982,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "05",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 05",
         None,
     ),
@@ -979,7 +991,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
     (
         "05",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação INFANTIL dia 05",
         None,
     ),
@@ -998,7 +1010,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "01",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 01",
         None,
     ),
@@ -1013,7 +1025,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "01",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 01",
         None,
     ),
@@ -1028,7 +1040,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "02",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 02",
         None,
     ),
@@ -1043,7 +1055,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "02",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 02",
         None,
     ),
@@ -1058,7 +1070,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "03",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 03",
         None,
     ),
@@ -1073,7 +1085,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "03",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 03",
         None,
     ),
@@ -1088,7 +1100,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "04",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 04",
         None,
     ),
@@ -1103,7 +1115,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "04",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 04",
         None,
     ),
@@ -1118,7 +1130,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "05",
         "MANHA",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 05",
         None,
     ),
@@ -1133,7 +1145,7 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
     (
         "05",
         "TARDE",
-        "DIETA ESPECIAL - TIPO A ENTERAL",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "observação FUNDAMENTAL dia 05",
         None,
     ),
