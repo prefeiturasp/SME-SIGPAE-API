@@ -391,7 +391,7 @@ def escola(tipo_unidade_escolar, diretoria_regional):
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
-        nome="EMEF TESTE",
+        nome=constants.NomesParaTesteEscola.EMEF_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -454,7 +454,7 @@ def escola_emei():
     )
     return baker.make(
         "Escola",
-        nome="EMEI TESTE",
+        nome=constants.NomesParaTesteEscola.EMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -494,7 +494,7 @@ def escola_cei(tipo_unidade_escolar_cei_diret):
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -568,7 +568,7 @@ def escola_cemei():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -641,7 +641,7 @@ def escola_ceu_gestao():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -3465,7 +3465,7 @@ def mock_linhas_emef():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
-            "EMEF TESTE",
+            constants.NomesParaTesteEscola.EMEF_TESTE.value,
             10.0,
             10.0,
             125.0,
@@ -3489,7 +3489,7 @@ def mock_linhas_emei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
-            "EMEI TESTE",
+            constants.NomesParaTesteEscola.EMEI_TESTE.value,
             5.0,
             5.0,
             150.0,
@@ -3786,7 +3786,7 @@ def mock_linhas_cei():
         [
             constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
-            "CEI DIRET TESTE",
+            constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
             80.0,
             80.0,
             80.0,
@@ -4131,7 +4131,7 @@ def mock_linhas_cemei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "543210",
-            "CEMEI TESTE",
+            constants.NomesParaTesteEscola.CEMEI_TESTE.value,
             5.0,
             5.0,
             100.0,
@@ -7539,7 +7539,7 @@ def mock_linhas_recreio_emei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
-            "EMEI TESTE",
+            constants.NomesParaTesteEscola.EMEI_TESTE.value,
             1260.0,
             1260.0,
             1260.0,
@@ -7634,7 +7634,7 @@ def mock_linhas_recreio_cei():
         [
             constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
-            "CEI DIRET TESTE",
+            constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
             168.0,
             168.0,
             168.0,
@@ -7745,7 +7745,7 @@ def mock_linhas_recreio_emef():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
-            "EMEF TESTE",
+            constants.NomesParaTesteEscola.EMEF_TESTE.value,
             1260.0,
             1260.0,
             1400,
@@ -7844,7 +7844,7 @@ def mock_linhas_recreio_cemei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "765432",
-            "CEMEI TESTE",
+            constants.NomesParaTesteEscola.CEMEI_TESTE.value,
             220.0,
             220.0,
             220.0,
@@ -7931,7 +7931,13 @@ def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
         ("MANHA", "total_sobremesas_pagamento"),
     ]
     linhas = [
-        [constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value, "123456", "EMEF TESTE", "SL", "SL"]
+        [
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            "123456",
+            constants.NomesParaTesteEscola.EMEF_TESTE.value,
+            "SL",
+            "SL",
+        ]
     ]
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"

@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
@@ -68,7 +69,7 @@ def test_get_valores_tabela_unidade_emei(
     assert linhas[0] == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         1260.0,
         1260.0,
@@ -146,7 +147,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         1260.0,
         1260.0,
@@ -363,7 +364,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert recreio_refeicao == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
     ]
 
@@ -380,7 +381,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert solicitacao_kit_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         "-",
     ]
@@ -398,7 +399,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert dieta_a_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         "-",
         "-",
@@ -579,7 +580,7 @@ def test_get_valores_tabela_unidade_emef(
     assert linhas[0] == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         1260.0,
         1400,
@@ -657,7 +658,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         1260.0,
         1400.0,
@@ -715,7 +716,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert recreio_refeicao == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
     ]
 
@@ -732,7 +733,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert solicitacao_kit_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         "-",
     ]
@@ -750,7 +751,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert dieta_a_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         "-",
         "-",

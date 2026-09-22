@@ -14,6 +14,7 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_TARDE,
     TIPOS_ALIMENTACAO,
     FaixasEtarias,
+    NomesParaTesteEscola,
 )
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
@@ -964,7 +965,7 @@ def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repet
     ) == [
         solicitacao_medicao_inicial_com_valores_repeticao.escola.tipo_unidade,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         50,
         50,
         50,

@@ -4,6 +4,8 @@ import pytest
 from faker import Faker
 from model_bakery import baker
 
+from src.dados_comuns.constants import NomesParaTesteEscola
+
 from ...dados_comuns.behaviors import TempoPasseio
 from ...dados_comuns.constants import (
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -56,7 +58,7 @@ def escola(diretoria_regional, lote, tipo_unidade):
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
-        nome="EMEF TESTE",
+        nome=NomesParaTesteEscola.EMEF_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         contato=contato,

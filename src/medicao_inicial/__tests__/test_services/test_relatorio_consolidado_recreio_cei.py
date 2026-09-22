@@ -13,6 +13,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
@@ -163,7 +164,7 @@ def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
     assert linhas[0] == [
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168.0,
         168.0,
         168.0,
@@ -204,7 +205,12 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(recreio, list)
     assert len(recreio) == 4
-    assert recreio == [TIPO_UNIDADE_CEI_DIRET, "765432", "CEI DIRET TESTE", 168.0]
+    assert recreio == [
+        TIPO_UNIDADE_CEI_DIRET,
+        "765432",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
+        168.0,
+    ]
 
     colaboradores = _processa_periodo_campo(
         solicitacao_recreio_cei,
@@ -217,7 +223,7 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     assert colaboradores == [
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168.0,
         280.0,
     ]
@@ -418,7 +424,7 @@ def test_insere_tabela_periodos_na_planilha(
     assert df.iloc[0].tolist() == [
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168.0,
         168.0,
         168.0,

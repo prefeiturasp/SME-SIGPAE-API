@@ -19,6 +19,7 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteDiretoriaRegional,
+    NomesParaTesteEscola,
     StatusProcessamentoArquivo,
     StringsCaminhoModelos,
     StringsDatasISO,
@@ -128,7 +129,7 @@ def escola_cei():
     )
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -173,7 +174,7 @@ def escola_cemei(periodo_escolar):
     )
     escola = baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,

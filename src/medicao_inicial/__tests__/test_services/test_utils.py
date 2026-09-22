@@ -15,6 +15,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.services.utils import (
     generate_columns,
@@ -575,7 +576,7 @@ def test_gera_colunas_alimentacao_cemei(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         5.0,
         5.0,
         100.0,

@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
@@ -55,7 +56,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.dre = diretoria_regional_factory.create()
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_emef = escola_factory.create(
-            nome="EMEF TESTE",
+            nome=NomesParaTesteEscola.EMEF_TESTE.value,
             tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,
             diretoria_regional=self.dre,
@@ -467,7 +468,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         self.dre = diretoria_regional_factory.create()
         self.lote = lote_factory.create(diretoria_regional=self.dre)
         self.escola_emei = escola_factory.create(
-            nome="EMEI TESTE",
+            nome=NomesParaTesteEscola.EMEI_TESTE.value,
             tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value,
             lote=self.lote,

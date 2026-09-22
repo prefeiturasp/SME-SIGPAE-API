@@ -6,6 +6,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
     _define_filtro,
@@ -340,7 +341,7 @@ def test_get_valores_tabela(
         lambda _solicitacao: [
             TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
-            "CEMEI TESTE",
+            NomesParaTesteEscola.CEMEI_TESTE.value,
         ],
     )
 
@@ -376,7 +377,7 @@ def test_get_valores_tabela(
         [
             TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
-            "CEMEI TESTE",
+            NomesParaTesteEscola.CEMEI_TESTE.value,
             100,
             100,
         ]

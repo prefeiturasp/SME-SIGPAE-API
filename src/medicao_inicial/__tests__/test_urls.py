@@ -19,6 +19,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
     PayloadVariaveis,
     StringsValidationErrors,
 )
@@ -2720,7 +2721,7 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     _, kwargs = mock_exporta_pdf.call_args
     assert len(kwargs["resultados"]) == 2
     assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "EMEF DOIS",
     }
     assert any(r["resultados"] for r in kwargs["resultados"])
@@ -2785,7 +2786,7 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     _, kwargs = mock_exporta_xlsx.call_args
     assert len(kwargs["resultados"]) == 2
     assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "EMEF DOIS",
     }
     assert any(r["resultados"] for r in kwargs["resultados"])

@@ -615,6 +615,10 @@ class NomesParaTesteDiretoriaRegional(Enum):
 
 class NomesParaTesteEscola(Enum):
     EMEI_ALUISIO_DE_ALMEIDA = "EMEI ALUISIO DE ALMEIDA"
+    EMEF_TESTE = "EMEF TESTE"
+    EMEI_TESTE = "EMEI TESTE"
+    CEI_DIRET_TESTE = "CEI DIRET TESTE"
+    CEMEI_TESTE = "CEMEI TESTE"
 
     @classmethod
     def choices(cls):

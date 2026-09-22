@@ -558,7 +558,7 @@ def escola_cei():
     )
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -641,7 +641,7 @@ def escola_cemei():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,

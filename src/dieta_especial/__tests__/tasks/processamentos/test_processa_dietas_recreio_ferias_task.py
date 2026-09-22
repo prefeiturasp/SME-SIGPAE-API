@@ -7,7 +7,11 @@ from celery import shared_task
 from django.db.models import Q
 from freezegun import freeze_time
 
-from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
+)
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     MotivoAlteracaoUEFactory,
@@ -94,7 +98,7 @@ class TestLogsRecreioNasFerias:
             iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
         )
         self.escola_emef = EscolaFactory.create(
-            nome="EMEF TESTE",
+            nome=NomesParaTesteEscola.EMEF_TESTE.value,
             tipo_gestao=self.tipo_gestao_terc,
             tipo_unidade=tipo_unidade,
             lote=self.lote,
@@ -120,7 +124,7 @@ class TestLogsRecreioNasFerias:
             iniciais=TIPOS_UNIDADE_ESCOLAR.CEMEI.value
         )
         self.escola_cemei = EscolaFactory.create(
-            nome="CEMEI TESTE",
+            nome=NomesParaTesteEscola.CEMEI_TESTE.value,
             tipo_gestao=self.tipo_gestao_terc,
             tipo_unidade=tipo_unidade,
             lote=self.lote,
