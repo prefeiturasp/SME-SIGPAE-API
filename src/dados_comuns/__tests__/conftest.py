@@ -1242,9 +1242,10 @@ def usuario_nutrimanifestacao(client, django_user_model):
 
 @pytest.fixture
 def ocorrencia_medicao_inicial_status_aprovado_dre():
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",

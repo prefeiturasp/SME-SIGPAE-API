@@ -2306,9 +2306,10 @@ def parametrizacao_financeira_emef(
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial(solicitacao_medicao_inicial):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2322,9 +2323,10 @@ def anexo_ocorrencia_medicao_inicial(solicitacao_medicao_inicial):
 
 @pytest.fixture
 def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2381,9 +2383,10 @@ def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial_status_aprovado_dre(solicitacao_medicao_inicial):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2397,9 +2400,10 @@ def anexo_ocorrencia_medicao_inicial_status_aprovado_dre(solicitacao_medicao_ini
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial_status_inicial(escola):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao_medicao = baker.make("SolicitacaoMedicaoInicial", escola=escola)
     return baker.make(
@@ -2414,9 +2418,10 @@ def anexo_ocorrencia_medicao_inicial_status_inicial(escola):
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial_status_aprovado_pela_dre():
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao_medicao = baker.make("SolicitacaoMedicaoInicial")
     return baker.make(
@@ -2431,9 +2436,10 @@ def anexo_ocorrencia_medicao_inicial_status_aprovado_pela_dre():
 
 @pytest.fixture
 def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -2457,9 +2463,10 @@ def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
 
 @pytest.fixture
 def sol_med_inicial_devolvida_pela_codae_para_ue(escola):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",

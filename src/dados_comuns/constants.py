@@ -806,6 +806,14 @@ class StringsPatterns(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsNomesArquivos(Enum):
+    ARQUIVO_TESTE_PDF = "arquivo_teste.pdf"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsModelosGestaoAlimentacao(Enum):
     INCLUSAO_DE_ALIMENTACAO = "Inclusão de Alimentação"
     KIT_LANCHE_PASSEIO = "Kit Lanche Passeio"
