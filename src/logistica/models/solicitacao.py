@@ -111,8 +111,8 @@ class SolicitacaoRemessa(
         return f"Solicitação: {self.numero_solicitacao} - Status: {self.get_status_display()}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_REMESSA.value
-        verbose_name_plural = StringsVerboseNameModels.SOLICITACOES_REMESSAS.value
+        verbose_name = "Solicitação Remessa"
+        verbose_name_plural = "Solicitações Remessas"
 
 
 class SolicitacaoDeAlteracaoRequisicao(
@@ -182,12 +182,8 @@ class SolicitacaoDeAlteracaoRequisicao(
         return f"Solicitação de alteração: {self.numero_solicitacao}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SOLICITACAO_DE_ALTERACAO_DE_REQUISICAO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_ALTERACAO_DE_REQUISICAO.value
-        )
+        verbose_name = "Solicitação de Alteração de Requisição"
+        verbose_name_plural = "Solicitações de Alteração de Requisição"
 
 
 class SolicitacaoCancelamentoException(Exception):
@@ -227,9 +223,5 @@ class LogSolicitacaoDeCancelamentoPeloPapa(ModeloBase):
         self.save()
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DE_SOLICITACAO_DE_CANCELAMENTO_DO_PAPA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DE_SOLICITACOES_DE_CANCELAMENTO_DO_PAPA.value
-        )
+        verbose_name = "Log de Solicitação de Cancelamento do PAPA"
+        verbose_name_plural = "Logs de Solicitações de Cancelamento do PAPA"

@@ -73,10 +73,8 @@ class ImagemDoTipoDeEmbalagem(TemChaveExterna):
         super().delete(*args, **kwargs)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.IMAGEM_DO_TIPO_DE_EMBALAGEM.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.IMAGENS_DOS_TIPOS_DE_EMBALAGENS.value
-        )
+        verbose_name = "Imagem do Tipo de Embalagem"
+        verbose_name_plural = "Imagens dos Tipos de Embalagens"
 
 
 class TipoDeEmbalagemDeLayout(TemChaveExterna):
@@ -132,10 +130,8 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_EMBALAGEM_DE_LAYOUT.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TIPOS_DE_EMBALAGENS_DE_LAYOUT.value
-        )
+        verbose_name = "Tipo de Embalagem de Layout"
+        verbose_name_plural = "Tipos de Embalagens de Layout"
         unique_together = ["layout_de_embalagem", "tipo_embalagem"]
 
 
@@ -268,5 +264,5 @@ class LayoutDeEmbalagem(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.LAYOUT_DE_EMBALAGEM.value
-        verbose_name_plural = StringsVerboseNameModels.LAYOUTS_DE_EMBALAGEM.value
+        verbose_name = "Layout de Embalagem"
+        verbose_name_plural = "Layouts de Embalagem"

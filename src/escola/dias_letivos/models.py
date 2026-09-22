@@ -7,7 +7,6 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemData,
 )
-from src.dados_comuns.constants import StringsVerboseNameModels
 from src.escola.models import Escola, Lote, PeriodoEscolar, TipoUnidadeEscolar
 
 
@@ -32,5 +31,5 @@ class DiaLetivoSIGPAE(CriadoEm, CriadoPor, TemAlteradoEm, TemChaveExterna, TemDa
         return f"Dia {self.data} letivo no SIGPAE"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DIA_LETIVO_NO_SIGPAE.value
-        verbose_name_plural = StringsVerboseNameModels.DIAS_LETIVOS_NO_SIGPAE.value
+        verbose_name = "Dia letivo no SIGPAE"
+        verbose_name_plural = "Dias letivos no SIGPAE"

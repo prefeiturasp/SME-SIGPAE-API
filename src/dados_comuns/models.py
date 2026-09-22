@@ -698,8 +698,8 @@ class Notificacao(models.Model):
     )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.NOTIFICACAO.value
-        verbose_name_plural = StringsVerboseNameModels.NOTIFICACOES.value
+        verbose_name = "Notificação"
+        verbose_name_plural = "Notificações"
 
     def __str__(self):
         return self.titulo
@@ -829,8 +829,8 @@ class CentralDeDownload(models.Model):
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CENTRAL_DE_DOWNLOAD.value
-        verbose_name_plural = StringsVerboseNameModels.CENTRAL_DE_DOWNLOADS.value
+        verbose_name = "Central de Download"
+        verbose_name_plural = "Central de Downloads"
 
     def __str__(self):
         return self.identificador
@@ -868,8 +868,8 @@ class VersaoSistema(models.Model):
     objects = VersaoSistemaManager()
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.VERSAO_DO_SISTEMA.value
-        verbose_name_plural = StringsVerboseNameModels.VERSOES_DO_SISTEMA.value
+        verbose_name = "Versão do Sistema"
+        verbose_name_plural = "Versões do Sistema"
 
     def save(self, *args, **kwargs):
         self.id = 1

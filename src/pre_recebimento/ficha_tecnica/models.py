@@ -74,10 +74,8 @@ class FabricanteFichaTecnica(ModeloBase):
         return f"Ficha Técnica - {self.fabricante.nome if self.fabricante else 'Fabricante'}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.FABRICANTE_DA_FICHA_TECNICA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.FABRICANTES_DAS_FICHAS_TECNICAS.value
-        )
+        verbose_name = "Fabricante da Ficha Técnica"
+        verbose_name_plural = "Fabricantes das Fichas Técnicas"
 
 
 class FichaTecnicaDoProduto(
@@ -361,10 +359,8 @@ class FichaTecnicaDoProduto(
         return f"{self.numero} - {self.produto.nome}" if self.produto else self.numero
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.FICHA_TECNICA_DO_PRODUTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.FICHAS_TECNICAS_DOS_PRODUTOS.value
-        )
+        verbose_name = "Ficha Técnica do Produto"
+        verbose_name_plural = "Fichas Técnicas dos Produtos"
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
@@ -418,12 +414,8 @@ class InformacoesNutricionaisFichaTecnica(TemChaveExterna):
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.INFORMACAO_NUTRICIONAL_DA_FICHA_TECNICA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.INFORMACOES_NUTRICIONAIS_DA_FICHA_TECNICA.value
-        )
+        verbose_name = "Informação Nutricional da Ficha Técnica"
+        verbose_name_plural = "Informações Nutricionais da Ficha Técnica"
 
 
 class AnaliseFichaTecnica(ModeloBase, CriadoPor):
@@ -508,7 +500,5 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
         return True
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ANALISE_DA_FICHA_TECNICA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.ANALISES_DAS_FICHAS_TECNICAS.value
-        )
+        verbose_name = "Análise da Ficha Técnica"
+        verbose_name_plural = "Análises das Fichas Técnicas"

@@ -92,8 +92,8 @@ class QuantidadePorPeriodo(
         return f"{self.numero_alunos} alunos para {self.periodo_escolar} com {qtd} tipo(s) de alimentação"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.QUANTIDADE_POR_PERIODO.value
-        verbose_name_plural = StringsVerboseNameModels.QUANTIDADES_POR_PERIODO.value
+        verbose_name = "Quantidade por periodo"
+        verbose_name_plural = "Quantidades por periodo"
 
 
 class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
@@ -108,10 +108,8 @@ class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_INCLUSAO_CONTINUA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.MOTIVOS_DE_INCLUSAO_CONTINUA.value
-        )
+        verbose_name = "Motivo de inclusao contínua"
+        verbose_name_plural = "Motivos de inclusao contínua"
 
 
 class InclusaoAlimentacaoContinua(
@@ -314,10 +312,8 @@ class InclusaoAlimentacaoContinua(
         return f"de {self.data_inicial} até {self.data_final} para {self.escola}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_CONTINUA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_CONTINUA.value
-        )
+        verbose_name = "Inclusão de alimentação contínua"
+        verbose_name_plural = "Inclusões de alimentação contínua"
         ordering = ["data_inicial"]
 
 
@@ -333,8 +329,8 @@ class MotivoInclusaoNormal(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_INCLUSAO_NORMAL.value
-        verbose_name_plural = StringsVerboseNameModels.MOTIVOS_DE_INCLUSAO_NORMAIS.value
+        verbose_name = "Motivo de inclusao normal"
+        verbose_name_plural = "Motivos de inclusao normais"
 
 
 class InclusaoAlimentacaoNormal(
@@ -364,10 +360,8 @@ class InclusaoAlimentacaoNormal(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_NORMAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_NORMAL.value
-        )
+        verbose_name = "Inclusão de alimentação normal"
+        verbose_name_plural = "Inclusões de alimentação normal"
         ordering = ("data",)
 
 
@@ -572,12 +566,8 @@ class GrupoInclusaoAlimentacaoNormal(
         return f"{self.escola} pedindo {self.inclusoes.count()} inclusoes"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.GRUPO_DE_INCLUSAO_DE_ALIMENTACAO_NORMAL.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.GRUPOS_DE_INCLUSAO_DE_ALIMENTACAO_NORMAL.value
-        )
+        verbose_name = "Grupo de inclusão de alimentação normal"
+        verbose_name_plural = "Grupos de inclusão de alimentação normal"
 
 
 class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
@@ -610,10 +600,10 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação"
         )
 
 
@@ -880,10 +870,8 @@ class InclusaoAlimentacaoDaCEI(
         return f"Inclusao da CEI cód: {self.id_externo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_DA_CEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_DA_CEI.value
-        )
+        verbose_name = "Inclusão de alimentação da CEI"
+        verbose_name_plural = "Inclusões de alimentação da CEI"
 
 
 class DiasMotivosInclusaoDeAlimentacaoCEI(
@@ -905,12 +893,8 @@ class DiasMotivosInclusaoDeAlimentacaoCEI(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.DIA_E_MOTIVO_INCLUSAO_DE_ALIMENTACAO_CEI.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.DIAS_E_MOTIVOS_INCLUSAO_DE_ALIMENTACAO_CEI.value
-        )
+        verbose_name = "Dia e motivo inclusão de alimentação CEI"
+        verbose_name_plural = "Dias e motivos inclusão de alimentação CEI"
         ordering = ("data",)
 
 
@@ -1201,10 +1185,8 @@ class InclusaoDeAlimentacaoCEMEI(
         return f"Inclusão de Alimentação CEMEI cód: {self.id_externo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_CEMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_CEMEI.value
-        )
+        verbose_name = "Inclusão de alimentação CEMEI"
+        verbose_name_plural = "Inclusões de alimentação CEMEI"
 
 
 class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
@@ -1228,10 +1210,10 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação CEMEI"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação CEMEI"
         )
 
 
@@ -1255,11 +1237,9 @@ class QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI(
         return f"{self.periodo_escolar.nome} - {self.quantidade_alunos} alunos"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_EMEI_POR_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
-        )
+        verbose_name = "Quantidade de alunos EMEI por inclusao de alimentação CEMEI"
         verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_EMEI_POR_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+            "Quantidade de alunos EMEI por inclusao de alimentação CEMEI"
         )
 
 
@@ -1285,10 +1265,6 @@ class DiasMotivosInclusaoDeAlimentacaoCEMEI(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.DIAA_E_MOTIVO_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.DIAS_E_MOTIVOS_INCLUSCAO_DE_ALIMENTACAO_CEMEI.value
-        )
+        verbose_name = "Diaa e motivo inclusão de alimentação CEMEI"
+        verbose_name_plural = "Dias e motivos inclusçao de alimentação CEMEI"
         ordering = ("data",)

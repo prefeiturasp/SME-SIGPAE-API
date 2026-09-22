@@ -76,8 +76,8 @@ class QuestaoConferencia(ModeloBase):
         return f"{self.questao}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.QUESTAO_PARA_CONFERENCIA.value
-        verbose_name_plural = StringsVerboseNameModels.QUESTOES_PARA_CONFERENCIA.value
+        verbose_name = "Questão para Conferência"
+        verbose_name_plural = "Questões para Conferência"
 
     def clean(self):
         """Valida que a posição é informada quando a pergunta é obrigatória.
@@ -121,8 +121,8 @@ class QuestoesPorProduto(ModeloBase):
         return f"Questões da Ficha: {self.ficha_tecnica}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.QUESTOES_POR_PRODUTO.value
-        verbose_name_plural = StringsVerboseNameModels.QUESTOES_POR_PRODUTOS.value
+        verbose_name = "Questões por Produto"
+        verbose_name_plural = "Questões por Produtos"
 
 
 class ReposicaoCronogramaFichaRecebimento(ModeloBase):
@@ -155,12 +155,8 @@ class ReposicaoCronogramaFichaRecebimento(ModeloBase):
         return f"{self.tipo} - {self.descricao}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.REPOSICAO_CRONOGRAMA_DA_FICHA_DE_RECEBIMENTO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.REPOSICOES_CRONOGRAMAS_DAS_FICHAS_DE_RECEBIMENTO.value
-        )
+        verbose_name = "Reposição Cronograma da Ficha de Recebimento"
+        verbose_name_plural = "Reposições Cronogramas das Fichas de Recebimento"
         ordering = ["criado_em"]
 
 
@@ -336,8 +332,8 @@ class FichaDeRecebimento(
         return log_transicao
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.FICHA_DE_RECEBIMENTO.value
-        verbose_name_plural = StringsVerboseNameModels.FICHAS_DE_RECEBIMENTOS.value
+        verbose_name = "Ficha de Recebimento"
+        verbose_name_plural = "Fichas de Recebimentos"
 
 
 class VeiculoFichaDeRecebimento(models.Model):
@@ -428,10 +424,8 @@ class VeiculoFichaDeRecebimento(models.Model):
         return f"{self.numero} - {self.ficha_recebimento}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.VEICULO_FICHA_DE_RECEBIMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.VEICULOS_FICHAS_DE_RECEBIMENTOS.value
-        )
+        verbose_name = "Veículo Ficha de Recebimento"
+        verbose_name_plural = "Veículos Fichas de Recebimentos"
 
 
 class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
@@ -471,10 +465,8 @@ class ArquivoFichaRecebimento(TemChaveExterna, TemArquivosDeletaveis):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ARQUIVO_FICHA_DE_RECEBIMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_FICHAS_DE_RECEBIMENTOS.value
-        )
+        verbose_name = "Arquivo Ficha de Recebimento"
+        verbose_name_plural = "Arquivos Fichas de Recebimentos"
 
 
 class QuestaoFichaRecebimento(ModeloBase):
@@ -515,10 +507,8 @@ class QuestaoFichaRecebimento(ModeloBase):
     tipo_questao = models.CharField(choices=TIPO_QUESTAO_CHOICES)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.QUESTAO_POR_FICHA_DE_RECEBIMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.QUESTOES_POR_FICHAS_DE_RECEBIMENTO.value
-        )
+        verbose_name = "Questão por Ficha de Recebimento"
+        verbose_name_plural = "Questões por Fichas de Recebimento"
         unique_together = ("ficha_recebimento", "questao_conferencia", "tipo_questao")
 
     def __str__(self):
@@ -561,10 +551,8 @@ class DocumentoFichaDeRecebimento(ModeloBase):
         return f"{self.documento_recebimento} - {self.ficha_recebimento} ({self.quantidade_recebida})"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DOCUMENTO_FICHA_DE_RECEBIMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.DOCUMENTOS_FICHAS_DE_RECEBIMENTO.value
-        )
+        verbose_name = "Documento Ficha de Recebimento"
+        verbose_name_plural = "Documentos Fichas de Recebimento"
         unique_together = ("ficha_recebimento", "documento_recebimento")
 
 
@@ -641,8 +629,6 @@ class OcorrenciaFichaRecebimento(ModeloBase):
         return f"{self.ficha_recebimento} - {self.get_tipo_display()}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.OCORRENCIA_DA_FICHA_DE_RECEBIMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.OCORRENCIAS_DAS_FICHAS_DE_RECEBIMENTO.value
-        )
+        verbose_name = "Ocorrência da Ficha de Recebimento"
+        verbose_name_plural = "Ocorrências das Fichas de Recebimento"
         ordering = ["criado_em"]

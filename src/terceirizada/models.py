@@ -64,8 +64,8 @@ class Edital(TemChaveExterna):
         return f"{self.numero}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.EDITAL.value
-        verbose_name_plural = StringsVerboseNameModels.EDITAIS.value
+        verbose_name = "Edital"
+        verbose_name_plural = "Editais"
 
 
 # TODO: remover esse modelo (deprecado)
@@ -93,8 +93,8 @@ class Nutricionista(TemChaveExterna, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.NUTRICIONISTA.value
-        verbose_name_plural = StringsVerboseNameModels.NUTRICIONISTAS.value
+        verbose_name = "Nutricionista"
+        verbose_name_plural = "Nutricionistas"
         ordering = ["-admin"]
 
 
@@ -598,8 +598,8 @@ class Terceirizada(
         return f"{self.nome_fantasia}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TERCEIRIZADA.value
-        verbose_name_plural = StringsVerboseNameModels.TERCEIRIZADAS.value
+        verbose_name = "Terceirizada"
+        verbose_name_plural = "Terceirizadas"
 
 
 class Modalidade(TemChaveExterna, Nomeavel):
@@ -607,8 +607,8 @@ class Modalidade(TemChaveExterna, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MODALIDADE.value
-        verbose_name_plural = StringsVerboseNameModels.MODALIDADES.value
+        verbose_name = "Modalidade"
+        verbose_name_plural = "Modalidades"
 
 
 class Contrato(TemChaveExterna):
@@ -715,8 +715,8 @@ class Contrato(TemChaveExterna):
         return dados_encerramento
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CONTRATO.value
-        verbose_name_plural = StringsVerboseNameModels.CONTRATOS.value
+        verbose_name = "Contrato"
+        verbose_name_plural = "Contratos"
 
 
 class VigenciaContrato(TemChaveExterna, IntervaloDeDia):
@@ -755,8 +755,8 @@ class VigenciaContrato(TemChaveExterna, IntervaloDeDia):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.VIGENCIA_DE_CONTRATO.value
-        verbose_name_plural = StringsVerboseNameModels.VIGENCIAS_DE_CONTRATO.value
+        verbose_name = "Vigência de contrato"
+        verbose_name_plural = "Vigências de contrato"
 
 
 class Modulo(TemChaveExterna):
@@ -766,8 +766,8 @@ class Modulo(TemChaveExterna):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MODULO.value
-        verbose_name_plural = StringsVerboseNameModels.MODULOS.value
+        verbose_name = "Módulo"
+        verbose_name_plural = "Módulos"
 
 
 class EmailTerceirizadaPorModulo(TemChaveExterna):
@@ -787,8 +787,6 @@ class EmailTerceirizadaPorModulo(TemChaveExterna):
         return f"{self.email} - {self.terceirizada.nome_fantasia} - {self.modulo.nome}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.E_MAIL_DE_TERCEIRIZADA_POR_MODULOS.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.E_MAILS_DE_TERCEIRIZADAS_POR_MODULOS.value
-        )
+        verbose_name = "E-mail de Terceirizada por Módulos"
+        verbose_name_plural = "E-mails de Terceirizadas por Módulos"
         unique_together = ("email", "terceirizada", "modulo")

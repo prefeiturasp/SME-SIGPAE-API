@@ -400,8 +400,8 @@ class DiretoriaRegional(
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DIRETORIA_REGIONAL.value
-        verbose_name_plural = StringsVerboseNameModels.DIRETORIAS_REGIONAIS.value
+        verbose_name = "Diretoria regional"
+        verbose_name_plural = "Diretorias regionais"
         ordering = ("nome",)
 
 
@@ -412,8 +412,8 @@ class FaixaIdadeEscolar(Nomeavel, Ativavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.IDADE_ESCOLAR.value
-        verbose_name_plural = StringsVerboseNameModels.IDADES_ESCOLARES.value
+        verbose_name = "Idade escolar"
+        verbose_name_plural = "Idades escolares"
         ordering = ("nome",)
 
 
@@ -441,8 +441,8 @@ class TipoUnidadeEscolar(Iniciais, Ativavel, TemChaveExterna):
         return self.iniciais
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_UNIDADE_ESCOLAR.value
-        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_UNIDADE_ESCOLAR.value
+        verbose_name = "Tipo de unidade escolar"
+        verbose_name_plural = "Tipos de unidade escolar"
         ordering = ("iniciais",)
 
 
@@ -453,8 +453,8 @@ class TipoGestao(Nomeavel, Ativavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_GESTAO.value
-        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_GESTAO.value
+        verbose_name = "Tipo de gestão"
+        verbose_name_plural = "Tipos de gestão"
 
 
 class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
@@ -484,8 +484,8 @@ class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
 
     class Meta:
         ordering = ("posicao",)
-        verbose_name = StringsVerboseNameModels.PERIODO_ESCOLAR.value
-        verbose_name_plural = StringsVerboseNameModels.PERIODOS_ESCOLARES.value
+        verbose_name = "Período escolar"
+        verbose_name_plural = "Períodos escolares"
 
     def __str__(self):
         return self.nome
@@ -1687,8 +1687,8 @@ class Escola(
         return lista_medicoes
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ESCOLA.value
-        verbose_name_plural = StringsVerboseNameModels.ESCOLAS.value
+        verbose_name = "Escola"
+        verbose_name_plural = "Escolas"
         ordering = ("codigo_eol",)
 
 
@@ -1755,10 +1755,8 @@ class EscolaPeriodoEscolar(Ativavel, TemChaveExterna):
         return faixa_alunos
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ESCOLA_COM_PERIODO_ESCOLAR.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.ESCOLA_COM_PERIODOS_ESCOLARES.value
-        )
+        verbose_name = "Escola com período escolar"
+        verbose_name_plural = "Escola com períodos escolares"
         unique_together = [["periodo_escolar", "escola"]]
 
 
@@ -1789,10 +1787,8 @@ class LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar(
         return f"Alteração de: {quantidade_anterior} alunos, para: {quantidade_atual} alunos na escola: {escola}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.LOG_ALTERACAO_QUANTIDADE_DE_ALUNOS.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DE_ALTERACAO_QUANTIDADE_DE_ALUNOS.value
-        )
+        verbose_name = "Log Alteração quantidade de alunos"
+        verbose_name_plural = "Logs de Alteração quantidade de alunos"
         ordering = ("criado_em",)
 
 
@@ -1811,12 +1807,8 @@ class LogRotinaDiariaAlunos(TemChaveExterna, CriadoEm):
         return f"Criado em {criado_em} - Quant. de alunos antes: {quant_antes}. Quant. de alunos atual: {quant_atual}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_ROTINA_DIARIA_QUANTIDADE_DE_ALUNOS.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_ROTINA_DIARIA_QUANTIDADE_DE_ALUNOS.value
-        )
+        verbose_name = "Log Rotina Diária quantidade de alunos"
+        verbose_name_plural = "Logs Rotina Diária quantidade de alunos"
         ordering = ("-criado_em",)
 
 
@@ -2376,8 +2368,8 @@ class Lote(TemChaveExterna, Nomeavel, Iniciais):
         return f"{self.nome} - {nome_dre}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.LOTE.value
-        verbose_name_plural = StringsVerboseNameModels.LOTES.value
+        verbose_name = "Lote"
+        verbose_name_plural = "Lotes"
         ordering = ("nome",)
 
 
@@ -2414,8 +2406,8 @@ class Subprefeitura(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SUBPREFEITURA.value
-        verbose_name_plural = StringsVerboseNameModels.SUBPREFEITURAS.value
+        verbose_name = "Subprefeitura"
+        verbose_name_plural = "Subprefeituras"
         ordering = ("nome",)
 
 
@@ -2685,8 +2677,8 @@ class Codae(
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CODAE.value
-        verbose_name_plural = StringsVerboseNameModels.CODAE.value
+        verbose_name = "CODAE"
+        verbose_name_plural = "CODAE"
 
 
 class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
@@ -2702,8 +2694,8 @@ class Responsavel(Nomeavel, TemChaveExterna, CriadoEm):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.RESPONSAVEL.value
-        verbose_name_plural = StringsVerboseNameModels.REPONSAVEIS.value
+        verbose_name = "Responsável"
+        verbose_name_plural = "Reponsáveis"
 
 
 class FaixaEtaria(Ativavel, TemChaveExterna):
@@ -2875,8 +2867,8 @@ class Aluno(TemChaveExterna):
         return historico
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ALUNO.value
-        verbose_name_plural = StringsVerboseNameModels.ALUNOS.value
+        verbose_name = "Aluno"
+        verbose_name_plural = "Alunos"
 
 
 class MudancaFaixasEtarias(Justificativa, TemChaveExterna):
@@ -2897,12 +2889,8 @@ class PlanilhaEscolaDeParaCodigoEolCodigoCoade(CriadoEm, TemAlteradoEm):
     )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.PLANILHA_DE_PARA_CODIGO_EOL_X_CODIGO_CODAE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.PLANILHAS_DE_PARA_CODIGO_EOL_X_CODIGO_CODAE.value
-        )
+        verbose_name = "Planilha De-Para: Código EOL x Código Codae"
+        verbose_name_plural = "Planilhas De-Para: Código EOL x Código Codae"
 
     def __str__(self):
         return str(self.planilha)
@@ -2910,12 +2898,8 @@ class PlanilhaEscolaDeParaCodigoEolCodigoCoade(CriadoEm, TemAlteradoEm):
 
 class PlanilhaAtualizacaoTipoGestaoEscola(ArquivoCargaBase):
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.PLANILHA_ATUALIZACAO_TIPO_GESTAO_ESCOLA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.PLANILHA_ATUALIZACAO_TIPO_GESTAO_ESCOLA.value
-        )
+        verbose_name = "Planilha Atualização Tipo Gestão Escola"
+        verbose_name_plural = "Planilha Atualização Tipo Gestão Escola"
 
     def __str__(self):
         return str(self.conteudo)
@@ -2997,12 +2981,8 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
         }
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.ALUNOS_MATRICULADOS_POR_PERIODO_E_ESCOLA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.ALUNOS_MATRICULADOS_POR_PERIODOS_E_ESCOLAS.value
-        )
+        verbose_name = "Alunos Matriculados por Período e Escola"
+        verbose_name_plural = "Alunos Matriculados por Períodos e Escolas"
 
 
 class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservacao):
@@ -3154,11 +3134,9 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
         tem {self.quantidade_alunos} alunos no dia {self.criado_em}"""
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_ALTERACAO_QUANTIDADE_DE_ALUNOS_REGULAR_E_PROGRAMA.value
-        )
+        verbose_name = "Log Alteração quantidade de alunos regular e programa"
         verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DE_ALTERACAO_QUANTIDADE_DE_ALUNOS_REGULARES_E_DE_PROGRAMAS.value
+            "Logs de Alteração quantidade de alunos regulares e de programas"
         )
         ordering = ("-criado_em",)
 
@@ -3241,8 +3219,8 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
         {"é dia letivo" if self.dia_letivo else "não é dia letivo"} para escola {self.escola}"""
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DIA.value
-        verbose_name_plural = StringsVerboseNameModels.DIAS.value
+        verbose_name = "Dia"
+        verbose_name_plural = "Dias"
         ordering = ("data",)
 
 
@@ -3287,11 +3265,9 @@ class LogAlunosMatriculadosFaixaEtariaDia(
         tem {self.quantidade} aluno(s) no dia {self.data} faixa etária {self.faixa_etaria}"""
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DIA_E_PERIODO.value
-        )
+        verbose_name = "Log quantidade de alunos por faixa etária, dia e período"
         verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_QUANTIDADES_DE_ALUNOS_POR_FAIXAS_ETARIAS_DIAS_E_PERIODOS.value
+            "Logs quantidades de alunos por faixas etárias, dias e períodos"
         )
         ordering = ("criado_em",)
 
@@ -3309,8 +3285,8 @@ class LogAlunoPorDia(TemChaveExterna, CriadoEm):
     )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.LOG_ALUNO_POR_DIA.value
-        verbose_name_plural = StringsVerboseNameModels.LOGS_ALUNOS_POR_DIA.value
+        verbose_name = "Log aluno por dia"
+        verbose_name_plural = "Logs alunos por dia"
         ordering = ("criado_em",)
 
 
@@ -3343,8 +3319,8 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
         return retorno
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ALUNO_NO_PERIODO_PARCIAL.value
-        verbose_name_plural = StringsVerboseNameModels.ALUNOS_NO_PERIODO_PARCIAL.value
+        verbose_name = "Aluno no período parcial"
+        verbose_name_plural = "Alunos no período parcial"
         unique_together = ("escola", "aluno", "solicitacao_medicao_inicial")
         ordering = ("criado_em",)
 
@@ -3402,10 +3378,8 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DIA_DE_SUSPENSAO_DE_ATIVIDADES.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.DIAS_DE_SUSPENSAO_DE_ATIVIDADES.value
-        )
+        verbose_name = "Dia de suspensão de atividades"
+        verbose_name_plural = "Dias de suspensão de atividades"
         unique_together = ("tipo_unidade", "data", "edital")
         ordering = ("data",)
 
@@ -3441,8 +3415,8 @@ class GrupoUnidadeEscolar(TemChaveExterna, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.GRUPO_DE_UNIDADE_ESCOLAR.value
-        verbose_name_plural = StringsVerboseNameModels.GRUPOS_DE_UNIDADE_ESCOLAR.value
+        verbose_name = "Grupo de unidade escolar"
+        verbose_name_plural = "Grupos de unidade escolar"
         ordering = ("nome",)
 
 
@@ -3459,10 +3433,8 @@ class HistoricoMatriculaAluno(TemChaveExterna):
     situacao = models.CharField(blank=True)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.HISTORICO_DE_MATRICULA_DO_ALUNO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.HISTORICOS_DE_MATRICULAS_DOS_ALUNOS.value
-        )
+        verbose_name = "Histórico de Matrícula do Aluno"
+        verbose_name_plural = "Históricos de Matrículas dos Alunos"
 
     def __str__(self) -> str:
         return f"{self.aluno} - {self.escola} | De: {self.data_inicio} Ate: {self.data_fim}"
@@ -3484,5 +3456,5 @@ class HistoricoEscola(Nomeavel, TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"{self.nome} (ATUAL {self.escola.nome})"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.HISTORICO_DA_ESCOLA.value
-        verbose_name_plural = StringsVerboseNameModels.HISTORICOS_DA_ESCOLA.value
+        verbose_name = "Histórico da Escola"
+        verbose_name_plural = "Históricos da escola"

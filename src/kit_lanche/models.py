@@ -57,8 +57,8 @@ class ItemKitLanche(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ITEM_DO_KIT_LANCHE.value
-        verbose_name_plural = StringsVerboseNameModels.ITEM_DO_KIT_LANCHE.value
+        verbose_name = "Item do kit lanche"
+        verbose_name_plural = "Item do kit lanche"
 
 
 class KitLanche(Nomeavel, TemChaveExterna):
@@ -89,8 +89,8 @@ class KitLanche(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.KIT_LANCHE.value
-        verbose_name_plural = StringsVerboseNameModels.KIT_LANCHES.value
+        verbose_name = "Kit lanche"
+        verbose_name_plural = "Kit lanches"
         ordering = ("nome",)
 
 
@@ -111,10 +111,8 @@ class SolicitacaoKitLanche(
         return f"{self.motivo} criado em {self.criado_em}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_BASE.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_BASE.value
-        )
+        verbose_name = "Solicitação kit lanche base"
+        verbose_name_plural = "Solicitações kit lanche base"
 
 
 class SolicitacaoKitLancheAvulsaBase(
@@ -234,10 +232,8 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
         return f"{self.escola} SOLICITA PARA {self.quantidade_alunos} ALUNOS EM {self.local}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_DE_KIT_LANCHE_AVULSA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_KIT_LANCHE_AVULSA.value
-        )
+        verbose_name = "Solicitação de kit lanche avulsa"
+        verbose_name_plural = "Solicitações de kit lanche avulsa"
 
 
 class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
@@ -336,12 +332,8 @@ class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
         return f"{self.escola} SOLICITA EM {self.local}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SOLICITACAO_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
+        verbose_name = "Solicitação de kit lanche CEI avulsa"
+        verbose_name_plural = "Solicitações de kit lanche CEI avulsa"
 
 
 class FaixaEtariaSolicitacaoKitLancheCEIAvulsa(
@@ -359,12 +351,8 @@ class FaixaEtariaSolicitacaoKitLancheCEIAvulsa(
         return retorno
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.FAIXA_ETARIA_DE_SOLICITACAO_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.FAIXAS_ETARIAS_DE_SOLICITACAO_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
+        verbose_name = "Faixa Etária de solicitação de kit lanche CEI avulsa"
+        verbose_name_plural = "Faixas Etárias de solicitação de kit lanche CEI avulsa"
 
 
 class SolicitacaoKitLancheUnificada(
@@ -627,10 +615,8 @@ class SolicitacaoKitLancheUnificada(
         return f"{dre} pedindo passeio em {self.local} com kits iguais? {self.lista_kit_lanche_igual}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_UNIFICADA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_KIT_LANCHE_UNIFICADAS.value
-        )
+        verbose_name = "Solicitação kit lanche unificada"
+        verbose_name_plural = "Solicitações de  kit lanche unificadas"
 
 
 class EscolaQuantidade(
@@ -661,8 +647,8 @@ class EscolaQuantidade(
         return f"{tempo_passeio} para {self.quantidade_alunos} alunos, kits diferenciados? {kit_lanche_personalizado}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ESCOLA_QUANTIDADE.value
-        verbose_name_plural = StringsVerboseNameModels.ESCOLAS_QUANTIDADES.value
+        verbose_name = "Escola quantidade"
+        verbose_name_plural = "Escolas quantidades"
 
 
 class SolicitacaoKitLancheCEMEI(
@@ -831,10 +817,8 @@ class SolicitacaoKitLancheCEMEI(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_CEMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_CEMEI.value
-        )
+        verbose_name = "Solicitação Kit Lanche CEMEI"
+        verbose_name_plural = "Solicitações Kit Lanche CEMEI"
         ordering = ("-criado_em",)
 
 
@@ -875,10 +859,8 @@ class SolicitacaoKitLancheCEIdaCEMEI(TemChaveExterna, TempoPasseio):
         return self.alunos_com_dieta_especial_participantes.exists()
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_CEI_DA_EMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_CEI_DA_EMEI.value
-        )
+        verbose_name = "Solicitação Kit Lanche CEI da EMEI"
+        verbose_name_plural = "Solicitações Kit Lanche CEI da EMEI"
 
 
 class FaixasQuantidadesKitLancheCEIdaCEMEI(TemChaveExterna, MatriculadosQuandoCriado):
@@ -895,10 +877,10 @@ class FaixasQuantidadesKitLancheCEIdaCEMEI(TemChaveExterna, MatriculadosQuandoCr
     class Meta:
         ordering = ("faixa_etaria__inicio",)
         verbose_name = (
-            StringsVerboseNameModels.FAIXA_E_QUANTIDADE_DE_ALUNOS_DA_CEI_DA_SOLICITACAO_KIT_LANCHE_CEMEI.value
+            "Faixa e quantidade de alunos da CEI da solicitação kit lanche CEMEI"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.FAIXAS_E_QUANTIDADE_DE_ALUNOS_DA_CEI_DAS_SOLICITACOES_KIT_LANCHE_CEMEI.value
+            "Faixas e quantidade de alunos da CEI das solicitações kit lanche CEMEI"
         )
 
 
@@ -931,7 +913,5 @@ class SolicitacaoKitLancheEMEIdaCEMEI(
         return self.alunos_com_dieta_especial_participantes.exists()
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_CEI_DA_EMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_CEI_DA_EMEI.value
-        )
+        verbose_name = "Solicitação Kit Lanche CEI da EMEI"
+        verbose_name_plural = "Solicitações Kit Lanche CEI da EMEI"

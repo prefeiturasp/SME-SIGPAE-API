@@ -57,12 +57,8 @@ class HistoricoAcessoMedicaoInicialUE(
     )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.HISTORICO_DE_ACESSO_A_MEDICAO_INICIAL_DA_UE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.HISTORICOS_DE_ACESSO_A_MEDICAO_INICIAL_DA_UE.value
-        )
+        verbose_name = "Histórico de acesso à medição inicial da UE"
+        verbose_name_plural = "Históricos de acesso à medição inicial da UE"
 
     def __str__(self):
         return f"Histórico de acesso à medição inicial da UE - {self.escola.nome} - {self.lote.nome} - {self.data_inicial} a {self.data_final or 'presente'}"

@@ -421,10 +421,8 @@ class AlteracaoCardapioCEMEI(
         return f"Alteração de cardápio CEMEI de {self.data}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ALTERACAO_DE_CARDAPIO_CEMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.ALTERACOES_DE_CARDAPIO_CEMEI.value
-        )
+        verbose_name = "Alteração de cardápio CEMEI"
+        verbose_name_plural = "Alterações de cardápio CEMEI"
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI(TemChaveExterna):
@@ -465,12 +463,8 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI(TemChaveExterna):
         return f"Substituições de alimentação CEMEI: {self.uuid} da Alteração de Cardápio: {self.alteracao_cardapio.uuid}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_CEI_NO_PERIODO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_CEI_NO_PERIODO.value
-        )
+        verbose_name = "Substituições de alimentação CEMEI CEI no período"
+        verbose_name_plural = "Substituições de alimentação CEMEI CEI no período"
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI(
@@ -518,12 +512,8 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI(
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_EMEI_NO_PERIODO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_EMEI_NO_PERIODO.value
-        )
+        verbose_name = "Substituições de alimentação CEMEI EMEI no período"
+        verbose_name_plural = "Substituições de alimentação CEMEI EMEI no período"
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEMEICEI(
@@ -549,12 +539,8 @@ class FaixaEtariaSubstituicaoAlimentacaoCEMEICEI(
         return retorno
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.FAIXA_ETARIA_DE_SUBSTITUICAO_DE_ALIMENTACAO_CEMEI_CEI.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.FAIXAS_ETARIAS_DE_SUBSTITUICAO_DE_ALIMENTACAO_CEMEI_CEI.value
-        )
+        verbose_name = "Faixa Etária de substituição de alimentação CEMEI CEI"
+        verbose_name_plural = "Faixas Etárias de substituição de alimentação CEMEI CEI"
 
 
 class DataIntervaloAlteracaoCardapioCEMEI(
@@ -583,12 +569,8 @@ class DataIntervaloAlteracaoCardapioCEMEI(
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.DATA_DO_INTERVALO_DE_ALTERACAO_DE_CARDAPIO_CEMEI.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.DATAS_DO_INTERVALO_DE_ALTERACAO_DE_CARDAPIO_CEMEI.value
-        )
+        verbose_name = "Data do intervalo de Alteração de cardápio CEMEI"
+        verbose_name_plural = "Datas do intervalo de Alteração de cardápio CEMEI"
         ordering = ("data",)
 
 

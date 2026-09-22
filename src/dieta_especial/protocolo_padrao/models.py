@@ -119,10 +119,8 @@ class ProtocoloPadraoDietaEspecial(
 
     class Meta:
         ordering = ("nome_protocolo",)
-        verbose_name = StringsVerboseNameModels.PROTOCOLO_PADRAO_DE_DIETA_ESPECIAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PROTOCOLOS_PADROES_DE_DIETA_ESPECIAL.value
-        )
+        verbose_name = "Protocolo padrão de dieta especial"
+        verbose_name_plural = "Protocolos padrões de dieta especial"
 
     def __str__(self):
         return str(self.nome_protocolo)
@@ -155,11 +153,9 @@ class SubstituicaoAlimentoProtocoloPadrao(models.Model):
     )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SUBSTITUICAO_DE_ALIMENTO_PARA_PROTOCOLO_PADRAO_DE_DIETA.value
-        )
+        verbose_name = "Substituição de alimento para protocolo padrão de dieta"
         verbose_name_plural = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTOS_PARA_PROTOCOLOS_PADROES_DE_DIETAS.value
+            "Substituições de alimentos para protocolos padrões de dietas"
         )
 
     def __str__(self):

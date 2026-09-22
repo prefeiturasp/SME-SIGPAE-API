@@ -30,8 +30,8 @@ class UnidadeMedida(TemChaveExterna, Nomeavel, CriadoEm):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.UNIDADE_DE_MEDIDA.value
-        verbose_name_plural = StringsVerboseNameModels.UNIDADES_DE_MEDIDA.value
+        verbose_name = "Unidade de Medida"
+        verbose_name_plural = "Unidades de Medida"
         unique_together = ("nome",)
 
     def save(self, *args, **kwargs):

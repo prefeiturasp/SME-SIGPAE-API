@@ -59,10 +59,8 @@ class ArquivoDoTipoDeDocumento(TemChaveExterna):
         super().delete(*args, **kwargs)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ARQUIVO_DO_TIPO_DE_DOCUMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_DOS_TIPOS_DE_DOCUMENTOS.value
-        )
+        verbose_name = "Arquivo do Tipo de Documento"
+        verbose_name_plural = "Arquivos dos Tipos de Documentos"
 
 
 class TipoDeDocumentoDeRecebimento(TemChaveExterna):
@@ -105,10 +103,8 @@ class TipoDeDocumentoDeRecebimento(TemChaveExterna):
             return str(self.id)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_DOCUMENTO_DE_RECEBIMENTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TIPOS_DE_DOCUMENTOS_DE_RECEBIMENTO.value
-        )
+        verbose_name = "Tipo de Documento de Recebimento"
+        verbose_name_plural = "Tipos de Documentos de Recebimento"
         unique_together = ["documento_recebimento", "tipo_documento"]
 
 
@@ -205,8 +201,8 @@ class DocumentoDeRecebimento(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DOCUMENTO_DE_RECEBIMENTO.value
-        verbose_name_plural = StringsVerboseNameModels.DOCUMENTOS_DE_RECEBIMENTO.value
+        verbose_name = "Documento de Recebimento"
+        verbose_name_plural = "Documentos de Recebimento"
 
 
 class DataDeFabricaoEPrazo(TemChaveExterna):
@@ -260,10 +256,8 @@ class DataDeFabricaoEPrazo(TemChaveExterna):
         return f"{self.documento_recebimento.cronograma.numero} - {data_fabricacao}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DATA_DE_FABRICACAO_E_PRAZO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.DATAS_DE_FABRICACAO_E_PRAZOS.value
-        )
+        verbose_name = "Data de Fabricação e Prazo"
+        verbose_name_plural = "Datas de Fabricação e Prazos"
 
 
 @receiver(pre_save, sender=DataDeFabricaoEPrazo)

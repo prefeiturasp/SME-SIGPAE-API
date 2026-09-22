@@ -113,10 +113,8 @@ class TermoRecebimentoDefinitivo(ModeloBase, CriadoPor):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TERMO_DE_RECEBIMENTO_DEFINITIVO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TERMOS_DE_RECEBIMENTO_DEFINITIVO.value
-        )
+        verbose_name = "Termo de Recebimento Definitivo"
+        verbose_name_plural = "Termos de Recebimento Definitivo"
 
 
 class CronogramaTermoRecebimentoDefinitivo(models.Model):
@@ -146,10 +144,6 @@ class CronogramaTermoRecebimentoDefinitivo(models.Model):
         return f"Cronograma {self.cronograma.numero} do Termo {self.termo.uuid}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.CRONOGRAMA_DO_TERMO_DE_RECEBIMENTO_DEFINITIVO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.CRONOGRAMAS_DO_TERMO_DE_RECEBIMENTO_DEFINITIVO.value
-        )
+        verbose_name = "Cronograma do Termo de Recebimento Definitivo"
+        verbose_name_plural = "Cronogramas do Termo de Recebimento Definitivo"
         unique_together = [("termo", "cronograma")]

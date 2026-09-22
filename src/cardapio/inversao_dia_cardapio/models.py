@@ -289,8 +289,8 @@ class InversaoCardapio(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INVERSAO_DE_CARDAPIO.value
-        verbose_name_plural = StringsVerboseNameModels.INVERSOES_DE_CARDAPIO.value
+        verbose_name = "Inversão de cardápio"
+        verbose_name_plural = "Inversões de cardápio"
 
 
 patch_docs(InversaoCardapio)

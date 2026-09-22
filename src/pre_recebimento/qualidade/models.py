@@ -61,8 +61,8 @@ class Laboratorio(ModeloBase):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.LABORATORIO.value
-        verbose_name_plural = StringsVerboseNameModels.LABORATORIOS.value
+        verbose_name = "Laboratório"
+        verbose_name_plural = "Laboratórios"
 
 
 class TipoEmbalagemQld(ModeloBase):
@@ -86,7 +86,5 @@ class TipoEmbalagemQld(ModeloBase):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_EMBALAGEM_QUALIDADE.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TIPOS_DE_EMBALAGENS_QUALIDADE.value
-        )
+        verbose_name = "Tipo de Embalagem (Qualidade)"
+        verbose_name_plural = "Tipos de Embalagens (Qualidade)"

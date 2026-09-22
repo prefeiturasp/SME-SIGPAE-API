@@ -181,9 +181,7 @@ class SuspensaoAlimentacaoDaCEI(
 
     class Meta:
         verbose_name = DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI
-        verbose_name_plural = (
-            StringsVerboseNameModels.SUSPENSOES_DE_ALIMENTACAO_DE_CEI.value
-        )
+        verbose_name_plural = "Suspensões de Alimentação de CEI"
 
 
 patch_docs(SuspensaoAlimentacaoDaCEI)

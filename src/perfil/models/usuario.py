@@ -132,8 +132,8 @@ class CustomAbstractUser(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ["email"]
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.USUARIO.value
-        verbose_name_plural = StringsVerboseNameModels.USUARIOS.value
+        verbose_name = "Usuário"
+        verbose_name_plural = "Usuários"
         abstract = True
 
     def clean(self):
@@ -564,8 +564,8 @@ class Cargo(TemChaveExterna, Nomeavel, Ativavel):
         self.save()
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CARGO.value
-        verbose_name_plural = StringsVerboseNameModels.CARGOS.value
+        verbose_name = "Cargo"
+        verbose_name_plural = "Cargos"
 
     def __str__(self):
         return f"{self.usuario} de {self.data_inicial} até {self.data_final}"
@@ -587,10 +587,8 @@ class PlanilhaDiretorCogestor(models.Model):  # noqa D204
 
     class Meta:
         ordering = ("-criado_em",)
-        verbose_name = StringsVerboseNameModels.PLANILHA_DIRETOR_COGESTOR.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PLANILHAS_DIRETORES_COGESTORES.value
-        )
+        verbose_name = "Planilha Diretor Cogestor"
+        verbose_name_plural = "Planilhas Diretores Cogestores"
 
 
 class ImportacaoPlanilhaUsuarioPerfilEscola(ArquivoCargaBase):
@@ -599,12 +597,8 @@ class ImportacaoPlanilhaUsuarioPerfilEscola(ArquivoCargaBase):
     resultado = models.FileField(blank=True, default="")
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_DE_USUARIO_PERFIL_ESCOLA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_DE_USUARIOS_PERFIL_ESCOLA.value
-        )
+        verbose_name = "Arquivo para importação de usuário perfil Escola"
+        verbose_name_plural = "Arquivos para importação de usuários perfil Escola"
 
     def __str__(self) -> str:
         return str(self.conteudo)
@@ -616,12 +610,8 @@ class ImportacaoPlanilhaUsuarioPerfilCodae(ArquivoCargaBase):
     resultado = models.FileField(blank=True, default="")
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_DE_USUARIO_PERFIL_CODAE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_DE_USUARIOS_PERFIL_CODAE.value
-        )
+        verbose_name = "Arquivo para importação de usuário perfil Codae"
+        verbose_name_plural = "Arquivos para importação de usuários perfil Codae"
 
     def __str__(self) -> str:
         return str(self.conteudo)
@@ -633,12 +623,8 @@ class ImportacaoPlanilhaUsuarioPerfilDre(ArquivoCargaBase):
     resultado = models.FileField(blank=True, default="")
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_DE_USUARIO_PERFIL_DRE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_DE_USUARIOS_PERFIL_DRE.value
-        )
+        verbose_name = "Arquivo para importação de usuário perfil Dre"
+        verbose_name_plural = "Arquivos para importação de usuários perfil Dre"
 
     def __str__(self) -> str:
         return str(self.conteudo)
@@ -651,10 +637,10 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSO(ArquivoCargaBase):
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_ATUALIZACAO_DE_USUARIOS_SERVIDORES_NO_CORESSO.value
+            "Arquivo para importação/atualização de usuários servidores no CoreSSO"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_ATUALIZACAO_DE_USUARIOS_SERVIDORES_NO_CORESSO.value
+            "Arquivos para importação/atualização de usuários servidores no CoreSSO"
         )
 
     def __str__(self) -> str:
@@ -668,10 +654,10 @@ class ImportacaoPlanilhaUsuarioExternoCoreSSO(ArquivoCargaBase):
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_ATUALIZACAO_DE_USUARIOS_EXTERNOS_NO_CORESSO.value
+            "Arquivo para importação/atualização de usuários externos no CoreSSO"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_ATUALIZACAO_DE_USUARIOS_EXTERNOS_NO_CORESSO.value
+            "Arquivos para importação/atualização de usuários externos no CoreSSO"
         )
 
     def __str__(self) -> str:
@@ -685,10 +671,10 @@ class ImportacaoPlanilhaUsuarioUEParceiraCoreSSO(ArquivoCargaBase):
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_ATUALIZACAO_DE_USUARIOS_UES_PARCEIRAS_NO_CORESSO.value
+            "Arquivo para importação/atualização de usuários UEs parceiras no CoreSSO"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_ATUALIZACAO_DE_USUARIOS_UES_PARCEIRAS_NO_CORESSO.value
+            "Arquivos para importação/atualização de usuários UEs parceiras no CoreSSO"
         )
 
     def __str__(self) -> str:

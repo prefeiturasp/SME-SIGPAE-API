@@ -47,10 +47,8 @@ class MotivoSuspensao(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.MOTIVO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
+        verbose_name = "Motivo de suspensão de alimentação"
+        verbose_name_plural = "Motivo de suspensão de alimentação"
 
 
 class SuspensaoAlimentacao(
@@ -87,8 +85,8 @@ class SuspensaoAlimentacao(
         return f"{self.motivo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SUSPENSAO_DE_ALIMENTACAO.value
-        verbose_name_plural = StringsVerboseNameModels.SUSPENSOES_DE_ALIMENTACAO.value
+        verbose_name = "Suspensão de alimentação"
+        verbose_name_plural = "Suspensões de alimentação"
 
 
 class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
@@ -134,12 +132,8 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
         return f"Quantidade de alunos: {self.numero_alunos}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_POR_PERIODO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_POR_PERIODO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
+        verbose_name = "Quantidade por período de suspensão de alimentação"
+        verbose_name_plural = "Quantidade por período de suspensão de alimentação"
 
 
 class GrupoSuspensaoAlimentacao(
@@ -367,10 +361,8 @@ class GrupoSuspensaoAlimentacao(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.GRUPO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.GRUPO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
+        verbose_name = "Grupo de suspensão de alimentação"
+        verbose_name_plural = "Grupo de suspensão de alimentação"
 
 
 patch_docs(GrupoSuspensaoAlimentacao)

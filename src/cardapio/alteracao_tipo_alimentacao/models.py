@@ -20,7 +20,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsVerboseNameModels
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -313,8 +313,8 @@ class AlteracaoCardapio(
         return f"Alteração de cardápio de: {self.data_inicial} para {self.data_final}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ALTERACAO_DE_CARDAPIO.value
-        verbose_name_plural = StringsVerboseNameModels.ALTERACOES_DE_CARDAPIO.value
+        verbose_name = "Alteração de cardápio"
+        verbose_name_plural = "Alterações de cardápio"
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolar(
@@ -362,12 +362,8 @@ class SubstituicaoAlimentacaoNoPeriodoEscolar(
         return f"Substituições de alimentação: {self.uuid} da Alteração de Cardápio: {self.alteracao_cardapio.uuid}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_NO_PERIODO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_NO_PERIODO.value
-        )
+        verbose_name = "Substituições de alimentação no período"
+        verbose_name_plural = "Substituições de alimentação no período"
 
 
 class MotivoAlteracaoCardapio(
@@ -394,10 +390,8 @@ class MotivoAlteracaoCardapio(
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_ALTERACAO_DE_CARDAPIO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.MOTIVOS_DE_ALTERACAO_DE_CARDAPIO.value
-        )
+        verbose_name = "Motivo de alteração de cardápio"
+        verbose_name_plural = "Motivos de alteração de cardápio"
 
 
 class DataIntervaloAlteracaoCardapio(
@@ -424,12 +418,8 @@ class DataIntervaloAlteracaoCardapio(
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.DATA_DO_INTERVALO_DE_ALTERACAO_DE_CARDAPIO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.DATAS_DO_INTERVALO_DE_ALTERACAO_DE_CARDAPIO.value
-        )
+        verbose_name = "Data do intervalo de Alteração de cardápio"
+        verbose_name_plural = "Datas do intervalo de Alteração de cardápio"
         ordering = ("data",)
 
 
