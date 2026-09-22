@@ -613,6 +613,14 @@ class NomesParaTesteDiretoriaRegional(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class NomesParaTesteEscola(Enum):
+    EMEI_ALUISIO_DE_ALMEIDA = "EMEI ALUISIO DE ALMEIDA"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsModelosGestaoAlimentacao(Enum):
     INCLUSAO_DE_ALIMENTACAO = "Inclusão de Alimentação"
     KIT_LANCHE_PASSEIO = "Kit Lanche Passeio"

@@ -6,6 +6,7 @@ from faker import Faker
 from model_bakery import baker
 from spyne.util.dictdoc import get_object_as_dict
 
+from src.dados_comuns.constants import NomesParaTesteEscola
 from src.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
 from src.logistica.api.soup.models import (
     Alimento,
@@ -83,7 +84,7 @@ def guia(solicitacao, escola):
         numero_guia="987654",
         data_entrega="2019-02-25",
         codigo_unidade="58880",
-        nome_unidade="EMEI ALUISIO DE ALMEIDA",
+        nome_unidade=NomesParaTesteEscola.EMEI_ALUISIO_DE_ALMEIDA.value,
         endereco_unidade="Rua Alvaro de Azevedo Antunes",
         numero_unidade="1200",
         bairro_unidade="VILA CAMPESINA",
@@ -104,7 +105,7 @@ def guia_pendente_de_conferencia(solicitacao, escola):
         numero_guia="9876543",
         data_entrega="2019-02-25",
         codigo_unidade="58880",
-        nome_unidade="EMEI ALUISIO DE ALMEIDA",
+        nome_unidade=NomesParaTesteEscola.EMEI_ALUISIO_DE_ALMEIDA.value,
         endereco_unidade="Rua Alvaro de Azevedo Antunes",
         numero_unidade="1200",
         bairro_unidade="VILA CAMPESINA",
@@ -126,7 +127,7 @@ def guia_com_escola_client_autenticado(solicitacao, escola_com_guia):
         numero_guia="98765432",
         data_entrega="2019-02-25",
         codigo_unidade="58880",
-        nome_unidade="EMEI ALUISIO DE ALMEIDA",
+        nome_unidade=NomesParaTesteEscola.EMEI_ALUISIO_DE_ALMEIDA.value,
         endereco_unidade="Rua Alvaro de Azevedo Antunes",
         numero_unidade="1200",
         bairro_unidade="VILA CAMPESINA",
