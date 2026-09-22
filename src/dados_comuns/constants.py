@@ -606,6 +606,7 @@ class ClassificacoesDietasDeprecadas(Enum):
 
 class NomesParaTesteDiretoriaRegional(Enum):
     DIRETORIA_REGIONAL_TESTE = "DIRETORIA REGIONAL TESTE"
+    DIRETORIA_REGIONAL_GUAIANASES = "DIRETORIA REGIONAL GUAIANASES"
 
     @classmethod
     def choices(cls):

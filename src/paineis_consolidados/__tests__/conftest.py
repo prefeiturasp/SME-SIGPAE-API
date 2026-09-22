@@ -18,6 +18,7 @@ from src.cardapio.suspensao_alimentacao.models import (
 from src.dados_comuns.constants import (
     EMAIL_TESTE,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
     StringsCaminhoModelos,
 )
 from src.paineis_consolidados.api import constants as consts_pc
@@ -1448,7 +1449,7 @@ def escola_cemei():
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL GUAIANASES",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
     tipo_unidade = baker.make(

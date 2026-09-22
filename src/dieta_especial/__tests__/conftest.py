@@ -44,7 +44,10 @@ def codae():
 
 @pytest.fixture
 def dre_guaianases():
-    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
+    return baker.make(
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
+    )
 
 
 @pytest.fixture
