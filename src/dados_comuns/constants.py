@@ -615,6 +615,7 @@ class NomesParaTesteDiretoriaRegional(Enum):
 
 class StringsModelosGestaoAlimentacao(Enum):
     INCLUSAO_DE_ALIMENTACAO = "Inclusão de Alimentação"
+    KIT_LANCHE_PASSEIO = "Kit Lanche Passeio"
 
     @classmethod
     def choices(cls):

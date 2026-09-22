@@ -6,7 +6,11 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
 
-from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
+from src.dados_comuns.constants import (
+    StringsCaminhoModelos,
+    StringsModelosGestaoAlimentacao,
+    StringsVerboseNameModels,
+)
 
 from ..dados_comuns.behaviors import (  # noqa I101
     CanceladoIndividualmente,
@@ -194,7 +198,7 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -209,7 +213,7 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada.nome,
-            "tipo_doc": "Kit Lanche Passeio",
+            "tipo_doc": StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "local_passeio": self.local,
@@ -254,7 +258,7 @@ class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -700,7 +704,7 @@ class SolicitacaoKitLancheCEMEI(
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):

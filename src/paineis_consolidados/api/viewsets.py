@@ -248,7 +248,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Kit Lanche Passeio": {
+            StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
