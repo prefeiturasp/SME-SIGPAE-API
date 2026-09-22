@@ -14,9 +14,9 @@ def test_datetime_to_string():
 
 def test_datetime_to_string_tratando_excecoes():
     with pytest.raises(AssertionError, match="date precisa ser `datetime.date`"):
-        date_to_string(1)
+        date_to_string(1)  # NOSONAR
     with pytest.raises(AssertionError, match="date precisa ser `datetime.date`"):
-        date_to_string("datetime(2019, 1, 1).date()")
+        date_to_string("datetime(2019, 1, 1).date()")  # NOSONAR
 
 
 def test_string_to_date():
@@ -28,9 +28,9 @@ def test_string_to_date():
 
 def test_string_to_date_tratando_excecoes():
     with pytest.raises(AssertionError, match="date_string precisa ser `string`"):
-        string_to_date(1)
+        string_to_date(1)  # NOSONAR
     with pytest.raises(AssertionError, match="date_string precisa ser `string`"):
-        string_to_date(True)
+        string_to_date(True)  # NOSONAR
     with pytest.raises(
         ValueError, match="time data 'abc' does not match format '%d/%m/%Y"
     ):
