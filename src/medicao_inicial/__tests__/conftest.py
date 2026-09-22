@@ -3260,6 +3260,82 @@ def medicao_grupo_alimentacao(
     return medicao_emef, medicao_emei
 
 
+def _cria_valores_medicao_relatorio_consolidado(
+    medicao_alimentacao,
+    medicao_solicitacao,
+    valor_alimentacao,
+    valor_dieta,
+    valor_solicitacao,
+    valor_matriculados,
+    valor_frequencia,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    for dia in ["01", "02", "03", "04", "05"]:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_alimentacao,
+                categoria_medicao=categoria_medicao,
+                valor=valor_alimentacao,
+            )
+            if campo in ["lanche", "lanche_4h"]:
+                for categoria in [
+                    categoria_medicao_dieta_a,
+                    categoria_medicao_dieta_b,
+                    categoria_medicao_dieta_a_enteral_aminoacidos,
+                ]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_alimentacao,
+                        categoria_medicao=categoria,
+                        valor=valor_dieta,
+                    )
+            elif campo == "refeicao":
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_alimentacao,
+                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    valor=valor_dieta,
+                )
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_solicitacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor=valor_solicitacao,
+                )
+
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="matriculados",
+            medicao=medicao_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor=valor_matriculados,
+        )
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="frequencia",
+            medicao=medicao_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor=valor_frequencia,
+        )
+
+
 @pytest.fixture
 def relatorio_consolidado_xlsx_emef(
     solicitacao_relatorio_consolidado_grupo_emef,
@@ -3274,66 +3350,24 @@ def relatorio_consolidado_xlsx_emef(
     medicao_alimentacao_emef, _ = medicao_grupo_alimentacao
     medicao_solicitacao_emef, _ = medicao_grupo_solicitacao_alimentacao
 
-    for dia in ["01", "02", "03", "04", "05"]:
-        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            baker.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo=campo,
-                medicao=medicao_alimentacao_emef,
-                categoria_medicao=categoria_medicao,
-                valor="25",
-            )
-            if campo in ["lanche", "lanche_4h"]:
-                for categoria in [
-                    categoria_medicao_dieta_a,
-                    categoria_medicao_dieta_b,
-                    categoria_medicao_dieta_a_enteral_aminoacidos,
-                ]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_alimentacao_emef,
-                        categoria_medicao=categoria,
-                        valor="2",
-                    )
-            elif campo == "refeicao":
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_alimentacao_emef,
-                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                    valor="2",
-                )
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_solicitacao_emef,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="10",
-                )
-
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="matriculados",
-            medicao=medicao_alimentacao_emef,
-            categoria_medicao=categoria_medicao,
-            valor="100",
-        )
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="frequencia",
-            medicao=medicao_alimentacao_emef,
-            categoria_medicao=categoria_medicao,
-            valor="90",
-        )
+    _cria_valores_medicao_relatorio_consolidado(
+        medicao_alimentacao=medicao_alimentacao_emef,
+        medicao_solicitacao=medicao_solicitacao_emef,
+        valor_alimentacao="25",
+        valor_dieta="2",
+        valor_solicitacao="10",
+        valor_matriculados="100",
+        valor_frequencia="90",
+        categoria_medicao=categoria_medicao,
+        categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+        categoria_medicao_dieta_a_enteral_aminoacidos=(
+            categoria_medicao_dieta_a_enteral_aminoacidos
+        ),
+        categoria_medicao_solicitacoes_alimentacao=(
+            categoria_medicao_solicitacoes_alimentacao
+        ),
+    )
 
     return solicitacao_relatorio_consolidado_grupo_emef
 
@@ -3352,66 +3386,24 @@ def relatorio_consolidado_xlsx_emei(
     _, medicao_alimentacao_emei = medicao_grupo_alimentacao
     _, medicao_solicitacao_emei = medicao_grupo_solicitacao_alimentacao
 
-    for dia in ["01", "02", "03", "04", "05"]:
-        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            baker.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo=campo,
-                medicao=medicao_alimentacao_emei,
-                categoria_medicao=categoria_medicao,
-                valor="30",
-            )
-            if campo in ["lanche", "lanche_4h"]:
-                for categoria in [
-                    categoria_medicao_dieta_a,
-                    categoria_medicao_dieta_b,
-                    categoria_medicao_dieta_a_enteral_aminoacidos,
-                ]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_alimentacao_emei,
-                        categoria_medicao=categoria,
-                        valor="4",
-                    )
-            elif campo == "refeicao":
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_alimentacao_emei,
-                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                    valor="4",
-                )
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_solicitacao_emei,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="5",
-                )
-
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="matriculados",
-            medicao=medicao_alimentacao_emei,
-            categoria_medicao=categoria_medicao,
-            valor="90",
-        )
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="frequencia",
-            medicao=medicao_alimentacao_emei,
-            categoria_medicao=categoria_medicao,
-            valor="80",
-        )
+    _cria_valores_medicao_relatorio_consolidado(
+        medicao_alimentacao=medicao_alimentacao_emei,
+        medicao_solicitacao=medicao_solicitacao_emei,
+        valor_alimentacao="30",
+        valor_dieta="4",
+        valor_solicitacao="5",
+        valor_matriculados="90",
+        valor_frequencia="80",
+        categoria_medicao=categoria_medicao,
+        categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+        categoria_medicao_dieta_a_enteral_aminoacidos=(
+            categoria_medicao_dieta_a_enteral_aminoacidos
+        ),
+        categoria_medicao_solicitacoes_alimentacao=(
+            categoria_medicao_solicitacoes_alimentacao
+        ),
+    )
 
     return solicitacao_relatorio_consolidado_grupo_emei
 
