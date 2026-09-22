@@ -31,21 +31,23 @@ def codae():
 @pytest.fixture
 def tipo_alimentacao():
     return baker.make(
-        constants.TIPO_ALIMENTACAO, nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value
+        constants.StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=constants.TIPOS_ALIMENTACAO.REFEICAO.value,
     )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
     return baker.make(
-        constants.TIPO_ALIMENTACAO, nome=constants.TIPOS_ALIMENTACAO.LANCHE.value
+        constants.StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=constants.TIPOS_ALIMENTACAO.LANCHE.value,
     )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        constants.TIPO_ALIMENTACAO,
+        constants.StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         nome=constants.TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
     )
 
@@ -64,7 +66,7 @@ def escola_dre_guaianases(dre_guaianases):
 @pytest.fixture
 def periodo_manha():
     return baker.make(
-        constants.PERIODO_ESCOLAR,
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="MANHA",
         uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
     )
@@ -73,7 +75,7 @@ def periodo_manha():
 @pytest.fixture
 def periodo_tarde():
     return baker.make(
-        constants.PERIODO_ESCOLAR,
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="TARDE",
         uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
     )
@@ -225,12 +227,12 @@ def escola_cemei():
 @pytest.fixture
 def escola_com_periodos_e_horarios_combos(escola):
     periodo_manha = baker.make(
-        constants.PERIODO_ESCOLAR,
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="MANHA",
         uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
     )
     periodo_tarde = baker.make(
-        constants.PERIODO_ESCOLAR,
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="TARDE",
         uuid="5d668346-ad83-4334-8fec-94c801198d99",
     )

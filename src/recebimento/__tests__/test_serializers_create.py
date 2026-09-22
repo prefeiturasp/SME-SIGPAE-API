@@ -7,7 +7,7 @@ from src.conftest import (
     client_autenticado_qualidade,
 )
 from src.dados_comuns import constants
-from src.dados_comuns.constants import MODEL_USUARIO
+from src.dados_comuns.constants import StringsCaminhoModelos
 from src.recebimento.api.serializers.serializers_create import (
     FichaDeRecebimentoCreateSerializer,
     FichaDeRecebimentoCreateSerializerSaldoZero,
@@ -187,7 +187,7 @@ def test_ficha_recebimento_serializer_create(payload_ficha_recebimento):
     """Testa a criação de uma ficha através do serializer."""
 
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     context = {"request": FakeObject()}
     serializer = FichaDeRecebimentoCreateSerializer(
@@ -218,7 +218,7 @@ def test_ficha_recebimento_serializer_update(
     assert ficha_recebimento.status == "RASCUNHO"
 
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     context = {"request": FakeObject()}
 
@@ -248,7 +248,7 @@ def test_ficha_recebimento_assinada_para_rascunho(
     """Testa a volta de ASSINADA para RASCUNHO usando FichaDeRecebimentoRascunhoSerializer."""
 
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     context = {"request": FakeObject()}
 
@@ -322,7 +322,7 @@ def test_ficha_recebimento_reposicao_serializer_create(
     """Testa a criação de uma ficha de recebimento através do serializer para reposição de cronograma."""
 
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     context = {"request": FakeObject()}
 
@@ -351,7 +351,7 @@ def test_ficha_recebimento_reposicao_serializer_update(ficha_recebimento):
     """Testa a atualização de uma ficha de recebimento através do serializer para reposição de cronograma."""
 
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     context = {"request": FakeObject()}
 

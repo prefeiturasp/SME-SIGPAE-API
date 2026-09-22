@@ -817,6 +817,59 @@ class StringsSearchHelpText(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsCaminhoModelos(Enum):
+    MODEL_PERFIL = "perfil.Perfil"
+    MODEL_VINCULO = "perfil.Vinculo"
+    MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
+    MODEL_ESCOLA = "escola.Escola"
+    MODEL_DIRETORIA_REGIONAL = "escola.DiretoriaRegional"
+    MODEL_LOTE = "escola.Lote"
+    MODEL_USUARIO = "perfil.Usuario"
+    MODEL_EDITAL = "terceirizada.Edital"
+    MODEL_PERIODOESCOLAR = "escola.PeriodoEscolar"
+    MODEL_CONTATO = "dados_comuns.Contato"
+    MODEL_TIPOUNIDADEESCOLAR = "escola.TipoUnidadeEscolar"
+    MODEL_ALIMENTO = "dieta_especial.Alimento"
+    MODEL_TIPOALIMENTACAO = "cardapio.TipoAlimentacao"
+    MODEL_FAIXAETARIA = "escola.FaixaEtaria"
+    MODEL_VINCULOTIPOALIMENTACAOCOMPERIODOESCOLARETIPOUNIDADEESCOLAR = (
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"
+    )
+    MODEL_ALUNO = "escola.Aluno"
+    MODEL_ESCOLAPERIODOESCOLAR = "escola.EscolaPeriodoEscolar"
+    MODEL_DIACALENDARIO = "escola.DiaCalendario"
+    MODEL_CONTRATO = "terceirizada.Contrato"
+    MODEL_ALUNOSMATRICULADOSPERIODOESCOLA = "escola.AlunosMatriculadosPeriodoEscola"
+    MODEL_TIPOCONTAGEMALIMENTACAO = "medicao_inicial.TipoContagemAlimentacao"
+    MODEL_PRODUTO = "produto.Produto"
+    MODEL_ETAPASDOCRONOGRAMA = "pre_recebimento.EtapasDoCronograma"
+    MODEL_QUANTIDADEPORPERIODO = "inclusao_alimentacao.QuantidadePorPeriodo"
+    MODEL_UNIDADEMEDIDA = "pre_recebimento.UnidadeMedida"
+    MODEL_MOTIVOSUSPENSAO = "cardapio.MotivoSuspensao"
+    MODEL_MARCA = "produto.Marca"
+    MODEL_FICHATECNICADOPRODUTO = "pre_recebimento.FichaTecnicaDoProduto"
+    MODEL_CRONOGRAMA = "pre_recebimento.Cronograma"
+    MODEL_DIALETIVOSIGPAE = "escola.DiaLetivoSIGPAE"
+    MODEL_SOLICITACAOMEDICAOINICIAL = "medicao_inicial.SolicitacaoMedicaoInicial"
+    MODEL_SOLICITACAOKITLANCHECEIAVULSA = "kit_lanche.SolicitacaoKitLancheCEIAvulsa"
+    MODEL_KITLANCHE = "kit_lanche.KitLanche"
+    MODEL_RESPONSAVEL = "medicao_inicial.Responsavel"
+    MODEL_LOGALUNOSMATRICULADOSPERIODOESCOLA = (
+        "escola.LogAlunosMatriculadosPeriodoEscola"
+    )
+    MODEL_MOTIVOINCLUSAOCONTINUA = "inclusao_alimentacao.MotivoInclusaoContinua"
+    MODEL_INCLUSAOALIMENTACAOCONTINUA = (
+        "inclusao_alimentacao.InclusaoAlimentacaoContinua"
+    )
+    MODEL_GRUPOUNIDADEESCOLAR = "escola.GrupoUnidadeEscolar"
+    MODEL_PROGRAMACAOENTREGASEMANAL = "pre_recebimento.ProgramacaoEntregaSemanal"
+    MODEL_HOMOLOGACAOPRODUTO = "produto.HomologacaoProduto"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsVerboseNameModels(Enum):
     DE_DESCONTO = "% de Desconto"
     DE_DESCONTO_2 = "% de desconto"
@@ -1780,8 +1833,6 @@ class TIPOS_UNIDADE_ESCOLAR(Enum):
 
 
 TIPO_UNIDADE_CEI_DIRET = TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
-MODEL_PERFIL = "perfil.Perfil"
-MODEL_VINCULO = "perfil.Vinculo"
 EMAIL_TESTE = "test@test.com"
 NOME_ESCOLA_EMEBS = "Escola EMEBS"
 NOME_LOTE_EMEBS = "Lote EMEBS"
@@ -1829,12 +1880,6 @@ TRADUCOES_FERIADOS = {
 # LITERAIS REUTILIZÁVEIS (evitam duplicação de strings)
 #
 
-TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
-PERIODO_ESCOLAR = "escola.PeriodoEscolar"
-MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
-MODEL_ESCOLA = "escola.Escola"
-MODEL_DIRETORIA_REGIONAL = "escola.DiretoriaRegional"
-MODEL_LOTE = "escola.Lote"
 DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
 FORMATO_DATA_HORA_BRASILEIRO = "%d/%m/%Y - %H:%M"
@@ -1845,7 +1890,6 @@ MODULO_GESTAO_PRODUTO = "Gestão de Produto"
 MODULO_GESTAO_ALIMENTACAO = "Gestão de Alimentação"
 MODULO_DIETA_ESPECIAL = "Dieta Especial"
 CRIADO_EM = "Criado em"
-MODEL_USUARIO = "perfil.Usuario"
 STATUS_ENVIADO_PARA_ANALISE = "Enviado para Análise"
 EMAIL_ASSUNTO_STATUS_SOLICITACAO = "[SIGPAE] Status de solicitação - "
 RELATED_NAME_RASTRO_TERCEIRIZADA = "%(app_label)s_%(class)s_rastro_terceirizada"

@@ -22,7 +22,7 @@ from django.db import models, transaction
 from django.db.models import F, Q, Sum
 from rest_framework import status
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
@@ -56,8 +56,6 @@ from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_TERCEIRIZADA,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
@@ -1833,14 +1831,14 @@ class Lote(TemChaveExterna, Nomeavel, Iniciais):
         blank=True,
     )
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
         blank=True,
     )
     terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
@@ -3354,7 +3352,10 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
 class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
     edital = models.ForeignKey(
-        "terceirizada.Edital", on_delete=models.CASCADE, blank=True, null=True
+        StringsCaminhoModelos.MODEL_EDITAL.value,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
 
     @property

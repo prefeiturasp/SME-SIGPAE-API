@@ -5,7 +5,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from rest_framework import status
 
-from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR, StringsCaminhoModelos
 
 from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
 from ..services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
@@ -1116,8 +1116,12 @@ def test_url_endpoint_lista_dias_escola_nao_encontrada(client_autenticado):
 
 
 def test_url_endpoint_lista_dias_suspensos(client_autenticado, escola):
-    edital_1 = baker.make("terceirizada.Edital", numero="Edital 01/2026")
-    edital_2 = baker.make("terceirizada.Edital", numero="Edital 02/2026")
+    edital_1 = baker.make(
+        StringsCaminhoModelos.MODEL_EDITAL.value, numero="Edital 01/2026"
+    )
+    edital_2 = baker.make(
+        StringsCaminhoModelos.MODEL_EDITAL.value, numero="Edital 02/2026"
+    )
     lote = baker.make("Lote")
 
     contrato_1 = baker.make("terceirizada.Contrato", edital=edital_1, encerrado=False)
@@ -1168,7 +1172,9 @@ def test_url_endpoint_lista_dias_suspensos(client_autenticado, escola):
 def test_url_endpoint_lista_dias_nao_retorna_contrato_encerrado(
     client_autenticado, escola
 ):
-    edital = baker.make("terceirizada.Edital", numero="Edital 01/2026")
+    edital = baker.make(
+        StringsCaminhoModelos.MODEL_EDITAL.value, numero="Edital 01/2026"
+    )
     lote = baker.make("Lote")
     contrato = baker.make("terceirizada.Contrato", edital=edital, encerrado=True)
     contrato.lotes.add(lote)

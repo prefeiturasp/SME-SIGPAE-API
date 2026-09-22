@@ -19,11 +19,9 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MODEL_PERFIL,
-    MODEL_TERCEIRIZADA,
-    MODEL_VINCULO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
     StringsInformacoesPessoais,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
@@ -190,9 +188,11 @@ def usuario_escola(escola):
     user = Usuario.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf
     )
-    perfil_professor = baker.make(MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False)
+    perfil_professor = baker.make(
+        StringsCaminhoModelos.MODEL_PERFIL.value, nome="ADMINISTRADOR_UE", ativo=False
+    )
     baker.make(
-        MODEL_VINCULO,
+        StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -251,9 +251,11 @@ def solicitacao_dieta_especial_autorizada(
         )
         client.login(username=email, password=password)
 
-        perfil = baker.make(MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+        perfil = baker.make(
+            StringsCaminhoModelos.MODEL_PERFIL.value, nome="TERCEIRIZADA", ativo=False
+        )
         baker.make(
-            MODEL_VINCULO,
+            StringsCaminhoModelos.MODEL_VINCULO.value,
             usuario=user,
             instituicao=escola.lote.terceirizada,
             perfil=perfil,
@@ -318,9 +320,11 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        StringsCaminhoModelos.MODEL_PERFIL.value, nome="TERCEIRIZADA", ativo=False
+    )
     baker.make(
-        MODEL_VINCULO,
+        StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -599,14 +603,14 @@ def cronograma(
     )
 
     empresa = baker.make(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         nome_fantasia="Alimentos LTDA",
         cnpj="12345678000190",
         endereco="Rua das Flores, 123 - São Paulo/SP",
     )
 
     armazem = baker.make(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         nome_fantasia="Armazém Central",
         cnpj="98765432000110",
         endereco="Avenida Industrial, 456 - São Paulo/SP",

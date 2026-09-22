@@ -5,7 +5,7 @@ import pytest
 from model_bakery import baker
 from xworkflows.base import InvalidTransitionError
 
-from ...dados_comuns.constants import MODEL_USUARIO
+from ...dados_comuns.constants import StringsCaminhoModelos
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...escola.models import Escola, PeriodoEscolar
 from ..models import InclusaoAlimentacaoContinua, MotivoInclusaoContinua
@@ -51,7 +51,7 @@ def test_inclusao_alimentacao_continua_solicitacoes_similares(
 
 def test_inclusao_alimentacao_continua_fluxo(inclusao_alimentacao_continua_params):
     inclusao_alimentacao_continua, esperado = inclusao_alimentacao_continua_params
-    fake_user = baker.make(MODEL_USUARIO)
+    fake_user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
     inclusao_alimentacao_continua.inicia_fluxo(user=fake_user)
     assert inclusao_alimentacao_continua.ta_na_dre
     inclusao_alimentacao_continua.dre_valida(user=fake_user)

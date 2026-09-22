@@ -10,7 +10,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -111,7 +111,8 @@ class ProtocoloPadraoDietaEspecial(
     )
 
     editais = models.ManyToManyField(
-        "terceirizada.Edital", related_name="protocolos_padroes_dieta_especial"
+        StringsCaminhoModelos.MODEL_EDITAL.value,
+        related_name="protocolos_padroes_dieta_especial",
     )
 
     historico = models.JSONField(blank=True, null=True)

@@ -23,8 +23,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MODEL_LOTE,
-    MODEL_TERCEIRIZADA,
+    StringsCaminhoModelos,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -3003,7 +3002,7 @@ def diretoria_regional():
 @pytest.fixture
 def edital():
     edital = baker.make(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         numero="Edital de Pregão nº 78/SME/2024",
         uuid="f76f367c-f9c4-463e-aefb-0ff434d93ae9",
     )
@@ -3012,8 +3011,8 @@ def edital():
 
 @pytest.fixture
 def contrato(edital):
-    terceirizada = baker.make(MODEL_TERCEIRIZADA)
-    lote = baker.make(MODEL_LOTE, terceirizada=terceirizada)
+    terceirizada = baker.make(StringsCaminhoModelos.MODEL_TERCEIRIZADA.value)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value, terceirizada=terceirizada)
     contrato = baker.make(
         "terceirizada.Contrato",
         lotes=[lote],
@@ -3559,7 +3558,7 @@ def relatorio_financeiro():
     return baker.make(
         "RelatorioFinanceiro",
         grupo_unidade_escolar=baker.make("GrupoUnidadeEscolar"),
-        lote=baker.make(MODEL_LOTE),
+        lote=baker.make(StringsCaminhoModelos.MODEL_LOTE.value),
         mes="10",
         ano="2025",
     )

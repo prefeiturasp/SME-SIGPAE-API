@@ -25,7 +25,7 @@ from ..dados_comuns.behaviors import (
     StatusAtivoInativo,
     TemNomeMaior,
 )
-from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsCaminhoModelos
 from ..dados_comuns.fluxo_status import FluxoFormularioSupervisao
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..dados_comuns.validators import validate_file_size_10mb
@@ -47,7 +47,7 @@ class TipoGravidade(ModeloBase):
 
 class TipoPenalidade(ModeloBase, CriadoPor, StatusAtivoInativo):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
         related_name="tipos_penalidades",
     )
@@ -206,7 +206,7 @@ class TipoOcorrencia(
     )
 
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
         related_name="tipos_ocorrencia",
     )
@@ -946,7 +946,7 @@ class UtensilioMesa(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalUtensilioMesa(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
@@ -978,7 +978,7 @@ class UtensilioCozinha(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalUtensilioCozinha(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
@@ -1010,7 +1010,7 @@ class Equipamento(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalEquipamento(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
@@ -1040,7 +1040,7 @@ class Mobiliario(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalMobiliario(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
@@ -1070,7 +1070,7 @@ class ReparoEAdaptacao(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalReparoEAdaptacao(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
@@ -1102,7 +1102,7 @@ class Insumo(ModeloBase, TemNomeMaior, StatusAtivoInativo):
 
 class EditalInsumo(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 

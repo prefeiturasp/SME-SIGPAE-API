@@ -7,9 +7,8 @@ from model_bakery import baker
 from openpyxl import Workbook
 
 from src.dados_comuns.constants import (
-    MODEL_ESCOLA,
-    MODEL_USUARIO,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
 )
 from src.dieta_especial.carga_dados.models import (
     ArquivoCargaAlimentosSubstitutos,
@@ -49,7 +48,7 @@ def perfil():
 @pytest.fixture
 def escola():
     return baker.make(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         codigo_codae="12345678",
         codigo_eol="654321",
         lote=baker.make("Lote", terceirizada=baker.make("Terceirizada")),
@@ -132,7 +131,7 @@ def dieta_especial_ativa(solicitacao_dieta_especial):
 
 @pytest.fixture
 def usuario():
-    return baker.make(MODEL_USUARIO)
+    return baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
 
 @pytest.fixture

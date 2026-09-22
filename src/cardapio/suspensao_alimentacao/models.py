@@ -21,7 +21,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
@@ -163,7 +163,9 @@ class GrupoSuspensaoAlimentacao(
     """
 
     DESCRICAO = "Suspensão de Alimentação"
-    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, on_delete=models.DO_NOTHING
+    )
     objects = models.Manager()  # Manager Padrão
     desta_semana = GrupoSuspensaoAlimentacaoDestaSemanaManager()
     deste_mes = GrupoSuspensaoAlimentacaoDesteMesManager()

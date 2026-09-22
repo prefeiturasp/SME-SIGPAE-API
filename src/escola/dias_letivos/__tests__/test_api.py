@@ -8,7 +8,7 @@ from django.utils import timezone
 from model_bakery import baker
 from rest_framework import status
 
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR, StringsCaminhoModelos
 from src.escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
     DiaLetivoSIGPAEFactory,
 )
@@ -45,9 +45,9 @@ def test_create_dias_letivos_success(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make(MODEL_LOTE)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
-    escola = baker.make(MODEL_ESCOLA, lote=lote)
+    escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value, lote=lote)
 
     payload = _build_payload([periodo], [lote], [tipo_unidade], [escola])
 
@@ -66,7 +66,7 @@ def test_create_dias_letivos_sem_unidades_educacionais(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make(MODEL_LOTE)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
 
     payload = _build_payload([periodo], [lote], [tipo_unidade])
@@ -87,9 +87,9 @@ def test_create_dias_letivos_duplicate(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make(MODEL_LOTE)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
-    escola = baker.make(MODEL_ESCOLA, lote=lote)
+    escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value, lote=lote)
 
     payload = _build_payload([periodo], [lote], [tipo_unidade], [escola])
 
@@ -115,7 +115,7 @@ def test_create_dias_letivos_duplicate_sem_escolas(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
     periodo = baker.make("escola.PeriodoEscolar")
-    lote = baker.make(MODEL_LOTE)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
 
     payload = _build_payload([periodo], [lote], [tipo_unidade])
@@ -460,7 +460,7 @@ def test_update_dia_letivo_duplicate_error(
 ) -> None:
     client = client_autenticado_codae_gestao_alimentacao
 
-    lote = baker.make(MODEL_LOTE)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value)
     tipo_unidade = baker.make("escola.TipoUnidadeEscolar")
     periodo = baker.make("escola.PeriodoEscolar")
 

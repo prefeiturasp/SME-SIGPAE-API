@@ -9,9 +9,8 @@ from src.dados_comuns.constants import StringsVerboseNameModels
 from .constants import (
     CRIADO_EM,
     ESCOLA_CANCELOU_LABEL,
-    MODEL_PERFIL,
-    MODEL_USUARIO,
     MODULO_DIETA_ESPECIAL,
+    StringsCaminhoModelos,
 )
 
 
@@ -415,7 +414,9 @@ class LogSolicitacoesUsuario(models.Model):
     status_evento = models.PositiveSmallIntegerField(choices=STATUS_POSSIVEIS)
     solicitacao_tipo = models.PositiveSmallIntegerField(choices=TIPOS_SOLICITACOES)
     uuid_original = models.UUIDField()
-    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
 
     class Meta:
         ordering = ("-criado_em",)
@@ -503,7 +504,7 @@ class PerguntaFrequente(models.Model):
         "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
     perfis = models.ManyToManyField(
-        MODEL_PERFIL,
+        StringsCaminhoModelos.MODEL_PERFIL.value,
         related_name="perguntas_frequentes",
         blank=True,
     )
@@ -651,7 +652,11 @@ class Notificacao(models.Model):
     )
 
     usuario = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.CASCADE,
+        default="",
+        null=True,
+        blank=True,
     )
 
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
@@ -815,7 +820,11 @@ class CentralDeDownload(models.Model):
     )
     visto = models.BooleanField(StringsVerboseNameModels.FOI_VISTO.value, default=False)
     usuario = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.CASCADE,
+        default="",
+        null=True,
+        blank=True,
     )
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
@@ -834,7 +843,9 @@ class CentralDeDownload(models.Model):
 
 class SolicitacaoAberta(models.Model):
     uuid_solicitacao = models.CharField(max_length=50)
-    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
     datetime_ultimo_acesso = models.DateTimeField()
 
     def __str__(self):

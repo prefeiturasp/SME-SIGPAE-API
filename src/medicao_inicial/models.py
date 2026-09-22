@@ -8,7 +8,7 @@ import numpy
 from django.db import models
 from django.db.models import Q
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
 from ..dados_comuns.behaviors import (
     Ativavel,
@@ -35,10 +35,6 @@ from ..dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_ESCOLA,
-    MODEL_LOTE,
-    MODEL_USUARIO,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -108,7 +104,7 @@ class SolicitacaoMedicaoInicial(
     """Solicitação de Medição Inicial."""
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_medicao_inicial",
     )
@@ -128,7 +124,7 @@ class SolicitacaoMedicaoInicial(
     )
     dre_ciencia_correcao_data = models.DateTimeField(blank=True, null=True)
     dre_ciencia_correcao_usuario = models.ForeignKey(
-        MODEL_USUARIO,
+        StringsCaminhoModelos.MODEL_USUARIO.value,
         on_delete=models.SET_NULL,
         related_name="solicitacoes_medicao_ciencia_correcao",
         blank=True,
@@ -805,7 +801,7 @@ class PermissaoLancamentoEspecial(
     CriadoPor, CriadoEm, TemAlteradoEm, TemChaveExterna, TemIdentificadorExternoAmigavel
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="permissoes_lancamento_especial",
     )
@@ -816,7 +812,7 @@ class PermissaoLancamentoEspecial(
         AlimentacaoLancamentoEspecial
     )
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         related_name="permissoes_lancamento_especial",
         on_delete=models.DO_NOTHING,
     )
@@ -854,7 +850,7 @@ class LancheEmergencialDiario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
     criado_em = models.DateTimeField(CRIADO_EM, auto_now_add=True, null=True)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="lanches_emergenciais_diarios",
     )
@@ -944,7 +940,9 @@ class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
         "terceirizada.Contrato", on_delete=models.PROTECT, related_name="empenhos"
     )
     edital = models.ForeignKey(
-        "terceirizada.Edital", on_delete=models.PROTECT, related_name="empenhos"
+        StringsCaminhoModelos.MODEL_EDITAL.value,
+        on_delete=models.PROTECT,
+        related_name="empenhos",
     )
     tipo_empenho = models.CharField(
         choices=TIPO_EMPENHO_CHOICES, max_length=20, default="PRINCIPAL"
@@ -963,7 +961,7 @@ class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.CASCADE,
         related_name="clausulas_desconto",
     )
@@ -988,12 +986,12 @@ class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
@@ -1106,7 +1104,7 @@ class RelatorioFinanceiro(
         related_name="relatorios_financeiros",
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         related_name="relatorios_financeiros",
         on_delete=models.PROTECT,
     )

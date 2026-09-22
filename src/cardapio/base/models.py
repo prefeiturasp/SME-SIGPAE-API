@@ -7,8 +7,8 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
 )
 from src.dados_comuns.constants import (
-    MODEL_ESCOLA,
     TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 
@@ -71,7 +71,10 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
     hora_inicial = models.TimeField(auto_now=False, auto_now_add=False)
     hora_final = models.TimeField(auto_now=False, auto_now_add=False)
     escola = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     tipo_alimentacao = models.ForeignKey(
         "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING

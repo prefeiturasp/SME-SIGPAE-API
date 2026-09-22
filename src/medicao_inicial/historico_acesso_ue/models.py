@@ -11,8 +11,7 @@ from src.dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
 )
 from src.dados_comuns.constants import (
-    MODEL_ESCOLA,
-    MODEL_LOTE,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 
@@ -43,12 +42,12 @@ class HistoricoAcessoMedicaoInicialUE(
     objects = HistoricoAcessoMedicaoInicialUEQuerySet.as_manager()
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )

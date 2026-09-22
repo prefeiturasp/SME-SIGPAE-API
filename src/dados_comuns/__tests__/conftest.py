@@ -37,8 +37,8 @@ from ...escola import models
 from ..constants import (
     COORDENADOR_LOGISTICA,
     DJANGO_ADMIN_PASSWORD,
-    TIPO_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
 )
 from ..models import (
     CentralDeDownload,
@@ -1023,18 +1023,24 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.LANCHE.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        TIPO_ALIMENTACAO,
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
     )
 

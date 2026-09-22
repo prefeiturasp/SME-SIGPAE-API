@@ -26,9 +26,9 @@ from ..dados_comuns.behaviors import (
 )
 from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
 )
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -135,7 +135,7 @@ class InclusaoAlimentacaoContinua(
     )
     motivo = models.ForeignKey(MotivoInclusaoContinua, on_delete=models.DO_NOTHING)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_alimentacao_continua",
     )
@@ -386,7 +386,7 @@ class GrupoInclusaoAlimentacaoNormal(
     DESCRICAO = "Inclusão de Alimentação"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_normais",
     )
@@ -632,7 +632,7 @@ class InclusaoAlimentacaoDaCEI(
     DESCRICAO = "Inclusão de Alimentação Por CEI"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_por_cei",
     )
@@ -929,7 +929,7 @@ class InclusaoDeAlimentacaoCEMEI(
     DESCRICAO = "Inclusão de Alimentação CEMEI"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_de_alimentacao_cemei",
     )

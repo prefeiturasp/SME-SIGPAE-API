@@ -32,10 +32,6 @@ from .constants import (
     ESCOLA_CANCELOU_LABEL,
     FORMATO_DATA_BRASILEIRO,
     FORMATO_DATA_HORA_BRASILEIRO,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_ESCOLA,
-    MODEL_LOTE,
-    MODEL_TERCEIRIZADA,
     MODULO_DIETA_ESPECIAL,
     MODULO_GESTAO_ALIMENTACAO,
     MODULO_GESTAO_PRODUTO,
@@ -47,6 +43,7 @@ from .constants import (
     TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
     TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
     TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
     StringsValidationErrors,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
@@ -1674,7 +1671,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     DIAS_PARA_CANCELAR = 2
 
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2238,7 +2235,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2246,7 +2243,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2254,7 +2251,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2262,7 +2259,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2675,13 +2672,13 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escolas = models.ManyToManyField(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         blank=True,
         related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2689,7 +2686,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2697,7 +2694,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2974,7 +2971,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2982,7 +2979,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2990,7 +2987,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2998,7 +2995,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3142,7 +3139,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     status = xwf_models.StateField(workflow_class)
 
     rastro_escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3150,7 +3147,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -3158,7 +3155,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3166,7 +3163,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -4091,7 +4088,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -4099,7 +4096,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,

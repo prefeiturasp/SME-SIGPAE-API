@@ -23,9 +23,7 @@ from ..dados_comuns.behaviors import (
 )
 from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
-    MODEL_TERCEIRIZADA,
-    MODEL_USUARIO,
+    StringsCaminhoModelos,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
@@ -328,7 +326,10 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
         StringsVerboseNameModels.SUSPENSO_EM.value, null=True, blank=True
     )
     suspenso_por = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
     )
 
     def criar_data_hora_vinculo(self, suspenso=False):
@@ -1069,13 +1070,13 @@ class SolicitacaoCadastroProdutoDieta(
         null=True,
     )
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
     )
     terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
@@ -1116,7 +1117,7 @@ class AnaliseSensorial(TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoE
 
     # Terceirizada que irá responder a análise
     terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.CASCADE,
         related_name="analises_sensoriais",
         null=True,

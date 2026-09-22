@@ -33,8 +33,8 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
     MODULO_DIETA_ESPECIAL,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
@@ -282,7 +282,10 @@ class SolicitacaoDietaEspecial(
     )
 
     escola_destino = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.CASCADE
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     dieta_alterada = models.ForeignKey(

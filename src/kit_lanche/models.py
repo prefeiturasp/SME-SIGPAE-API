@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
 from ..dados_comuns.behaviors import (  # noqa I101
     CanceladoIndividualmente,
@@ -27,7 +27,6 @@ from ..dados_comuns.behaviors import (  # noqa I101
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from ..dados_comuns.constants import MODEL_DIRETORIA_REGIONAL, MODEL_ESCOLA
 from ..dados_comuns.fluxo_status import (
     FluxoAprovacaoPartindoDaDiretoriaRegional,
     FluxoAprovacaoPartindoDaEscola,
@@ -75,7 +74,7 @@ class KitLanche(Nomeavel, TemChaveExterna):
 
     descricao = models.TextField(default="")
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.DO_NOTHING,
         related_name="edital_kit_lanche",
         default=None,
@@ -171,7 +170,7 @@ class SolicitacaoKitLancheAvulsaBase(
 class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
     quantidade_alunos = models.BigIntegerField(blank=True, null=True)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_avulsa",
     )
@@ -243,7 +242,7 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
 
 class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cei_avulsa",
     )
@@ -398,7 +397,8 @@ class SolicitacaoKitLancheUnificada(
     lista_kit_lanche_igual = models.BooleanField(default=True)
 
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
+        on_delete=models.DO_NOTHING,
     )
     solicitacao_kit_lanche = models.ForeignKey(
         SolicitacaoKitLanche, on_delete=models.DO_NOTHING
@@ -647,7 +647,9 @@ class EscolaQuantidade(
         null=True,
     )
     kits = models.ManyToManyField(KitLanche, blank=True)
-    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, on_delete=models.DO_NOTHING
+    )
 
     @property
     def total_kit_lanche(self):
@@ -686,7 +688,7 @@ class SolicitacaoKitLancheCEMEI(
     evento = models.CharField(max_length=160, blank=True)
     data = models.DateField(StringsVerboseNameModels.DATA.value)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cemei",
     )

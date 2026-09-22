@@ -8,7 +8,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
@@ -85,7 +85,7 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
 
 class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas",
     )
@@ -126,7 +126,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
 
 class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_cei",
     )
@@ -165,7 +165,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias",
     )
@@ -196,7 +196,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
     )
