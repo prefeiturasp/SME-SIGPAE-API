@@ -323,12 +323,12 @@ class InclusaoAlimentacaoContinua(
 
 
 class MotivoInclusaoNormal(Nomeavel, TemChaveExterna):
-    """Funciona em conjunto com InclusaoAlimentacaoNormal.
+    """Funciona em conjunto com InclusaoAlimentacaoNormal."""
 
-    - reposicao de aula
-    - dia de familia
-    - outro
-    """
+    REPOSICAO_DE_AULA = "Reposição de aula"
+    DIA_DA_FAMILIA = "Dia da família"
+    EVENTO_ESPECIFICO = "Evento Específico"
+    OUTRO = "Outro"
 
     def __str__(self):
         return self.nome
@@ -532,9 +532,9 @@ class GrupoInclusaoAlimentacaoNormal(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if (
@@ -852,9 +852,9 @@ class InclusaoAlimentacaoDaCEI(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if self.status == InclusaoAlimentacaoDaCEI.workflow_class.RASCUNHO or any(
@@ -1017,7 +1017,9 @@ class InclusaoDeAlimentacaoCEMEI(
         return self.dias_motivos_da_inclusao_cemei.all().filter(cancelado=True).exists()
 
     def eh_evento_especifico(self):
-        if self.dias_motivos_da_inclusao_cemei.filter(motivo__nome="Evento Específico"):
+        if self.dias_motivos_da_inclusao_cemei.filter(
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
+        ):
             return True
         return False
 
@@ -1144,7 +1146,7 @@ class InclusaoDeAlimentacaoCEMEI(
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         eh_evento_especifico = self.dias_motivos_da_inclusao_cemei.filter(
-            motivo__nome="Evento Específico"
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
         ).exists()
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
@@ -1167,9 +1169,9 @@ class InclusaoDeAlimentacaoCEMEI(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if self.status == InclusaoDeAlimentacaoCEMEI.workflow_class.RASCUNHO or any(

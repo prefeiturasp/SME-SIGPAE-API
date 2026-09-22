@@ -8,7 +8,11 @@ from xworkflows.base import InvalidTransitionError
 from ...dados_comuns.constants import StringsCaminhoModelos
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from ...escola.models import Escola, PeriodoEscolar
-from ..models import InclusaoAlimentacaoContinua, MotivoInclusaoContinua
+from ..models import (
+    InclusaoAlimentacaoContinua,
+    MotivoInclusaoContinua,
+    MotivoInclusaoNormal,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -120,11 +124,11 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_rascunho2(
         kwargs_grupo={"status": PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR},
         kwargs_inclusao1={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
         kwargs_inclusao2={
             "data": datetime.datetime(2023, 12, 11),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -132,7 +136,12 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_rascunho2(
 
 
 @pytest.mark.parametrize(
-    "motivo", [("Dia da família"), ("Reposição de aula"), ("Outro")]
+    "motivo",
+    [
+        (MotivoInclusaoNormal.DIA_DA_FAMILIA),
+        (MotivoInclusaoNormal.REPOSICAO_DE_AULA),
+        (MotivoInclusaoNormal.OUTRO),
+    ],
 )
 def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_motivo_permitido(
     make_grupo_inclusao_alimentacao_normal, make_motivo_inclusao_normal, motivo
@@ -159,7 +168,12 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_motivo_permiti
 
 
 @pytest.mark.parametrize(
-    "motivo", [("Dia da família"), ("Reposição de aula"), ("Outro")]
+    "motivo",
+    [
+        (MotivoInclusaoNormal.DIA_DA_FAMILIA),
+        (MotivoInclusaoNormal.REPOSICAO_DE_AULA),
+        (MotivoInclusaoNormal.OUTRO),
+    ],
 )
 def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_motivo_permitido2(
     make_grupo_inclusao_alimentacao_normal, make_motivo_inclusao_normal, motivo
@@ -195,7 +209,7 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_motivo_permiti
 @pytest.mark.parametrize(
     "motivo",
     [
-        ("Evento Específico"),
+        (MotivoInclusaoNormal.EVENTO_ESPECIFICO),
         ("Programas/Projetos Específicos"),
         ("ETEC"),
         ("Programas/Projetos Contínuos"),
@@ -229,7 +243,7 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_motivo_nao_per
 @pytest.mark.parametrize(
     "motivo",
     [
-        ("Evento Específico"),
+        (MotivoInclusaoNormal.EVENTO_ESPECIFICO),
         ("Programas/Projetos Específicos"),
         ("ETEC"),
         ("Programas/Projetos Contínuos"),
@@ -278,11 +292,11 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_escola_diferen
         },
         kwargs_inclusao1={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
         kwargs_inclusao2={
             "data": datetime.datetime(2023, 12, 11),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -293,11 +307,11 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_escola_diferen
         },
         kwargs_inclusao1={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
         kwargs_inclusao2={
             "data": datetime.datetime(2023, 12, 11),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -316,11 +330,11 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_escola_igual(
         },
         kwargs_inclusao1={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
         kwargs_inclusao2={
             "data": datetime.datetime(2023, 12, 11),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -331,11 +345,11 @@ def test_grupo_inclusao_alimentacao_normal_solicitacoes_similares_escola_igual(
         },
         kwargs_inclusao1={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
         kwargs_inclusao2={
             "data": datetime.datetime(2023, 12, 11),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -372,7 +386,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_rascunho2(
         kwargs_inclusao={"status": PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR},
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -380,7 +394,12 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_rascunho2(
 
 
 @pytest.mark.parametrize(
-    "motivo", [("Dia da família"), ("Reposição de aula"), ("Outro")]
+    "motivo",
+    [
+        (MotivoInclusaoNormal.DIA_DA_FAMILIA),
+        (MotivoInclusaoNormal.REPOSICAO_DE_AULA),
+        (MotivoInclusaoNormal.OUTRO),
+    ],
 )
 def test_inclusao_alimentacao_cei_solicitacoes_similares_motivo_permitido(
     make_inclusao_alimentacao_cei, make_motivo_inclusao_normal, motivo
@@ -402,7 +421,12 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_motivo_permitido(
 
 
 @pytest.mark.parametrize(
-    "motivo", [("Dia da família"), ("Reposição de aula"), ("Outro")]
+    "motivo",
+    [
+        (MotivoInclusaoNormal.DIA_DA_FAMILIA),
+        (MotivoInclusaoNormal.REPOSICAO_DE_AULA),
+        (MotivoInclusaoNormal.OUTRO),
+    ],
 )
 def test_inclusao_alimentacao_cei_solicitacoes_similares_motivo_permitido2(
     make_inclusao_alimentacao_cei, make_motivo_inclusao_normal, motivo
@@ -430,7 +454,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_motivo_permitido2(
 @pytest.mark.parametrize(
     "motivo",
     [
-        ("Evento Específico"),
+        (MotivoInclusaoNormal.EVENTO_ESPECIFICO),
         ("Programas/Projetos Específicos"),
         ("ETEC"),
         ("Programas/Projetos Contínuos"),
@@ -459,7 +483,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_motivo_nao_permitido(
 @pytest.mark.parametrize(
     "motivo",
     [
-        ("Evento Específico"),
+        (MotivoInclusaoNormal.EVENTO_ESPECIFICO),
         ("Programas/Projetos Específicos"),
         ("ETEC"),
         ("Programas/Projetos Contínuos"),
@@ -500,7 +524,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_escola_diferente(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -511,7 +535,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_escola_diferente(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -530,7 +554,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_escola_igual(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -541,7 +565,7 @@ def test_inclusao_alimentacao_cei_solicitacoes_similares_escola_igual(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -578,7 +602,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_rascunho2(
         kwargs_inclusao={"status": PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR},
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -586,7 +610,12 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_rascunho2(
 
 
 @pytest.mark.parametrize(
-    "motivo", [("Dia da família"), ("Reposição de aula"), ("Outro")]
+    "motivo",
+    [
+        (MotivoInclusaoNormal.DIA_DA_FAMILIA),
+        (MotivoInclusaoNormal.REPOSICAO_DE_AULA),
+        (MotivoInclusaoNormal.OUTRO),
+    ],
 )
 def test_inclusao_alimentacao_cemei_solicitacoes_similares_motivo_permitido(
     make_inclusao_alimentacao_cemei, make_motivo_inclusao_normal, motivo
@@ -608,7 +637,12 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_motivo_permitido(
 
 
 @pytest.mark.parametrize(
-    "motivo", [("Dia da família"), ("Reposição de aula"), ("Outro")]
+    "motivo",
+    [
+        (MotivoInclusaoNormal.DIA_DA_FAMILIA),
+        (MotivoInclusaoNormal.REPOSICAO_DE_AULA),
+        (MotivoInclusaoNormal.OUTRO),
+    ],
 )
 def test_inclusao_alimentacao_cemei_solicitacoes_similares_motivo_permitido2(
     make_inclusao_alimentacao_cemei, make_motivo_inclusao_normal, motivo
@@ -636,7 +670,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_motivo_permitido2(
 @pytest.mark.parametrize(
     "motivo",
     [
-        ("Evento Específico"),
+        (MotivoInclusaoNormal.EVENTO_ESPECIFICO),
         ("Programas/Projetos Específicos"),
         ("ETEC"),
         ("Programas/Projetos Contínuos"),
@@ -665,7 +699,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_motivo_nao_permitido(
 @pytest.mark.parametrize(
     "motivo",
     [
-        ("Evento Específico"),
+        (MotivoInclusaoNormal.EVENTO_ESPECIFICO),
         ("Programas/Projetos Específicos"),
         ("ETEC"),
         ("Programas/Projetos Contínuos"),
@@ -706,7 +740,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_escola_diferente(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -717,7 +751,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_escola_diferente(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -736,7 +770,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_escola_igual(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 
@@ -747,7 +781,7 @@ def test_inclusao_alimentacao_cemei_solicitacoes_similares_escola_igual(
         },
         kwargs_motivo={
             "data": datetime.datetime(2023, 12, 8),
-            "motivo": make_motivo_inclusao_normal("Dia da família"),
+            "motivo": make_motivo_inclusao_normal(MotivoInclusaoNormal.DIA_DA_FAMILIA),
         },
     )
 

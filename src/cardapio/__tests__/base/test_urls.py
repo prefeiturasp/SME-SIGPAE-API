@@ -318,7 +318,9 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
     )
     client.login(username=email, password=password)
 
-    motivo = baker.make(MotivoInclusaoNormal, nome="Evento Específico")
+    motivo = baker.make(
+        MotivoInclusaoNormal, nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
+    )
     periodo_manha = baker.make(PeriodoEscolar, nome="MANHA")
     refeicao = baker.make(
         StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="Refeicao"

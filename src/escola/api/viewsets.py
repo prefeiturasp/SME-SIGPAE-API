@@ -75,6 +75,7 @@ from ...escola.api.serializers_create import (
 )
 from ...inclusao_alimentacao.models import (
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
     QuantidadePorPeriodo,
 )
 from ...inclusao_alimentacao.utils import (
@@ -397,7 +398,7 @@ def periodos_cemei_evento_especifico(instituicao, primeiro_dia_mes, ultimo_dia_m
     cemei_periodos_emei = InclusaoDeAlimentacaoCEMEI.objects.filter(
         status="CODAE_AUTORIZADO",
         escola=instituicao,
-        dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+        dias_motivos_da_inclusao_cemei__motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO,
         dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
         dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
     ).values_list(

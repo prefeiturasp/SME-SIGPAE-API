@@ -35,6 +35,7 @@ from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
 )
 from ..paineis_consolidados.models import SolicitacoesEscola
 from .api.constants import ALIMENTACOES_LANCAMENTOS_ESPECIAIS
@@ -3289,7 +3290,7 @@ def validate_cemei_evento_especifico_programas(solicitacao, medicao, lista_erros
     cemei_evento_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
         escola=solicitacao.escola,
         status="CODAE_AUTORIZADO",
-        dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+        dias_motivos_da_inclusao_cemei__motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO,
         dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
         dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
         dias_motivos_da_inclusao_cemei__cancelado=False,
@@ -3322,7 +3323,7 @@ def _valida_uma_inclusao_cemei_evento_especifico(
     inc, primeiro_dia_mes, ultimo_dia_mes, medicao, categoria
 ):
     dias_evento = inc.dias_motivos_da_inclusao_cemei.filter(
-        motivo__nome="Evento Específico",
+        motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO,
         cancelado=False,
         data__gte=primeiro_dia_mes,
         data__lte=ultimo_dia_mes,
@@ -3746,7 +3747,7 @@ def validate_medicao_cemei(solicitacao):
                 inclusoes.filter(
                     quantidade_alunos_cei_da_inclusao_cemei__isnull=False
                 ).exclude(
-                    dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico"
+                    dias_motivos_da_inclusao_cemei__motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
                 ),
             )
         elif tipo_medicao == "PROGRAMAS E PROJETOS":
@@ -3765,7 +3766,7 @@ def validate_medicao_cemei(solicitacao):
                 inclusoes.filter(
                     quantidade_alunos_emei_da_inclusao_cemei__isnull=False
                 ).exclude(
-                    dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico"
+                    dias_motivos_da_inclusao_cemei__motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
                 ),
                 medicao,
                 mes,

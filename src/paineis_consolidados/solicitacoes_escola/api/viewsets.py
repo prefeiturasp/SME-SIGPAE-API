@@ -22,6 +22,7 @@ from src.escola.models import Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
 )
 from src.kit_lanche.models import SolicitacaoKitLancheUnificada
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
@@ -604,7 +605,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         cemei_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
             status="CODAE_AUTORIZADO",
             escola=escola,
-            dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+            dias_motivos_da_inclusao_cemei__motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO,
             dias_motivos_da_inclusao_cemei__data__gte=primeiro_dia_mes,
             dias_motivos_da_inclusao_cemei__data__lte=ultimo_dia_mes,
         ).distinct()
@@ -646,7 +647,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         return_dict,
     ):
         dias_motivos = inc.dias_motivos_da_inclusao_cemei.filter(
-            motivo__nome="Evento Específico"
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
         )
         if not dias_motivos.exists():
             return return_dict

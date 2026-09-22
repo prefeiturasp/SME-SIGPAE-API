@@ -60,6 +60,7 @@ from src.inclusao_alimentacao.fixtures.factories.base_factory import (
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
 )
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.paineis_consolidados.models import SolicitacoesEscola
@@ -837,7 +838,7 @@ class TestEndpointInclusoesAutorizadas:
     ):
         client, usuario = client_autenticado_vinculo_escola_cemei
         motivo_evento_especifico = MotivoInclusaoNormalFactory.create(
-            nome="Evento Específico"
+            nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
         )
         self.setup_solicitacoes(
             escola_cemei,
