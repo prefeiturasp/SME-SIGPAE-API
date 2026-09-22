@@ -1,5 +1,6 @@
 import io
 import uuid
+from unittest.mock import patch
 
 import pytest
 
@@ -14,6 +15,7 @@ from src.produto.models import HomologacaoProduto, Produto
 from src.produto.tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
     gera_pdf_relatorio_produtos_homologados_async,
+    gera_pdf_relatorio_produto_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
@@ -312,5 +314,81 @@ def test_gera_pdf_relatorio_historico_produto_async(
     assert central_download.identificador == nome_arquivo
     assert central_download.arquivo is not None
     assert central_download.msg_erro == ""
+    assert central_download.visto is False
+    assert central_download.usuario == usuario
+
+
+@patch("src.produto.tasks.relatorio_produto_homologacao")
+def test_gera_pdf_relatorio_produto_async(
+    mock_relatorio_produto,
+    client_autenticado_vinculo_terceirizada_homologacao,
+):
+    _, homologacao_produto = client_autenticado_vinculo_terceirizada_homologacao
+    produto = homologacao_produto.produto
+    usuario = homologacao_produto.criado_por
+    nome_arquivo = f"relatorio_produto_{produto.id_externo}.pdf"
+    conteudo_arquivo = b"%PDF-1.4 relatorio do produto"
+    mock_relatorio_produto.return_value.content = conteudo_arquivo
+
+    resultado = gera_pdf_relatorio_produto_async.delay(
+        user=usuario.username,
+        nome_arquivo=nome_arquivo,
+        uuid_produto=str(produto.uuid),
+    )
+
+    assert resultado.status == "SUCCESS"
+    assert resultado.ready() is True
+    assert resultado.successful() is True
+    mock_relatorio_produto.assert_called_once_with(
+        request=None,
+        produto=produto,
+    )
+
+    central_download = CentralDeDownload.objects.get(
+        identificador=nome_arquivo
+    )
+    central_download.arquivo.open("rb")
+
+    assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert central_download.arquivo.read() == conteudo_arquivo
+    assert central_download.msg_erro == ""
+    assert central_download.visto is False
+    assert central_download.usuario == usuario
+
+
+@patch(
+    "src.produto.tasks.relatorio_produto_homologacao",
+    side_effect=Exception("Erro ao gerar o relatório"),
+)
+def test_gera_pdf_relatorio_produto_async_erro(
+    mock_relatorio_produto,
+    client_autenticado_vinculo_terceirizada_homologacao,
+):
+    _, homologacao_produto = client_autenticado_vinculo_terceirizada_homologacao
+    produto = homologacao_produto.produto
+    usuario = homologacao_produto.criado_por
+    nome_arquivo = f"relatorio_produto_{produto.id_externo}.pdf"
+
+    resultado = gera_pdf_relatorio_produto_async.delay(
+        user=usuario.username,
+        nome_arquivo=nome_arquivo,
+        uuid_produto=str(produto.uuid),
+    )
+
+    assert resultado.status == "SUCCESS"
+    assert resultado.ready() is True
+    assert resultado.successful() is True
+    mock_relatorio_produto.assert_called_once_with(
+        request=None,
+        produto=produto,
+    )
+
+    central_download = CentralDeDownload.objects.get(
+        identificador=nome_arquivo
+    )
+
+    assert central_download.status == CentralDeDownload.STATUS_ERRO
+    assert not central_download.arquivo
+    assert central_download.msg_erro == "Erro ao gerar o relatório"
     assert central_download.visto is False
     assert central_download.usuario == usuario
