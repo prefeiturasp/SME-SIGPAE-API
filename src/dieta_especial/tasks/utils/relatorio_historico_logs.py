@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    PayloadVariaveis,
 )
 from src.escola.models import DiretoriaRegional, PeriodoEscolar
 from src.escola.utils import faixa_to_string
@@ -116,7 +117,9 @@ def build_titulo(
     else:
         titulo += f"para as unidades da DRE {dre_nome}"
 
-    periodos_escolares = querydict_params.getlist("periodos_escolares_selecionadas[]")
+    periodos_escolares = querydict_params.getlist(
+        PayloadVariaveis.PERIODOS_ESCOLARES_SELECIONADAS.value
+    )
     if periodos_escolares:
         nomes_periodos = ", ".join(
             nome

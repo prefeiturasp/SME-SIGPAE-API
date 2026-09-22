@@ -2125,7 +2125,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf(
     response = client.get(
         "/produtos/relatorio-reclamacao/",
         {
-            "editais[]": [
+            constants.PayloadVariaveis.EDITAIS.value: [
                 "Edital de Pregão nº 78/sme/2022",
                 "Edital de Pregão nº 41/sme/2017",
                 "Edital de Pregão nº 78/sme/2016",
@@ -2134,9 +2134,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_produtos_relatorio_reclamacoes_pdf_edital_vazio(
@@ -2145,7 +2143,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_pdf_edital_vazio(
     client = client_autenticado_vinculo_terceirizada[0]
     response = client.get(
         "/produtos/relatorio-reclamacao/",
-        {"editais[]": []},
+        {constants.PayloadVariaveis.EDITAIS.value: []},
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2174,7 +2172,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_excel(
     response = client.get(
         "/produtos/relatorio-reclamacao-excel/",
         {
-            "editais[]": [
+            constants.PayloadVariaveis.EDITAIS.value: [
                 "Edital de Pregão nº 78/sme/2022",
                 "Edital de Pregão nº 41/sme/2017",
                 "Edital de Pregão nº 78/sme/2016",
@@ -2183,9 +2181,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_excel(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_produtos_relatorio_reclamacoes_excel_edital_vazio(
@@ -2194,7 +2190,7 @@ def test_url_endpoint_produtos_relatorio_reclamacoes_excel_edital_vazio(
     client = client_autenticado_vinculo_terceirizada[0]
     response = client.get(
         "/produtos/relatorio-reclamacao-excel/",
-        {"editais[]": []},
+        {constants.PayloadVariaveis.EDITAIS.value: []},
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -2266,7 +2262,9 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_perfil(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
@@ -2278,4 +2276,6 @@ def test_url_endpoint_vinculos_ativos_produto_edital_erro_permissao_vinculo(
         f"/homologacoes-produtos/{uuid_teste}/vinculos-ativos-produto-edital/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }

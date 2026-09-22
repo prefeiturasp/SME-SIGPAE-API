@@ -17,7 +17,10 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
+    NomesParaTesteDiretoriaRegional,
     StatusProcessamentoArquivo,
+    StringsDatasISO,
 )
 from src.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
@@ -115,7 +118,8 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -159,7 +163,8 @@ def escola_cemei(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -195,7 +200,8 @@ def escola_cemei_sem_alunos(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -217,7 +223,8 @@ def escola_emebs(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -733,7 +740,9 @@ def dia_suspensao_atividades(tipo_unidade_escolar):
 
 @pytest.fixture
 def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regular):
-    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    faixas_etarias = [
+        {"nome": FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value, "uuid": uuid.uuid4()}
+    ]
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
@@ -765,7 +774,9 @@ def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regula
 def dados_planilha_alunos_matriculados_cei_cemei(
     alunos_matriculados_periodo_escola_regular,
 ):
-    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    faixas_etarias = [
+        {"nome": FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value, "uuid": uuid.uuid4()}
+    ]
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
@@ -1357,7 +1368,8 @@ def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     escola = baker.make(
@@ -1436,7 +1448,7 @@ def grupos_da_dre(tipo_unidade_escolar):
 @pytest.fixture
 def dias_letivos_mock():
     return [
-        {"data": "2025-01-01T00:00:00", "ehLetivo": True},
+        {"data": StringsDatasISO.DATA_PADRAO_2025_01_01.value, "ehLetivo": True},
         {"data": "2025-01-02T00:00:00", "ehLetivo": False},
         {"data": "2025-01-03T00:00:00", "ehLetivo": True},
         {"data": "2025-01-04T00:00:00", "ehLetivo": True},

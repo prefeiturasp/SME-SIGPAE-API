@@ -14,3 +14,12 @@ Cypress.Commands.add(
 		})
 	},
 )
+
+Cypress.Commands.add('recuperar_senha_cadastro', (registroFuncionalOuCpf) => {
+	return cy.request({
+		method: 'GET',
+		url: `${Cypress.config('baseUrl')}api/cadastro/recuperar-senha/${encodeURIComponent(registroFuncionalOuCpf)}/`,
+		timeout: 60000,
+		failOnStatusCode: false,
+	})
+})

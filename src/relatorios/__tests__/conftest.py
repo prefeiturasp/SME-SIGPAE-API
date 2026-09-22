@@ -22,9 +22,9 @@ from src.dados_comuns.constants import (
     MODEL_PERFIL,
     MODEL_TERCEIRIZADA,
     MODEL_VINCULO,
-    NOME_ALUNO_PADRAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsInformacoesPessoais,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -206,7 +206,7 @@ def usuario_escola(escola):
 def aluno():
     return baker.make(
         Aluno,
-        nome=NOME_ALUNO_PADRAO,
+        nome=StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )

@@ -3,6 +3,8 @@ import os
 from django.db import models
 from multiselectfield import MultiSelectField
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ...dados_comuns.behaviors import (
     CriadoPor,
     Logs,
@@ -57,10 +59,16 @@ class NotificacaoOcorrenciasGuia(
     ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoNotificacaoOcorrencia
 ):
     numero = models.CharField(
-        "Número da Notificação", blank=True, max_length=50, unique=True
+        StringsVerboseNameModels.NUMERO_DA_NOTIFICACAO.value,
+        blank=True,
+        max_length=50,
+        unique=True,
     )
     processo_sei = models.CharField(
-        "Nº do Processo SEI", max_length=20, blank=True, default=""
+        StringsVerboseNameModels.NO_DO_PROCESSO_SEI.value,
+        max_length=20,
+        blank=True,
+        default="",
     )
     empresa = models.ForeignKey(
         Terceirizada,
@@ -85,8 +93,12 @@ class NotificacaoOcorrenciasGuia(
         return f"Notificacao: {self.numero} - {self.status}"
 
     class Meta:
-        verbose_name = "Notificação de Guias com Ocorrencias"
-        verbose_name_plural = "Notificações de Guias com Ocorrencias"
+        verbose_name = (
+            StringsVerboseNameModels.NOTIFICACAO_DE_GUIAS_COM_OCORRENCIAS.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.NOTIFICACOES_DE_GUIAS_COM_OCORRENCIAS.value
+        )
 
 
 class Guia(ModeloBase, FluxoGuiaRemessa):
@@ -99,7 +111,10 @@ class Guia(ModeloBase, FluxoGuiaRemessa):
     )
 
     numero_guia = models.CharField(
-        "Número da guia", blank=True, max_length=100, unique=True
+        StringsVerboseNameModels.NUMERO_DA_GUIA.value,
+        blank=True,
+        max_length=100,
+        unique=True,
     )
     solicitacao = models.ForeignKey(
         SolicitacaoRemessa,
@@ -108,21 +123,40 @@ class Guia(ModeloBase, FluxoGuiaRemessa):
         null=True,
         related_name="guias",
     )
-    data_entrega = models.DateField("Data da entrega")
-    codigo_unidade = models.CharField("Código da unidade", blank=True, max_length=10)
-    nome_unidade = models.CharField("Nome da unidade", blank=True, max_length=150)
+    data_entrega = models.DateField(StringsVerboseNameModels.DATA_DA_ENTREGA.value)
+    codigo_unidade = models.CharField(
+        StringsVerboseNameModels.CODIGO_DA_UNIDADE.value, blank=True, max_length=10
+    )
+    nome_unidade = models.CharField(
+        StringsVerboseNameModels.NOME_DA_UNIDADE.value, blank=True, max_length=150
+    )
     escola = models.ForeignKey(Escola, on_delete=models.SET_NULL, blank=True, null=True)
     endereco_unidade = models.CharField(
-        "Endereço da unidade", blank=True, max_length=300
+        StringsVerboseNameModels.ENDERECO_DA_UNIDADE.value, blank=True, max_length=300
     )
-    numero_unidade = models.CharField("Número da unidade", blank=True, max_length=10)
-    bairro_unidade = models.CharField("Bairro da unidade", blank=True, max_length=100)
-    cep_unidade = models.CharField("CEP da unidade", blank=True, max_length=20)
-    cidade_unidade = models.CharField("Cidade da unidade", blank=True, max_length=100)
-    estado_unidade = models.CharField("Estado da unidade", blank=True, max_length=2)
-    contato_unidade = models.CharField("Contato na unidade", blank=True, max_length=150)
+    numero_unidade = models.CharField(
+        StringsVerboseNameModels.NUMERO_DA_UNIDADE.value, blank=True, max_length=10
+    )
+    bairro_unidade = models.CharField(
+        StringsVerboseNameModels.BAIRRO_DA_UNIDADE.value, blank=True, max_length=100
+    )
+    cep_unidade = models.CharField(
+        StringsVerboseNameModels.CEP_DA_UNIDADE.value, blank=True, max_length=20
+    )
+    cidade_unidade = models.CharField(
+        StringsVerboseNameModels.CIDADE_DA_UNIDADE.value, blank=True, max_length=100
+    )
+    estado_unidade = models.CharField(
+        StringsVerboseNameModels.ESTADO_DA_UNIDADE.value, blank=True, max_length=2
+    )
+    contato_unidade = models.CharField(
+        StringsVerboseNameModels.CONTATO_NA_UNIDADE.value, blank=True, max_length=150
+    )
     telefone_unidade = models.CharField(
-        "Telefone da unidade", blank=True, default="", max_length=50
+        StringsVerboseNameModels.TELEFONE_DA_UNIDADE.value,
+        blank=True,
+        default="",
+        max_length=50,
     )
     situacao = models.CharField(choices=SITUACAO_CHOICES, max_length=10, default=ATIVA)
     notificacao = models.ForeignKey(
@@ -157,26 +191,36 @@ class Guia(ModeloBase, FluxoGuiaRemessa):
         return f"Guia: {self.numero_guia} - {self.status} da solicitação: {self.solicitacao.numero_solicitacao}"
 
     class Meta:
-        verbose_name = "Guia de Remessa"
-        verbose_name_plural = "Guias de Remessas"
+        verbose_name = StringsVerboseNameModels.GUIA_DE_REMESSA.value
+        verbose_name_plural = StringsVerboseNameModels.GUIAS_DE_REMESSAS.value
 
 
 class ConferenciaGuia(ModeloBase, CriadoPor):
     guia = models.ForeignKey(
         Guia, on_delete=models.PROTECT, related_name="conferencias"
     )
-    data_recebimento = models.DateField("Data de recebimento")
-    hora_recebimento = models.TimeField("Hora do recebimento")
-    nome_motorista = models.CharField("Nome do motorista", max_length=100)
-    placa_veiculo = models.CharField("Placa do veículo", max_length=7)
+    data_recebimento = models.DateField(
+        StringsVerboseNameModels.DATA_DE_RECEBIMENTO.value
+    )
+    hora_recebimento = models.TimeField(
+        StringsVerboseNameModels.HORA_DO_RECEBIMENTO.value
+    )
+    nome_motorista = models.CharField(
+        StringsVerboseNameModels.NOME_DO_MOTORISTA.value, max_length=100
+    )
+    placa_veiculo = models.CharField(
+        StringsVerboseNameModels.PLACA_DO_VEICULO.value, max_length=7
+    )
     eh_reposicao = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Conferência da guia {self.guia.numero_guia}"
 
     class Meta:
-        verbose_name = "Conferência da Guia de Remessa"
-        verbose_name_plural = "Conferência das Guias de Remessas"
+        verbose_name = StringsVerboseNameModels.CONFERENCIA_DA_GUIA_DE_REMESSA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.CONFERENCIA_DAS_GUIAS_DE_REMESSAS.value
+        )
 
 
 class ConferenciaIndividualPorAlimento(ModeloBase):
@@ -267,9 +311,15 @@ class ConferenciaIndividualPorAlimento(ModeloBase):
     tipo_embalagem = models.CharField(
         choices=TIPO_EMBALAGEM_CHOICES, max_length=15, default=FECHADA
     )
-    nome_alimento = models.CharField("Nome do alimento/produto", max_length=100)
-    qtd_recebido = models.PositiveSmallIntegerField("Quantidade recebido")
-    observacao = models.TextField("Observação", max_length=500, blank=True)
+    nome_alimento = models.CharField(
+        StringsVerboseNameModels.NOME_DO_ALIMENTO_PRODUTO.value, max_length=100
+    )
+    qtd_recebido = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.QUANTIDADE_RECEBIDO.value
+    )
+    observacao = models.TextField(
+        StringsVerboseNameModels.OBSERVACAO.value, max_length=500, blank=True
+    )
     status_alimento = models.CharField(
         choices=STATUS_ALIMENTO_CHOICES, max_length=40, default=STATUS_ALIMENTO_RECEBIDO
     )
@@ -289,8 +339,12 @@ class ConferenciaIndividualPorAlimento(ModeloBase):
             return None
 
     class Meta:
-        verbose_name = "Conferência Individual por Alimento"
-        verbose_name_plural = "Conferências Individuais por Alimentos"
+        verbose_name = (
+            StringsVerboseNameModels.CONFERENCIA_INDIVIDUAL_POR_ALIMENTO.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.CONFERENCIAS_INDIVIDUAIS_POR_ALIMENTOS.value
+        )
 
 
 class PrevisaoContratualNotificacao(ModeloBase):
@@ -308,19 +362,23 @@ class PrevisaoContratualNotificacao(ModeloBase):
         blank=True,
     )
     previsao_contratual = models.TextField(
-        "Previsão Contratual", max_length=500, blank=True
+        StringsVerboseNameModels.PREVISAO_CONTRATUAL.value, max_length=500, blank=True
     )
     justificativa_alteracao = models.TextField(
-        "Justificativa da Alteração", max_length=500, blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DA_ALTERACAO.value,
+        max_length=500,
+        blank=True,
     )
-    aprovado = models.BooleanField("Aprovado", default=False)
+    aprovado = models.BooleanField(
+        StringsVerboseNameModels.APROVADO.value, default=False
+    )
 
     def __str__(self):
         return f"Previsao: {self.motivo_ocorrencia}"
 
     class Meta:
-        verbose_name = "Previsão Contratual"
-        verbose_name_plural = "Previsões Contratuais"
+        verbose_name = StringsVerboseNameModels.PREVISAO_CONTRATUAL.value
+        verbose_name_plural = StringsVerboseNameModels.PREVISOES_CONTRATUAIS.value
 
 
 class InsucessoEntregaGuia(ModeloBase, CriadoPor):
@@ -345,18 +403,28 @@ class InsucessoEntregaGuia(ModeloBase, CriadoPor):
     )
 
     guia = models.ForeignKey(Guia, on_delete=models.PROTECT, related_name="insucessos")
-    hora_tentativa = models.TimeField("Hora da tentativa de entrega")
-    nome_motorista = models.CharField("Nome do motorista", max_length=100)
-    placa_veiculo = models.CharField("Placa do veículo", max_length=7)
-    justificativa = models.TextField("Justificativa", max_length=500)
+    hora_tentativa = models.TimeField(
+        StringsVerboseNameModels.HORA_DA_TENTATIVA_DE_ENTREGA.value
+    )
+    nome_motorista = models.CharField(
+        StringsVerboseNameModels.NOME_DO_MOTORISTA.value, max_length=100
+    )
+    placa_veiculo = models.CharField(
+        StringsVerboseNameModels.PLACA_DO_VEICULO.value, max_length=7
+    )
+    justificativa = models.TextField(
+        StringsVerboseNameModels.JUSTIFICATIVA.value, max_length=500
+    )
     arquivo = models.FileField(blank=True)
     motivo = models.CharField(
-        "Motivo do insucesso",
+        StringsVerboseNameModels.MOTIVO_DO_INSUCESSO.value,
         max_length=25,
         choices=MOTIVO_CHOICES,
         default=MOTIVO_UNIDADE_FECHADA,
     )
-    outro_motivo = models.TextField("Outro Motivo", max_length=100, default="")
+    outro_motivo = models.TextField(
+        StringsVerboseNameModels.OUTRO_MOTIVO.value, max_length=100, default=""
+    )
 
     def __str__(self):
         return f"Insucesso de entrega da guia {self.guia.numero_guia}"
@@ -370,5 +438,7 @@ class InsucessoEntregaGuia(ModeloBase, CriadoPor):
             return None
 
     class Meta:
-        verbose_name = "Insucesso de Entrega da Guia"
-        verbose_name_plural = "Insucessos de Entregas das Guias"
+        verbose_name = StringsVerboseNameModels.INSUCESSO_DE_ENTREGA_DA_GUIA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.INSUCESSOS_DE_ENTREGAS_DAS_GUIAS.value
+        )

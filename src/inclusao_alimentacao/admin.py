@@ -1,6 +1,7 @@
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import StringsSearchHelpText
 from src.inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEI,
     DiasMotivosInclusaoDeAlimentacaoCEMEI,
@@ -108,7 +109,9 @@ class SolicitacaoInclusaoAlimentacaoAdmin(admin.ModelAdmin):
     autocomplete_fields = ("escola",)
     readonly_fields = ("uuid", "criado_em")
     search_fields = ("=uuid", "escola__nome", "escola__codigo_eol")
-    search_help_text = "Pesquisa por: uuid, nome da escola, código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_select_related = ("escola", "escola__lote", "escola__diretoria_regional")
 
     @admin.display(description="Lote", ordering="escola__lote__nome")

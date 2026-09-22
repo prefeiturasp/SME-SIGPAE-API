@@ -8,6 +8,8 @@ nos cronogramas de entrega.
 from django.core.validators import MinLengthValidator
 from django.db import models
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ...dados_comuns.behaviors import ModeloBase
 
 
@@ -20,18 +22,37 @@ class Laboratorio(ModeloBase):
     laboratório dos documentos de recebimento.
     """
 
-    nome = models.CharField("Nome", max_length=150, unique=True)
-    cnpj = models.CharField(
-        "CNPJ", validators=[MinLengthValidator(14)], max_length=14, blank=True
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=150, unique=True
     )
-    cep = models.CharField("CEP", max_length=8, blank=True)
-    logradouro = models.CharField("Logradouro", max_length=150, blank=True)
-    numero = models.CharField("Número", max_length=10, blank=True)
-    complemento = models.CharField("Complemento", max_length=50, blank=True)
-    bairro = models.CharField("Bairro", max_length=150, blank=True)
-    cidade = models.CharField("Cidade", max_length=150, blank=True)
-    estado = models.CharField("Estado", max_length=150, blank=True)
-    credenciado = models.BooleanField("Está credenciado?", default=False)
+    cnpj = models.CharField(
+        StringsVerboseNameModels.CNPJ.value,
+        validators=[MinLengthValidator(14)],
+        max_length=14,
+        blank=True,
+    )
+    cep = models.CharField(StringsVerboseNameModels.CEP.value, max_length=8, blank=True)
+    logradouro = models.CharField(
+        StringsVerboseNameModels.LOGRADOURO.value, max_length=150, blank=True
+    )
+    numero = models.CharField(
+        StringsVerboseNameModels.NUMERO.value, max_length=10, blank=True
+    )
+    complemento = models.CharField(
+        StringsVerboseNameModels.COMPLEMENTO.value, max_length=50, blank=True
+    )
+    bairro = models.CharField(
+        StringsVerboseNameModels.BAIRRO.value, max_length=150, blank=True
+    )
+    cidade = models.CharField(
+        StringsVerboseNameModels.CIDADE.value, max_length=150, blank=True
+    )
+    estado = models.CharField(
+        StringsVerboseNameModels.ESTADO.value, max_length=150, blank=True
+    )
+    credenciado = models.BooleanField(
+        StringsVerboseNameModels.ESTA_CREDENCIADO.value, default=False
+    )
 
     contatos = models.ManyToManyField("dados_comuns.Contato", blank=True)
 
@@ -40,8 +61,8 @@ class Laboratorio(ModeloBase):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = "Laboratório"
-        verbose_name_plural = "Laboratórios"
+        verbose_name = StringsVerboseNameModels.LABORATORIO.value
+        verbose_name_plural = StringsVerboseNameModels.LABORATORIOS.value
 
 
 class TipoEmbalagemQld(ModeloBase):
@@ -53,13 +74,19 @@ class TipoEmbalagemQld(ModeloBase):
     nos serializers de criação).
     """
 
-    nome = models.CharField("Nome", max_length=150, unique=True)
-    abreviacao = models.CharField("Abreviação", max_length=15)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=150, unique=True
+    )
+    abreviacao = models.CharField(
+        StringsVerboseNameModels.ABREVIACAO.value, max_length=15
+    )
 
     def __str__(self):
         """Retorna o nome do tipo de embalagem."""
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = "Tipo de Embalagem (Qualidade)"
-        verbose_name_plural = "Tipos de Embalagens (Qualidade)"
+        verbose_name = StringsVerboseNameModels.TIPO_DE_EMBALAGEM_QUALIDADE.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.TIPOS_DE_EMBALAGENS_QUALIDADE.value
+        )

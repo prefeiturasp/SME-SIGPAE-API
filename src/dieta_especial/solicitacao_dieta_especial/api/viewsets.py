@@ -28,7 +28,12 @@ from xworkflows import InvalidTransitionError
 
 from src.dados_comuns import constants
 from src.dados_comuns.api.paginations import HistoricoDietasPagination
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    PayloadVariaveis,
+    StringsValidationErrors,
+)
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.permissions import (
@@ -328,7 +333,7 @@ class SolicitacaoDietaEspecialViewSet(
             nome_aluno = request.query_params.get("nome_aluno", False)
             if not codigo_eol_escola:
                 raise ValidationError(
-                    "`codigo_eol_escola` como query_param é obrigatório"
+                    StringsValidationErrors.CODIGO_EOL_ESCOLA_OBRIGATORIO.value
                 )
             if not nome_aluno:
                 raise ValidationError("`nome_aluno` como query_param é obrigatório")
@@ -1029,7 +1034,7 @@ class SolicitacaoDietaEspecialViewSet(
                 ids_dietas=ids_dietas,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as error:
@@ -1061,7 +1066,9 @@ class SolicitacaoDietaEspecialViewSet(
     def filtrar_queryset_relatorio_dieta_especial(self, request, eh_relatorio=False):
         query_set = self.filter_queryset(self.get_queryset())
 
-        lotes_filtro = request.query_params.getlist("lotes_selecionados[]", None)
+        lotes_filtro = request.query_params.getlist(
+            PayloadVariaveis.LOTES_SELECIONADOS.value, None
+        )
         instituicao = request.user.vinculo_atual.instituicao
         if not lotes_filtro and isinstance(instituicao, DiretoriaRegional):
             lotes_list = list(instituicao.lotes.all().values_list("uuid"))
@@ -1073,21 +1080,21 @@ class SolicitacaoDietaEspecialViewSet(
         )
         map_filtros = {
             "protocolo_padrao__uuid__in": request.query_params.getlist(
-                "protocolos_padrao_selecionados[]", None
+                PayloadVariaveis.PROTOCOLOS_PADRAO_SELECIONADOS.value, None
             ),
             "alergias_intolerancias__id__in": request.query_params.getlist(
-                "alergias_intolerancias_selecionadas[]", None
+                PayloadVariaveis.ALERGIAS_INTOLERANCIAS_SELECIONADAS.value, None
             ),
             "classificacao__id__in": request.query_params.getlist(
-                "classificacoes_selecionadas[]", None
+                PayloadVariaveis.CLASSIFICACOES_SELECIONADAS.value, None
             ),
             "escola_destino__lote__uuid__in": lotes_filtro,
             campo_escola_destino: request.query_params.getlist(
-                "unidades_educacionais_selecionadas[]", None
+                PayloadVariaveis.UNIDADES_EDUCACIONAIS_SELECIONADAS.value, None
             ),
             "escola_destino__codigo_eol": request.query_params.get("codigo_eol"),
             "escola_destino__tipo_unidade__uuid__in": request.query_params.getlist(
-                "tipos_unidades_selecionadas[]", None
+                PayloadVariaveis.TIPOS_UNIDADES_SELECIONADAS.value, None
             ),
         }
 
@@ -1280,9 +1287,13 @@ class SolicitacaoDietaEspecialViewSet(
         data = request.query_params
         user = request.user.get_username()
         ids_dietas = list(query_set.values_list("id", flat=True))
-        lotes = data.getlist("lotes_selecionados[]", None)
-        classificacoes = data.getlist("classificacoes_selecionadas[]", None)
-        protocolos_padrao = data.getlist("protocolos_padrao_selecionados[]", None)
+        lotes = data.getlist(PayloadVariaveis.LOTES_SELECIONADOS.value, None)
+        classificacoes = data.getlist(
+            PayloadVariaveis.CLASSIFICACOES_SELECIONADAS.value, None
+        )
+        protocolos_padrao = data.getlist(
+            PayloadVariaveis.PROTOCOLOS_PADRAO_SELECIONADOS.value, None
+        )
         gera_xlsx_relatorio_dietas_especiais_terceirizadas_async.delay(
             user=user,
             nome_arquivo="relatorio_dietas_especiais.xlsx",
@@ -1293,7 +1304,7 @@ class SolicitacaoDietaEspecialViewSet(
             protocolos_padrao=protocolos_padrao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1361,10 +1372,18 @@ class SolicitacaoDietaEspecialViewSet(
         query_set = self.filtrar_queryset_relatorio_dieta_especial(request, True)
         ids_dietas = list(query_set.values_list("id", flat=True))
         filtros = self.build_texto(
-            request.query_params.getlist("lotes_selecionados[]", None),
-            request.query_params.getlist("classificacoes_selecionadas[]", None),
-            request.query_params.getlist("protocolos_padrao_selecionados[]", None),
-            request.query_params.getlist("alergias_intolerancias_selecionadas[]", None),
+            request.query_params.getlist(
+                PayloadVariaveis.LOTES_SELECIONADOS.value, None
+            ),
+            request.query_params.getlist(
+                PayloadVariaveis.CLASSIFICACOES_SELECIONADAS.value, None
+            ),
+            request.query_params.getlist(
+                PayloadVariaveis.PROTOCOLOS_PADRAO_SELECIONADOS.value, None
+            ),
+            request.query_params.getlist(
+                PayloadVariaveis.ALERGIAS_INTOLERANCIAS_SELECIONADAS.value, None
+            ),
             request.query_params.get("data_cancelamento_inicial", None),
             request.query_params.get("data_cancelamento_final", None),
         )
@@ -1376,7 +1395,7 @@ class SolicitacaoDietaEspecialViewSet(
             filtros=filtros,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -1422,7 +1441,7 @@ class SolicitacaoDietaEspecialViewSet(
                 data=json.dumps(data),
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -1449,7 +1468,7 @@ class SolicitacaoDietaEspecialViewSet(
                 data=json.dumps(data),
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -1495,7 +1514,7 @@ class SolicitacaoDietaEspecialViewSet(
                 params=request.data,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -1516,7 +1535,7 @@ class SolicitacaoDietaEspecialViewSet(
                 params=request.data,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:

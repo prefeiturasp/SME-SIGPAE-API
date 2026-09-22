@@ -3,6 +3,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.pre_recebimento.base.models import UnidadeMedida
 
 from ...dados_comuns.behaviors import (
@@ -37,29 +38,46 @@ class FabricanteFichaTecnica(ModeloBase):
         null=True,
     )
     cnpj = models.CharField(
-        "CNPJ",
+        StringsVerboseNameModels.CNPJ.value,
         validators=[MinLengthValidator(14)],
         max_length=14,
         blank=True,
     )
-    cep = models.CharField("CEP", max_length=8, blank=True)
-    endereco = models.CharField("Endereço", max_length=160, blank=True)
-    numero = models.CharField("Número", max_length=10, blank=True)
-    complemento = models.CharField("Complemento", max_length=250, blank=True)
-    bairro = models.CharField("Bairro", max_length=150, blank=True)
-    cidade = models.CharField("Cidade", max_length=150, blank=True)
-    estado = models.CharField("Estado", max_length=150, blank=True)
-    email = models.EmailField("E-mail", blank=True)
+    cep = models.CharField(StringsVerboseNameModels.CEP.value, max_length=8, blank=True)
+    endereco = models.CharField(
+        StringsVerboseNameModels.ENDERECO_2.value, max_length=160, blank=True
+    )
+    numero = models.CharField(
+        StringsVerboseNameModels.NUMERO.value, max_length=10, blank=True
+    )
+    complemento = models.CharField(
+        StringsVerboseNameModels.COMPLEMENTO.value, max_length=250, blank=True
+    )
+    bairro = models.CharField(
+        StringsVerboseNameModels.BAIRRO.value, max_length=150, blank=True
+    )
+    cidade = models.CharField(
+        StringsVerboseNameModels.CIDADE.value, max_length=150, blank=True
+    )
+    estado = models.CharField(
+        StringsVerboseNameModels.ESTADO.value, max_length=150, blank=True
+    )
+    email = models.EmailField(StringsVerboseNameModels.E_MAIL.value, blank=True)
     telefone = models.CharField(
-        "Telefone", max_length=13, validators=[MinLengthValidator(8)], blank=True
+        StringsVerboseNameModels.TELEFONE.value,
+        max_length=13,
+        validators=[MinLengthValidator(8)],
+        blank=True,
     )
 
     def __str__(self):
         return f"Ficha Técnica - {self.fabricante.nome if self.fabricante else 'Fabricante'}"
 
     class Meta:
-        verbose_name = "Fabricante da Ficha Técnica"
-        verbose_name_plural = "Fabricantes das Fichas Técnicas"
+        verbose_name = StringsVerboseNameModels.FABRICANTE_DA_FICHA_TECNICA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.FABRICANTES_DAS_FICHAS_TECNICAS.value
+        )
 
 
 class FichaTecnicaDoProduto(
@@ -101,7 +119,10 @@ class FichaTecnicaDoProduto(
     )
 
     numero = models.CharField(
-        "Número da Ficha Técnica", blank=True, max_length=250, unique=True
+        StringsVerboseNameModels.NUMERO_DA_FICHA_TECNICA.value,
+        blank=True,
+        max_length=250,
+        unique=True,
     )
     produto = models.ForeignKey(
         NomeDeProdutoEdital,
@@ -111,19 +132,21 @@ class FichaTecnicaDoProduto(
     marca = models.ForeignKey(Marca, on_delete=models.PROTECT, blank=True, null=True)
     categoria = models.CharField(choices=CATEGORIA_CHOICES, max_length=14, blank=True)
     tipo_entrega = models.CharField(
-        "Tipo de Entrega",
+        StringsVerboseNameModels.TIPO_DE_ENTREGA.value,
         max_length=20,
         choices=TIPO_ENTREGA_CHOICES,
         default=ARMAZEM,
     )
     programa = models.CharField(
-        "Programa",
+        StringsVerboseNameModels.PROGRAMA.value,
         max_length=20,
         choices=PROGRAMA_CHOICES,
         default=ALIMENTACAO_ESCOLAR,
     )
     pregao_chamada_publica = models.CharField(
-        "Nº do Pregão Eletrônico", max_length=100, blank=True
+        StringsVerboseNameModels.NO_DO_PREGAO_ELETRONICO.value,
+        max_length=100,
+        blank=True,
     )
     empresa = models.ForeignKey(
         Terceirizada,
@@ -145,28 +168,48 @@ class FichaTecnicaDoProduto(
         blank=True,
         null=True,
         related_name="fichas_tecnicas_como_envasador_distribuidor",
-        verbose_name="Envasador/Distribuidor",
+        verbose_name=StringsVerboseNameModels.ENVASADOR_DISTRIBUIDOR.value,
     )
-    prazo_validade = models.CharField("Prazo de Validade", max_length=150, blank=True)
+    prazo_validade = models.CharField(
+        StringsVerboseNameModels.PRAZO_DE_VALIDADE.value, max_length=150, blank=True
+    )
     numero_registro = models.CharField(
-        "Nº do Registro do Rótulo", max_length=150, blank=True
+        StringsVerboseNameModels.NO_DO_REGISTRO_DO_ROTULO.value,
+        max_length=150,
+        blank=True,
     )
-    organico = models.BooleanField("É orgânico?", null=True)
+    organico = models.BooleanField(StringsVerboseNameModels.E_ORGANICO.value, null=True)
     mecanismo_controle = models.CharField(
         choices=MECANISMO_CONTROLE_CHOICES, max_length=12, blank=True
     )
     especie_variedade = models.CharField(
-        "Espécie ou Variedade Cultivada", max_length=150, blank=True
+        StringsVerboseNameModels.ESPECIE_OU_VARIEDADE_CULTIVADA.value,
+        max_length=150,
+        blank=True,
     )
-    componentes_produto = models.TextField("Componentes do Produto", blank=True)
-    alergenicos = models.BooleanField("Pode conter alergênicos?", null=True)
+    componentes_produto = models.TextField(
+        StringsVerboseNameModels.COMPONENTES_DO_PRODUTO.value, blank=True
+    )
+    alergenicos = models.BooleanField(
+        StringsVerboseNameModels.PODE_CONTER_ALERGENICOS.value, null=True
+    )
     ingredientes_alergenicos = models.CharField(
-        "Ingredientes/aditivos alergênicos", max_length=150, blank=True
+        StringsVerboseNameModels.INGREDIENTES_ADITIVOS_ALERGENICOS.value,
+        max_length=150,
+        blank=True,
     )
-    gluten = models.BooleanField("Contém glúten?", null=True)
-    lactose = models.BooleanField("Contém lactose?", null=True)
-    lactose_detalhe = models.CharField("Detalhar Lactose", max_length=150, blank=True)
-    porcao = models.CharField("Porção", max_length=100, blank=True, null=True)
+    gluten = models.BooleanField(
+        StringsVerboseNameModels.CONTEM_GLUTEN.value, null=True
+    )
+    lactose = models.BooleanField(
+        StringsVerboseNameModels.CONTEM_LACTOSE.value, null=True
+    )
+    lactose_detalhe = models.CharField(
+        StringsVerboseNameModels.DETALHAR_LACTOSE.value, max_length=150, blank=True
+    )
+    porcao = models.CharField(
+        StringsVerboseNameModels.PORCAO.value, max_length=100, blank=True, null=True
+    )
     unidade_medida_porcao = models.ForeignKey(
         UnidadeMedida,
         on_delete=models.PROTECT,
@@ -175,50 +218,58 @@ class FichaTecnicaDoProduto(
         related_name="fichas_tecnicas_unidade_porcao",
     )
     valor_unidade_caseira = models.CharField(
-        "Unidade Caseira",
+        StringsVerboseNameModels.UNIDADE_CASEIRA.value,
         max_length=100,
         blank=True,
         null=True,
     )
     unidade_medida_caseira = models.CharField(
-        "Unidade de Medida Caseira",
+        StringsVerboseNameModels.UNIDADE_DE_MEDIDA_CASEIRA.value,
         max_length=100,
         blank=True,
     )
     prazo_validade_descongelamento = models.CharField(
-        "Prazo de Validade Descongelamento",
+        StringsVerboseNameModels.PRAZO_DE_VALIDADE_DESCONGELAMENTO.value,
         help_text="Prazo de Validade após o descongelamento e mantido sob refrigeração",
         max_length=250,
         blank=True,
     )
     condicoes_de_conservacao = models.TextField(
-        "Condições de conservação",
+        StringsVerboseNameModels.CONDICOES_DE_CONSERVACAO.value,
         help_text="Condições de conservação e Prazo máximo para consumo após a abertura da embalagem primária",
         blank=True,
     )
     temperatura_congelamento = models.FloatField(
-        "Temperatura de Congelamento do Produto",
+        StringsVerboseNameModels.TEMPERATURA_DE_CONGELAMENTO_DO_PRODUTO.value,
         blank=True,
         null=True,
     )
     temperatura_veiculo = models.FloatField(
-        "Temperatura Interna do Veículo para Transporte",
+        StringsVerboseNameModels.TEMPERATURA_INTERNA_DO_VEICULO_PARA_TRANSPORTE.value,
         blank=True,
         null=True,
     )
-    condicoes_de_transporte = models.TextField("Condições de Transporte", blank=True)
-    embalagem_primaria = models.TextField("Embalagem Primária", blank=True)
-    embalagem_secundaria = models.TextField("Embalagem Secundária", blank=True)
+    condicoes_de_transporte = models.TextField(
+        StringsVerboseNameModels.CONDICOES_DE_TRANSPORTE.value, blank=True
+    )
+    embalagem_primaria = models.TextField(
+        StringsVerboseNameModels.EMBALAGEM_PRIMARIA.value, blank=True
+    )
+    embalagem_secundaria = models.TextField(
+        StringsVerboseNameModels.EMBALAGEM_SECUNDARIA.value, blank=True
+    )
     embalagens_de_acordo_com_anexo = models.BooleanField(
-        "Embalagens de Acordo com Anexo?",
+        StringsVerboseNameModels.EMBALAGENS_DE_ACORDO_COM_ANEXO.value,
         help_text="Declaro que as embalagens primária e secundária em que serão entregues o produto estarão de acordo "
         "com as especificações do Anexo I do Edital",
         null=True,
     )
     material_embalagem_primaria = models.TextField(
-        "Material da Embalagem Primária", blank=True
+        StringsVerboseNameModels.MATERIAL_DA_EMBALAGEM_PRIMARIA.value, blank=True
     )
-    produto_eh_liquido = models.BooleanField("O produto é líquido?", null=True)
+    produto_eh_liquido = models.BooleanField(
+        StringsVerboseNameModels.O_PRODUTO_E_LIQUIDO.value, null=True
+    )
     volume_embalagem_primaria = models.FloatField(
         blank=True, null=True, help_text="Volume do Produto na Embalagem Primária"
     )
@@ -269,20 +320,27 @@ class FichaTecnicaDoProduto(
     )
     variacao_percentual = models.FloatField(blank=True, null=True)
     sistema_vedacao_embalagem_secundaria = models.TextField(
-        "Sistema de Vedação da Embalagem Secundária", blank=True
+        StringsVerboseNameModels.SISTEMA_DE_VEDACAO_DA_EMBALAGEM_SECUNDARIA.value,
+        blank=True,
     )
     rotulo_legivel = models.BooleanField(
-        "Rotulo Legível?",
+        StringsVerboseNameModels.ROTULO_LEGIVEL.value,
         help_text="Declaro que no rótulo da embalagem primária e, se for o caso, da secundária, constarão, de forma "
         "legível e indelével, todas as informações solicitadas do Anexo I do Edital",
         null=True,
     )
     nome_responsavel_tecnico = models.CharField(
-        "Nome completo do Responsável Técnico", max_length=250, blank=True
+        StringsVerboseNameModels.NOME_COMPLETO_DO_RESPONSAVEL_TECNICO.value,
+        max_length=250,
+        blank=True,
     )
-    habilitacao = models.CharField("Habilitação", max_length=250, blank=True)
+    habilitacao = models.CharField(
+        StringsVerboseNameModels.HABILITACAO.value, max_length=250, blank=True
+    )
     numero_registro_orgao = models.CharField(
-        "Nº do Registro em Órgão Competente", max_length=250, blank=True
+        StringsVerboseNameModels.NO_DO_REGISTRO_EM_ORGAO_COMPETENTE.value,
+        max_length=250,
+        blank=True,
     )
     arquivo = models.FileField(
         upload_to="fichas_tecnicas",
@@ -292,15 +350,21 @@ class FichaTecnicaDoProduto(
         ],
         null=True,
     )
-    modo_de_preparo = models.TextField("Modo de Preparo do Produto", blank=True)
-    informacoes_adicionais = models.TextField("Informações Adicionais", blank=True)
+    modo_de_preparo = models.TextField(
+        StringsVerboseNameModels.MODO_DE_PREPARO_DO_PRODUTO.value, blank=True
+    )
+    informacoes_adicionais = models.TextField(
+        StringsVerboseNameModels.INFORMACOES_ADICIONAIS.value, blank=True
+    )
 
     def __str__(self):
         return f"{self.numero} - {self.produto.nome}" if self.produto else self.numero
 
     class Meta:
-        verbose_name = "Ficha Técnica do Produto"
-        verbose_name_plural = "Fichas Técnicas dos Produtos"
+        verbose_name = StringsVerboseNameModels.FICHA_TECNICA_DO_PRODUTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.FICHAS_TECNICAS_DOS_PRODUTOS.value
+        )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
@@ -354,8 +418,12 @@ class InformacoesNutricionaisFichaTecnica(TemChaveExterna):
         )
 
     class Meta:
-        verbose_name = "Informação Nutricional da Ficha Técnica"
-        verbose_name_plural = "Informações Nutricionais da Ficha Técnica"
+        verbose_name = (
+            StringsVerboseNameModels.INFORMACAO_NUTRICIONAL_DA_FICHA_TECNICA.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.INFORMACOES_NUTRICIONAIS_DA_FICHA_TECNICA.value
+        )
 
 
 class AnaliseFichaTecnica(ModeloBase, CriadoPor):
@@ -440,5 +508,7 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
         return True
 
     class Meta:
-        verbose_name = "Análise da Ficha Técnica"
-        verbose_name_plural = "Análises das Fichas Técnicas"
+        verbose_name = StringsVerboseNameModels.ANALISE_DA_FICHA_TECNICA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.ANALISES_DAS_FICHAS_TECNICAS.value
+        )

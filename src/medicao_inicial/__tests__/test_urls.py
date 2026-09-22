@@ -17,8 +17,10 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MENSAGEM_PERMISSAO_NEGADA,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
+    PayloadVariaveis,
+    StringsValidationErrors,
 )
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
@@ -398,7 +400,9 @@ def test_url_endpoint_solicitacao_medicao_inicial(
     assert response.json()["logs"][0]["usuario"]["email"] != usuario_admin.email
     data_update = {
         "escola": str(escola.uuid),
-        "tipo_contagem_alimentacoes[]": [tipo_contagem_alimentacao.uuid],
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: [
+            tipo_contagem_alimentacao.uuid
+        ],
         "com_ocorrencias": True,
     }
     response = client_autenticado_da_escola.patch(
@@ -432,7 +436,7 @@ def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     json = response.json()
-    assert json == {"detail": MENSAGEM_PERMISSAO_NEGADA}
+    assert json == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
 
 
 def test_url_endpoint_valores_medicao_com_grupo(
@@ -724,9 +728,7 @@ def test_url_endpoint_historico_ocorrencias_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_relatorio_pdf(
@@ -739,9 +741,7 @@ def test_url_endpoint_relatorio_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_relatorio_unificado_pdf_sem_mes_referencia(
@@ -1625,7 +1625,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_teste_salvar_logs.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1742,7 +1742,7 @@ def test_finaliza_medicao_inicial_salva_logs_cei(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_teste_salvar_logs_cei.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1810,7 +1810,7 @@ def test_finaliza_medicao_inicial_salva_logs_ceu_gestao(
         "escola": str(
             solicitacao_medicao_inicial_varios_valores_ceu_gestao.escola.uuid
         ),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1840,7 +1840,7 @@ def test_finaliza_medicao_inicial_salva_logs_emebs(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_varios_valores_emebs.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -2226,7 +2226,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
 
     url_params = {
         "mes_ano": f"{mes}_{ano}",
-        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+        PayloadVariaveis.ESCOLA_UUID.value: [str(escola.uuid), str(escola2.uuid)],
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
@@ -2445,7 +2445,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_calcula_apenas_pagina_solicit
 
     url_params = {
         "mes_ano": f"{mes}_{ano}",
-        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+        PayloadVariaveis.ESCOLA_UUID.value: [str(escola.uuid), str(escola2.uuid)],
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
@@ -3222,7 +3222,7 @@ def test_codae_solicita_correcao_sem_lancamento_usuario_sem_permissao(
         data=json.dumps(solicita_correcao),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
 
 
 def test_codae_solicita_correcao_sem_lancamento_solicitacao_nao_existe(
@@ -3271,7 +3271,9 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_nao_existe(
             {"nome": "Responsável 1", "rf": "123456"},
             {"nome": "Responsável 2", "rf": "789012"},
         ],
-        "tipos_contagem_alimentacao[]": str(tipo_contagem_alimentacao.uuid),
+        PayloadVariaveis.TIPOS_CONTAGEM_ALIMENTACAO.value: str(
+            tipo_contagem_alimentacao.uuid
+        ),
     }
     response = client_autenticado_da_escola.patch(
         f"/medicao-inicial/solicitacao-medicao-inicial/5555/informacoes-basicas/",
@@ -3323,7 +3325,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_usuario_nao_autrizado
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
 
 
 def test_url_endpoint_atualiza_informacoes_basicas(
@@ -3512,32 +3514,32 @@ def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs
         (
             "client_autenticado_da_escola",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_cei",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_cemei",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_ceu_gestao",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_emebs",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_adm_da_escola",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_codae_medicao",
@@ -3950,9 +3952,7 @@ def test_url_endpoint_historico_correcoes_medicao_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_historico_correcoes_medicao_pdf_sem_historico(
@@ -3991,9 +3991,7 @@ def test_endpoint_exportar_pdf_relatorio_financeiro_com_sucesso(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.data == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 @pytest.mark.django_db

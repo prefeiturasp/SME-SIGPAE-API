@@ -5,6 +5,8 @@ from django.db import models
 from django.db.models import Q
 from django.db.utils import IntegrityError
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
 from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
@@ -40,16 +42,21 @@ from .managers import EditalManager
 
 class Edital(TemChaveExterna):
     numero = models.CharField(
-        "Edital No", max_length=100, help_text="Número do Edital", unique=True
+        StringsVerboseNameModels.EDITAL_NO.value,
+        max_length=100,
+        help_text="Número do Edital",
+        unique=True,
     )
-    tipo_contratacao = models.CharField("Tipo de contratação", max_length=100)
+    tipo_contratacao = models.CharField(
+        StringsVerboseNameModels.TIPO_DE_CONTRATACAO.value, max_length=100
+    )
     processo = models.CharField(
-        "Processo Administrativo",
+        StringsVerboseNameModels.PROCESSO_ADMINISTRATIVO.value,
         max_length=100,
         help_text="Processo administrativo do edital",
     )
-    objeto = models.TextField("objeto resumido")
-    eh_imr = models.BooleanField("É IMR?", default=False)
+    objeto = models.TextField(StringsVerboseNameModels.OBJETO_RESUMIDO.value)
+    eh_imr = models.BooleanField(StringsVerboseNameModels.E_IMR.value, default=False)
 
     objects = EditalManager()
 
@@ -57,15 +64,17 @@ class Edital(TemChaveExterna):
         return f"{self.numero}"
 
     class Meta:
-        verbose_name = "Edital"
-        verbose_name_plural = "Editais"
+        verbose_name = StringsVerboseNameModels.EDITAL.value
+        verbose_name_plural = StringsVerboseNameModels.EDITAIS.value
 
 
 # TODO: remover esse modelo (deprecado)
 class Nutricionista(TemChaveExterna, Nomeavel):
     # TODO: verificar a diferença dessa pra nutricionista da CODAE
 
-    crn_numero = models.CharField("Nutricionista crn", max_length=160, blank=True)
+    crn_numero = models.CharField(
+        StringsVerboseNameModels.NUTRICIONISTA_CRN.value, max_length=160, blank=True
+    )
     terceirizada = models.ForeignKey(
         "Terceirizada",
         on_delete=models.CASCADE,
@@ -74,7 +83,8 @@ class Nutricionista(TemChaveExterna, Nomeavel):
         null=True,
     )
     admin = models.BooleanField(
-        "É Administrador por parte das Terceirizadas?", default=False
+        StringsVerboseNameModels.E_ADMINISTRADOR_POR_PARTE_DAS_TERCEIRIZADAS.value,
+        default=False,
     )
     # TODO: retornar aqui quando tiver um perfil definido
     contatos = models.ManyToManyField("dados_comuns.Contato", blank=True)
@@ -83,8 +93,8 @@ class Nutricionista(TemChaveExterna, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = "Nutricionista"
-        verbose_name_plural = "Nutricionistas"
+        verbose_name = StringsVerboseNameModels.NUTRICIONISTA.value
+        verbose_name_plural = StringsVerboseNameModels.NUTRICIONISTAS.value
         ordering = ["-admin"]
 
 
@@ -139,28 +149,56 @@ class Terceirizada(
         (TIPO_ALIMENTO_SECOS, TIPO_ALIMENTO_NOMES[TIPO_ALIMENTO_SECOS]),
     )
 
-    nome_fantasia = models.CharField("Nome fantasia", max_length=160, blank=True)
-    razao_social = models.CharField("Razao social", max_length=160, blank=True)
-    cnpj = models.CharField("CNPJ", validators=[MinLengthValidator(14)], max_length=14)
+    nome_fantasia = models.CharField(
+        StringsVerboseNameModels.NOME_FANTASIA.value, max_length=160, blank=True
+    )
+    razao_social = models.CharField(
+        StringsVerboseNameModels.RAZAO_SOCIAL.value, max_length=160, blank=True
+    )
+    cnpj = models.CharField(
+        StringsVerboseNameModels.CNPJ.value,
+        validators=[MinLengthValidator(14)],
+        max_length=14,
+    )
     representante_legal = models.CharField(
-        "Representante legal", max_length=160, blank=True
+        StringsVerboseNameModels.REPRESENTANTE_LEGAL.value, max_length=160, blank=True
     )
     representante_telefone = models.CharField(
-        "Representante contato (telefone)", max_length=160, blank=True
+        StringsVerboseNameModels.REPRESENTANTE_CONTATO_TELEFONE.value,
+        max_length=160,
+        blank=True,
     )
     representante_email = models.CharField(
-        "Representante contato (email)", max_length=160, blank=True
+        StringsVerboseNameModels.REPRESENTANTE_CONTATO_EMAIL.value,
+        max_length=160,
+        blank=True,
     )
-    endereco = models.CharField("Endereco", max_length=160, blank=True)
-    cep = models.CharField("CEP", max_length=8, blank=True)
-    bairro = models.CharField("Bairro", max_length=150, blank=True)
-    cidade = models.CharField("Cidade", max_length=150, blank=True)
-    estado = models.CharField("Estado", max_length=150, blank=True)
-    numero = models.CharField("Número", max_length=10, blank=True)
-    complemento = models.CharField("Complemento", max_length=50, blank=True)
-    responsavel_nome = models.CharField("Responsável", max_length=160, blank=True)
+    endereco = models.CharField(
+        StringsVerboseNameModels.ENDERECO.value, max_length=160, blank=True
+    )
+    cep = models.CharField(StringsVerboseNameModels.CEP.value, max_length=8, blank=True)
+    bairro = models.CharField(
+        StringsVerboseNameModels.BAIRRO.value, max_length=150, blank=True
+    )
+    cidade = models.CharField(
+        StringsVerboseNameModels.CIDADE.value, max_length=150, blank=True
+    )
+    estado = models.CharField(
+        StringsVerboseNameModels.ESTADO.value, max_length=150, blank=True
+    )
+    numero = models.CharField(
+        StringsVerboseNameModels.NUMERO.value, max_length=10, blank=True
+    )
+    complemento = models.CharField(
+        StringsVerboseNameModels.COMPLEMENTO.value, max_length=50, blank=True
+    )
+    responsavel_nome = models.CharField(
+        StringsVerboseNameModels.RESPONSAVEL.value, max_length=160, blank=True
+    )
     responsavel_email = models.CharField(
-        "Responsável contato (email)", max_length=160, blank=True
+        StringsVerboseNameModels.RESPONSAVEL_CONTATO_EMAIL.value,
+        max_length=160,
+        blank=True,
     )
     responsavel_cpf = models.CharField(
         max_length=11,
@@ -170,9 +208,13 @@ class Terceirizada(
         validators=[MinLengthValidator(11)],
     )
     responsavel_telefone = models.CharField(
-        "Responsável contato (telefone)", max_length=160, blank=True
+        StringsVerboseNameModels.RESPONSAVEL_CONTATO_TELEFONE.value,
+        max_length=160,
+        blank=True,
     )
-    responsavel_cargo = models.CharField("Responsável cargo", max_length=50, blank=True)
+    responsavel_cargo = models.CharField(
+        StringsVerboseNameModels.RESPONSAVEL_CARGO.value, max_length=50, blank=True
+    )
     tipo_empresa = models.CharField(
         choices=TIPO_EMPRESA_CHOICES, max_length=25, default=TERCEIRIZADA
     )
@@ -556,8 +598,8 @@ class Terceirizada(
         return f"{self.nome_fantasia}"
 
     class Meta:
-        verbose_name = "Terceirizada"
-        verbose_name_plural = "Terceirizadas"
+        verbose_name = StringsVerboseNameModels.TERCEIRIZADA.value
+        verbose_name_plural = StringsVerboseNameModels.TERCEIRIZADAS.value
 
 
 class Modalidade(TemChaveExterna, Nomeavel):
@@ -565,8 +607,8 @@ class Modalidade(TemChaveExterna, Nomeavel):
         return self.nome
 
     class Meta:
-        verbose_name = "Modalidade"
-        verbose_name_plural = "Modalidades"
+        verbose_name = StringsVerboseNameModels.MODALIDADE.value
+        verbose_name_plural = StringsVerboseNameModels.MODALIDADES.value
 
 
 class Contrato(TemChaveExterna):
@@ -577,13 +619,17 @@ class Contrato(TemChaveExterna):
         (ALIMENTACAO_ESCOLAR, "Alimentação Escolar"),
     )
 
-    numero = models.CharField("No do contrato", max_length=100, unique=True)
+    numero = models.CharField(
+        StringsVerboseNameModels.NO_DO_CONTRATO.value, max_length=100, unique=True
+    )
     processo = models.CharField(
-        "Processo Administrativo",
+        StringsVerboseNameModels.PROCESSO_ADMINISTRATIVO.value,
         max_length=100,
         help_text="Processo administrativo do contrato",
     )
-    data_proposta = models.DateField("Data da proposta", blank=True, null=True)
+    data_proposta = models.DateField(
+        StringsVerboseNameModels.DATA_DA_PROPOSTA.value, blank=True, null=True
+    )
     lotes = models.ManyToManyField(Lote, related_name="contratos_do_lote", blank=True)
     terceirizada = models.ForeignKey(
         Terceirizada,
@@ -602,11 +648,17 @@ class Contrato(TemChaveExterna):
     diretorias_regionais = models.ManyToManyField(
         DiretoriaRegional, related_name="contratos_da_diretoria_regional", blank=True
     )
-    encerrado = models.BooleanField("Encerrado?", default=False)
-    data_hora_encerramento = models.DateTimeField(
-        "Data e hora do encerramento", null=True, default=None
+    encerrado = models.BooleanField(
+        StringsVerboseNameModels.ENCERRADO.value, default=False
     )
-    ata = models.CharField("No da Ata", max_length=100, blank=True)
+    data_hora_encerramento = models.DateTimeField(
+        StringsVerboseNameModels.DATA_E_HORA_DO_ENCERRAMENTO.value,
+        null=True,
+        default=None,
+    )
+    ata = models.CharField(
+        StringsVerboseNameModels.NO_DA_ATA.value, max_length=100, blank=True
+    )
     modalidade = models.ForeignKey(
         Modalidade,
         on_delete=models.PROTECT,
@@ -615,13 +667,18 @@ class Contrato(TemChaveExterna):
         null=True,
     )
     numero_pregao = models.CharField(
-        "Nº do Pregão Eletrônico", max_length=100, blank=True
+        StringsVerboseNameModels.NO_DO_PREGAO_ELETRONICO.value,
+        max_length=100,
+        blank=True,
     )
     numero_chamada_publica = models.CharField(
-        "Nº da Chamada Pública", max_length=100, blank=True
+        StringsVerboseNameModels.NO_DA_CHAMADA_PUBLICA.value, max_length=100, blank=True
     )
     programa = models.CharField(
-        "Programa", max_length=20, choices=PROGRAMA_CHOICES, default=ALIMENTACAO_ESCOLAR
+        StringsVerboseNameModels.PROGRAMA.value,
+        max_length=20,
+        choices=PROGRAMA_CHOICES,
+        default=ALIMENTACAO_ESCOLAR,
     )
 
     def __str__(self):
@@ -658,8 +715,8 @@ class Contrato(TemChaveExterna):
         return dados_encerramento
 
     class Meta:
-        verbose_name = "Contrato"
-        verbose_name_plural = "Contratos"
+        verbose_name = StringsVerboseNameModels.CONTRATO.value
+        verbose_name_plural = StringsVerboseNameModels.CONTRATOS.value
 
 
 class VigenciaContrato(TemChaveExterna, IntervaloDeDia):
@@ -698,23 +755,23 @@ class VigenciaContrato(TemChaveExterna, IntervaloDeDia):
         )
 
     class Meta:
-        verbose_name = "Vigência de contrato"
-        verbose_name_plural = "Vigências de contrato"
+        verbose_name = StringsVerboseNameModels.VIGENCIA_DE_CONTRATO.value
+        verbose_name_plural = StringsVerboseNameModels.VIGENCIAS_DE_CONTRATO.value
 
 
 class Modulo(TemChaveExterna):
-    nome = models.CharField("Nome", max_length=100)
+    nome = models.CharField(StringsVerboseNameModels.NOME.value, max_length=100)
 
     def __str__(self):
         return f"{self.nome}"
 
     class Meta:
-        verbose_name = "Módulo"
-        verbose_name_plural = "Módulos"
+        verbose_name = StringsVerboseNameModels.MODULO.value
+        verbose_name_plural = StringsVerboseNameModels.MODULOS.value
 
 
 class EmailTerceirizadaPorModulo(TemChaveExterna):
-    email = models.EmailField("E-mail")
+    email = models.EmailField(StringsVerboseNameModels.E_MAIL.value)
     terceirizada = models.ForeignKey(
         Terceirizada, on_delete=models.CASCADE, related_name="emails_terceirizadas"
     )
@@ -730,6 +787,8 @@ class EmailTerceirizadaPorModulo(TemChaveExterna):
         return f"{self.email} - {self.terceirizada.nome_fantasia} - {self.modulo.nome}"
 
     class Meta:
-        verbose_name = "E-mail de Terceirizada por Módulos"
-        verbose_name_plural = "E-mails de Terceirizadas por Módulos"
+        verbose_name = StringsVerboseNameModels.E_MAIL_DE_TERCEIRIZADA_POR_MODULOS.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.E_MAILS_DE_TERCEIRIZADAS_POR_MODULOS.value
+        )
         unique_together = ("email", "terceirizada", "modulo")

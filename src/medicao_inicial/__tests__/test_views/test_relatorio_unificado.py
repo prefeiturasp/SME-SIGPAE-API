@@ -10,8 +10,10 @@ from rest_framework.test import APIClient
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
     GRUPO_RECREIO_NAS_FERIAS,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import CentralDeDownload
@@ -61,7 +63,7 @@ class TestGeraRelatorioUnificado:
     def setup_infraestrutura_comum(self):
         terceirizada = EmpresaFactory.create()
         diretoria_regional = DiretoriaRegionalFactory.create(
-            nome="DIRETORIA REGIONAL TESTE"
+            nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value
         )
         lote = LoteFactory.create(
             terceirizada=terceirizada,
@@ -235,10 +237,7 @@ class TestGeraRelatorioUnificado:
         )
 
         assert response.status_code == 200
-        assert (
-            response.json()["detail"]
-            == "Solicitação de geração de arquivo recebida com sucesso."
-        )
+        assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
         assert mock_delay.called
         assert mock_delay.call_count == 1
@@ -430,10 +429,7 @@ class TestGeraRelatorioUnificado:
         )
 
         assert response.status_code == 200
-        assert (
-            response.json()["detail"]
-            == "Solicitação de geração de arquivo recebida com sucesso."
-        )
+        assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
         assert mock_delay.called
         assert mock_delay.call_count == 1

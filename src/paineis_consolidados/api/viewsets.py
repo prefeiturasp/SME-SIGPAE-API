@@ -11,9 +11,11 @@ from rest_framework.status import HTTP_200_OK
 from ...dados_comuns.constants import (
     FILTRO_PADRAO_PEDIDOS,
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     MODULO_DIETA_ESPECIAL,
     SEM_FILTRO,
     TIPOS_ALIMENTACAO,
+    PayloadVariaveis,
 )
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
@@ -267,7 +269,9 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=["GET"], url_path="solicitacoes-detalhadas")
     def solicitacoes_detalhadas(self, request):
-        solicitacoes = request.query_params.getlist("solicitacoes[]", None)
+        solicitacoes = request.query_params.getlist(
+            PayloadVariaveis.SOLICITACOES.value, None
+        )
         solicitacoes = MoldeConsolidado.solicitacoes_detalhadas(solicitacoes, request)
         return Response(dict(data=solicitacoes, status=HTTP_200_OK))
 
@@ -550,7 +554,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             unidades_educacionais=unidades_educacionais,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -570,7 +574,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             status=request.data.get("status", None),
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 

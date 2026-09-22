@@ -4,7 +4,11 @@ from copy import deepcopy
 
 from rest_framework import serializers
 
-from src.dados_comuns.constants import DEZ_MB, FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import (
+    DEZ_MB,
+    FORMATO_DATA_BRASILEIRO,
+    StringsValidationErrors,
+)
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_date_format,
@@ -104,7 +108,7 @@ class SolicitacaoDietaEspecialCreateSerializer(serializers.ModelSerializer):
                 )
 
             if SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente(aluno):
-                msg = "Aluno já possui Solicitação de Dieta Especial pendente"
+                msg = StringsValidationErrors.DIETA_ESPECIAL_PENDENTE.value
                 raise serializers.ValidationError(msg)
 
             aluno.escola = validated_data["criado_por"].vinculo_atual.instituicao
@@ -122,7 +126,7 @@ class SolicitacaoDietaEspecialCreateSerializer(serializers.ModelSerializer):
             aluno = self._get_or_create_aluno(aluno_data)
 
             if SolicitacaoDietaEspecial.aluno_possui_dieta_especial_pendente(aluno):
-                msg = "Aluno já possui Solicitação de Dieta Especial pendente"
+                msg = StringsValidationErrors.DIETA_ESPECIAL_PENDENTE.value
                 raise serializers.ValidationError(msg)
 
             aluno.escola = validated_data["criado_por"].vinculo_atual.instituicao
@@ -259,7 +263,7 @@ class AlteracaoUESerializer(serializers.ModelSerializer):
             dieta_alterada.aluno
         ):
             raise serializers.ValidationError(
-                "Aluno já possui Solicitação de Dieta Especial pendente"
+                StringsValidationErrors.DIETA_ESPECIAL_PENDENTE.value
             )
 
         substituicoes = SubstituicaoAlimento.objects.filter(

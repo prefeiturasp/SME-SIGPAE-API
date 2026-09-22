@@ -23,7 +23,7 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -102,9 +102,15 @@ class AlteracaoCardapioCEMEI(
     alunos_cei_e_ou_emei = models.CharField(
         choices=STATUS_CHOICES, max_length=10, default=TODOS
     )
-    alterar_dia = models.DateField("Alterar dia", null=True, blank=True)
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    alterar_dia = models.DateField(
+        StringsVerboseNameModels.ALTERAR_DIA.value, null=True, blank=True
+    )
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
 
     objects = models.Manager()  # Manager Padrão
     desta_semana = AlteracoesCardapioCEMEIDestaSemanaManager()
@@ -415,8 +421,10 @@ class AlteracaoCardapioCEMEI(
         return f"Alteração de cardápio CEMEI de {self.data}"
 
     class Meta:
-        verbose_name = "Alteração de cardápio CEMEI"
-        verbose_name_plural = "Alterações de cardápio CEMEI"
+        verbose_name = StringsVerboseNameModels.ALTERACAO_DE_CARDAPIO_CEMEI.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.ALTERACOES_DE_CARDAPIO_CEMEI.value
+        )
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI(TemChaveExterna):
@@ -457,8 +465,12 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI(TemChaveExterna):
         return f"Substituições de alimentação CEMEI: {self.uuid} da Alteração de Cardápio: {self.alteracao_cardapio.uuid}"
 
     class Meta:
-        verbose_name = "Substituições de alimentação CEMEI CEI no período"
-        verbose_name_plural = "Substituições de alimentação CEMEI CEI no período"
+        verbose_name = (
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_CEI_NO_PERIODO.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_CEI_NO_PERIODO.value
+        )
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI(
@@ -506,8 +518,12 @@ class SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI(
         )
 
     class Meta:
-        verbose_name = "Substituições de alimentação CEMEI EMEI no período"
-        verbose_name_plural = "Substituições de alimentação CEMEI EMEI no período"
+        verbose_name = (
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_EMEI_NO_PERIODO.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.SUBSTITUICOES_DE_ALIMENTACAO_CEMEI_EMEI_NO_PERIODO.value
+        )
 
 
 class FaixaEtariaSubstituicaoAlimentacaoCEMEICEI(
@@ -533,8 +549,12 @@ class FaixaEtariaSubstituicaoAlimentacaoCEMEICEI(
         return retorno
 
     class Meta:
-        verbose_name = "Faixa Etária de substituição de alimentação CEMEI CEI"
-        verbose_name_plural = "Faixas Etárias de substituição de alimentação CEMEI CEI"
+        verbose_name = (
+            StringsVerboseNameModels.FAIXA_ETARIA_DE_SUBSTITUICAO_DE_ALIMENTACAO_CEMEI_CEI.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.FAIXAS_ETARIAS_DE_SUBSTITUICAO_DE_ALIMENTACAO_CEMEI_CEI.value
+        )
 
 
 class DataIntervaloAlteracaoCardapioCEMEI(
@@ -563,8 +583,12 @@ class DataIntervaloAlteracaoCardapioCEMEI(
         )
 
     class Meta:
-        verbose_name = "Data do intervalo de Alteração de cardápio CEMEI"
-        verbose_name_plural = "Datas do intervalo de Alteração de cardápio CEMEI"
+        verbose_name = (
+            StringsVerboseNameModels.DATA_DO_INTERVALO_DE_ALTERACAO_DE_CARDAPIO_CEMEI.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.DATAS_DO_INTERVALO_DE_ALTERACAO_DE_CARDAPIO_CEMEI.value
+        )
         ordering = ("data",)
 
 

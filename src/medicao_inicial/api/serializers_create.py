@@ -10,7 +10,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from src.dados_comuns.constants import MENSAGEM_PERMISSAO_NEGADA
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
@@ -84,6 +84,7 @@ from ...dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    PayloadVariaveis,
 )
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..recreio_nas_ferias.models import (
@@ -96,6 +97,8 @@ from ..utils import (
     substitui_criador_system_por_usuario_real,
 )
 from ..validators import (
+    get_filtro_inclusao_continua_ativa,
+    get_filtro_quantidade_periodo_ativa,
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
@@ -121,8 +124,6 @@ from ..validators import (
     validate_solicitacoes_programas_e_projetos_emebs,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
     validate_ultimo_dia_mes_letivo,
-    get_filtro_inclusao_continua_ativa,
-    get_filtro_quantidade_periodo_ativa,
 )
 
 
@@ -1132,7 +1133,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             and escola_possui_alunos_regulares
             and not escola_p_fom
         ):
-            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+            raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
 
     def _update_instance_fields(self, instance, validated_data):
         if "dre_ciencia_correcao_data" in validated_data:
@@ -1198,8 +1199,13 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance.tipos_contagem_alimentacao.set(tipos_contagem_alimentacao)
 
     def _get_tipos_contagem_alimentacao_from_request(self):
-        if "tipos_contagem_alimentacao[]" in self.context["request"].data:
-            return self.context["request"].data.getlist("tipos_contagem_alimentacao[]")
+        if (
+            PayloadVariaveis.TIPOS_CONTAGEM_ALIMENTACAO.value
+            in self.context["request"].data
+        ):
+            return self.context["request"].data.getlist(
+                PayloadVariaveis.TIPOS_CONTAGEM_ALIMENTACAO.value
+            )
         return self.context["request"].data.get("tipos_contagem_alimentacao")
 
     def _process_anexos(self, instance):
