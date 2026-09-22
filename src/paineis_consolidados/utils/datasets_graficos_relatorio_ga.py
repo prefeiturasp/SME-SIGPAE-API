@@ -1,3 +1,4 @@
+from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
 from src.escola.models import (
     DiretoriaRegional,
     Escola,
@@ -105,7 +106,7 @@ def get_dataset_grafico_total_tipo_solicitacao(datasets, request, model, queryse
     }
 
     de_para_tipos_solicitacao = {
-        "INC_ALIMENTA": "Inclusão de Alimentação",
+        "INC_ALIMENTA": StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
         "ALT_CARDAPIO": "Alteração do tipo de Alimentação",
         "KIT_LANCHE_UNIFICADO": "Kit Lanche Unificado",
         "KIT_LANCHE_AVULSA": "Kit Lanche Passeio",

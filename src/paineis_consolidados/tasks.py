@@ -8,7 +8,10 @@ from bs4 import BeautifulSoup
 from celery import shared_task
 from django.template.loader import render_to_string
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    StringsModelosGestaoAlimentacao,
+)
 from src.dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
@@ -48,7 +51,7 @@ def build_subtitulo(
     subtitulo += f" | Lote(s): {nomes_lotes}" if nomes_lotes else ""
 
     de_para_tipos_solicitacao = {
-        "INC_ALIMENTA": "Inclusão de Alimentação",
+        "INC_ALIMENTA": StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
         "ALT_CARDAPIO": "Alteração do tipo de Alimentação",
         "KIT_LANCHE_UNIFICADO": "Kit Lanche Unificado",
         "KIT_LANCHE_AVULSA": "Kit Lanche Passeio",

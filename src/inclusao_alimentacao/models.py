@@ -2,7 +2,10 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import (
+    StringsModelosGestaoAlimentacao,
+    StringsVerboseNameModels,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -153,7 +156,7 @@ class InclusaoAlimentacaoContinua(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -379,7 +382,7 @@ class GrupoInclusaoAlimentacaoNormal(
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
-    DESCRICAO = "Inclusão de Alimentação"
+    DESCRICAO = StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     escola = models.ForeignKey(
         StringsCaminhoModelos.MODEL_ESCOLA.value,
@@ -424,7 +427,7 @@ class GrupoInclusaoAlimentacaoNormal(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -512,7 +515,7 @@ class GrupoInclusaoAlimentacaoNormal(
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
-            "tipo_doc": "Inclusão de Alimentação",
+            "tipo_doc": StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "dias_inclusao": self.data,
@@ -670,7 +673,7 @@ class InclusaoAlimentacaoDaCEI(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -954,7 +957,7 @@ class InclusaoDeAlimentacaoCEMEI(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):

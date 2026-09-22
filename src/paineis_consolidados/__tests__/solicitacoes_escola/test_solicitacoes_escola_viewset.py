@@ -22,7 +22,11 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    StringsModelosGestaoAlimentacao,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -1622,7 +1626,7 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
             escola_uuid=escola.uuid,
             data_evento=datetime.date(2024, 12, 13),
             tipo_doc="INC_ALIMENTA",
-            desc_doc="Inclusão de Alimentação",
+            desc_doc=StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             status_atual="CODAE_AUTORIZADO",
         ),
