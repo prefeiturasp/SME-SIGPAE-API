@@ -27,6 +27,7 @@ from src.escola.api.serializers import (
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
+from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -523,8 +524,12 @@ class DadosLiquidacaoSerializer(serializers.ModelSerializer):
 
         tipo_calculo = (
             "faixa_etaria"
-            if grupo_nome == "Grupo 1"
-            else None if grupo_nome == "Grupo 2" else "tipo_alimentacao"
+            if grupo_nome == GrupoUnidadeEscolar.GRUPO_1
+            else (
+                None
+                if grupo_nome == GrupoUnidadeEscolar.GRUPO_2
+                else "tipo_alimentacao"
+            )
         )
 
         consumo = calcula_totais_consumo_por_escolas(

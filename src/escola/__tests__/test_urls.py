@@ -7,7 +7,12 @@ from rest_framework import status
 
 from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR, StringsCaminhoModelos
 
-from ..models import DiaSuspensaoAtividades, FaixaEtaria, MudancaFaixasEtarias
+from ..models import (
+    DiaSuspensaoAtividades,
+    FaixaEtaria,
+    GrupoUnidadeEscolar,
+    MudancaFaixasEtarias,
+)
 from ..services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
 from .conftest import mocked_foto_aluno_novosgp, mocked_response
 
@@ -876,9 +881,9 @@ def test_grupos_por_dre_quando_parametro_dre_existe(
     assert response.status_code == status.HTTP_200_OK
     assert response.json() == {
         "grupos": [
-            {"habilitado": True, "nome": "Grupo 1"},
-            {"habilitado": False, "nome": "Grupo 2"},
-            {"habilitado": False, "nome": "Grupo 3"},
+            {"habilitado": True, "nome": GrupoUnidadeEscolar.GRUPO_1},
+            {"habilitado": False, "nome": GrupoUnidadeEscolar.GRUPO_2},
+            {"habilitado": False, "nome": GrupoUnidadeEscolar.GRUPO_3},
         ]
     }
 

@@ -3388,6 +3388,13 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
 
 
 class GrupoUnidadeEscolar(TemChaveExterna, Nomeavel):
+    GRUPO_1 = "Grupo 1"
+    GRUPO_2 = "Grupo 2"
+    GRUPO_3 = "Grupo 3"
+    GRUPO_4 = "Grupo 4"
+    GRUPO_5 = "Grupo 5"
+    GRUPO_6 = "Grupo 6"
+
     tipos_unidades = models.ManyToManyField(TipoUnidadeEscolar, blank=True)
 
     def todas_solicitacoes_medicao_do_grupo_aprovadas_codae(self, data, lote_uuid):

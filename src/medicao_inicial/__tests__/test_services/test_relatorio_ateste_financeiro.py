@@ -6,6 +6,7 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
 )
+from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
@@ -88,7 +89,7 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     assert relatorio_financeiro_cei.lote.nome.upper() in texto
     assert relatorio_financeiro_cei.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 1" in texto
+    assert GrupoUnidadeEscolar.GRUPO_1 in texto
 
     assert "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS" in texto
     assert DIETA_ESPECIAL_TIPO_A in texto
@@ -182,7 +183,7 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     assert relatorio_financeiro_emei.lote.nome.upper() in texto
     assert relatorio_financeiro_emei.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 3" in texto
+    assert GrupoUnidadeEscolar.GRUPO_3 in texto
     assert "(CEU EMEI, EMEI)" in texto
 
     assert "TIPOS DE ALIMENTAÇÕES - SEM DIETAS" in texto
@@ -265,7 +266,7 @@ def test_relatorio_ateste_financeiro_grupo_cieja_conteudo_pdf(
     assert relatorio_financeiro_cieja.lote.nome.upper() in texto
     assert relatorio_financeiro_cieja.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 6" in texto
+    assert GrupoUnidadeEscolar.GRUPO_6 in texto
     assert "(CIEJA, CMCT)" in texto
 
     assert texto.count("REFEIÇÃO CIEJA E CMCT") == 2
@@ -372,7 +373,7 @@ def test_relatorio_ateste_financeiro_grupo_cemei_conteudo_pdf(
     assert relatorio_financeiro_cemei.lote.nome.upper() in texto
     assert relatorio_financeiro_cemei.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 2" in texto
+    assert GrupoUnidadeEscolar.GRUPO_2 in texto
     assert "(CEMEI, CEU CEMEI)" in texto
 
     for faixa in faixas_etarias_ativas:
@@ -462,7 +463,7 @@ def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
     assert relatorio_financeiro_emef.lote.nome.upper() in texto
     assert relatorio_financeiro_emef.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 4" in texto
+    assert GrupoUnidadeEscolar.GRUPO_4 in texto
     assert "(CEU EMEF, CEU GESTAO, EMEF, EMEFM)" in texto
 
     assert "REFEIÇÃO" in texto
@@ -549,7 +550,7 @@ def test_relatorio_ateste_financeiro_grupo_emebs_conteudo_pdf(
     assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
     assert "MAIO/2025" in texto
 
-    assert "Grupo 5" in texto
+    assert GrupoUnidadeEscolar.GRUPO_5 in texto
     assert "(EMEBS)" in texto
 
     assert "TURMA INFANTIL" in texto

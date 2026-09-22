@@ -30,6 +30,7 @@ from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import (
     DiaCalendario,
     Escola,
+    GrupoUnidadeEscolar,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
@@ -2199,7 +2200,7 @@ def grupo_unidade_escolar_emef(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 4",
+        nome=GrupoUnidadeEscolar.GRUPO_4,
         tipos_unidades=[
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
@@ -3000,7 +3001,7 @@ def grupo_escolar(
 ):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 4",
+        nome=GrupoUnidadeEscolar.GRUPO_4,
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
         tipos_unidades=[
             tipo_unidade_escolar,
@@ -3427,7 +3428,7 @@ def mock_query_params_excel_emef(
 def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 3",
+        nome=GrupoUnidadeEscolar.GRUPO_3,
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
             baker.make(
@@ -3735,7 +3736,7 @@ def relatorio_consolidado_xlsx_cei(
 def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
             baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
@@ -4077,7 +4078,7 @@ def relatorio_consolidado_xlsx_cemei(
 def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 2",
+        nome=GrupoUnidadeEscolar.GRUPO_2,
         uuid="012dc7a2-eb11-4000-96b9-e3c5130dc64c",
         tipos_unidades=[
             baker.make(
@@ -4409,7 +4410,7 @@ def relatorio_consolidado_xlsx_emebs(
 def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 5",
+        nome=GrupoUnidadeEscolar.GRUPO_5,
         uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
         tipos_unidades=[
             baker.make(
@@ -4863,7 +4864,7 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
 
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 6",
+        nome=GrupoUnidadeEscolar.GRUPO_6,
         uuid="ee9abe61-e1c4-48fb-8b53-ffd2cef00458",
         tipos_unidades=[
             baker.make(
@@ -4984,7 +4985,7 @@ def payload_create_parametrizacao_financeira_cei(
 ):
     grupo_escolar_cei = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
         tipos_unidades=[
             tipo_unidade_escolar_cei,
@@ -6240,7 +6241,7 @@ def grupo_unidade_escolar_cei(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
         tipos_unidades=[
             tipo_unidade_escolar_cei,
@@ -6346,7 +6347,7 @@ def grupo_unidade_escolar_emei(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 3",
+        nome=GrupoUnidadeEscolar.GRUPO_3,
         tipos_unidades=[
             tipo_unidade_escolar_ceu_emei,
             tipo_unidade_escolar_emei,
@@ -6498,7 +6499,7 @@ def grupo_unidade_escolar_cieja(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 6",
+        nome=GrupoUnidadeEscolar.GRUPO_6,
         uuid="550e8400-e29b-41d4-a716-446655440000",
         tipos_unidades=[
             tipo_unidade_escolar_cieja,
@@ -6630,7 +6631,7 @@ def grupo_unidade_escolar_cemei(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 2",
+        nome=GrupoUnidadeEscolar.GRUPO_2,
         tipos_unidades=[
             tipo_unidade_escolar_cemei,
             tipo_unidade_escolar_ceu_cemei,
@@ -7001,7 +7002,7 @@ def grupo_unidade_escolar_emebs(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 5",
+        nome=GrupoUnidadeEscolar.GRUPO_5,
         tipos_unidades=[
             tipo_unidade_escolar_emebs,
         ],
@@ -7596,7 +7597,7 @@ def informacoes_excel_writer_recreio_emei(
 def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 3",
+        nome=GrupoUnidadeEscolar.GRUPO_3,
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
             baker.make(
@@ -7700,7 +7701,7 @@ def informacoes_excel_writer_recreio_cei(
 def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
             baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
