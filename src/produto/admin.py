@@ -1,5 +1,7 @@
 from django.contrib import admin
 
+from src.dados_comuns.constants import StringsSearchHelpText
+
 from .forms import NomeDeProdutoEditalForm
 from .models import (
     EmbalagemProduto,
@@ -142,7 +144,7 @@ class HomologacaoProdutoModelAdmin(admin.ModelAdmin):
     list_display = ("__str__", "produto", "status", "uuid", "esta_homologado")
     list_filter = (EstaHomologadoFilter,)
     search_fields = ("produto__nome",)
-    search_help_text = "Pesquise por: nome do produto"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NOME_DO_PRODUTO.value
 
 
 @admin.register(InformacaoNutricional)

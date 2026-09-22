@@ -69,7 +69,7 @@ def arquivo_docx_base64():
 def aluno():
     return baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -233,7 +233,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -1027,7 +1027,7 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola,
@@ -1058,7 +1058,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1099,7 +1099,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
     baker.make(FaixaEtaria, inicio=32, fim=88)
     aluno_a = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cemei,
@@ -1176,7 +1176,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_emebs,
@@ -1271,7 +1271,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
     baker.make(ClassificacaoDieta, nome="Tipo C")
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1332,7 +1332,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
     with freeze_time("2025-1-10"):
         aluno = baker.make(
             Aluno,
-            nome=constants.NOME_ALUNO_PADRAO,
+            nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
             codigo_eol="123456",
             data_nascimento="2022-01-01",
             escola=escola_cei,
@@ -1402,22 +1402,22 @@ def filtro_historico_relatorio_dietas(
 
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "unidades_educacionais_selecionadas[]",
+        constants.PayloadVariaveis.UNIDADES_EDUCACIONAIS_SELECIONADAS.value,
         [
             str(escola.uuid),
             str(escola_emebs.uuid),
         ],
     )
     query_params.setlist(
-        "tipos_unidades_selecionadas[]",
+        constants.PayloadVariaveis.TIPOS_UNIDADES_SELECIONADAS.value,
         [str(escola_emebs.tipo_unidade.uuid)],
     )
     query_params.setlist(
-        "periodos_escolares_selecionadas[]",
+        constants.PayloadVariaveis.PERIODOS_ESCOLARES_SELECIONADAS.value,
         [str(periodo_escolar_integral.uuid)],
     )
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        constants.PayloadVariaveis.CLASSIFICACOES_SELECIONADAS.value,
         [classificacao.id for classificacao in classificacoes_dietas],
     )
     query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)
@@ -1592,7 +1592,10 @@ def escolas_tipo_cei():
                     "fundamental": {},
                     "periodos": {
                         "INTEGRAL": [
-                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                            {
+                                "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                                "autorizadas": 1,
+                            }
                         ]
                     },
                     "por_idade": {},
@@ -1647,7 +1650,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
                     "periodos": {},
                     "por_idade": {
                         "INTEGRAL": [
-                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                            {
+                                "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                                "autorizadas": 1,
+                            }
                         ]
                     },
                     "turma_infantil": {},
@@ -1909,19 +1915,43 @@ def unidade_educacional():
             {
                 "periodo": "TARDE",
                 "faixa_etaria": [
-                    {"faixa": "01 a 03 meses", "autorizadas": 5},
-                    {"faixa": "07 a 11 meses", "autorizadas": 2},
-                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1},
-                    {"faixa": "04 anos a 06 anos", "autorizadas": 2},
+                    {
+                        "faixa": constants.FaixasEtarias.UM_A_TRES_MESES.value,
+                        "autorizadas": 5,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                        "autorizadas": 1,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
+                        "autorizadas": 2,
+                    },
                 ],
             },
             {
                 "periodo": "MANHA",
                 "faixa_etaria": [
-                    {"faixa": "01 a 03 meses", "autorizadas": 3},
-                    {"faixa": "07 a 11 meses", "autorizadas": 2},
-                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 2},
-                    {"faixa": "04 anos a 06 anos", "autorizadas": 3},
+                    {
+                        "faixa": constants.FaixasEtarias.UM_A_TRES_MESES.value,
+                        "autorizadas": 3,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
+                        "autorizadas": 3,
+                    },
                 ],
             },
         ],

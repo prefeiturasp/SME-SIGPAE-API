@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from django_filters import rest_framework as filters
 
+from src.dados_comuns.constants import PayloadVariaveis
 from src.escola.models import Aluno, Escola, HistoricoMatriculaAluno
 from src.terceirizada.models import Terceirizada
 
@@ -32,15 +33,17 @@ class EscolaParaFiltrosFilter(filters.FilterSet):
 
         queryset = super().filter_queryset(queryset)
 
-        tipos_unidades = self.data.getlist("tipo_unidade__uuid[]")
+        tipos_unidades = self.data.getlist(PayloadVariaveis.TIPO_UNIDADE_UUID.value)
         if tipos_unidades:
             queryset = queryset.filter(tipo_unidade__uuid__in=tipos_unidades)
 
-        lotes = self.data.getlist("lote__uuid[]")
+        lotes = self.data.getlist(PayloadVariaveis.LOTE_UUID.value)
         if lotes:
             queryset = queryset.filter(lote__uuid__in=lotes)
 
-        excluir_tipo_unidade = self.data.getlist("excluir_tipo_unidade__uuid[]")
+        excluir_tipo_unidade = self.data.getlist(
+            PayloadVariaveis.EXCLUIR_TIPO_UNIDADE_UUID.value
+        )
         if excluir_tipo_unidade:
             queryset = queryset.exclude(tipo_unidade__uuid__in=excluir_tipo_unidade)
 

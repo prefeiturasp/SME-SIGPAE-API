@@ -440,7 +440,8 @@ def escola_emefm(diretoria_regional):
 def escola_emei():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote",
@@ -468,7 +469,8 @@ def escola_ceu_emei(tipo_unidade_escolar_ceu_emei):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
@@ -487,7 +489,8 @@ def escola_cei(tipo_unidade_escolar_cei_diret):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
@@ -506,7 +509,8 @@ def escola_cci():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -550,7 +554,8 @@ def log_alunos_matriculados_integral_cei(escola_cei, periodo_escolar_integral):
 def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote",
@@ -578,7 +583,8 @@ def escola_ceu_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -600,7 +606,7 @@ def escola_emebs():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL TESTE",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -624,7 +630,8 @@ def escola_emebs():
 def escola_ceu_gestao():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -647,7 +654,8 @@ def escola_ceu_gestao():
 def escola_cmct():
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -670,7 +678,8 @@ def escola_cmct():
 def escola_cieja(tipo_unidade_escolar_cieja):
     terceirizada = baker.make("Terceirizada")
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     lote = baker.make(
         "Lote", terceirizada=terceirizada, diretoria_regional=diretoria_regional
@@ -691,7 +700,7 @@ def escola_cieja(tipo_unidade_escolar_cieja):
 def aluno():
     return baker.make(
         "Aluno",
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
         uuid="2d20157a-4e52-4d25-a4c7-9c0e6b67ee18",
@@ -3395,7 +3404,7 @@ def mock_query_params_excel_emef(
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_emef.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_emef.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emef.escola.lote.uuid],
     }
 
@@ -3427,7 +3436,7 @@ def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_emei.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_emei.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_emei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_emei.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emei.escola.lote.uuid],
     }
 
@@ -3742,7 +3751,7 @@ def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_cei.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_cei.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_cei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_cei.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_cei.escola.lote.uuid],
     }
 
@@ -4073,7 +4082,7 @@ def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei)
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_cemei.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_cemei.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_cemei.escola.lote.uuid],
     }
 
@@ -4401,7 +4410,7 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_grupo_emebs.mes,
         "ano": solicitacao_relatorio_consolidado_grupo_emebs.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_grupo_emebs.escola.lote.uuid],
     }
 
@@ -4625,9 +4634,9 @@ def mock_exportacao_relatorio_adesao(diretoria_regional, escola):
     query_params = {
         "mes_ano": "03_2025",
         "diretoria_regional": str(diretoria_regional.uuid),
-        "lotes[]": str(lotes[0].uuid),
-        "lotes[]": str(lotes[1].uuid),
-        "lotes[]": str(lotes[2].uuid),
+        constants.PayloadVariaveis.LOTES.value: str(lotes[0].uuid),
+        constants.PayloadVariaveis.LOTES.value: str(lotes[1].uuid),
+        constants.PayloadVariaveis.LOTES.value: str(lotes[2].uuid),
         "escola": f"{escola.codigo_eol} - {escola.nome} - 3567-2",
         "periodo_lancamento_de": "05/03/2025",
         "periodo_lancamento_ate": "15/03/2025",
@@ -4859,7 +4868,7 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_relatorio_consolidado_escola_cieja.mes,
         "ano": solicitacao_relatorio_consolidado_escola_cieja.ano,
-        "lotes[]": solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid,
         "lotes": [solicitacao_relatorio_consolidado_escola_cieja.escola.lote.uuid],
     }
 
@@ -7596,7 +7605,7 @@ def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_recreio_emei.mes,
         "ano": solicitacao_recreio_emei.ano,
-        "lotes[]": solicitacao_recreio_emei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_emei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emei.escola.lote.uuid],
     }
 
@@ -7707,7 +7716,7 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_recreio_cei.mes,
         "ano": solicitacao_recreio_cei.ano,
-        "lotes[]": solicitacao_recreio_cei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_cei.escola.lote.uuid,
         "lotes": [solicitacao_recreio_cei.escola.lote.uuid],
     }
 
@@ -7763,7 +7772,7 @@ def mock_query_params_excel_recreio_emef(solicitacao_recreio_emef, grupo_escolar
         "grupo_escolar": grupo_escolar,
         "mes": solicitacao_recreio_emef.mes,
         "ano": solicitacao_recreio_emef.ano,
-        "lotes[]": solicitacao_recreio_emef.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_emef.escola.lote.uuid,
         "lotes": [solicitacao_recreio_emef.escola.lote.uuid],
     }
 
@@ -7909,7 +7918,7 @@ def mock_query_params_excel_recreio_cemei(
         "grupo_escolar": grupo_unidade_escolar_cemei,
         "mes": solicitacao_recreio_cemei.mes,
         "ano": solicitacao_recreio_cemei.ano,
-        "lotes[]": solicitacao_recreio_cemei.escola.lote.uuid,
+        constants.PayloadVariaveis.LOTES.value: solicitacao_recreio_cemei.escola.lote.uuid,
         "lotes": [
             solicitacao_recreio_cemei.escola.lote.uuid,
         ],

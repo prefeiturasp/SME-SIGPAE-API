@@ -8,6 +8,8 @@ from django.db import models, transaction
 from django.db.models import Case, QuerySet, When
 from sequences import get_last_value, get_next_value
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
@@ -48,14 +50,18 @@ MAX_NUMERO_PROTOCOLO = 6
 
 
 class ProtocoloDeDietaEspecial(Ativavel, CriadoEm, CriadoPor, TemChaveExterna):
-    nome = models.CharField("Nome", blank=True, max_length=100, unique=True)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, blank=True, max_length=100, unique=True
+    )
 
     def __str__(self):
         return self.nome
 
     class Meta:
-        verbose_name = "Protocolo de Dieta Especial"
-        verbose_name_plural = "Protocolos de Dieta Especial"
+        verbose_name = StringsVerboseNameModels.PROTOCOLO_DE_DIETA_ESPECIAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.PROTOCOLOS_DE_DIETA_ESPECIAL.value
+        )
 
 
 class Fabricante(Nomeavel, TemChaveExterna):
@@ -109,7 +115,9 @@ class InformacaoNutricional(TemChaveExterna, Nomeavel, Ativavel):
         TipoDeInformacaoNutricional, on_delete=models.DO_NOTHING
     )
     medida = models.CharField(max_length=10, blank=True)
-    eh_fixo = models.BooleanField("Informação Nutricional Fixa", default=False)
+    eh_fixo = models.BooleanField(
+        StringsVerboseNameModels.INFORMACAO_NUTRICIONAL_FIXA.value, default=False
+    )
 
     @property
     def eh_dependente(self):
@@ -136,8 +144,8 @@ class InformacaoNutricional(TemChaveExterna, Nomeavel, Ativavel):
         return self.nome
 
     class Meta:
-        verbose_name = "Informação Nutricional"
-        verbose_name_plural = "Informações Nutricionais"
+        verbose_name = StringsVerboseNameModels.INFORMACAO_NUTRICIONAL.value
+        verbose_name_plural = StringsVerboseNameModels.INFORMACOES_NUTRICIONAIS.value
 
 
 class ImagemDoProduto(TemChaveExterna):
@@ -146,8 +154,8 @@ class ImagemDoProduto(TemChaveExterna):
     nome = models.CharField(max_length=100, blank=True)
 
     class Meta:
-        verbose_name = "Imagem do Produto"
-        verbose_name_plural = "Imagens do Produto"
+        verbose_name = StringsVerboseNameModels.IMAGEM_DO_PRODUTO.value
+        verbose_name_plural = StringsVerboseNameModels.IMAGENS_DO_PRODUTO.value
 
 
 class Produto(
@@ -160,7 +168,7 @@ class Produto(
     EhCopia,
 ):
     eh_para_alunos_com_dieta = models.BooleanField(
-        "É para alunos com dieta especial", default=False
+        StringsVerboseNameModels.E_PARA_ALUNOS_COM_DIETA_ESPECIAL.value, default=False
     )
 
     protocolos = models.ManyToManyField(
@@ -175,28 +183,48 @@ class Produto(
         Fabricante, on_delete=models.DO_NOTHING, blank=True, null=True
     )
     componentes = models.CharField(
-        "Componentes do Produto", blank=True, max_length=5000
+        StringsVerboseNameModels.COMPONENTES_DO_PRODUTO.value,
+        blank=True,
+        max_length=5000,
     )
 
     tem_aditivos_alergenicos = models.BooleanField(
-        "Tem aditivos alergênicos", default=False
+        StringsVerboseNameModels.TEM_ADITIVOS_ALERGENICOS.value, default=False
     )
-    aditivos = models.TextField("Aditivos", blank=True)
+    aditivos = models.TextField(StringsVerboseNameModels.ADITIVOS.value, blank=True)
 
-    tipo = models.CharField("Tipo do Produto", blank=True, max_length=250)
-    embalagem = models.CharField("Embalagem Primária", blank=True, max_length=500)
-    prazo_validade = models.CharField("Prazo de validade", blank=True, max_length=100)
+    tipo = models.CharField(
+        StringsVerboseNameModels.TIPO_DO_PRODUTO.value, blank=True, max_length=250
+    )
+    embalagem = models.CharField(
+        StringsVerboseNameModels.EMBALAGEM_PRIMARIA.value, blank=True, max_length=500
+    )
+    prazo_validade = models.CharField(
+        StringsVerboseNameModels.PRAZO_DE_VALIDADE_2.value, blank=True, max_length=100
+    )
     info_armazenamento = models.CharField(
-        "Informações de Armazenamento", blank=True, max_length=500
+        StringsVerboseNameModels.INFORMACOES_DE_ARMAZENAMENTO.value,
+        blank=True,
+        max_length=500,
     )
-    outras_informacoes = models.TextField("Outras Informações", blank=True)
+    outras_informacoes = models.TextField(
+        StringsVerboseNameModels.OUTRAS_INFORMACOES.value, blank=True
+    )
     numero_registro = models.CharField(
-        "Registro do órgão competente", blank=True, max_length=100
+        StringsVerboseNameModels.REGISTRO_DO_ORGAO_COMPETENTE.value,
+        blank=True,
+        max_length=100,
     )
 
-    porcao = models.CharField("Porção nutricional", blank=True, max_length=50)
-    unidade_caseira = models.CharField("Unidade nutricional", blank=True, max_length=50)
-    tem_gluten = models.BooleanField("Tem Glúten?", null=True, default=None)
+    porcao = models.CharField(
+        StringsVerboseNameModels.PORCAO_NUTRICIONAL.value, blank=True, max_length=50
+    )
+    unidade_caseira = models.CharField(
+        StringsVerboseNameModels.UNIDADE_NUTRICIONAL.value, blank=True, max_length=50
+    )
+    tem_gluten = models.BooleanField(
+        StringsVerboseNameModels.TEM_GLUTEN.value, null=True, default=None
+    )
 
     @property
     def imagens(self):
@@ -254,8 +282,8 @@ class Produto(
         return self.nome
 
     class Meta:
-        verbose_name = "Produto"
-        verbose_name_plural = "Produtos"
+        verbose_name = StringsVerboseNameModels.PRODUTO.value
+        verbose_name_plural = StringsVerboseNameModels.PRODUTOS.value
 
 
 class DadosHistoricosProduto(models.Model):
@@ -304,20 +332,26 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
         Edital, null=False, on_delete=models.DO_NOTHING, related_name="vinculos"
     )
     tipo_produto = models.CharField(
-        "tipo de produto",
+        StringsVerboseNameModels.TIPO_DE_PRODUTO.value,
         max_length=25,
         choices=TIPO_PRODUTO_CHOICES,
         null=False,
         blank=False,
     )
-    outras_informacoes = models.TextField("Outras Informações", blank=True)
+    outras_informacoes = models.TextField(
+        StringsVerboseNameModels.OUTRAS_INFORMACOES.value, blank=True
+    )
     ativo = models.BooleanField(default=True)
-    suspenso = models.BooleanField("Esta suspenso?", default=False)
+    suspenso = models.BooleanField(
+        StringsVerboseNameModels.ESTA_SUSPENSO.value, default=False
+    )
     suspenso_justificativa = models.TextField(
-        "Porque foi suspenso individualmente",
+        StringsVerboseNameModels.PORQUE_FOI_SUSPENSO_INDIVIDUALMENTE.value,
         blank=True,
     )
-    suspenso_em = models.DateTimeField("Suspenso em", null=True, blank=True)
+    suspenso_em = models.DateTimeField(
+        StringsVerboseNameModels.SUSPENSO_EM.value, null=True, blank=True
+    )
     suspenso_por = models.ForeignKey(
         MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
     )
@@ -339,8 +373,10 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
         return f"{self.produto} -- {self.edital.numero}"
 
     class Meta:
-        verbose_name = "Vinculo entre produto e edital"
-        verbose_name_plural = "Vinculos entre produtos e editais"
+        verbose_name = StringsVerboseNameModels.VINCULO_ENTRE_PRODUTO_E_EDITAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.VINCULOS_ENTRE_PRODUTOS_E_EDITAIS.value
+        )
         unique_together = ("produto", "edital")
 
 
@@ -351,7 +387,9 @@ class DataHoraVinculoProdutoEdital(TemChaveExterna, CriadoEm):
         on_delete=models.CASCADE,
         related_name="datas_horas_vinculo",
     )
-    suspenso = models.BooleanField("Esta suspenso?", default=False)
+    suspenso = models.BooleanField(
+        StringsVerboseNameModels.ESTA_SUSPENSO.value, default=False
+    )
 
     def __str__(self):
         return (
@@ -360,8 +398,8 @@ class DataHoraVinculoProdutoEdital(TemChaveExterna, CriadoEm):
         )
 
     class Meta:
-        verbose_name = "Data e hora do vínculo"
-        verbose_name_plural = "Datas e horas do vínculo"
+        verbose_name = StringsVerboseNameModels.DATA_E_HORA_DO_VINCULO.value
+        verbose_name_plural = StringsVerboseNameModels.DATAS_E_HORAS_DO_VINCULO.value
         ordering = ("criado_em",)
 
 
@@ -387,7 +425,7 @@ class NomeDeProdutoEdital(
     )
 
     tipo_produto = models.CharField(
-        "tipo de produto",
+        StringsVerboseNameModels.TIPO_DE_PRODUTO.value,
         max_length=25,
         choices=TIPO_PRODUTO_CHOICES,
         null=False,
@@ -398,8 +436,10 @@ class NomeDeProdutoEdital(
     class Meta:
         ordering = ("nome",)
         unique_together = ("nome", "tipo_produto")
-        verbose_name = "Produto proveniente do Edital"
-        verbose_name_plural = "Produtos provenientes do Edital"
+        verbose_name = StringsVerboseNameModels.PRODUTO_PROVENIENTE_DO_EDITAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.PRODUTOS_PROVENIENTES_DO_EDITAL.value
+        )
 
     def __str__(self):
         return self.nome
@@ -418,7 +458,11 @@ class LogNomeDeProdutoEdital(
         ("i", "inativar"),
     )
     acao = models.CharField(
-        "ação", max_length=1, choices=OPCOES_ACAO, null=True, blank=True
+        StringsVerboseNameModels.ACAO.value,
+        max_length=1,
+        choices=OPCOES_ACAO,
+        null=True,
+        blank=True,
     )  # noqa DJ01
     nome_de_produto_edital = models.ForeignKey(
         NomeDeProdutoEdital, on_delete=models.SET_NULL, null=True, blank=True
@@ -426,8 +470,12 @@ class LogNomeDeProdutoEdital(
 
     class Meta:
         ordering = ("-criado_em",)
-        verbose_name = "Log de Produto proveniente do Edital"
-        verbose_name_plural = "Log de Produtos provenientes do Edital"
+        verbose_name = (
+            StringsVerboseNameModels.LOG_DE_PRODUTO_PROVENIENTE_DO_EDITAL.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.LOG_DE_PRODUTOS_PROVENIENTES_DO_EDITAL.value
+        )
 
     def __str__(self):
         return self.id_externo
@@ -451,8 +499,10 @@ class InformacoesNutricionaisDoProduto(TemChaveExterna):
         return f"{nome_produto} - {informacao_nutricional} => quantidade: {porcao} valor diario: {valor}"
 
     class Meta:
-        verbose_name = "Informação Nutricional do Produto"
-        verbose_name_plural = "Informações Nutricionais do Produto"
+        verbose_name = StringsVerboseNameModels.INFORMACAO_NUTRICIONAL_DO_PRODUTO.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.INFORMACOES_NUTRICIONAIS_DO_PRODUTO.value
+        )
 
 
 class HomologacaoProduto(
@@ -934,8 +984,8 @@ class HomologacaoProduto(
 
     class Meta:
         ordering = ("-ativo", "-criado_em")
-        verbose_name = "Homologação de Produto"
-        verbose_name_plural = "Homologações de Produto"
+        verbose_name = StringsVerboseNameModels.HOMOLOGACAO_DE_PRODUTO.value
+        verbose_name_plural = StringsVerboseNameModels.HOMOLOGACOES_DE_PRODUTO.value
 
     def __str__(self):
         return f"Homologação #{self.id_externo}"
@@ -956,10 +1006,16 @@ class ReclamacaoDeProduto(
         null=True,
         blank=True,
     )
-    reclamante_registro_funcional = models.CharField("RF/CRN/CRF", max_length=50)
-    reclamante_cargo = models.CharField("Cargo", max_length=100)
-    reclamante_nome = models.CharField("Nome", max_length=255)
-    reclamacao = models.TextField("Reclamação")
+    reclamante_registro_funcional = models.CharField(
+        StringsVerboseNameModels.RF_CRN_CRF.value, max_length=50
+    )
+    reclamante_cargo = models.CharField(
+        StringsVerboseNameModels.CARGO.value, max_length=100
+    )
+    reclamante_nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=255
+    )
+    reclamacao = models.TextField(StringsVerboseNameModels.RECLAMACAO.value)
     escola = models.ForeignKey(
         Escola, null=True, on_delete=models.PROTECT, related_name="reclamacoes"
     )
@@ -1129,7 +1185,7 @@ class AnaliseSensorial(TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoE
     )
 
     status = models.CharField(
-        "Status da análise",
+        StringsVerboseNameModels.STATUS_DA_ANALISE.value,
         max_length=25,
         choices=STATUS_CHOICES,
         default=STATUS_AGUARDANDO_RESPOSTA,
@@ -1178,7 +1234,9 @@ class ItemCadastro(TemChaveExterna, CriadoEm):
         EMBALAGEM: EmbalagemProduto,
     }
 
-    tipo = models.CharField("Tipo", max_length=30, choices=CHOICES)
+    tipo = models.CharField(
+        StringsVerboseNameModels.TIPO.value, max_length=30, choices=CHOICES
+    )
 
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
 
@@ -1254,7 +1312,7 @@ class EspecificacaoProduto(CriadoEm, TemAlteradoEm, TemChaveExterna):
     volume: 1,5, unidade de medida: Litros, embalagem: bag
     """
 
-    volume = models.FloatField("Volume", null=True)
+    volume = models.FloatField(StringsVerboseNameModels.VOLUME.value, null=True)
     produto = models.ForeignKey(
         Produto, on_delete=models.CASCADE, related_name="especificacoes"
     )
@@ -1266,5 +1324,5 @@ class EspecificacaoProduto(CriadoEm, TemAlteradoEm, TemChaveExterna):
     )
 
     class Meta:
-        verbose_name = "Especificicação do Produto"
-        verbose_name_plural = "Especificações do Produto"
+        verbose_name = StringsVerboseNameModels.ESPECIFICICACAO_DO_PRODUTO.value
+        verbose_name_plural = StringsVerboseNameModels.ESPECIFICACOES_DO_PRODUTO.value

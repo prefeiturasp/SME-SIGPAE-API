@@ -19,6 +19,7 @@ from ...dados_comuns.constants import (
     NOME_LOTE_EMEF,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
 )
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...escola.models import Aluno, FaixaEtaria
@@ -468,7 +469,7 @@ def test__unidades_tipo_cei(escolas_tipo_cei):
     assert isinstance(periodo, list)
     assert len(periodo) == 2
     assert periodo[1]["autorizadas"] == 3
-    assert periodo[1]["faixa"] == "07 a 11 meses"
+    assert periodo[1]["faixa"] == FaixasEtarias.SETE_A_ONZE_MESES.value
 
     dietas = _unidades_tipo_cei(item_somatorio, classificacao)
     assert dietas == 4
@@ -482,7 +483,7 @@ def test__unidades_tipo_cei(escolas_tipo_cei):
     assert isinstance(periodo, list)
     assert len(periodo) == 2
     assert periodo[1]["autorizadas"] == 3
-    assert periodo[1]["faixa"] == "07 a 11 meses"
+    assert periodo[1]["faixa"] == FaixasEtarias.SETE_A_ONZE_MESES.value
 
 
 def test__unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etaria):
@@ -805,7 +806,12 @@ def test__formatar_periodos_cemei():
         "fundamental": {},
         "periodos": {},
         "por_idade": {
-            "INTEGRAL": [{"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}]
+            "INTEGRAL": [
+                {
+                    "faixa": FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                    "autorizadas": 1,
+                }
+            ]
         },
         "turma_infantil": {"INTEGRAL": 1},
         "faixa_etaria": {},
@@ -829,9 +835,12 @@ def test__formatar_periodos_cemei():
     assert "periodo" in informacao["periodos"]["por_idade"][0]
     assert "faixa_etaria" in informacao["periodos"]["por_idade"][0]
 
-    assert [{"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}] == informacao[
-        "periodos"
-    ]["por_idade"][0]["faixa_etaria"]
+    assert [
+        {
+            "faixa": FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+            "autorizadas": 1,
+        }
+    ] == informacao["periodos"]["por_idade"][0]["faixa_etaria"]
 
 
 def test__formatar_periodos_cei(escolas_tipo_cei):
@@ -853,9 +862,12 @@ def test__formatar_periodos_cei(escolas_tipo_cei):
     assert isinstance(informacao["periodos"], list)
     assert "periodo" in informacao["periodos"][0]
     assert "faixa_etaria" in informacao["periodos"][0]
-    assert [{"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}] == informacao[
-        "periodos"
-    ][0]["faixa_etaria"]
+    assert [
+        {
+            "faixa": FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+            "autorizadas": 1,
+        }
+    ] == informacao["periodos"][0]["faixa_etaria"]
 
 
 def test_formatar_informacoes_historioco_dietas(

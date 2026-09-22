@@ -13,6 +13,7 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_MANHA,
     GRUPO_INFANTIL_TARDE,
     TIPOS_ALIMENTACAO,
+    FaixasEtarias,
 )
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
@@ -49,9 +50,9 @@ from src.medicao_inicial.utils import (
     get_somatorio_total_tabela,
     mapear_dados_existentes,
     obter_instancia_dados,
+    processa_reabrir_lancamentos,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
-    processa_reabrir_lancamentos,
 )
 
 from .data import (
@@ -204,12 +205,18 @@ def test_build_headers_tabelas_cei(
             "categorias": [
                 {
                     "categoria": "ALIMENTAÇÃO",
-                    "faixas_etarias": ["01 a 09 meses", "total"],
+                    "faixas_etarias": [
+                        FaixasEtarias.UM_A_NOVE_MESES.value,
+                        "total",
+                    ],
                     "periodo": "INTEGRAL",
                 },
                 {
                     "categoria": "ALIMENTAÇÃO",
-                    "faixas_etarias": ["01 a 09 meses", "total"],
+                    "faixas_etarias": [
+                        FaixasEtarias.UM_A_NOVE_MESES.value,
+                        "total",
+                    ],
                     "periodo": "MANHA",
                 },
             ],
@@ -571,7 +578,7 @@ def test_utils_get_lista_categorias_campos(medicao_solicitacoes_alimentacao):
 
 def test_utils_get_lista_categorias_campos_cei(medicao_solicitacoes_alimentacao_cei):
     assert get_lista_categorias_campos_cei(medicao_solicitacoes_alimentacao_cei) == [
-        ("ALIMENTAÇÃO", "01 a 02 meses")
+        ("ALIMENTAÇÃO", FaixasEtarias.UM_A_DOIS_MESES.value)
     ]
 
 
@@ -580,7 +587,7 @@ def test_build_dict_relacao_categorias_e_campos_cei(
 ):
     assert build_dict_relacao_categorias_e_campos_cei(
         medicao_solicitacoes_alimentacao_cei
-    ) == {"ALIMENTAÇÃO": ["01 a 02 meses"]}
+    ) == {"ALIMENTAÇÃO": [FaixasEtarias.UM_A_DOIS_MESES.value]}
 
 
 def test_utils_tratar_valores(solicitacao_medicao_inicial, escola, escola_emei):
@@ -979,14 +986,14 @@ def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repet
 def test_avalia_soma_total_com_dados_tabela_anterior():
     valores_para_soma = ["-", "123", "-", "35"]
     todas_faixas_anterior = [
-        "01 a 03 meses",
-        "04 a 05 meses",
-        "07 a 11 meses",
-        "01 ano a 03 anos e 11 meses",
-        "04 anos a 06 anos",
+        FaixasEtarias.UM_A_TRES_MESES.value,
+        FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+        FaixasEtarias.SETE_A_ONZE_MESES.value,
+        FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+        FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
         "total",
-        "04 a 05 meses",
-        "06 meses",
+        FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+        FaixasEtarias.SEIS_MESES.value,
     ]
     index = 2
     index_primeira_coluna_total = 2
@@ -996,18 +1003,21 @@ def test_avalia_soma_total_com_dados_tabela_anterior():
             {
                 "categoria": "ALIMENTAÇÃO",
                 "faixas_etarias": [
-                    "01 a 03 meses",
-                    "04 a 05 meses",
-                    "07 a 11 meses",
-                    "01 ano a 03 anos e 11 meses",
-                    "04 anos a 06 anos",
+                    FaixasEtarias.UM_A_TRES_MESES.value,
+                    FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+                    FaixasEtarias.SETE_A_ONZE_MESES.value,
+                    FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                    FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
                     "total",
                 ],
                 "periodo": "INTEGRAL",
             },
             {
                 "categoria": DIETA_ESPECIAL_TIPO_B,
-                "faixas_etarias": ["04 a 05 meses", "06 meses"],
+                "faixas_etarias": [
+                    FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+                    FaixasEtarias.SEIS_MESES.value,
+                ],
                 "periodo": "INTEGRAL",
             },
         ],
@@ -2027,9 +2037,11 @@ class TestProcessaReabrirLancamentos:
             == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
         )
 
-        assert not type(relatorio_financeiro_cei).objects.filter(
-            pk=relatorio_financeiro_cei.pk
-        ).exists()
+        assert (
+            not type(relatorio_financeiro_cei)
+            .objects.filter(pk=relatorio_financeiro_cei.pk)
+            .exists()
+        )
 
     def test_nao_deve_reabrir_solicitacao_de_tipo_de_unidade_fora_do_grupo(
         self,
@@ -2092,6 +2104,8 @@ class TestProcessaReabrirLancamentos:
             usuario=usuario,
         )
 
-        assert not type(relatorio_financeiro_cei).objects.filter(
-            pk=relatorio_financeiro_cei.pk
-        ).exists()
+        assert (
+            not type(relatorio_financeiro_cei)
+            .objects.filter(pk=relatorio_financeiro_cei.pk)
+            .exists()
+        )

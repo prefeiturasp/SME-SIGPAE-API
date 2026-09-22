@@ -2,6 +2,8 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
@@ -62,7 +64,9 @@ class QuantidadePorPeriodo(
         "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
     )
     tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
-    observacao = models.CharField("Observação", blank=True, max_length=1000)
+    observacao = models.CharField(
+        StringsVerboseNameModels.OBSERVACAO.value, blank=True, max_length=1000
+    )
     grupo_inclusao_normal = models.ForeignKey(
         "GrupoInclusaoAlimentacaoNormal",
         on_delete=models.CASCADE,
@@ -88,8 +92,8 @@ class QuantidadePorPeriodo(
         return f"{self.numero_alunos} alunos para {self.periodo_escolar} com {qtd} tipo(s) de alimentação"
 
     class Meta:
-        verbose_name = "Quantidade por periodo"
-        verbose_name_plural = "Quantidades por periodo"
+        verbose_name = StringsVerboseNameModels.QUANTIDADE_POR_PERIODO.value
+        verbose_name_plural = StringsVerboseNameModels.QUANTIDADES_POR_PERIODO.value
 
 
 class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
@@ -104,8 +108,10 @@ class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = "Motivo de inclusao contínua"
-        verbose_name_plural = "Motivos de inclusao contínua"
+        verbose_name = StringsVerboseNameModels.MOTIVO_DE_INCLUSAO_CONTINUA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.MOTIVOS_DE_INCLUSAO_CONTINUA.value
+        )
 
 
 class InclusaoAlimentacaoContinua(
@@ -124,7 +130,9 @@ class InclusaoAlimentacaoContinua(
     # TODO: noralizar campo de Descritivel: descricao -> observacao
     DESCRICAO = "Inclusão de Alimentação Contínua"
 
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
     motivo = models.ForeignKey(MotivoInclusaoContinua, on_delete=models.DO_NOTHING)
     escola = models.ForeignKey(
         MODEL_ESCOLA,
@@ -306,8 +314,10 @@ class InclusaoAlimentacaoContinua(
         return f"de {self.data_inicial} até {self.data_final} para {self.escola}"
 
     class Meta:
-        verbose_name = "Inclusão de alimentação contínua"
-        verbose_name_plural = "Inclusões de alimentação contínua"
+        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_CONTINUA.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_CONTINUA.value
+        )
         ordering = ["data_inicial"]
 
 
@@ -323,8 +333,8 @@ class MotivoInclusaoNormal(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = "Motivo de inclusao normal"
-        verbose_name_plural = "Motivos de inclusao normais"
+        verbose_name = StringsVerboseNameModels.MOTIVO_DE_INCLUSAO_NORMAL.value
+        verbose_name_plural = StringsVerboseNameModels.MOTIVOS_DE_INCLUSAO_NORMAIS.value
 
 
 class InclusaoAlimentacaoNormal(
@@ -334,8 +344,12 @@ class InclusaoAlimentacaoNormal(
     CanceladoIndividualmente,
 ):
     motivo = models.ForeignKey(MotivoInclusaoNormal, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
-    evento = models.CharField("Descrição do Evento", blank=True, max_length=1500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
+    evento = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_DO_EVENTO.value, blank=True, max_length=1500
+    )
     grupo_inclusao = models.ForeignKey(
         "GrupoInclusaoAlimentacaoNormal",
         blank=True,
@@ -350,8 +364,10 @@ class InclusaoAlimentacaoNormal(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = "Inclusão de alimentação normal"
-        verbose_name_plural = "Inclusões de alimentação normal"
+        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_NORMAL.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_NORMAL.value
+        )
         ordering = ("data",)
 
 
@@ -556,8 +572,12 @@ class GrupoInclusaoAlimentacaoNormal(
         return f"{self.escola} pedindo {self.inclusoes.count()} inclusoes"
 
     class Meta:
-        verbose_name = "Grupo de inclusão de alimentação normal"
-        verbose_name_plural = "Grupos de inclusão de alimentação normal"
+        verbose_name = (
+            StringsVerboseNameModels.GRUPO_DE_INCLUSAO_DE_ALIMENTACAO_NORMAL.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.GRUPOS_DE_INCLUSAO_DE_ALIMENTACAO_NORMAL.value
+        )
 
 
 class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
@@ -590,10 +610,10 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
 
     class Meta:
         verbose_name = (
-            "Quantidade de alunos por faixa etária da inclusao de alimentação"
+            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO.value
         )
         verbose_name_plural = (
-            "Quantidade de alunos por faixa etária da inclusao de alimentação"
+            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO.value
         )
 
 
@@ -860,8 +880,10 @@ class InclusaoAlimentacaoDaCEI(
         return f"Inclusao da CEI cód: {self.id_externo}"
 
     class Meta:
-        verbose_name = "Inclusão de alimentação da CEI"
-        verbose_name_plural = "Inclusões de alimentação da CEI"
+        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_DA_CEI.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_DA_CEI.value
+        )
 
 
 class DiasMotivosInclusaoDeAlimentacaoCEI(
@@ -873,7 +895,9 @@ class DiasMotivosInclusaoDeAlimentacaoCEI(
         related_name="dias_motivos_da_inclusao_cei",
     )
     motivo = models.ForeignKey(MotivoInclusaoNormal, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
 
     def __str__(self):
         if self.outro_motivo:
@@ -881,8 +905,12 @@ class DiasMotivosInclusaoDeAlimentacaoCEI(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = "Dia e motivo inclusão de alimentação CEI"
-        verbose_name_plural = "Dias e motivos inclusão de alimentação CEI"
+        verbose_name = (
+            StringsVerboseNameModels.DIA_E_MOTIVO_INCLUSAO_DE_ALIMENTACAO_CEI.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.DIAS_E_MOTIVOS_INCLUSAO_DE_ALIMENTACAO_CEI.value
+        )
         ordering = ("data",)
 
 
@@ -1173,8 +1201,10 @@ class InclusaoDeAlimentacaoCEMEI(
         return f"Inclusão de Alimentação CEMEI cód: {self.id_externo}"
 
     class Meta:
-        verbose_name = "Inclusão de alimentação CEMEI"
-        verbose_name_plural = "Inclusões de alimentação CEMEI"
+        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+        verbose_name_plural = (
+            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_CEMEI.value
+        )
 
 
 class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
@@ -1198,10 +1228,10 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
 
     class Meta:
         verbose_name = (
-            "Quantidade de alunos por faixa etária da inclusao de alimentação CEMEI"
+            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
         )
         verbose_name_plural = (
-            "Quantidade de alunos por faixa etária da inclusao de alimentação CEMEI"
+            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
         )
 
 
@@ -1225,9 +1255,11 @@ class QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI(
         return f"{self.periodo_escolar.nome} - {self.quantidade_alunos} alunos"
 
     class Meta:
-        verbose_name = "Quantidade de alunos EMEI por inclusao de alimentação CEMEI"
+        verbose_name = (
+            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_EMEI_POR_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+        )
         verbose_name_plural = (
-            "Quantidade de alunos EMEI por inclusao de alimentação CEMEI"
+            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_EMEI_POR_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
         )
 
 
@@ -1240,9 +1272,11 @@ class DiasMotivosInclusaoDeAlimentacaoCEMEI(
         related_name="dias_motivos_da_inclusao_cemei",
     )
     motivo = models.ForeignKey(MotivoInclusaoNormal, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
     descricao_evento = models.CharField(
-        "Descrição do Evento", blank=True, max_length=1500
+        StringsVerboseNameModels.DESCRICAO_DO_EVENTO.value, blank=True, max_length=1500
     )
 
     def __str__(self):
@@ -1251,6 +1285,10 @@ class DiasMotivosInclusaoDeAlimentacaoCEMEI(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = "Diaa e motivo inclusão de alimentação CEMEI"
-        verbose_name_plural = "Dias e motivos inclusçao de alimentação CEMEI"
+        verbose_name = (
+            StringsVerboseNameModels.DIAA_E_MOTIVO_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+        )
+        verbose_name_plural = (
+            StringsVerboseNameModels.DIAS_E_MOTIVOS_INCLUSCAO_DE_ALIMENTACAO_CEMEI.value
+        )
         ordering = ("data",)

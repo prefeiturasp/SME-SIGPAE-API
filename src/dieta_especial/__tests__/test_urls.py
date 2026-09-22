@@ -137,7 +137,9 @@ def test_url_criar_dieta(
         "/solicitacoes-dieta-especial/", content_type="application/json", data=payload
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == ["Aluno já possui Solicitação de Dieta Especial pendente"]
+    assert response.json() == [
+        constants.StringsValidationErrors.DIETA_ESPECIAL_PENDENTE.value
+    ]
 
 
 def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
@@ -1084,12 +1086,20 @@ def test_relatorio_historico_dieta_especial(
                 {
                     "periodo": "INTEGRAL",
                     "faixa_etaria": [
-                        {"faixa": "0 meses a 05 meses", "autorizadas": 10}
+                        {
+                            "faixa": constants.FaixasEtarias.ZERO_MESES_A_CINCO_MESES.value,
+                            "autorizadas": 10,
+                        }
                     ],
                 },
                 {
                     "periodo": "MANHA",
-                    "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
+                    "faixa_etaria": [
+                        {
+                            "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                            "autorizadas": 11,
+                        }
+                    ],
                 },
             ],
         },
@@ -1105,12 +1115,20 @@ def test_relatorio_historico_dieta_especial(
                     {
                         "periodo": "INTEGRAL",
                         "faixa_etaria": [
-                            {"faixa": "0 meses a 05 meses", "autorizadas": 12}
+                            {
+                                "faixa": constants.FaixasEtarias.ZERO_MESES_A_CINCO_MESES.value,
+                                "autorizadas": 12,
+                            }
                         ],
                     },
                     {
                         "periodo": "MANHA",
-                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 13}],
+                        "faixa_etaria": [
+                            {
+                                "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                                "autorizadas": 13,
+                            }
+                        ],
                     },
                 ]
             },
@@ -1175,7 +1193,9 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_relatorio_recreio_nas_ferias(
@@ -1236,7 +1256,9 @@ def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_codae_atualiza_protocolo(
@@ -1357,10 +1379,7 @@ def test_relatorio_recreio_exportar_xlsx(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_relatorio_recreio_exportar_xlsx(
@@ -1372,10 +1391,7 @@ def test_relatorio_recreio_exportar_xlsx(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_logs_dieta_recreio_nas_ferias_escola_sem_log(
@@ -1551,7 +1567,10 @@ def test_logs_dieta_recreio_nas_ferias_cei(
     assert len(logs) == 4
 
     logs_faixa_0_5 = [
-        log for log in logs if log["faixa_etaria"]["__str__"] == "0 meses a 05 meses"
+        log
+        for log in logs
+        if log["faixa_etaria"]["__str__"]
+        == constants.FaixasEtarias.ZERO_MESES_A_CINCO_MESES.value
     ]
     assert len(logs_faixa_0_5) == 3
     assert any(log["classificacao"] == "Tipo A" for log in logs_faixa_0_5)
@@ -1559,7 +1578,10 @@ def test_logs_dieta_recreio_nas_ferias_cei(
     assert any(log["classificacao"] == "Tipo B" for log in logs_faixa_0_5)
 
     logs_faixa_7_11 = [
-        log for log in logs if log["faixa_etaria"]["__str__"] == "07 a 11 meses"
+        log
+        for log in logs
+        if log["faixa_etaria"]["__str__"]
+        == constants.FaixasEtarias.SETE_A_ONZE_MESES.value
     ]
     assert len(logs_faixa_7_11) == 1
     assert logs_faixa_7_11[0]["classificacao"] == "Tipo B"

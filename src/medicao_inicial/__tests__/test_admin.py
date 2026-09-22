@@ -2,6 +2,7 @@ import pytest
 from django.contrib.admin.sites import AdminSite
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import StringsSearchHelpText
 from src.medicao_inicial.admin import DiaSobremesaDoceAdmin
 from src.medicao_inicial.models import DiaSobremesaDoce
 
@@ -38,9 +39,9 @@ def test_dia_sobremesa_doce_admin_search_help_text():
     admin_instance = DiaSobremesaDoceAdmin(
         model=DiaSobremesaDoce, admin_site=AdminSite()
     )
-    assert admin_instance.search_help_text == (
-        "Pesquise por: iniciais ou nome do tipo de unidade, "
-        "número do edital, tipo de sobremesa"
+    assert (
+        admin_instance.search_help_text
+        == StringsSearchHelpText.PESQUISE_POR_INICIAIS_OU_NOME_DO_TIPO_DE_UNIDADE_NUMERO_DO_EDITAL_TIPO_DE_SOBREMESA.value
     )
 
 
