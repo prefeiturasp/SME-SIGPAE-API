@@ -1,7 +1,9 @@
 import pytest
 
 from src.dados_comuns.constants import EM_ANALISE_LABEL
+from src.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
 from src.logistica.api.helpers import (
+    STATUS_SOLICITACAO_REMESSA,
     remove_acentos_de_strings,
     retorna_dados_normalizados_excel_entregas_distribuidor,
     retorna_dados_normalizados_excel_visao_dilog,
@@ -28,7 +30,15 @@ def test_retorna_statis_das_resquisicoes():
     status1 = retorna_status_das_requisicoes([" "])
     status2 = retorna_status_das_requisicoes(["Todos"])
     status3 = retorna_status_das_requisicoes(
-        ["Aguardando envio", "Enviada", "Cancelada", "Confirmada", EM_ANALISE_LABEL]
+        [
+            STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO],
+            STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DILOG_ENVIA],
+            STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA],
+            STATUS_SOLICITACAO_REMESSA[
+                SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+            ],
+            EM_ANALISE_LABEL,
+        ]
     )
     todos_status = [
         "AGUARDANDO_ENVIO",
@@ -49,11 +59,19 @@ def test_retorna_status_para_usuario():
     status2 = retorna_status_para_usuario("Distribuidor confirmou requisição")
     status3 = retorna_status_para_usuario("Distribuidor pede alteração da requisição")
     status4 = retorna_status_para_usuario("Cancelada")
-    assert status0 == "Aguardando envio"
-    assert status1 == "Enviada"
-    assert status2 == "Confirmada"
+    assert (
+        status0
+        == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO]
+    )
+    assert status1 == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DILOG_ENVIA]
+    assert (
+        status2
+        == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA]
+    )
     assert status3 == EM_ANALISE_LABEL
-    assert status4 == "Cancelada"
+    assert (
+        status4 == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
+    )
 
 
 def test_retorna_dados_normalizados_excel_visao_distribuidor(solicitacao):
@@ -78,7 +96,9 @@ def test_retorna_dados_normalizados_excel_visao_distribuidor(solicitacao):
         "guias__alimentos__embalagens__unidade_medida": None,
         "guias__alimentos__codigo_suprimento": None,
         "guias__escola__subprefeitura__agrupamento": None,
-        "status_requisicao": "Aguardando envio",
+        "status_requisicao": STATUS_SOLICITACAO_REMESSA[
+            SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO
+        ],
     }
     assert requisicoes.last() == esperado
 
@@ -111,7 +131,9 @@ def test_retorna_dados_normalizados_excel_visao_dilog(solicitacao):
         "guias__alimentos__embalagens__capacidade_embalagem": None,
         "guias__alimentos__embalagens__unidade_medida": None,
         "guias__alimentos__embalagens__qtd_volume": None,
-        "status_requisicao": "Aguardando envio",
+        "status_requisicao": STATUS_SOLICITACAO_REMESSA[
+            SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO
+        ],
         "codigo_eol_unidade": "",
     }
     assert requisicoes.last() == esperado
@@ -156,7 +178,9 @@ def test_retorna_dados_normalizados_excel_entregas_distribuidor(solicitacao):
         "guias__insucessos__criado_por__nome": None,
         "distribuidor__nome_fantasia": "Alimentos SA",
         "guias__escola__subprefeitura__agrupamento": None,
-        "status_requisicao": "Aguardando envio",
+        "status_requisicao": STATUS_SOLICITACAO_REMESSA[
+            SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO
+        ],
     }
     assert requisicoes.last() == esperado
 
@@ -168,7 +192,7 @@ def test_retorna_ocorrencias_alimento():
 
 def test_retorna_status_guia_remessa():
     status = retorna_status_guia_remessa("CANCELADA")
-    assert status == "Cancelada"
+    assert status == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
 
 
 def test_valida_rf_ou_cpf(distribuidor):

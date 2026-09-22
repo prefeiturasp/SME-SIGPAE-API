@@ -40,6 +40,10 @@ status_alimento_nao_recebido = (
 status_alimento_parcial = ConferenciaIndividualPorAlimento.STATUS_ALIMENTO_PARCIAL
 ocorrencia_em_atraso = ConferenciaIndividualPorAlimento.OCORRENCIA_ATRASO_ENTREGA
 
+STATUS_SOLICITACAO_REMESSA = {
+    state.name: state.title for state in SolicitacaoRemessaWorkFlow.states
+}
+
 
 def remove_acentos_de_strings(nome: str) -> str:
     return normalize("NFKD", nome).encode("ASCII", "ignore").decode("ASCII")
@@ -62,13 +66,26 @@ def retorna_status_das_requisicoes(status_list: list) -> list:  # noqa C901
     for status in status_list:
         if status == "Todos":
             return todos_status
-        elif status == "Aguardando envio":
+        elif (
+            status
+            == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO]
+        ):
             lista_com_status.append(SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO)
-        elif status == "Enviada":
+        elif (
+            status == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DILOG_ENVIA]
+        ):
             lista_com_status.append(SolicitacaoRemessaWorkFlow.DILOG_ENVIA)
-        elif status == "Cancelada":
+        elif (
+            status
+            == STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
+        ):
             lista_com_status.append(SolicitacaoRemessaWorkFlow.PAPA_CANCELA)
-        elif status == "Confirmada":
+        elif (
+            status
+            == STATUS_SOLICITACAO_REMESSA[
+                SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+            ]
+        ):
             lista_com_status.append(SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA)
         elif status == EM_ANALISE_LABEL:
             lista_com_status.append(
@@ -79,15 +96,17 @@ def retorna_status_das_requisicoes(status_list: list) -> list:  # noqa C901
 
 def retorna_status_para_usuario(status_evento: str) -> str:  # noqa C901
     if status_evento == "Papa enviou a requisição":
-        return "Aguardando envio"
+        return STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO]
     elif status_evento == "Dilog Enviou a requisição":
-        return "Enviada"
+        return STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DILOG_ENVIA]
     elif status_evento == "Distribuidor confirmou requisição":
-        return "Confirmada"
+        return STATUS_SOLICITACAO_REMESSA[
+            SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+        ]
     elif status_evento == "Distribuidor pede alteração da requisição":
         return EM_ANALISE_LABEL
     else:
-        return "Cancelada"
+        return STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
 
 
 def retorna_dados_normalizados_excel_visao_distribuidor(queryset):
@@ -107,14 +126,45 @@ def retorna_dados_normalizados_excel_visao_distribuidor(queryset):
             output_field=CharField(),
         ),
         status_requisicao=Case(
-            When(status="AGUARDANDO_ENVIO", then=Value("Aguardando envio")),
-            When(status="DILOG_ENVIA", then=Value("Enviada")),
-            When(status="CANCELADA", then=Value("Cancelada")),
-            When(status="DISTRIBUIDOR_CONFIRMA", then=Value("Confirmada")),
+            When(
+                status="AGUARDANDO_ENVIO",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO
+                    ]
+                ),
+            ),
+            When(
+                status="DILOG_ENVIA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DILOG_ENVIA]
+                ),
+            ),
+            When(
+                status="CANCELADA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
+                ),
+            ),
+            When(
+                status="DISTRIBUIDOR_CONFIRMA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+                    ]
+                ),
+            ),
             When(
                 status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value(EM_ANALISE_LABEL)
             ),
-            When(status="DILOG_ACEITA_ALTERACAO", then=Value("Alterada")),
+            When(
+                status="DILOG_ACEITA_ALTERACAO",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.DILOG_ACEITA_ALTERACAO
+                    ]
+                ),
+            ),
             output_field=CharField(),
         ),
     ).values(
@@ -145,14 +195,45 @@ def retorna_dados_normalizados_excel_visao_distribuidor(queryset):
 def retorna_dados_normalizados_excel_visao_dilog(queryset):
     requisicoes = queryset.annotate(
         status_requisicao=Case(
-            When(status="AGUARDANDO_ENVIO", then=Value("Aguardando envio")),
-            When(status="DILOG_ENVIA", then=Value("Enviada")),
-            When(status="CANCELADA", then=Value("Cancelada")),
-            When(status="DISTRIBUIDOR_CONFIRMA", then=Value("Confirmada")),
+            When(
+                status="AGUARDANDO_ENVIO",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO
+                    ]
+                ),
+            ),
+            When(
+                status="DILOG_ENVIA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.DILOG_ENVIA]
+                ),
+            ),
+            When(
+                status="CANCELADA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
+                ),
+            ),
+            When(
+                status="DISTRIBUIDOR_CONFIRMA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+                    ]
+                ),
+            ),
             When(
                 status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value(EM_ANALISE_LABEL)
             ),
-            When(status="DILOG_ACEITA_ALTERACAO", then=Value("Alterada")),
+            When(
+                status="DILOG_ACEITA_ALTERACAO",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.DILOG_ACEITA_ALTERACAO
+                    ]
+                ),
+            ),
             output_field=CharField(),
         ),
         codigo_eol_unidade=Value("", output_field=CharField()),
@@ -198,14 +279,40 @@ def retorna_dados_normalizados_excel_visao_dilog(queryset):
 def retorna_dados_normalizados_excel_entregas_distribuidor(queryset):  # noqa C901
     requisicoes = queryset.annotate(
         status_requisicao=Case(
-            When(status="AGUARDANDO_ENVIO", then=Value("Aguardando envio")),
+            When(
+                status="AGUARDANDO_ENVIO",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.AGUARDANDO_ENVIO
+                    ]
+                ),
+            ),
             When(status="DILOG_ENVIA", then=Value("Recebida")),
-            When(status="CANCELADA", then=Value("Cancelada")),
-            When(status="DISTRIBUIDOR_CONFIRMA", then=Value("Confirmada")),
+            When(
+                status="CANCELADA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[SolicitacaoRemessaWorkFlow.PAPA_CANCELA]
+                ),
+            ),
+            When(
+                status="DISTRIBUIDOR_CONFIRMA",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.DISTRIBUIDOR_CONFIRMA
+                    ]
+                ),
+            ),
             When(
                 status="DISTRIBUIDOR_SOLICITA_ALTERACAO", then=Value(EM_ANALISE_LABEL)
             ),
-            When(status="DILOG_ACEITA_ALTERACAO", then=Value("Alterada")),
+            When(
+                status="DILOG_ACEITA_ALTERACAO",
+                then=Value(
+                    STATUS_SOLICITACAO_REMESSA[
+                        SolicitacaoRemessaWorkFlow.DILOG_ACEITA_ALTERACAO
+                    ]
+                ),
+            ),
             output_field=CharField(),
         )
     ).values(
