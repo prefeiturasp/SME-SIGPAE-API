@@ -5,6 +5,7 @@ from datetime import date
 from django.db import transaction
 from rest_framework import serializers
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.pre_recebimento.cronograma_semanal.models import (
     CronogramaSemanal,
@@ -50,7 +51,7 @@ class CronogramaSemanalRascunhoSerializer(serializers.ModelSerializer):
         required=True,
         error_messages={
             "does_not_exist": "Cronograma mensal não encontrado.",
-            "required": "Este campo é obrigatório.",
+            "required": StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value,
         },
     )
     observacoes = serializers.CharField(

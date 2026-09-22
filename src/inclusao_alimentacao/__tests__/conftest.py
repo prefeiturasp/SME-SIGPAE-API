@@ -4,6 +4,7 @@ import pytest
 from faker import Faker
 from model_bakery import baker
 
+from src.dados_comuns.constants import StringsCaminhoModelos
 from src.escola.__tests__.conftest import mocked_response
 
 from ...dados_comuns import constants
@@ -78,7 +79,7 @@ def escola_cei():
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL GUAIANASES",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
     return baker.make(
@@ -95,7 +96,7 @@ def escola_cemei():
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL GUAIANASES",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
     tipo_unidade = baker.make(
@@ -122,7 +123,7 @@ def make_escola_cei():
         lote = baker.make("Lote", terceirizada=terceirizada)
         diretoria_regional = baker.make(
             "DiretoriaRegional",
-            nome="DIRETORIA REGIONAL GUAIANASES",
+            nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
             uuid="7063d85d-a28f-4d62-a178-d56ae5a9776e",
         )
         return baker.make(
@@ -134,7 +135,10 @@ def make_escola_cei():
 
 @pytest.fixture
 def dre_guaianases():
-    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
+    return baker.make(
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
+    )
 
 
 @pytest.fixture
@@ -163,9 +167,9 @@ def make_motivo_inclusao_normal():
 
 @pytest.fixture
 def quantidade_por_periodo():
-    periodo_escolar = baker.make("escola.PeriodoEscolar")
+    periodo_escolar = baker.make(StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value)
     tipos_alimentacao = baker.make(
-        "cardapio.TipoAlimentacao", _quantity=5, make_m2m=True
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, _quantity=5, make_m2m=True
     )
 
     return baker.make(

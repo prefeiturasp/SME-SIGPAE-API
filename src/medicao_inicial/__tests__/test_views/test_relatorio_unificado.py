@@ -33,6 +33,7 @@ from src.medicao_inicial.fixtures.factories.base_factory import (
 from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     SolicitacaoMedicaoInicialFactory,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.tasks import gera_pdf_relatorio_unificado_async
 from src.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
@@ -145,7 +146,9 @@ class TestGeraRelatorioUnificado:
         self, solicitacao_com_historico, solicitacao_sem_historico, periodo_escolar
     ):
         """Cria medições básicas para as solicitações."""
-        categoria_medicao = CategoriaMedicaoFactory.create(nome="ALIMENTAÇÃO")
+        categoria_medicao = CategoriaMedicaoFactory.create(
+            nome=CategoriaMedicao.ALIMENTACAO
+        )
 
         medicao_com_historico = baker.make(
             "Medicao",

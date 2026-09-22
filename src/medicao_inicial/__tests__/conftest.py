@@ -23,20 +23,21 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MODEL_LOTE,
-    MODEL_TERCEIRIZADA,
+    StringsCaminhoModelos,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import (
     DiaCalendario,
     Escola,
+    GrupoUnidadeEscolar,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
 )
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
+    CategoriaMedicao,
     Medicao,
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
@@ -392,7 +393,7 @@ def escola(tipo_unidade_escolar, diretoria_regional):
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
-        nome="EMEF TESTE",
+        nome=constants.NomesParaTesteEscola.EMEF_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -455,7 +456,7 @@ def escola_emei():
     )
     return baker.make(
         "Escola",
-        nome="EMEI TESTE",
+        nome=constants.NomesParaTesteEscola.EMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -495,7 +496,7 @@ def escola_cei(tipo_unidade_escolar_cei_diret):
     tipo_gestao = baker.make("TipoGestao", nome=constants.TIPOS_GESTAO.TERC_TOTAL.value)
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -569,7 +570,7 @@ def escola_cemei():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -642,7 +643,7 @@ def escola_ceu_gestao():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -884,7 +885,7 @@ def solicitacao_medicao_inicial(escola, categoria_medicao, aluno):
                 "periodo_escolar": periodo_manha.nome,
                 "tabelas_lancamentos": [
                     {
-                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                         "semanas": [{"semana": "1", "dias": ["01"]}],
                     }
                 ],
@@ -1050,7 +1051,8 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
         periodo_escolar=periodo_tarde,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     for dia in ["01", "02", "03", "04", "05"]:
@@ -1066,6 +1068,27 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
                         valor="10",
                     )
     return solicitacao_medicao
+
+
+def _cria_valores_medicao_emebs(medicoes, categorias, tipos_turmas, dias, campos):
+    for dia in dias:
+        for tipo_turma in tipos_turmas:
+            for campo in campos:
+                for categoria in categorias:
+                    for medicao_ in medicoes:
+                        baker.make(
+                            "ValorMedicao",
+                            dia=dia,
+                            nome_campo=campo,
+                            medicao=medicao_,
+                            categoria_medicao=categoria,
+                            valor=(
+                                "10"
+                                if campo != "observacoes"
+                                else f"observação {tipo_turma} dia {dia}"
+                            ),
+                            infantil_ou_fundamental=tipo_turma,
+                        )
 
 
 @pytest.fixture
@@ -1092,7 +1115,8 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
         periodo_escolar=periodo_tarde,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
     tipos_turmas = ["INFANTIL", "FUNDAMENTAL"]
@@ -1105,28 +1129,13 @@ def solicitacao_medicao_inicial_varios_valores_emebs(escola_emebs, categoria_med
             dia_letivo=True,
         )
 
-    for dia in ["01", "02", "03", "04", "05"]:
-        for tipo_turma in tipos_turmas:
-            for campo in ["lanche", "refeicao", "sobremesa", "observacoes"]:
-                for categoria in [
-                    categoria_medicao,
-                    categoria_dieta_a,
-                    categoria_dieta_b,
-                ]:
-                    for medicao_ in [medicao_manha, medicao_tarde]:
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao_,
-                            categoria_medicao=categoria,
-                            valor=(
-                                "10"
-                                if campo != "observacoes"
-                                else f"observação {tipo_turma} dia {dia}"
-                            ),
-                            infantil_ou_fundamental=tipo_turma,
-                        )
+    _cria_valores_medicao_emebs(
+        medicoes=[medicao_manha, medicao_tarde],
+        categorias=[categoria_medicao, categoria_dieta_a, categoria_dieta_b],
+        tipos_turmas=tipos_turmas,
+        dias=["01", "02", "03", "04", "05"],
+        campos=["lanche", "refeicao", "sobremesa", "observacoes"],
+    )
     return solicitacao_medicao
 
 
@@ -1236,7 +1245,8 @@ def solicitacao_medicao_inicial_varios_valores_escola_cei(
         periodo_escolar=periodo_tarde,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     for dia in ["01", "02", "03", "04"]:
         for categoria in [categoria_medicao, categoria_dieta_a]:
@@ -1263,7 +1273,8 @@ def medicao_infantil_manha(solicitacao_medicao, categoria_medicao):
         periodo_escolar=periodo_infantil_manha,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     for dia in ["01", "02"]:
         for campo in ["lanche", "refeicao", "lanche_emergencial", "sobremesa"]:
@@ -1300,7 +1311,8 @@ def solicitacao_medicao_inicial_varios_valores_escola_cemei(
         periodo_escolar=periodo_parcial,
     )
     categoria_dieta_a = baker.make(
-        "CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A ENTERAL"
+        "CategoriaMedicao",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     for dia in ["01", "02", "03"]:
         for categoria in [categoria_medicao, categoria_dieta_a]:
@@ -1478,7 +1490,9 @@ def solicitacao_medicao_inicial_dietas(
 @pytest.fixture
 def medicao_solicitacoes_alimentacao(escola):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    categoria = baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
     grupo = baker.make("GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO)
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=6, ano=2023, escola=escola
@@ -1512,7 +1526,7 @@ def medicao_solicitacoes_alimentacao(escola):
 @pytest.fixture
 def medicao_solicitacoes_alimentacao_cei(escola):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    categoria = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria = baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
     periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL")
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=11, ano=2023, escola=escola
@@ -2186,7 +2200,7 @@ def grupo_unidade_escolar_emef(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 4",
+        nome=GrupoUnidadeEscolar.GRUPO_4,
         tipos_unidades=[
             tipo_unidade_escolar,
             tipo_unidade_escolar_ceu_emef,
@@ -2293,9 +2307,10 @@ def parametrizacao_financeira_emef(
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial(solicitacao_medicao_inicial):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2309,9 +2324,10 @@ def anexo_ocorrencia_medicao_inicial(solicitacao_medicao_inicial):
 
 @pytest.fixture
 def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2368,9 +2384,10 @@ def solicitacao_com_anexo_e_medicoes_aprovadas(solicitacao_medicao_inicial):
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial_status_aprovado_dre(solicitacao_medicao_inicial):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",
@@ -2384,9 +2401,10 @@ def anexo_ocorrencia_medicao_inicial_status_aprovado_dre(solicitacao_medicao_ini
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial_status_inicial(escola):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao_medicao = baker.make("SolicitacaoMedicaoInicial", escola=escola)
     return baker.make(
@@ -2401,9 +2419,10 @@ def anexo_ocorrencia_medicao_inicial_status_inicial(escola):
 
 @pytest.fixture
 def anexo_ocorrencia_medicao_inicial_status_aprovado_pela_dre():
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao_medicao = baker.make("SolicitacaoMedicaoInicial")
     return baker.make(
@@ -2418,9 +2437,10 @@ def anexo_ocorrencia_medicao_inicial_status_aprovado_pela_dre():
 
 @pytest.fixture
 def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -2444,9 +2464,10 @@ def sol_med_inicial_devolvida_pela_dre_para_ue(escola):
 
 @pytest.fixture
 def sol_med_inicial_devolvida_pela_codae_para_ue(escola):
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -2592,7 +2613,7 @@ def medicao_aprovada_pela_dre(solicitacao_medicao_inicial, categoria_medicao):
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
 
 
 @pytest.fixture
@@ -2604,7 +2625,7 @@ def categoria_medicao_dieta_a():
 def categoria_medicao_dieta_a_enteral_aminoacidos():
     return baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
 
 
@@ -2615,7 +2636,9 @@ def categoria_medicao_dieta_b():
 
 @pytest.fixture
 def categoria_medicao_solicitacoes_alimentacao():
-    return baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    return baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
 
 
 @pytest.fixture
@@ -2978,7 +3001,7 @@ def grupo_escolar(
 ):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 4",
+        nome=GrupoUnidadeEscolar.GRUPO_4,
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
         tipos_unidades=[
             tipo_unidade_escolar,
@@ -3003,7 +3026,7 @@ def diretoria_regional():
 @pytest.fixture
 def edital():
     edital = baker.make(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         numero="Edital de Pregão nº 78/SME/2024",
         uuid="f76f367c-f9c4-463e-aefb-0ff434d93ae9",
     )
@@ -3012,8 +3035,8 @@ def edital():
 
 @pytest.fixture
 def contrato(edital):
-    terceirizada = baker.make(MODEL_TERCEIRIZADA)
-    lote = baker.make(MODEL_LOTE, terceirizada=terceirizada)
+    terceirizada = baker.make(StringsCaminhoModelos.MODEL_TERCEIRIZADA.value)
+    lote = baker.make(StringsCaminhoModelos.MODEL_LOTE.value, terceirizada=terceirizada)
     contrato = baker.make(
         "terceirizada.Contrato",
         lotes=[lote],
@@ -3238,6 +3261,82 @@ def medicao_grupo_alimentacao(
     return medicao_emef, medicao_emei
 
 
+def _cria_valores_medicao_relatorio_consolidado(
+    medicao_alimentacao,
+    medicao_solicitacao,
+    valor_alimentacao,
+    valor_dieta,
+    valor_solicitacao,
+    valor_matriculados,
+    valor_frequencia,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    for dia in ["01", "02", "03", "04", "05"]:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_alimentacao,
+                categoria_medicao=categoria_medicao,
+                valor=valor_alimentacao,
+            )
+            if campo in ["lanche", "lanche_4h"]:
+                for categoria in [
+                    categoria_medicao_dieta_a,
+                    categoria_medicao_dieta_b,
+                    categoria_medicao_dieta_a_enteral_aminoacidos,
+                ]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao_alimentacao,
+                        categoria_medicao=categoria,
+                        valor=valor_dieta,
+                    )
+            elif campo == "refeicao":
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_alimentacao,
+                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    valor=valor_dieta,
+                )
+        if dia == "05":
+            for campo in ["kit_lanche", "lanche_emergencial"]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_solicitacao,
+                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                    valor=valor_solicitacao,
+                )
+
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="matriculados",
+            medicao=medicao_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor=valor_matriculados,
+        )
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="frequencia",
+            medicao=medicao_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor=valor_frequencia,
+        )
+
+
 @pytest.fixture
 def relatorio_consolidado_xlsx_emef(
     solicitacao_relatorio_consolidado_grupo_emef,
@@ -3252,66 +3351,24 @@ def relatorio_consolidado_xlsx_emef(
     medicao_alimentacao_emef, _ = medicao_grupo_alimentacao
     medicao_solicitacao_emef, _ = medicao_grupo_solicitacao_alimentacao
 
-    for dia in ["01", "02", "03", "04", "05"]:
-        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            baker.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo=campo,
-                medicao=medicao_alimentacao_emef,
-                categoria_medicao=categoria_medicao,
-                valor="25",
-            )
-            if campo in ["lanche", "lanche_4h"]:
-                for categoria in [
-                    categoria_medicao_dieta_a,
-                    categoria_medicao_dieta_b,
-                    categoria_medicao_dieta_a_enteral_aminoacidos,
-                ]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_alimentacao_emef,
-                        categoria_medicao=categoria,
-                        valor="2",
-                    )
-            elif campo == "refeicao":
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_alimentacao_emef,
-                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                    valor="2",
-                )
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_solicitacao_emef,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="10",
-                )
-
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="matriculados",
-            medicao=medicao_alimentacao_emef,
-            categoria_medicao=categoria_medicao,
-            valor="100",
-        )
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="frequencia",
-            medicao=medicao_alimentacao_emef,
-            categoria_medicao=categoria_medicao,
-            valor="90",
-        )
+    _cria_valores_medicao_relatorio_consolidado(
+        medicao_alimentacao=medicao_alimentacao_emef,
+        medicao_solicitacao=medicao_solicitacao_emef,
+        valor_alimentacao="25",
+        valor_dieta="2",
+        valor_solicitacao="10",
+        valor_matriculados="100",
+        valor_frequencia="90",
+        categoria_medicao=categoria_medicao,
+        categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+        categoria_medicao_dieta_a_enteral_aminoacidos=(
+            categoria_medicao_dieta_a_enteral_aminoacidos
+        ),
+        categoria_medicao_solicitacoes_alimentacao=(
+            categoria_medicao_solicitacoes_alimentacao
+        ),
+    )
 
     return solicitacao_relatorio_consolidado_grupo_emef
 
@@ -3330,66 +3387,24 @@ def relatorio_consolidado_xlsx_emei(
     _, medicao_alimentacao_emei = medicao_grupo_alimentacao
     _, medicao_solicitacao_emei = medicao_grupo_solicitacao_alimentacao
 
-    for dia in ["01", "02", "03", "04", "05"]:
-        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            baker.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo=campo,
-                medicao=medicao_alimentacao_emei,
-                categoria_medicao=categoria_medicao,
-                valor="30",
-            )
-            if campo in ["lanche", "lanche_4h"]:
-                for categoria in [
-                    categoria_medicao_dieta_a,
-                    categoria_medicao_dieta_b,
-                    categoria_medicao_dieta_a_enteral_aminoacidos,
-                ]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_alimentacao_emei,
-                        categoria_medicao=categoria,
-                        valor="4",
-                    )
-            elif campo == "refeicao":
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_alimentacao_emei,
-                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                    valor="4",
-                )
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_solicitacao_emei,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="5",
-                )
-
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="matriculados",
-            medicao=medicao_alimentacao_emei,
-            categoria_medicao=categoria_medicao,
-            valor="90",
-        )
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="frequencia",
-            medicao=medicao_alimentacao_emei,
-            categoria_medicao=categoria_medicao,
-            valor="80",
-        )
+    _cria_valores_medicao_relatorio_consolidado(
+        medicao_alimentacao=medicao_alimentacao_emei,
+        medicao_solicitacao=medicao_solicitacao_emei,
+        valor_alimentacao="30",
+        valor_dieta="4",
+        valor_solicitacao="5",
+        valor_matriculados="90",
+        valor_frequencia="80",
+        categoria_medicao=categoria_medicao,
+        categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+        categoria_medicao_dieta_a_enteral_aminoacidos=(
+            categoria_medicao_dieta_a_enteral_aminoacidos
+        ),
+        categoria_medicao_solicitacoes_alimentacao=(
+            categoria_medicao_solicitacoes_alimentacao
+        ),
+    )
 
     return solicitacao_relatorio_consolidado_grupo_emei
 
@@ -3413,7 +3428,7 @@ def mock_query_params_excel_emef(
 def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 3",
+        nome=GrupoUnidadeEscolar.GRUPO_3,
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
             baker.make(
@@ -3466,7 +3481,7 @@ def mock_linhas_emef():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
-            "EMEF TESTE",
+            constants.NomesParaTesteEscola.EMEF_TESTE.value,
             10.0,
             10.0,
             125.0,
@@ -3490,7 +3505,7 @@ def mock_linhas_emei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
-            "EMEI TESTE",
+            constants.NomesParaTesteEscola.EMEI_TESTE.value,
             5.0,
             5.0,
             150.0,
@@ -3559,7 +3574,7 @@ def relatorio_financeiro():
     return baker.make(
         "RelatorioFinanceiro",
         grupo_unidade_escolar=baker.make("GrupoUnidadeEscolar"),
-        lote=baker.make(MODEL_LOTE),
+        lote=baker.make(StringsCaminhoModelos.MODEL_LOTE.value),
         mes="10",
         ano="2025",
     )
@@ -3721,7 +3736,7 @@ def relatorio_consolidado_xlsx_cei(
 def mock_query_params_excel_cei(solicitacao_relatorio_consolidado_grupo_cei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
             baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
@@ -3787,7 +3802,7 @@ def mock_linhas_cei():
         [
             constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
-            "CEI DIRET TESTE",
+            constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
             80.0,
             80.0,
             80.0,
@@ -3886,6 +3901,121 @@ def solicitacao_escola_ceu_cemei(escola_ceu_cemei):
     )
 
 
+def _cria_valores_dia_05_programas_cemei(
+    dia,
+    solicitacao_alimentacao,
+    medicao_programas_e_projetos,
+    faixas_etarias_ativas,
+    categoria_medicao_solicitacoes_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+):
+    for campo in ["kit_lanche", "lanche_emergencial"]:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=solicitacao_alimentacao,
+            categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+            valor="5",
+        )
+    for campo in [
+        "numero_de_alunos",
+        "frequencia",
+        "dietas_autorizadas",
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+    ]:
+        if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao_dieta_a,
+                valor=1,
+            )
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao_dieta_b,
+                valor=1,
+            )
+        if campo != "dietas_autorizadas":
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao,
+                valor=1,
+                faixa_etaria=faixas_etarias_ativas[0],
+            )
+
+
+def _cria_valores_frequencia_cemei(dia, medicoes, faixas_etarias_ativas, categorias):
+    for medicao in medicoes:
+        for faixa in faixas_etarias_ativas:
+            for categoria, valor in categorias:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo="frequencia",
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    valor=valor,
+                    faixa_etaria=faixa,
+                )
+
+
+def _cria_valores_infantil_cemei(
+    dia,
+    medicoes_infantil,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    for medicao in medicoes_infantil:
+        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao,
+                categoria_medicao=categoria_medicao,
+                valor="30",
+            )
+            if campo in ["lanche", "lanche_4h"]:
+                for categoria in [
+                    categoria_medicao_dieta_a,
+                    categoria_medicao_dieta_b,
+                    categoria_medicao_dieta_a_enteral_aminoacidos,
+                ]:
+                    baker.make(
+                        "ValorMedicao",
+                        dia=dia,
+                        nome_campo=campo,
+                        medicao=medicao,
+                        categoria_medicao=categoria,
+                        valor=1,
+                    )
+            elif campo == "refeicao":
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao,
+                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                    valor=1,
+                )
+
+
 @pytest.fixture
 def relatorio_consolidado_xlsx_cemei(
     solicitacao_relatorio_consolidado_grupo_cemei,
@@ -3943,118 +4073,43 @@ def relatorio_consolidado_xlsx_cemei(
 
     for dia in ["01", "02", "03", "04", "05"]:
         if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=solicitacao_alimentacao,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="5",
-                )
-            for campo in [
-                "numero_de_alunos",
-                "frequencia",
-                "dietas_autorizadas",
-                "lanche",
-                "lanche_4h",
-                "refeicao",
-                "sobremesa",
-            ]:
-                if campo not in ["numero_de_alunos", "refeicao", "sobremesa"]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_programas_e_projetos,
-                        categoria_medicao=categoria_medicao_dieta_a,
-                        valor=1,
-                    )
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_programas_e_projetos,
-                        categoria_medicao=categoria_medicao_dieta_b,
-                        valor=1,
-                    )
-                if campo != "dietas_autorizadas":
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_programas_e_projetos,
-                        categoria_medicao=categoria_medicao,
-                        valor=1,
-                        faixa_etaria=faixa,
-                    )
+            _cria_valores_dia_05_programas_cemei(
+                dia=dia,
+                solicitacao_alimentacao=solicitacao_alimentacao,
+                medicao_programas_e_projetos=medicao_programas_e_projetos,
+                faixas_etarias_ativas=faixas_etarias_ativas,
+                categoria_medicao_solicitacoes_alimentacao=(
+                    categoria_medicao_solicitacoes_alimentacao
+                ),
+                categoria_medicao=categoria_medicao,
+                categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+            )
 
-        for medicao in [medicao_integral, medicao_parcial]:
-            for faixa in faixas_etarias_ativas:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao,
-                    valor=20,
-                    faixa_etaria=faixa,
-                )
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao_dieta_a,
-                    valor=2,
-                    faixa_etaria=faixa,
-                )
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao_dieta_b,
-                    valor=3,
-                    faixa_etaria=faixa,
-                )
-        for medicao in [
-            medicao_infantil_integral,
-            medicao_infantil_manha,
-            medicao_infantil_tarde,
-        ]:
-            for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao,
-                    valor="30",
-                )
-                if campo in ["lanche", "lanche_4h"]:
-                    for categoria in [
-                        categoria_medicao_dieta_a,
-                        categoria_medicao_dieta_b,
-                        categoria_medicao_dieta_a_enteral_aminoacidos,
-                    ]:
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao,
-                            categoria_medicao=categoria,
-                            valor=1,
-                        )
-                elif campo == "refeicao":
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao,
-                        categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                        valor=1,
-                    )
+        _cria_valores_frequencia_cemei(
+            dia=dia,
+            medicoes=[medicao_integral, medicao_parcial],
+            faixas_etarias_ativas=faixas_etarias_ativas,
+            categorias=[
+                (categoria_medicao, 20),
+                (categoria_medicao_dieta_a, 2),
+                (categoria_medicao_dieta_b, 3),
+            ],
+        )
+        _cria_valores_infantil_cemei(
+            dia=dia,
+            medicoes_infantil=[
+                medicao_infantil_integral,
+                medicao_infantil_manha,
+                medicao_infantil_tarde,
+            ],
+            categoria_medicao=categoria_medicao,
+            categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+            categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+            categoria_medicao_dieta_a_enteral_aminoacidos=(
+                categoria_medicao_dieta_a_enteral_aminoacidos
+            ),
+        )
 
     return solicitacao_relatorio_consolidado_grupo_cemei
 
@@ -4063,7 +4118,7 @@ def relatorio_consolidado_xlsx_cemei(
 def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 2",
+        nome=GrupoUnidadeEscolar.GRUPO_2,
         uuid="012dc7a2-eb11-4000-96b9-e3c5130dc64c",
         tipos_unidades=[
             baker.make(
@@ -4132,7 +4187,7 @@ def mock_linhas_cemei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "543210",
-            "CEMEI TESTE",
+            constants.NomesParaTesteEscola.CEMEI_TESTE.value,
             5.0,
             5.0,
             100.0,
@@ -4395,7 +4450,7 @@ def relatorio_consolidado_xlsx_emebs(
 def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 5",
+        nome=GrupoUnidadeEscolar.GRUPO_5,
         uuid="172a2ae6-c417-49d3-91d3-a2dae3d8a56b",
         tipos_unidades=[
             baker.make(
@@ -4849,7 +4904,7 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
 
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 6",
+        nome=GrupoUnidadeEscolar.GRUPO_6,
         uuid="ee9abe61-e1c4-48fb-8b53-ffd2cef00458",
         tipos_unidades=[
             baker.make(
@@ -4970,7 +5025,7 @@ def payload_create_parametrizacao_financeira_cei(
 ):
     grupo_escolar_cei = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
         tipos_unidades=[
             tipo_unidade_escolar_cei,
@@ -5961,7 +6016,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "justificativa": "<p>Favor, conferir o número de <strong>Lanche 4h </strong>lançados</p>",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [{"semana": "3", "dias": ["12"]}],
                         }
                     ],
@@ -5982,7 +6037,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "periodo_escolar": "MANHA",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [
                                 {
                                     "semana": "3",
@@ -6043,7 +6098,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "justificativa": "<p>Verifique a frequencia, deveria ser 80</p>",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [
                                 {"semana": "3", "dias": ["10", "11", "12", "13", "14"]}
                             ],
@@ -6066,7 +6121,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "periodo_escolar": "MANHA",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [
                                 {
                                     "semana": "3",
@@ -6226,7 +6281,7 @@ def grupo_unidade_escolar_cei(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="5bd9ad5c-e0ab-4812-b2b6-336fc8988960",
         tipos_unidades=[
             tipo_unidade_escolar_cei,
@@ -6332,7 +6387,7 @@ def grupo_unidade_escolar_emei(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 3",
+        nome=GrupoUnidadeEscolar.GRUPO_3,
         tipos_unidades=[
             tipo_unidade_escolar_ceu_emei,
             tipo_unidade_escolar_emei,
@@ -6484,7 +6539,7 @@ def grupo_unidade_escolar_cieja(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 6",
+        nome=GrupoUnidadeEscolar.GRUPO_6,
         uuid="550e8400-e29b-41d4-a716-446655440000",
         tipos_unidades=[
             tipo_unidade_escolar_cieja,
@@ -6616,7 +6671,7 @@ def grupo_unidade_escolar_cemei(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 2",
+        nome=GrupoUnidadeEscolar.GRUPO_2,
         tipos_unidades=[
             tipo_unidade_escolar_cemei,
             tipo_unidade_escolar_ceu_cemei,
@@ -6987,7 +7042,7 @@ def grupo_unidade_escolar_emebs(
 ):
     return baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 5",
+        nome=GrupoUnidadeEscolar.GRUPO_5,
         tipos_unidades=[
             tipo_unidade_escolar_emebs,
         ],
@@ -7540,7 +7595,7 @@ def mock_linhas_recreio_emei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             "987654",
-            "EMEI TESTE",
+            constants.NomesParaTesteEscola.EMEI_TESTE.value,
             1260.0,
             1260.0,
             1260.0,
@@ -7582,7 +7637,7 @@ def informacoes_excel_writer_recreio_emei(
 def mock_query_params_excel_recreio_emei(solicitacao_recreio_emei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 3",
+        nome=GrupoUnidadeEscolar.GRUPO_3,
         uuid="f573268f-e94b-4d4d-a92e-5ed5453b82e6",
         tipos_unidades=[
             baker.make(
@@ -7635,7 +7690,7 @@ def mock_linhas_recreio_cei():
         [
             constants.TIPO_UNIDADE_CEI_DIRET,
             "765432",
-            "CEI DIRET TESTE",
+            constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
             168.0,
             168.0,
             168.0,
@@ -7686,7 +7741,7 @@ def informacoes_excel_writer_recreio_cei(
 def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
     grupo_escolar = baker.make(
         "GrupoUnidadeEscolar",
-        nome="Grupo 1",
+        nome=GrupoUnidadeEscolar.GRUPO_1,
         uuid="782d1da2-bec0-4afb-b560-d63332a719f6",
         tipos_unidades=[
             baker.make("TipoUnidadeEscolar", iniciais=constants.TIPO_UNIDADE_CEI_DIRET),
@@ -7746,7 +7801,7 @@ def mock_linhas_recreio_emef():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
             "123456",
-            "EMEF TESTE",
+            constants.NomesParaTesteEscola.EMEF_TESTE.value,
             1260.0,
             1260.0,
             1400,
@@ -7845,7 +7900,7 @@ def mock_linhas_recreio_cemei():
         [
             constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "765432",
-            "CEMEI TESTE",
+            constants.NomesParaTesteEscola.CEMEI_TESTE.value,
             220.0,
             220.0,
             220.0,
@@ -7932,7 +7987,13 @@ def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
         ("MANHA", "total_sobremesas_pagamento"),
     ]
     linhas = [
-        [constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value, "123456", "EMEF TESTE", "SL", "SL"]
+        [
+            constants.TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            "123456",
+            constants.NomesParaTesteEscola.EMEF_TESTE.value,
+            "SL",
+            "SL",
+        ]
     ]
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"

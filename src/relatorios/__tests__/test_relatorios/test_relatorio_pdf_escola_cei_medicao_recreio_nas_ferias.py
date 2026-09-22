@@ -11,6 +11,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
@@ -51,7 +52,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
 
     def _setup_categorias(self, categoria_medicao_factory):
         self.categoria_alimentacao = categoria_medicao_factory.create(
-            nome="ALIMENTAÇÃO"
+            nome=CategoriaMedicao.ALIMENTACAO
         )
         self.categoria_dieta_a = categoria_medicao_factory.create(
             nome=DIETA_ESPECIAL_TIPO_A

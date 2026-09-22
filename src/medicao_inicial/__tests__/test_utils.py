@@ -14,11 +14,16 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_TARDE,
     TIPOS_ALIMENTACAO,
     FaixasEtarias,
+    NomesParaTesteEscola,
 )
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.medicao_inicial.models import DescontoFinanceiro, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    DescontoFinanceiro,
+    SolicitacaoMedicaoInicial,
+)
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
@@ -73,7 +78,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             periodo_escolar__nome="MANHA"
         )
     ) == {
-        "ALIMENTAÇÃO": [
+        CategoriaMedicao.ALIMENTACAO: [
             "matriculados",
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -82,7 +87,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             "refeicao",
             "sobremesa",
         ],
-        "DIETA ESPECIAL - TIPO A ENTERAL": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "aprovadas",
             "lanche",
             "lanche_emergencial",
@@ -103,7 +108,10 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
     assert build_headers_tabelas(solicitacao_medicao_inicial_varios_valores) == [
         {
             "periodos": ["MANHA"],
-            "categorias": ["ALIMENTAÇÃO", "DIETA ESPECIAL - TIPO A ENTERAL"],
+            "categorias": [
+                CategoriaMedicao.ALIMENTACAO,
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+            ],
             "nomes_campos": [
                 "matriculados",
                 "lanche",
@@ -125,9 +133,9 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "dias_letivos": [],
             "categorias_dos_periodos": {
                 "MANHA": [
-                    {"categoria": "ALIMENTAÇÃO", "numero_campos": 7},
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7},
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                 ]
@@ -135,7 +143,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, CategoriaMedicao.ALIMENTACAO],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -157,13 +165,15 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "dias_letivos": [],
             "categorias_dos_periodos": {
                 "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
-                "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
+                "TARDE": [
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7}
+                ],
             },
         },
         {
             "periodos": ["TARDE"],
             "categorias": [
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                 DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
@@ -186,7 +196,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "categorias_dos_periodos": {
                 "TARDE": [
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                     {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
@@ -204,7 +214,7 @@ def test_build_headers_tabelas_cei(
             "periodos": ["INTEGRAL", "MANHA"],
             "categorias": [
                 {
-                    "categoria": "ALIMENTAÇÃO",
+                    "categoria": CategoriaMedicao.ALIMENTACAO,
                     "faixas_etarias": [
                         FaixasEtarias.UM_A_NOVE_MESES.value,
                         "total",
@@ -212,7 +222,7 @@ def test_build_headers_tabelas_cei(
                     "periodo": "INTEGRAL",
                 },
                 {
-                    "categoria": "ALIMENTAÇÃO",
+                    "categoria": CategoriaMedicao.ALIMENTACAO,
                     "faixas_etarias": [
                         FaixasEtarias.UM_A_NOVE_MESES.value,
                         "total",
@@ -225,7 +235,7 @@ def test_build_headers_tabelas_cei(
             "valores_campos": [],
             "ordem_periodos_grupos": [1, 3],
             "periodo_values": defaultdict(int, {"INTEGRAL": 3, "MANHA": 3}),
-            "categoria_values": defaultdict(int, {"ALIMENTAÇÃO": 6}),
+            "categoria_values": defaultdict(int, {CategoriaMedicao.ALIMENTACAO: 6}),
         }
     ]
 
@@ -251,7 +261,10 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
     ) == [
         {
             "periodos": ["MANHA"],
-            "categorias": ["ALIMENTAÇÃO", "DIETA ESPECIAL - TIPO A ENTERAL"],
+            "categorias": [
+                CategoriaMedicao.ALIMENTACAO,
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+            ],
             "nomes_campos": [
                 "matriculados",
                 "lanche",
@@ -339,9 +352,9 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             ],
             "categorias_dos_periodos": {
                 "MANHA": [
-                    {"categoria": "ALIMENTAÇÃO", "numero_campos": 7},
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7},
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                 ]
@@ -349,7 +362,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, CategoriaMedicao.ALIMENTACAO],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -437,13 +450,15 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             ],
             "categorias_dos_periodos": {
                 "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
-                "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
+                "TARDE": [
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7}
+                ],
             },
         },
         {
             "periodos": ["TARDE"],
             "categorias": [
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                 DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
@@ -532,7 +547,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             "categorias_dos_periodos": {
                 "TARDE": [
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                     {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
@@ -578,7 +593,7 @@ def test_utils_get_lista_categorias_campos(medicao_solicitacoes_alimentacao):
 
 def test_utils_get_lista_categorias_campos_cei(medicao_solicitacoes_alimentacao_cei):
     assert get_lista_categorias_campos_cei(medicao_solicitacoes_alimentacao_cei) == [
-        ("ALIMENTAÇÃO", FaixasEtarias.UM_A_DOIS_MESES.value)
+        (CategoriaMedicao.ALIMENTACAO, FaixasEtarias.UM_A_DOIS_MESES.value)
     ]
 
 
@@ -587,7 +602,7 @@ def test_build_dict_relacao_categorias_e_campos_cei(
 ):
     assert build_dict_relacao_categorias_e_campos_cei(
         medicao_solicitacoes_alimentacao_cei
-    ) == {"ALIMENTAÇÃO": [FaixasEtarias.UM_A_DOIS_MESES.value]}
+    ) == {CategoriaMedicao.ALIMENTACAO: [FaixasEtarias.UM_A_DOIS_MESES.value]}
 
 
 def test_utils_tratar_valores(solicitacao_medicao_inicial, escola, escola_emei):
@@ -703,7 +718,7 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
     assert build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei) == [
         {
             "periodos": ["INTEGRAL"],
-            "categorias": ["ALIMENTAÇÃO"],
+            "categorias": [CategoriaMedicao.ALIMENTACAO],
             "periodo_por_categoria": ["INTEGRAL"],
             "nomes_campos": [],
             "faixas_etarias": ["01 mês", "total"],
@@ -777,7 +792,9 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
                 False,
             ],
             "categorias_dos_periodos": {
-                "INTEGRAL": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 1}]
+                "INTEGRAL": [
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 1}
+                ]
             },
             "recreio": False,
         }
@@ -964,7 +981,7 @@ def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repet
     ) == [
         solicitacao_medicao_inicial_com_valores_repeticao.escola.tipo_unidade,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         50,
         50,
         50,
@@ -1001,7 +1018,7 @@ def test_avalia_soma_total_com_dados_tabela_anterior():
         "periodos": ["INTEGRAL"],
         "categorias": [
             {
-                "categoria": "ALIMENTAÇÃO",
+                "categoria": CategoriaMedicao.ALIMENTACAO,
                 "faixas_etarias": [
                     FaixasEtarias.UM_A_TRES_MESES.value,
                     FaixasEtarias.QUATRO_A_CINCO_MESES.value,

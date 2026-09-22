@@ -4,7 +4,7 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from src.dados_comuns.behaviors import Logs, TemIdentificadorExternoAmigavel
-from src.dados_comuns.constants import MODEL_USUARIO, StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import (
     FluxoSolicitacaoDeAlteracao,
     FluxoSolicitacaoRemessa,
@@ -111,8 +111,8 @@ class SolicitacaoRemessa(
         return f"Solicitação: {self.numero_solicitacao} - Status: {self.get_status_display()}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_REMESSA.value
-        verbose_name_plural = StringsVerboseNameModels.SOLICITACOES_REMESSAS.value
+        verbose_name = "Solicitação Remessa"
+        verbose_name_plural = "Solicitações Remessas"
 
 
 class SolicitacaoDeAlteracaoRequisicao(
@@ -154,7 +154,9 @@ class SolicitacaoDeAlteracaoRequisicao(
     justificativa_negacao = models.TextField(
         StringsVerboseNameModels.JUSTIFICATIVA_DE_NEGACAO_PELA_DILOG.value, blank=True
     )
-    usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario_solicitante = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
     numero_solicitacao = models.CharField(
         StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
         blank=True,
@@ -180,12 +182,8 @@ class SolicitacaoDeAlteracaoRequisicao(
         return f"Solicitação de alteração: {self.numero_solicitacao}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SOLICITACAO_DE_ALTERACAO_DE_REQUISICAO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_ALTERACAO_DE_REQUISICAO.value
-        )
+        verbose_name = "Solicitação de Alteração de Requisição"
+        verbose_name_plural = "Solicitações de Alteração de Requisição"
 
 
 class SolicitacaoCancelamentoException(Exception):
@@ -225,9 +223,5 @@ class LogSolicitacaoDeCancelamentoPeloPapa(ModeloBase):
         self.save()
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DE_SOLICITACAO_DE_CANCELAMENTO_DO_PAPA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DE_SOLICITACOES_DE_CANCELAMENTO_DO_PAPA.value
-        )
+        verbose_name = "Log de Solicitação de Cancelamento do PAPA"
+        verbose_name_plural = "Logs de Solicitações de Cancelamento do PAPA"

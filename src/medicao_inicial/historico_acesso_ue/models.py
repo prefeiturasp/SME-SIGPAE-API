@@ -11,8 +11,7 @@ from src.dados_comuns.behaviors import (
     TemIdentificadorExternoAmigavel,
 )
 from src.dados_comuns.constants import (
-    MODEL_ESCOLA,
-    MODEL_LOTE,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 
@@ -43,12 +42,12 @@ class HistoricoAcessoMedicaoInicialUE(
     objects = HistoricoAcessoMedicaoInicialUEQuerySet.as_manager()
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )
@@ -58,12 +57,8 @@ class HistoricoAcessoMedicaoInicialUE(
     )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.HISTORICO_DE_ACESSO_A_MEDICAO_INICIAL_DA_UE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.HISTORICOS_DE_ACESSO_A_MEDICAO_INICIAL_DA_UE.value
-        )
+        verbose_name = "Histórico de acesso à medição inicial da UE"
+        verbose_name_plural = "Históricos de acesso à medição inicial da UE"
 
     def __str__(self):
         return f"Histórico de acesso à medição inicial da UE - {self.escola.nome} - {self.lote.nome} - {self.data_inicial} a {self.data_final or 'presente'}"

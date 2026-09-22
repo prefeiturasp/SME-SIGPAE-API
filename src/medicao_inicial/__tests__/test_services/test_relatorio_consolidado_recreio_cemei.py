@@ -6,7 +6,9 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
     _define_filtro,
     _get_lista_alimentacoes,
@@ -143,7 +145,7 @@ def test_get_lista_alimentacoes_dietas(
 
     categoria_dieta_a = DIETA_ESPECIAL_TIPO_A
     categoria_dieta_a_enteral = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
 
     colaboradores = _get_lista_alimentacoes_dietas(
@@ -340,7 +342,7 @@ def test_get_valores_tabela(
         lambda _solicitacao: [
             TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
-            "CEMEI TESTE",
+            NomesParaTesteEscola.CEMEI_TESTE.value,
         ],
     )
 
@@ -376,7 +378,7 @@ def test_get_valores_tabela(
         [
             TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "123456",
-            "CEMEI TESTE",
+            NomesParaTesteEscola.CEMEI_TESTE.value,
             100,
             100,
         ]

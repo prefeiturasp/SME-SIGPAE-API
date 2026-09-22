@@ -23,9 +23,7 @@ from ..dados_comuns.behaviors import (
 )
 from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
-    MODEL_TERCEIRIZADA,
-    MODEL_USUARIO,
+    StringsCaminhoModelos,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoHomologacaoProduto,
@@ -58,10 +56,8 @@ class ProtocoloDeDietaEspecial(Ativavel, CriadoEm, CriadoPor, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PROTOCOLO_DE_DIETA_ESPECIAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PROTOCOLOS_DE_DIETA_ESPECIAL.value
-        )
+        verbose_name = "Protocolo de Dieta Especial"
+        verbose_name_plural = "Protocolos de Dieta Especial"
 
 
 class Fabricante(Nomeavel, TemChaveExterna):
@@ -144,8 +140,8 @@ class InformacaoNutricional(TemChaveExterna, Nomeavel, Ativavel):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INFORMACAO_NUTRICIONAL.value
-        verbose_name_plural = StringsVerboseNameModels.INFORMACOES_NUTRICIONAIS.value
+        verbose_name = "Informação Nutricional"
+        verbose_name_plural = "Informações Nutricionais"
 
 
 class ImagemDoProduto(TemChaveExterna):
@@ -154,8 +150,8 @@ class ImagemDoProduto(TemChaveExterna):
     nome = models.CharField(max_length=100, blank=True)
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.IMAGEM_DO_PRODUTO.value
-        verbose_name_plural = StringsVerboseNameModels.IMAGENS_DO_PRODUTO.value
+        verbose_name = "Imagem do Produto"
+        verbose_name_plural = "Imagens do Produto"
 
 
 class Produto(
@@ -282,8 +278,8 @@ class Produto(
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PRODUTO.value
-        verbose_name_plural = StringsVerboseNameModels.PRODUTOS.value
+        verbose_name = "Produto"
+        verbose_name_plural = "Produtos"
 
 
 class DadosHistoricosProduto(models.Model):
@@ -353,7 +349,10 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
         StringsVerboseNameModels.SUSPENSO_EM.value, null=True, blank=True
     )
     suspenso_por = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
     )
 
     def criar_data_hora_vinculo(self, suspenso=False):
@@ -373,10 +372,8 @@ class ProdutoEdital(TemChaveExterna, CriadoEm):
         return f"{self.produto} -- {self.edital.numero}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.VINCULO_ENTRE_PRODUTO_E_EDITAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.VINCULOS_ENTRE_PRODUTOS_E_EDITAIS.value
-        )
+        verbose_name = "Vinculo entre produto e edital"
+        verbose_name_plural = "Vinculos entre produtos e editais"
         unique_together = ("produto", "edital")
 
 
@@ -398,8 +395,8 @@ class DataHoraVinculoProdutoEdital(TemChaveExterna, CriadoEm):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DATA_E_HORA_DO_VINCULO.value
-        verbose_name_plural = StringsVerboseNameModels.DATAS_E_HORAS_DO_VINCULO.value
+        verbose_name = "Data e hora do vínculo"
+        verbose_name_plural = "Datas e horas do vínculo"
         ordering = ("criado_em",)
 
 
@@ -436,10 +433,8 @@ class NomeDeProdutoEdital(
     class Meta:
         ordering = ("nome",)
         unique_together = ("nome", "tipo_produto")
-        verbose_name = StringsVerboseNameModels.PRODUTO_PROVENIENTE_DO_EDITAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PRODUTOS_PROVENIENTES_DO_EDITAL.value
-        )
+        verbose_name = "Produto proveniente do Edital"
+        verbose_name_plural = "Produtos provenientes do Edital"
 
     def __str__(self):
         return self.nome
@@ -470,12 +465,8 @@ class LogNomeDeProdutoEdital(
 
     class Meta:
         ordering = ("-criado_em",)
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DE_PRODUTO_PROVENIENTE_DO_EDITAL.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOG_DE_PRODUTOS_PROVENIENTES_DO_EDITAL.value
-        )
+        verbose_name = "Log de Produto proveniente do Edital"
+        verbose_name_plural = "Log de Produtos provenientes do Edital"
 
     def __str__(self):
         return self.id_externo
@@ -499,10 +490,8 @@ class InformacoesNutricionaisDoProduto(TemChaveExterna):
         return f"{nome_produto} - {informacao_nutricional} => quantidade: {porcao} valor diario: {valor}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INFORMACAO_NUTRICIONAL_DO_PRODUTO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INFORMACOES_NUTRICIONAIS_DO_PRODUTO.value
-        )
+        verbose_name = "Informação Nutricional do Produto"
+        verbose_name_plural = "Informações Nutricionais do Produto"
 
 
 class HomologacaoProduto(
@@ -984,8 +973,8 @@ class HomologacaoProduto(
 
     class Meta:
         ordering = ("-ativo", "-criado_em")
-        verbose_name = StringsVerboseNameModels.HOMOLOGACAO_DE_PRODUTO.value
-        verbose_name_plural = StringsVerboseNameModels.HOMOLOGACOES_DE_PRODUTO.value
+        verbose_name = "Homologação de Produto"
+        verbose_name_plural = "Homologações de Produto"
 
     def __str__(self):
         return f"Homologação #{self.id_externo}"
@@ -1125,19 +1114,19 @@ class SolicitacaoCadastroProdutoDieta(
         related_name="solicitacoes_cadastro_produto",
     )
     aluno = models.ForeignKey(
-        "escola.Aluno",
+        StringsCaminhoModelos.MODEL_ALUNO.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
     )
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
     )
     terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_cadastro_produto",
         null=True,
@@ -1178,7 +1167,7 @@ class AnaliseSensorial(TemChaveExterna, TemIdentificadorExternoAmigavel, CriadoE
 
     # Terceirizada que irá responder a análise
     terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.CASCADE,
         related_name="analises_sensoriais",
         null=True,
@@ -1324,5 +1313,5 @@ class EspecificacaoProduto(CriadoEm, TemAlteradoEm, TemChaveExterna):
     )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ESPECIFICICACAO_DO_PRODUTO.value
-        verbose_name_plural = StringsVerboseNameModels.ESPECIFICACOES_DO_PRODUTO.value
+        verbose_name = "Especificicação do Produto"
+        verbose_name_plural = "Especificações do Produto"

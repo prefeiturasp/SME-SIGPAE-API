@@ -503,7 +503,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             criado_em__year=instance.ano,
             tipo_turma="REGULAR",
         )
-        categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
@@ -573,7 +573,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             data__month=instance.mes,
             data__year=instance.ano,
         )
-        categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
@@ -605,7 +605,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self, categoria: CategoriaMedicao, logs_do_mes: QuerySet, periodo_escolar: str
     ) -> bool:
         if categoria == CategoriaMedicao.objects.get(
-            nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+            nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         ):
             if not logs_do_mes.filter(
                 classificacao__nome__in=[
@@ -638,7 +638,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         dia: int,
     ) -> int:
         if categoria == CategoriaMedicao.objects.get(
-            nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+            nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         ):
             log_enteral = logs_do_mes.filter(
                 classificacao__nome__icontains="enteral",
@@ -892,7 +892,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         if not valores_por_dia:
             return
-        categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
         medicao = self.retorna_medicao_por_nome_grupo(instance, nome_grupo)
         valores_medicao_a_criar = []
         for dia, numero_alunos in valores_por_dia.items():
@@ -976,7 +976,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         medicao = self.retorna_medicao_por_nome_grupo(
             instance, GRUPO_SOLICITACOES_ALIMENTACAO
         )
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
             1
         ]
@@ -2052,13 +2054,13 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             getattr(relatorio.grupo_unidade_escolar, "nome", "") or ""
         ).upper()
 
-        if "GRUPO 1" == grupo_nome:
+        if GrupoUnidadeEscolar.GRUPO_1.upper() == grupo_nome:
             self._validar_grupo_cei(attrs)
 
-        elif "GRUPO 2" == grupo_nome:
+        elif GrupoUnidadeEscolar.GRUPO_2.upper() == grupo_nome:
             self._validar_grupo_cemei(attrs)
 
-        elif "GRUPO 5" == grupo_nome:
+        elif GrupoUnidadeEscolar.GRUPO_5.upper() == grupo_nome:
             self._validar_grupo_emebs(attrs)
 
         else:

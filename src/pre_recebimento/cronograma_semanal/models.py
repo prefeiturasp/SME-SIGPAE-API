@@ -49,8 +49,8 @@ class CronogramaSemanal(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CRONOGRAMA_SEMANAL.value
-        verbose_name_plural = StringsVerboseNameModels.CRONOGRAMAS_SEMANAIS.value
+        verbose_name = "Cronograma Semanal"
+        verbose_name_plural = "Cronogramas Semanais"
 
 
 class ProgramacaoEntregaSemanal(ModeloBase):
@@ -81,8 +81,6 @@ class ProgramacaoEntregaSemanal(ModeloBase):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PROGRAMACAO_DE_ENTREGA_SEMANAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PROGRAMACOES_DE_ENTREGA_SEMANAL.value
-        )
+        verbose_name = "Programação de Entrega Semanal"
+        verbose_name_plural = "Programações de Entrega Semanal"
         ordering = ["mes_programado", "data_inicio"]

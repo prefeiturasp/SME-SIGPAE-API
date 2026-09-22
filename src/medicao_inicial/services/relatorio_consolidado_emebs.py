@@ -92,7 +92,9 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
                 "numero_de_alunos",
             ]
         )
-        | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+        | Q(
+            categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+        )
     )
 
     infantil = sorted(
@@ -138,7 +140,7 @@ def _update_periodos_alimentacoes(
 def _get_categorias_dietas(medicao, query_params=None):
     lista_dietas = filtra_queryset_pelo_intervalo_de_dias(
         medicao.valores_medicao, query_params
-    ).exclude(categoria_medicao__nome__icontains="ALIMENTAÇÃO")
+    ).exclude(categoria_medicao__nome__icontains=CategoriaMedicao.ALIMENTACAO)
     infantil = list(
         lista_dietas.filter(infantil_ou_fundamental="INFANTIL")
         .values_list("categoria_medicao__nome", flat=True)
@@ -207,7 +209,9 @@ def _update_dietas_alimentacoes(
 
 def _unificar_dietas_tipo_a(dietas_alimentacoes, turma):
     dieta_principal = DIETA_ESPECIAL_TIPO_A
-    dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    dieta_alternativa = (
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+    )
     valor_principal = dietas_alimentacoes.get(turma, {}).get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(turma, {}).get(dieta_alternativa, [])
     if valor_alternativo:
@@ -281,7 +285,7 @@ def _generate_columns(dict_periodos_dietas):
 
 def get_valores_tabela(solicitacoes, colunas, query_params=None):
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
@@ -380,7 +384,7 @@ def processa_dieta_especial(
     categorias = (
         [
             DIETA_ESPECIAL_TIPO_A,
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         ]
         if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]
@@ -406,7 +410,7 @@ def processa_periodo_regular(
         categorias = [periodo.upper()]
         turma = ["INFANTIL", "FUNDAMENTAL"]
     else:
-        categorias = ["ALIMENTAÇÃO"]
+        categorias = [CategoriaMedicao.ALIMENTACAO]
         turma = [turma]
 
     soma = _calcula_soma_medicao(medicao, campo, categorias, turma, query_params)
@@ -469,7 +473,7 @@ def _total_pagamento_infantil(medicao, nome_campo, valor_padrao, query_params=No
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .filter(
             nome_campo__in=lista_campos,
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
             infantil_ou_fundamental="INFANTIL",
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))

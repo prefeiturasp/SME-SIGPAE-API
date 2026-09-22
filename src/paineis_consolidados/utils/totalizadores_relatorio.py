@@ -1,6 +1,6 @@
 from collections import Counter
 
-from src.dados_comuns.constants import TIPOS_GESTAO
+from src.dados_comuns.constants import TIPOS_GESTAO, StringsModelosGestaoAlimentacao
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
@@ -198,10 +198,10 @@ def totalizador_tipo_solicitacao(request, model, queryset, list_cards_totalizado
     queryset = filtro_geral_totalizadores(request, model, queryset, map_filtros)
 
     de_para_tipos_solicitacao = {
-        "INC_ALIMENTA": "Inclusão de Alimentação",
+        "INC_ALIMENTA": StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
         "ALT_CARDAPIO": "Alteração do tipo de Alimentação",
-        "KIT_LANCHE_UNIFICADO": "Kit Lanche Unificado",
-        "KIT_LANCHE_AVULSA": "Kit Lanche Passeio",
+        "KIT_LANCHE_UNIFICADO": StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value,
+        "KIT_LANCHE_AVULSA": StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value,
         "INV_CARDAPIO": "Inversão de dia de Cardápio",
         "SUSP_ALIMENTACAO": "Suspensão de Alimentação",
     }

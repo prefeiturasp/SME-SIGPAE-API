@@ -72,8 +72,8 @@ class Perfil(
         ]
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PERFIL.value
-        verbose_name_plural = StringsVerboseNameModels.PERFIS.value
+        verbose_name = "Perfil"
+        verbose_name_plural = "Perfis"
 
     def __str__(self):
         return self.nome
@@ -186,8 +186,8 @@ class Vinculo(Ativavel, TemChaveExterna):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.VINCULO.value
-        verbose_name_plural = StringsVerboseNameModels.VINCULOS.value
+        verbose_name = "Vínculo"
+        verbose_name_plural = "Vínculos"
 
     def __str__(self):
         return f"{self.usuario.username} - {self.usuario.nome} - de {self.data_inicial} até {self.data_final}"
@@ -204,8 +204,8 @@ class PerfisVinculados(models.Model):
     )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PERFIS_VINCULADOS.value
-        verbose_name_plural = StringsVerboseNameModels.PERFIS_VINCULADOS.value
+        verbose_name = "Perfis Vinculados"
+        verbose_name_plural = "Perfis Vinculados"
 
     def __str__(self):
         return self.perfil_master.nome

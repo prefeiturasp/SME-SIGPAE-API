@@ -7,9 +7,8 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
 )
 from src.dados_comuns.constants import (
-    MODEL_ESCOLA,
     TIPOS_ALIMENTACAO,
-    StringsVerboseNameModels,
+    StringsCaminhoModelos,
 )
 
 
@@ -55,8 +54,8 @@ class TipoAlimentacao(Nomeavel, TemChaveExterna, Posicao):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_ALIMENTACAO.value
-        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_ALIMENTACAO.value
+        verbose_name = "Tipo de alimentação"
+        verbose_name_plural = "Tipos de alimentação"
         ordering = ["posicao"]
 
 
@@ -71,13 +70,22 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
     hora_inicial = models.TimeField(auto_now=False, auto_now_add=False)
     hora_final = models.TimeField(auto_now=False, auto_now_add=False)
     escola = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self):
@@ -103,7 +111,9 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
         "escola.TipoUnidadeEscolar", null=True, on_delete=models.DO_NOTHING
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     tipos_alimentacao = models.ManyToManyField(
         "TipoAlimentacao", related_name="vinculos", blank=True
@@ -114,8 +124,8 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
 
     class Meta:
         unique_together = [["periodo_escolar", "tipo_unidade_escolar"]]
-        verbose_name = StringsVerboseNameModels.VINCULO_TIPO_ALIMENTACAO.value
-        verbose_name_plural = StringsVerboseNameModels.VINCULOS_TIPO_ALIMENTACAO.value
+        verbose_name = "Vínculo tipo alimentação"
+        verbose_name_plural = "Vínculos tipo alimentação"
 
 
 class MotivoDRENaoValida(Nomeavel, TemChaveExterna):
@@ -134,7 +144,5 @@ class MotivoDRENaoValida(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_NAO_VALIDACAO_DA_DRE.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.MOTIVOS_DE_NAO_VALIDACAO_DA_DRE.value
-        )
+        verbose_name = "Motivo de não validação da DRE"
+        verbose_name_plural = "Motivos de não validação da DRE"

@@ -58,8 +58,8 @@ class Alimento(ModeloBase):
         return self.nome_alimento
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ALIMENTO.value
-        verbose_name_plural = StringsVerboseNameModels.ALIMENTOS.value
+        verbose_name = "Alimento"
+        verbose_name_plural = "Alimentos"
 
 
 class TipoEmbalagem(ModeloBase):
@@ -73,10 +73,8 @@ class TipoEmbalagem(ModeloBase):
         return f"{self.sigla} - {self.descricao} - {self.ativo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_EMBALAGEM_FECHADA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TIPOS_DE_EMBALAGENS_FECHADAS.value
-        )
+        verbose_name = "Tipo de Embalagem Fechada"
+        verbose_name_plural = "Tipos de Embalagens Fechadas"
 
 
 class Embalagem(ModeloBase):
@@ -121,6 +119,6 @@ class Embalagem(ModeloBase):
         return f"{self.descricao_embalagem}  {self.capacidade_embalagem} {self.unidade_medida}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.EMBALAGEM.value
-        verbose_name_plural = StringsVerboseNameModels.EMBALAGENS.value
+        verbose_name = "Embalagem"
+        verbose_name_plural = "Embalagens"
         ordering = ["criado_em", "tipo_embalagem"]

@@ -14,7 +14,9 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
+    NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
     _formata_total_geral,
@@ -136,7 +138,7 @@ def test_gera_relatorio_consolidado_xlsx_emef(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         10,
         10,
         125,
@@ -213,7 +215,7 @@ def test_gera_relatorio_consolidado_xlsx_emef_com_filtro_de_datas(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         10,
         10,
         75,
@@ -339,7 +341,7 @@ def test_gera_relatorio_consolidado_xlsx_emei(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         5,
         5,
         150,
@@ -688,7 +690,7 @@ def test_gera_relatorio_consolidado_xlsx_cei(
     assert rows[5] == (
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         80,
         80,
         80,
@@ -1265,7 +1267,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         5,
         5,
         100,
@@ -1385,7 +1387,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e
     rows = list(sheet.iter_rows(values_only=True))
 
     assert not any(
-        value == "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        value == CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         for value in rows[2]
     )
     assert rows[2].count(DIETA_ESPECIAL_TIPO_A) == 4
@@ -2660,7 +2662,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260,
         1260,
         1260,
@@ -2876,7 +2878,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cei(
     assert rows[5] == (
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168,
         168,
         168,
@@ -3053,7 +3055,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emef(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260,
         1260,
         1400,
@@ -3249,7 +3251,7 @@ def test_gera_relatorio_consolidado_xlsx_recreio_cemei(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         154,
         154,
         154,
@@ -3388,7 +3390,7 @@ def test_gera_relatorio_consolidado_xlsx_unidades_sem_lançamento(
     assert rows[5] == (
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "UNIDADE SEM LANÇAMENTOS",
         None,
     )

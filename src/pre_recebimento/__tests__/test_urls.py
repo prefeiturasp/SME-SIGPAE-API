@@ -1472,7 +1472,7 @@ def test_url_layout_de_embalagem_validate_ficha_tecnica(
         in response.data["ficha_tecnica"]
     )
     assert (
-        "Este campo é obrigatório."
+        constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
         in response.data["tipos_de_embalagens"][0]["imagens_do_tipo_de_embalagem"]
     )
 
@@ -2216,7 +2216,7 @@ def test_url_endpoint_documentos_recebimento_create(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Cronograma não existe" in response.data["cronograma"]
     assert (
-        "Este campo é obrigatório."
+        constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
         in response.data["tipos_de_documentos"][1]["arquivos_do_tipo_de_documento"]
     )
 
@@ -3769,7 +3769,9 @@ def test_url_ficha_tecnica_correcao_fornecedor_validate_campos_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "prazo_validade_descongelamento": ["Este campo é obrigatório."]
+        "prazo_validade_descongelamento": [
+            constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+        ]
     }
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
 
@@ -3802,7 +3804,9 @@ def test_url_ficha_tecnica_correcao_fornecedor_validate_campos_nao_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "condicoes_de_conservacao": ["Este campo é obrigatório."]
+        "condicoes_de_conservacao": [
+            constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+        ]
     }
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
 

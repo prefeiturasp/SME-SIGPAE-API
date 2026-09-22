@@ -27,7 +27,11 @@ from ..cardapio.suspensao_alimentacao.api.serializers import (
 from ..cardapio.suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
 from ..cardapio.suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
 from ..dados_comuns.behaviors import TemIdentificadorExternoAmigavel, TemPrioridade
-from ..dados_comuns.constants import DAQUI_A_SETE_DIAS, DAQUI_A_TRINTA_DIAS
+from ..dados_comuns.constants import (
+    DAQUI_A_SETE_DIAS,
+    DAQUI_A_TRINTA_DIAS,
+    StringsModelosGestaoAlimentacao,
+)
 from ..dados_comuns.fluxo_status import (
     DietaEspecialWorkflow,
     InformativoPartindoDaEscolaWorkflow,
@@ -710,7 +714,9 @@ class SolicitacoesNutrisupervisao(MoldeConsolidado):
                     & Q(status_atual__in=cls.PENDENTES_STATUS)
                 )
                 | (
-                    Q(desc_doc="Kit Lanche Unificado")
+                    Q(
+                        desc_doc=StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
+                    )
                     & Q(status_atual="CODAE_A_AUTORIZAR")
                 )
             )
@@ -999,7 +1005,9 @@ class SolicitacoesCODAE(MoldeConsolidado):
                     & Q(status_atual__in=cls.PENDENTES_STATUS)
                 )
                 | (
-                    Q(desc_doc="Kit Lanche Unificado")
+                    Q(
+                        desc_doc=StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
+                    )
                     & Q(status_atual="CODAE_A_AUTORIZAR")
                 )
             )

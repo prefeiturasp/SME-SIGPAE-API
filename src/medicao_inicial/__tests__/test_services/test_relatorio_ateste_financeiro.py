@@ -6,6 +6,8 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
 )
+from src.escola.models import GrupoUnidadeEscolar
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
@@ -87,7 +89,7 @@ def test_relatorio_ateste_financeiro_grupo_cei_conteudo_pdf(
     assert relatorio_financeiro_cei.lote.nome.upper() in texto
     assert relatorio_financeiro_cei.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 1" in texto
+    assert GrupoUnidadeEscolar.GRUPO_1 in texto
 
     assert "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS" in texto
     assert DIETA_ESPECIAL_TIPO_A in texto
@@ -117,7 +119,7 @@ def test_build_relatorio_financeiro_grupo_emei(
     GRUPO_NOME = grupo_unidade_escolar_emei.nome
 
     valores_por_tipo = {
-        "ALIMENTAÇÃO": [10, 20, 30],
+        CategoriaMedicao.ALIMENTACAO: [10, 20, 30],
         DIETA_ESPECIAL_TIPO_A: [2, 4, 6],
         DIETA_ESPECIAL_TIPO_B: [1, 2, 3],
     }
@@ -126,7 +128,7 @@ def test_build_relatorio_financeiro_grupo_emei(
         chave: {
             (
                 f"total_{normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()}"
-                if chave == "ALIMENTAÇÃO"
+                if chave == CategoriaMedicao.ALIMENTACAO
                 else normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()
             ): valor
             for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
@@ -181,7 +183,7 @@ def test_relatorio_ateste_financeiro_grupo_emei_conteudo_pdf(
     assert relatorio_financeiro_emei.lote.nome.upper() in texto
     assert relatorio_financeiro_emei.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 3" in texto
+    assert GrupoUnidadeEscolar.GRUPO_3 in texto
     assert "(CEU EMEI, EMEI)" in texto
 
     assert "TIPOS DE ALIMENTAÇÕES - SEM DIETAS" in texto
@@ -208,7 +210,7 @@ def test_build_relatorio_financeiro_grupo_cieja(
     GRUPO_NOME = grupo_unidade_escolar_cieja.nome
 
     valores_por_tipo = {
-        "ALIMENTAÇÃO": [30, 60, 90],
+        CategoriaMedicao.ALIMENTACAO: [30, 60, 90],
         DIETA_ESPECIAL_TIPO_A: [20, 40, 60],
         DIETA_ESPECIAL_TIPO_B: [11, 22, 33],
     }
@@ -217,7 +219,7 @@ def test_build_relatorio_financeiro_grupo_cieja(
         chave: {
             (
                 f"total_{normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()}"
-                if chave == "ALIMENTAÇÃO"
+                if chave == CategoriaMedicao.ALIMENTACAO
                 else normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()
             ): valor
             for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
@@ -264,7 +266,7 @@ def test_relatorio_ateste_financeiro_grupo_cieja_conteudo_pdf(
     assert relatorio_financeiro_cieja.lote.nome.upper() in texto
     assert relatorio_financeiro_cieja.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 6" in texto
+    assert GrupoUnidadeEscolar.GRUPO_6 in texto
     assert "(CIEJA, CMCT)" in texto
 
     assert texto.count("REFEIÇÃO CIEJA E CMCT") == 2
@@ -305,7 +307,7 @@ def test_build_relatorio_financeiro_grupo_cemei(
     }
 
     valores_por_tipo = {
-        "ALIMENTAÇÃO": [55, 66, 77],
+        CategoriaMedicao.ALIMENTACAO: [55, 66, 77],
         DIETA_ESPECIAL_TIPO_A: [11, 22, 33],
         DIETA_ESPECIAL_TIPO_B: [44, 55, 88],
     }
@@ -314,7 +316,7 @@ def test_build_relatorio_financeiro_grupo_cemei(
         chave: {
             (
                 f"total_{normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()}"
-                if chave == "ALIMENTAÇÃO"
+                if chave == CategoriaMedicao.ALIMENTACAO
                 else normalizar_nome_campo(tipo.nome, GRUPO_NOME).lower()
             ): valor
             for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
@@ -371,7 +373,7 @@ def test_relatorio_ateste_financeiro_grupo_cemei_conteudo_pdf(
     assert relatorio_financeiro_cemei.lote.nome.upper() in texto
     assert relatorio_financeiro_cemei.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 2" in texto
+    assert GrupoUnidadeEscolar.GRUPO_2 in texto
     assert "(CEMEI, CEU CEMEI)" in texto
 
     for faixa in faixas_etarias_ativas:
@@ -402,7 +404,7 @@ def test_build_relatorio_financeiro_grupo_emef(
     GRUPO_NOME = grupo_unidade_escolar_emef.nome
 
     valores_por_tipo = {
-        "ALIMENTAÇÃO": [68, 78, 88, 98],
+        CategoriaMedicao.ALIMENTACAO: [68, 78, 88, 98],
         DIETA_ESPECIAL_TIPO_A: [65, 75, 85, 95],
         DIETA_ESPECIAL_TIPO_B: [69, 79, 89, 99],
     }
@@ -411,7 +413,7 @@ def test_build_relatorio_financeiro_grupo_emef(
         chave: {
             (
                 f"total_{normalizar_nome_campo(tipo, GRUPO_NOME).lower()}"
-                if chave == "ALIMENTAÇÃO"
+                if chave == CategoriaMedicao.ALIMENTACAO
                 else normalizar_nome_campo(tipo, GRUPO_NOME).lower()
             ): valor
             for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
@@ -461,7 +463,7 @@ def test_relatorio_ateste_financeiro_grupo_emef_conteudo_pdf(
     assert relatorio_financeiro_emef.lote.nome.upper() in texto
     assert relatorio_financeiro_emef.lote.diretoria_regional.nome in texto
 
-    assert "Grupo 4" in texto
+    assert GrupoUnidadeEscolar.GRUPO_4 in texto
     assert "(CEU EMEF, CEU GESTAO, EMEF, EMEFM)" in texto
 
     assert "REFEIÇÃO" in texto
@@ -488,12 +490,12 @@ def test_build_relatorio_financeiro_grupo_emebs(
 
     valores_por_tipo = {
         "INFANTIL": {
-            "ALIMENTAÇÃO": [68, 78, 88, 98],
+            CategoriaMedicao.ALIMENTACAO: [68, 78, 88, 98],
             DIETA_ESPECIAL_TIPO_A: [65, 75, 85, 95],
             DIETA_ESPECIAL_TIPO_B: [69, 79, 89, 99],
         },
         "FUNDAMENTAL": {
-            "ALIMENTAÇÃO": [10, 20, 30, 40],
+            CategoriaMedicao.ALIMENTACAO: [10, 20, 30, 40],
             DIETA_ESPECIAL_TIPO_A: [11, 21, 31, 41],
             DIETA_ESPECIAL_TIPO_B: [12, 22, 32, 42],
         },
@@ -504,7 +506,7 @@ def test_build_relatorio_financeiro_grupo_emebs(
             chave: {
                 (
                     f"total_{normalizar_nome_campo(tipo, GRUPO_NOME).lower()}"
-                    if chave == "ALIMENTAÇÃO"
+                    if chave == CategoriaMedicao.ALIMENTACAO
                     else normalizar_nome_campo(tipo, GRUPO_NOME).lower()
                 ): valor
                 for tipo, valor in zip(TIPOS_ALIMENTACOES, valores)
@@ -548,7 +550,7 @@ def test_relatorio_ateste_financeiro_grupo_emebs_conteudo_pdf(
     assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
     assert "MAIO/2025" in texto
 
-    assert "Grupo 5" in texto
+    assert GrupoUnidadeEscolar.GRUPO_5 in texto
     assert "(EMEBS)" in texto
 
     assert "TURMA INFANTIL" in texto

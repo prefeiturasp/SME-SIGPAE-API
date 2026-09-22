@@ -10,6 +10,8 @@ from faker import Faker
 from model_bakery import baker
 from openpyxl import Workbook
 
+from src.dados_comuns.constants import NomesParaTesteEscola
+
 from ...dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
@@ -1443,7 +1445,7 @@ def client_tercerizada_com_acesso_medicao(client, django_user_model, terceirizad
     )
     baker.make(
         "Escola",
-        nome="EMEF TESTE",
+        nome=NomesParaTesteEscola.EMEF_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         acesso_modulo_medicao_inicial=True,

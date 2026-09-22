@@ -39,6 +39,7 @@ from src.escola.models import Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
     QuantidadePorPeriodo,
 )
@@ -177,7 +178,7 @@ class VinculoTipoAlimentacaoViewSet(
             InclusaoAlimentacaoNormal.objects.filter(
                 data__month=mes_int,
                 data__year=ano_int,
-                motivo__nome="Evento Específico",
+                motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO,
                 grupo_inclusao__escola=escola,
                 grupo_inclusao__status="CODAE_AUTORIZADO",
             )
@@ -202,7 +203,7 @@ class VinculoTipoAlimentacaoViewSet(
             status="CODAE_AUTORIZADO",
             dias_motivos_da_inclusao_cemei__data__month=mes_int,
             dias_motivos_da_inclusao_cemei__data__year=ano_int,
-            dias_motivos_da_inclusao_cemei__motivo__nome="Evento Específico",
+            dias_motivos_da_inclusao_cemei__motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO,
         ).distinct()
 
         if cemei_qs.exists():

@@ -10,7 +10,6 @@ from src.dados_comuns.behaviors import (
 from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS,
     TIPOS_UNIDADE_ESCOLAR,
-    StringsVerboseNameModels,
 )
 from src.escola.models import Escola, Lote
 
@@ -23,7 +22,7 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
     class Meta:
         ordering = ["-alterado_em"]
         verbose_name = GRUPO_RECREIO_NAS_FERIAS
-        verbose_name_plural = StringsVerboseNameModels.RECREIOS_NAS_FERIAS.value
+        verbose_name_plural = "Recreios nas Férias"
 
     def __str__(self):
         return f"{self.titulo} - (de {self.data_inicio.strftime('%d/%m/%Y')} à {self.data_fim.strftime('%d/%m/%Y')}) - {self.unidades_participantes.count()} unidades participantes"
@@ -54,12 +53,8 @@ class RecreioNasFeriasUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlterado
         return f"{self.unidade_educacional} - {self.recreio_nas_ferias.titulo}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.RECREIO_NAS_FERIAS_UNIDADE_PARTICIPANTE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.RECREIOS_NAS_FERIAS_UNIDADES_PARTICIPANTES.value
-        )
+        verbose_name = "Recreio nas Férias - Unidade Participante"
+        verbose_name_plural = "Recreios nas Férias - Unidades Participantes"
 
 
 class CategoriaAlimentacao(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel):
@@ -69,8 +64,8 @@ class CategoriaAlimentacao(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel):
     """
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CATEGORIA_DE_ALIMENTACAO.value
-        verbose_name_plural = StringsVerboseNameModels.CATEGORIAS_DE_ALIMENTACAO.value
+        verbose_name = "Categoria de Alimentação"
+        verbose_name_plural = "Categorias de Alimentação"
         ordering = ["nome"]
 
     def __str__(self):
@@ -88,10 +83,8 @@ class RecreioNasFeriasUnidadeTipoAlimentacao(TemChaveExterna, CriadoEm, TemAlter
 
     class Meta:
         unique_together = ["recreio_ferias_unidade", "tipo_alimentacao", "categoria"]
-        verbose_name = StringsVerboseNameModels.TIPO_DE_ALIMENTACAO_DA_UNIDADE.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TIPOS_DE_ALIMENTACAO_DAS_UNIDADES.value
-        )
+        verbose_name = "Tipo de Alimentação da Unidade"
+        verbose_name_plural = "Tipos de Alimentação das Unidades"
 
     def __str__(self):
         return f"{self.categoria} - {self.tipo_alimentacao}"

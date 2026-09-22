@@ -21,6 +21,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import Aluno, FaixaEtaria, PeriodoEscolar
+from src.medicao_inicial.models import CategoriaMedicao
 from src.perfil.models import Usuario
 from src.produto.models import Produto
 from src.terceirizada.models import Edital
@@ -44,7 +45,10 @@ def codae():
 
 @pytest.fixture
 def dre_guaianases():
-    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
+    return baker.make(
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
+    )
 
 
 @pytest.fixture
@@ -220,10 +224,12 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 
     baker.make("AlergiaIntolerancia", descricao="Alergia teste fixture")
     perfil_professor = baker.make(
-        constants.MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="ADMINISTRADOR_UE",
+        ativo=False,
     )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -262,9 +268,13 @@ def solicitacao_dieta_especial_autorizada(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -295,9 +305,13 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="DIRETOR_UE", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="DIRETOR_UE",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola,
         perfil=perfil,
@@ -352,9 +366,13 @@ def solicitacao_dieta_especial_escola_solicitou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -379,9 +397,13 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -722,9 +744,13 @@ def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -1203,7 +1229,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
 
 
 @pytest.fixture
@@ -1224,7 +1250,7 @@ def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
                 "periodo_escolar": periodo_manha.nome,
                 "tabelas_lancamentos": [
                     {
-                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                         "semanas": [{"semana": "1", "dias": ["01"]}],
                     }
                 ],

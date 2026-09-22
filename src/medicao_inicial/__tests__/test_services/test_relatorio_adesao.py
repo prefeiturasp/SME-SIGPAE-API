@@ -5,7 +5,11 @@ from django.core.exceptions import ValidationError
 from django.http import QueryDict
 from model_bakery import baker
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPOS_ALIMENTACAO,
+    NomesParaTesteEscola,
+)
 from src.medicao_inicial.services.relatorio_adesao import (
     _parse_data,
     _valida_ano_mes,
@@ -413,7 +417,7 @@ def test_obtem_resultados_filtra_por_tipos_unidades(
         escola,
         mes,
         ano,
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         "654321",
         tipo_unidade=tipo_unidade_escolar_emei,
     )
@@ -460,7 +464,11 @@ def test_obtem_escolas_ordenadas_por_nome(
     )
 
     # assert
-    assert [e.nome for e in escolas] == ["EMEF AAA", "EMEF BBB", "EMEF TESTE"]
+    assert [e.nome for e in escolas] == [
+        "EMEF AAA",
+        "EMEF BBB",
+        NomesParaTesteEscola.EMEF_TESTE.value,
+    ]
 
 
 def test_obtem_resultados_para_escola(

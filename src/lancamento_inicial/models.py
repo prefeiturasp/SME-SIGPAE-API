@@ -7,6 +7,7 @@ from ..dados_comuns.behaviors import (  # noqa I101
     TemChaveExterna,
     TemData,
 )
+from ..dados_comuns.constants import StringsCaminhoModelos
 from .utils import (
     alteracoes_de_cardapio_por_escola_periodo_escolar_e_data,
     total_kits_lanche_por_escola_e_data,
@@ -18,7 +19,8 @@ class LancamentoDiario(
     CriadoEm, CriadoPor, TemData, Logs, TemChaveExterna, models.Model
 ):
     escola_periodo_escolar = models.ForeignKey(
-        "escola.EscolaPeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
     )
     tipo_dieta = models.ForeignKey(
         "dieta_especial.ClassificacaoDieta", on_delete=models.DO_NOTHING, null=True

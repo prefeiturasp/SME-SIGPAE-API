@@ -30,8 +30,8 @@ class PlanilhaDietasAtivas(models.Model):
 
     class Meta:
         ordering = ("-criado_em",)
-        verbose_name = StringsVerboseNameModels.PLANILHA_DIETA_ATIVA.value
-        verbose_name_plural = StringsVerboseNameModels.PLANILHAS_DIETAS_ATIVAS.value
+        verbose_name = "Planilha Dieta Ativa"
+        verbose_name_plural = "Planilhas Dietas Ativas"
 
     def __str__(self):
         return str(self.arquivo)
@@ -41,11 +41,9 @@ class ArquivoCargaDietaEspecial(ArquivoCargaBase):
     resultado = models.FileField(blank=True, default="")
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_DE_SOLICITACOES_DE_DIETA_ESPECIAL.value
-        )
+        verbose_name = "Arquivo para importação de solicitações de Dieta Especial"
         verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_DE_SOLICITACOES_DE_DIETA_ESPECIAL.value
+            "Arquivos para importação de solicitações de Dieta Especial"
         )
 
     def __str__(self) -> str:
@@ -54,11 +52,9 @@ class ArquivoCargaDietaEspecial(ArquivoCargaBase):
 
 class ArquivoCargaAlimentosSubstitutos(ArquivoCargaBase):
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.ARQUIVO_PARA_IMPORTACAO_DE_ALIMENTOS_E_ALIMENTOS_SUBSTITUTOS.value
-        )
+        verbose_name = "Arquivo para importação de Alimentos e Alimentos substitutos"
         verbose_name_plural = (
-            StringsVerboseNameModels.ARQUIVOS_PARA_IMPORTACAO_DE_ALIMENTOS_E_ALIMENTOS_SUBSTITUTOS.value
+            "Arquivos para importação de Alimentos e Alimentos substitutos"
         )
 
     def __str__(self) -> str:

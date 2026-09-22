@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework.exceptions import ValidationError
 
-from ...dados_comuns.constants import MODEL_USUARIO
+from ...dados_comuns.constants import StringsCaminhoModelos
 from ..api.serializers.serializers_create import (
     SolicitacaoKitLancheAvulsaCreationSerializer,
     SolicitacaoKitLancheUnificadaCreationSerializer,
@@ -62,14 +62,14 @@ def test_kit_lanche_avulso_serializer_creators(kits_avulsos_param_serializer):
     qtd_alunos_escola, quantidade_alunos_pedido, data = kits_avulsos_param_serializer
 
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     serializer_obj = SolicitacaoKitLancheAvulsaCreationSerializer(
         context={"request": FakeObject}
     )
     lote = baker.make("Lote")
     escola = baker.make("Escola", lote=lote)
-    aluno = baker.make("escola.Aluno")
+    aluno = baker.make(StringsCaminhoModelos.MODEL_ALUNO.value)
     validated_data_create = dict(
         quantidade_alunos=quantidade_alunos_pedido,
         escola=escola,
@@ -168,7 +168,7 @@ def test_kit_lanche_unificado_serializer_creators_lista_igual(
     kits_unificados_param_serializer,
 ):
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     serializer_obj = SolicitacaoKitLancheUnificadaCreationSerializer(
         context={"request": FakeObject}

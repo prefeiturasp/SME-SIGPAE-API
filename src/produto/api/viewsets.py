@@ -1529,7 +1529,9 @@ class HomologacaoProdutoViewSet(
             return Response(status=status.HTTP_204_NO_CONTENT)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 

@@ -13,7 +13,11 @@ from faker import Faker
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    TIPOS_ALIMENTACAO,
+    StringsModelosGestaoAlimentacao,
+)
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.paineis_consolidados.api import constants
 from src.paineis_consolidados.api.serializers import SolicitacoesExportXLSXSerializer
@@ -171,7 +175,7 @@ def test_build_xlsx(dados_para_geracao_excel_e_pdf):
         "Data de Cancelamento",
     )
     for row in rows:
-        if row[4] == "Inclusão de Alimentação":
+        if row[4] == StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value:
             assert row[5] == "14/01/2025"
             assert row[6] == "-"
             assert row[13] == "cancelado"

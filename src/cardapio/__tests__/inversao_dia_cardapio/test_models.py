@@ -5,7 +5,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
-from src.dados_comuns.constants import MODEL_USUARIO
+from src.dados_comuns.constants import StringsCaminhoModelos
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.escola.models import Escola
 
@@ -44,7 +44,7 @@ def test_inversao_dia_cardapio_fluxo_codae_em_cima_da_hora_error(inversao_dia_ca
 def test_inversao_dia_cardapio_considera_segundo_conjunto_no_calculo_do_prazo(
     inversao_dia_cardapio, campo_fora_do_prazo
 ):
-    usuario = baker.make(MODEL_USUARIO)
+    usuario = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
     inversao_dia_cardapio.data_de_inversao = datetime.date(2026, 9, 14)
     inversao_dia_cardapio.data_para_inversao = datetime.date(2026, 9, 15)
     inversao_dia_cardapio.data_de_inversao_2 = datetime.date(2026, 9, 16)
@@ -70,7 +70,7 @@ def test_inversao_dia_cardapio_considera_segundo_conjunto_no_calculo_do_prazo(
 
 
 def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
-    fake_user = baker.make(MODEL_USUARIO)
+    fake_user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)
     assert (
         str(inversao_dia_cardapio.status) == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
@@ -84,7 +84,7 @@ def test_inversao_dia_cardapio_fluxo(inversao_dia_cardapio):
 @freeze_time("2012-01-14")
 def test_inversao_dia_cardapio_fluxo_cancelamento(inversao_dia_cardapio):
     justificativa = "este e um cancelamento"
-    fake_user = baker.make(MODEL_USUARIO)
+    fake_user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
     inversao_dia_cardapio.inicia_fluxo(user=fake_user)
     assert (
         str(inversao_dia_cardapio.status) == PedidoAPartirDaEscolaWorkflow.DRE_A_VALIDAR
@@ -98,7 +98,7 @@ def test_inversao_dia_cardapio_fluxo_cancelamento(inversao_dia_cardapio):
 
 def test_inversao_dia_cardapio_fluxo_cancelamento_erro(inversao_dia_cardapio2):
     justificativa = "este e um cancelamento"
-    fake_user = baker.make(MODEL_USUARIO)
+    fake_user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
     with pytest.raises(
         InvalidTransitionError,
         match=r".*Só pode cancelar com no mínimo 2 dia\(s\) úteis de antecedência.*",

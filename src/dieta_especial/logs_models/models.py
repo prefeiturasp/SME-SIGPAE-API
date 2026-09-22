@@ -8,7 +8,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
@@ -63,12 +63,8 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
 
     class Meta:
         ordering = ("-criado_em",)
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DIETAS_ATIVAS_CANCELADAS_AUTOMATICAMENTE.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOG_DIETAS_ATIVAS_CANCELADAS_AUTOMATICAMENTE.value
-        )
+        verbose_name = "log dietas ativas canceladas automaticamente"
+        verbose_name_plural = "log dietas ativas canceladas automaticamente"
 
     def __str__(self):
         return str(self.pk)
@@ -85,7 +81,7 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
 
 class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas",
     )
@@ -96,7 +92,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
         related_name="logs_dietas_autorizadas",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -115,18 +111,16 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR.value
-        )
+        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar"
         verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR.value
+            "Logs da quantidade de dietas autorizadas por unidade escolar"
         )
         ordering = ("-data", "escola__nome")
 
 
 class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_cei",
     )
@@ -137,7 +131,7 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         related_name="logs_dietas_autorizadas_cei",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         related_name="logs_dietas_autorizadas_cei",
         on_delete=models.CASCADE,
     )
@@ -152,11 +146,9 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI.value
-        )
+        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar CEI"
         verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI.value
+            "Logs da quantidade de dietas autorizadas por unidade escolar CEI"
         )
         ordering = ("-data", "escola__nome")
 
@@ -165,7 +157,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias",
     )
@@ -183,12 +175,8 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_RECREIO_NAS_FERIAS.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_RECREIO_NAS_FERIAS.value
-        )
+        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
+        verbose_name_plural = "Logs da quantidade de dietas autorizadas por unidade escolar - Recreio nas Férias"
         ordering = ("-data", "escola__nome")
 
 
@@ -196,7 +184,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
     )
@@ -220,10 +208,6 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
         )
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.LOG_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI_RECREIO_NAS_FERIAS.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.LOGS_DA_QUANTIDADE_DE_DIETAS_AUTORIZADAS_POR_UNIDADE_ESCOLAR_CEI_RECREIO_NAS_FERIAS.value
-        )
+        verbose_name = "Log da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
+        verbose_name_plural = "Logs da quantidade de dietas autorizadas por unidade escolar CEI - Recreio nas Férias"
         ordering = ("-data", "escola__nome")

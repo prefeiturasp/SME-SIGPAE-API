@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from src.dados_comuns.constants import NomesParaTesteEscola
 from src.perfil.management.commands.report_parceiras import Command
 
 
@@ -18,7 +19,10 @@ def test_normaliza_unidade(command):
     assert command.normaliza_unidade("CEI TESTE") == "TESTE"
     assert command.normaliza_unidade("Cei TESTE") == "TESTE"
     assert command.normaliza_unidade("CR.P.CONV. TESTE") == " TESTE"
-    assert command.normaliza_unidade("EMEF TESTE") == "EMEF TESTE"
+    assert (
+        command.normaliza_unidade(NomesParaTesteEscola.EMEF_TESTE.value)
+        == NomesParaTesteEscola.EMEF_TESTE.value
+    )
 
 
 @patch("pdfplumber.open")

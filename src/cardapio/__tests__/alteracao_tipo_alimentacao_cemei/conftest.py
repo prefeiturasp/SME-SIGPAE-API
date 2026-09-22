@@ -9,11 +9,14 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
 )
 from src.dados_comuns import constants
+from src.dados_comuns.constants import StringsCaminhoModelos
 
 
 @pytest.fixture
 def alteracao_cemei(escola_cemei, tipo_alimentacao, faixas_etarias_ativas):
-    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    periodo_escolar = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="MANHA"
+    )
     alteracao_cemei = baker.make(
         AlteracaoCardapioCEMEI,
         escola=escola_cemei,

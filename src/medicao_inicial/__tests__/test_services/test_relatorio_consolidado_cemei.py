@@ -17,6 +17,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cemei import (
@@ -319,7 +320,7 @@ def test_get_valores_tabela(relatorio_consolidado_xlsx_cemei, mock_colunas_cemei
     assert linhas[0] == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         5.0,
         5.0,
         100.0,
@@ -438,7 +439,7 @@ def test_processa_periodo_campo(
     assert integral_cei == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         100.0,
     ]
 
@@ -455,7 +456,7 @@ def test_processa_periodo_campo(
     assert dieta_a_integral == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         100.0,
         10.0,
     ]
@@ -473,7 +474,7 @@ def test_processa_periodo_campo(
     assert integral_emei == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         100.0,
         10.0,
         150.0,
@@ -492,7 +493,7 @@ def test_processa_periodo_campo(
     assert dieta_a_lanche == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         100.0,
         10.0,
         150.0,
@@ -783,7 +784,7 @@ def test_insere_tabela_periodos_na_planilha(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         5.0,
         5.0,
         100.0,

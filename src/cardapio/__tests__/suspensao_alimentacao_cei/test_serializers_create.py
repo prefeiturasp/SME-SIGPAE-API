@@ -7,14 +7,14 @@ from src.cardapio.suspensao_alimentacao_cei.api.serializers_create import (
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
-from src.dados_comuns.constants import MODEL_USUARIO
+from src.dados_comuns.constants import StringsCaminhoModelos
 
 pytestmark = pytest.mark.django_db
 
 
 def test_suspensao_alimentacao_cei_creators(suspensao_alimentacao_cei_params, escola):
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     motivo, data_create, data_update = suspensao_alimentacao_cei_params
 

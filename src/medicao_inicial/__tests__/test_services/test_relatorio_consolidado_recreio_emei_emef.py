@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
 )
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
@@ -68,7 +69,7 @@ def test_get_valores_tabela_unidade_emei(
     assert linhas[0] == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         1260.0,
         1260.0,
@@ -146,7 +147,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         1260.0,
         1260.0,
@@ -251,7 +252,7 @@ def test_get_lista_alimentacoes_dietas(solicitacao_recreio_emei):
     medicao_recreio_nas_ferias = medicoes[1]
     dieta_a = DIETA_ESPECIAL_TIPO_A
     dieta_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
     dieta_b = DIETA_ESPECIAL_TIPO_B
 
@@ -347,7 +348,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
         solicitacao_recreio_emei.escola.nome,
     ]
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     recreio_refeicao = _processa_periodo_campo(
@@ -363,7 +364,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert recreio_refeicao == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
     ]
 
@@ -380,7 +381,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert solicitacao_kit_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         "-",
     ]
@@ -398,7 +399,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
     assert dieta_a_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEI.value,
         "987654",
-        "EMEI TESTE",
+        NomesParaTesteEscola.EMEI_TESTE.value,
         1260.0,
         "-",
         "-",
@@ -458,7 +459,7 @@ def test_calcula_soma_medicao(solicitacao_recreio_emei):
     medicao_recreio = medicoes[1]
 
     campo = "refeicao"
-    categoria = ["ALIMENTAÇÃO"]
+    categoria = [CategoriaMedicao.ALIMENTACAO]
     total_recreio = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
     assert total_recreio == pytest.approx(1260.0)
 
@@ -469,7 +470,7 @@ def test_calcula_soma_medicao(solicitacao_recreio_emei):
 
     categoria = [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     ]
     total_dieta = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
     assert total_dieta == pytest.approx(14.0)
@@ -504,7 +505,7 @@ def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_eme
 def test_unificar_dietas_tipo_a():
     dietas_alimentacoes = {
         DIETA_ESPECIAL_TIPO_A: ["lanche", "lanche_4h"],
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -515,7 +516,8 @@ def test_unificar_dietas_tipo_a():
     assert DIETA_ESPECIAL_TIPO_A in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_A]) == 5
 
@@ -529,14 +531,15 @@ def test_unificar_dietas_tipo_a_sem_dieta_enteral():
     assert DIETA_ESPECIAL_TIPO_A in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_A]) == 2
 
 
 def test_unificar_dietas_tipo_a_sem_dieta_principal():
     dietas_alimentacoes = {
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -547,7 +550,8 @@ def test_unificar_dietas_tipo_a_sem_dieta_principal():
     assert DIETA_ESPECIAL_TIPO_A in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_A]) == 3
 
@@ -560,7 +564,8 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
     assert DIETA_ESPECIAL_TIPO_A not in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_B]) == 2
 
@@ -579,7 +584,7 @@ def test_get_valores_tabela_unidade_emef(
     assert linhas[0] == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         1260.0,
         1400,
@@ -657,7 +662,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emef(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         1260.0,
         1400.0,
@@ -699,7 +704,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
         solicitacao_recreio_emef.escola.nome,
     ]
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     recreio_refeicao = _processa_periodo_campo(
@@ -715,7 +720,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert recreio_refeicao == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
     ]
 
@@ -732,7 +737,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert solicitacao_kit_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         "-",
     ]
@@ -750,7 +755,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
     assert dieta_a_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         1260.0,
         "-",
         "-",

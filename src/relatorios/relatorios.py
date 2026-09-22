@@ -27,7 +27,8 @@ from src.dados_comuns.utils import convert_image_to_base64
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.medicao_inicial.models import SolicitacaoMedicaoInicial
+from src.inclusao_alimentacao.models import MotivoInclusaoNormal
+from src.medicao_inicial.models import CategoriaMedicao, SolicitacaoMedicaoInicial
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -982,7 +983,7 @@ def relatorio_inclusao_alimentacao_cemei(request, solicitacao):  # noqa C901
     )
 
     if solicitacao.dias_motivos_da_inclusao_cemei.filter(
-        motivo__nome="Evento Específico"
+        motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
     ):
         eh_evento_especifico = True
         vinculos_emei = vinculos_class.objects.filter(
@@ -1838,7 +1839,7 @@ def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> No
     """
     PERIODO_PARTICIPANTES = GRUPO_RECREIO_NAS_FERIAS
     PERIODO_COLABORADORES = "Colaboradores"
-    CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
+    CATEGORIA_ALIMENTACAO = CategoriaMedicao.ALIMENTACAO
 
     MAP_CATEGORIA = {
         True: "ALIMENTAÇÕES para COLABORADORES",
@@ -2502,7 +2503,11 @@ def _busca_log_justificativa_cronograma(logs, autor_justificativa):
     )
     return {
         "justificativa": log_correto.justificativa if log_correto else "",
-        "titulo": log_correto.status_evento_explicacao if log_correto else dict_logs[autor_justificativa][0],
+        "titulo": (
+            log_correto.status_evento_explicacao
+            if log_correto
+            else dict_logs[autor_justificativa][0]
+        ),
     }
 
 
@@ -2567,7 +2572,9 @@ def get_pdf_relatorio_solicitacao_alteracao_cronograma(solicitacao_cronograma):
     log_cronograma = _busca_log_justificativa_cronograma(logs, "cronograma")
     log_abastecimento = _busca_log_justificativa_cronograma(logs, "abastecimento")
 
-    eh_fornecedor_ciente = solicitacao_cronograma.get_status_display() == "Fornecedor Ciente"
+    eh_fornecedor_ciente = (
+        solicitacao_cronograma.get_status_display() == "Fornecedor Ciente"
+    )
 
     html_string = render_to_string(
         "pre_recebimento/cronogramas/relatorio_solicitacao_alteracao_cronograma.html",

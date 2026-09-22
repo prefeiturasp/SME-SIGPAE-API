@@ -8,7 +8,7 @@ from src.dados_comuns.behaviors import (
     ModeloBase,
     TemIdentificadorExternoAmigavel,
 )
-from src.dados_comuns.constants import MODEL_USUARIO, StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import (
     CronogramaAlteracaoWorkflow,
     FluxoAlteracaoCronograma,
@@ -115,8 +115,8 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
         return f"Cronograma: {self.numero} - Status: {self.get_status_display()}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CRONOGRAMA.value
-        verbose_name_plural = StringsVerboseNameModels.CRONOGRAMAS.value
+        verbose_name = "Cronograma"
+        verbose_name_plural = "Cronogramas"
 
 
 class EtapasDoCronograma(ModeloBase):
@@ -166,8 +166,8 @@ class EtapasDoCronograma(ModeloBase):
         return f"Etapa{etapa} - {parte}{cronograma}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ETAPA_DO_CRONOGRAMA.value
-        verbose_name_plural = StringsVerboseNameModels.ETAPAS_DOS_CRONOGRAMAS.value
+        verbose_name = "Etapa do Cronograma"
+        verbose_name_plural = "Etapas dos Cronogramas"
         ordering = ["etapa", "parte"]
         indexes = [
             models.Index(fields=["etapa", "parte"]),
@@ -258,12 +258,8 @@ class ProgramacaoDoRecebimentoDoCronograma(ModeloBase):
             return str(self.id)
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.PROGRAMACAO_DO_RECEBIMENTO_DO_CROMOGRAMA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.PROGRAMACOES_DOS_RECEBIMENTOS_DOS_CROMOGRAMAS.value
-        )
+        verbose_name = "Programação do Recebimento do Cromograma"
+        verbose_name_plural = "Programações dos Recebimentos dos Cromogramas"
 
 
 class SolicitacaoAlteracaoCronogramaQuerySet(models.QuerySet):
@@ -353,7 +349,9 @@ class SolicitacaoAlteracaoCronograma(
         StringsVerboseNameModels.JUSTIFICATIVA_DE_SOLICITACAO_PELO_FORNECEDOR.value,
         blank=True,
     )
-    usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario_solicitante = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
     numero_solicitacao = models.CharField(
         StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
         blank=True,
@@ -410,12 +408,8 @@ class SolicitacaoAlteracaoCronograma(
         return f"Solicitação de alteração do cronograma: {self.numero_solicitacao}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SOLICITACAO_DE_ALTERACAO_DE_CRONOGRAMA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_ALTERACAO_DE_CRONOGRAMA.value
-        )
+        verbose_name = "Solicitação de Alteração de Cronograma"
+        verbose_name_plural = "Solicitações de Alteração de Cronograma"
 
 
 @receiver(post_save, sender=SolicitacaoAlteracaoCronograma)
@@ -487,10 +481,8 @@ class InterrupcaoProgramadaEntrega(ModeloBase):
     )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INTERRUPCAO_PROGRAMADA_DE_ENTREGA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INTERRUPCOES_PROGRAMADAS_DE_ENTREGAS.value
-        )
+        verbose_name = "Interrupção Programada de Entrega"
+        verbose_name_plural = "Interrupções Programadas de Entregas"
         unique_together = [("data", "tipo_calendario")]
 
     def __str__(self):

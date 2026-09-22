@@ -6,9 +6,8 @@ from django.contrib.admin.sites import AdminSite
 from model_bakery import baker
 
 from src.dados_comuns.constants import (
-    MODEL_ESCOLA,
-    MODEL_LOTE,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
     StringsSearchHelpText,
 )
 from src.escola.dias_letivos.admin import (
@@ -150,8 +149,12 @@ def test_get_dia_semana_display_decorator() -> None:
 
 def test_get_periodos_escolares() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    periodo1 = baker.make("escola.PeriodoEscolar", nome="Manhã")
-    periodo2 = baker.make("escola.PeriodoEscolar", nome="Tarde")
+    periodo1 = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="Manhã"
+    )
+    periodo2 = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="Tarde"
+    )
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.periodos_escolares.set([periodo1, periodo2])
@@ -173,8 +176,8 @@ def test_get_periodos_escolares_empty() -> None:
 
 def test_get_lotes() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    lote1 = baker.make(MODEL_LOTE, nome="Lote A")
-    lote2 = baker.make(MODEL_LOTE, nome="Lote B")
+    lote1 = baker.make(StringsCaminhoModelos.MODEL_LOTE.value, nome="Lote A")
+    lote2 = baker.make(StringsCaminhoModelos.MODEL_LOTE.value, nome="Lote B")
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.lotes.set([lote1, lote2])
@@ -216,8 +219,8 @@ def test_get_tipos_unidade_empty() -> None:
 
 def test_get_escolas() -> None:
     admin_instance = DiaLetivoSIGPAEAdmin(model=DiaLetivoSIGPAE, admin_site=AdminSite())
-    escola1 = baker.make(MODEL_ESCOLA, nome="EMEF A")
-    escola2 = baker.make(MODEL_ESCOLA, nome="EMEF B")
+    escola1 = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value, nome="EMEF A")
+    escola2 = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value, nome="EMEF B")
 
     dia = baker.make(DiaLetivoSIGPAE, data=datetime.date(2026, 6, 22))
     dia.escolas.set([escola1, escola2])

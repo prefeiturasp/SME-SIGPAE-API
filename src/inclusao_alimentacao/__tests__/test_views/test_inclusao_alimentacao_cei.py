@@ -1,7 +1,10 @@
 import pytest
 from rest_framework import status
 
-from src.dados_comuns.constants import SOLICITACOES_DO_USUARIO
+from src.dados_comuns.constants import (
+    SOLICITACOES_DO_USUARIO,
+    StringsValidationErrors,
+)
 from src.perfil.models import Usuario
 
 pytestmark = pytest.mark.django_db
@@ -69,5 +72,5 @@ def test_destroy_falha(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }

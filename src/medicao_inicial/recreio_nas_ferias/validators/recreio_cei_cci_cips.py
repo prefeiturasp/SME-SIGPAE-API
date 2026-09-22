@@ -29,7 +29,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
 )
 from src.medicao_inicial.validators import erros_unicos, lista_erros_com_periodo
 
-CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
+CATEGORIA_ALIMENTACAO_NOME = CategoriaMedicao.ALIMENTACAO
 
 
 def cria_valores_medicao_participantes_cei(instance: SolicitacaoMedicaoInicial) -> None:
@@ -263,7 +263,7 @@ def validate_lancamento_alimentacoes_medicao_recreio_cei(
         categoria__nome__in=["Inscritos", "Colaboradores"]
     )
     tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
-    categoria_medicao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    categoria_medicao = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
     dias_letivos_geral = gerar_dias_letivos_recreio(
         recreio.data_inicio, recreio.data_fim
     )

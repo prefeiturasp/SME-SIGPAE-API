@@ -391,7 +391,9 @@ class SolicitacaoKitLancheAvulsaViewSet(DataSolicitacaoContextMixin, ModelViewSe
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -718,7 +720,9 @@ class SolicitacaoKitLancheUnificadaViewSet(DataSolicitacaoContextMixin, ModelVie
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -862,7 +866,9 @@ class SolicitacaoKitLancheCEMEIViewSet(
         solicitacao_kit_lanche_cemei = self.get_object()
         if not solicitacao_kit_lanche_cemei.pode_excluir:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
         return super().destroy(request, *args, **kwargs)

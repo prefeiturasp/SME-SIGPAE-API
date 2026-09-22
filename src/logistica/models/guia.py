@@ -93,12 +93,8 @@ class NotificacaoOcorrenciasGuia(
         return f"Notificacao: {self.numero} - {self.status}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.NOTIFICACAO_DE_GUIAS_COM_OCORRENCIAS.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.NOTIFICACOES_DE_GUIAS_COM_OCORRENCIAS.value
-        )
+        verbose_name = "Notificação de Guias com Ocorrencias"
+        verbose_name_plural = "Notificações de Guias com Ocorrencias"
 
 
 class Guia(ModeloBase, FluxoGuiaRemessa):
@@ -191,8 +187,8 @@ class Guia(ModeloBase, FluxoGuiaRemessa):
         return f"Guia: {self.numero_guia} - {self.status} da solicitação: {self.solicitacao.numero_solicitacao}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.GUIA_DE_REMESSA.value
-        verbose_name_plural = StringsVerboseNameModels.GUIAS_DE_REMESSAS.value
+        verbose_name = "Guia de Remessa"
+        verbose_name_plural = "Guias de Remessas"
 
 
 class ConferenciaGuia(ModeloBase, CriadoPor):
@@ -217,10 +213,8 @@ class ConferenciaGuia(ModeloBase, CriadoPor):
         return f"Conferência da guia {self.guia.numero_guia}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CONFERENCIA_DA_GUIA_DE_REMESSA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.CONFERENCIA_DAS_GUIAS_DE_REMESSAS.value
-        )
+        verbose_name = "Conferência da Guia de Remessa"
+        verbose_name_plural = "Conferência das Guias de Remessas"
 
 
 class ConferenciaIndividualPorAlimento(ModeloBase):
@@ -339,12 +333,8 @@ class ConferenciaIndividualPorAlimento(ModeloBase):
             return None
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.CONFERENCIA_INDIVIDUAL_POR_ALIMENTO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.CONFERENCIAS_INDIVIDUAIS_POR_ALIMENTOS.value
-        )
+        verbose_name = "Conferência Individual por Alimento"
+        verbose_name_plural = "Conferências Individuais por Alimentos"
 
 
 class PrevisaoContratualNotificacao(ModeloBase):
@@ -377,8 +367,8 @@ class PrevisaoContratualNotificacao(ModeloBase):
         return f"Previsao: {self.motivo_ocorrencia}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PREVISAO_CONTRATUAL.value
-        verbose_name_plural = StringsVerboseNameModels.PREVISOES_CONTRATUAIS.value
+        verbose_name = "Previsão Contratual"
+        verbose_name_plural = "Previsões Contratuais"
 
 
 class InsucessoEntregaGuia(ModeloBase, CriadoPor):
@@ -438,7 +428,5 @@ class InsucessoEntregaGuia(ModeloBase, CriadoPor):
             return None
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INSUCESSO_DE_ENTREGA_DA_GUIA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INSUCESSOS_DE_ENTREGAS_DAS_GUIAS.value
-        )
+        verbose_name = "Insucesso de Entrega da Guia"
+        verbose_name_plural = "Insucessos de Entregas das Guias"

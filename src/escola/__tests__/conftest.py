@@ -19,7 +19,9 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteDiretoriaRegional,
+    NomesParaTesteEscola,
     StatusProcessamentoArquivo,
+    StringsCaminhoModelos,
     StringsDatasISO,
 )
 from src.dados_comuns.fluxo_status import (
@@ -127,7 +129,7 @@ def escola_cei():
     )
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -172,7 +174,7 @@ def escola_cemei(periodo_escolar):
     )
     escola = baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -1004,15 +1006,21 @@ def dicionario_de_alunos_matriculados():
 def lista_dias_letivos(escola, dia_calendario_letivo, dia_calendario_nao_letivo):
     dias_letivos = [
         {
-            "data": dia_calendario_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "data": dia_calendario_letivo.data.strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": dia_calendario_letivo.dia_letivo,
         },
         {
-            "data": dia_calendario_nao_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "data": dia_calendario_nao_letivo.data.strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": dia_calendario_nao_letivo.dia_letivo,
         },
         {
-            "data": datetime.datetime(2021, 9, 26).strftime("%Y-%m-%dT00:00:00"),
+            "data": datetime.datetime(2021, 9, 26).strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": False,
         },
     ]
@@ -1335,13 +1343,17 @@ def escola_edital_41(escola):
 
 @pytest.fixture
 def tipo_alimentacao():
-    return baker.make("cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        "cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.SOBREMESA.value
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.SOBREMESA.value,
     )
 
 
@@ -1438,10 +1450,10 @@ def log_alunos_matriculados_cei(escola_cei, log_alunos_matriculados_integral_cei
 def grupos_da_dre(tipo_unidade_escolar):
     dre = baker.make("DiretoriaRegional", nome="DRE ADMIN")
     baker.make("Escola", diretoria_regional=dre, tipo_unidade=tipo_unidade_escolar)
-    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 1")
+    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_1)
     grupo.tipos_unidades.add(tipo_unidade_escolar)
-    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 2")
-    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 3")
+    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_2)
+    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_3)
     return dre
 
 

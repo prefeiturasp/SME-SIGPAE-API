@@ -8,6 +8,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
+from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
+
 from ...dados_comuns.constants import (
     FILTRO_PADRAO_PEDIDOS,
     FORMATO_DATA_BRASILEIRO,
@@ -212,7 +214,9 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         descricao_prioridade = self._agrupar_solicitacoes(tipo_visao, query_set)
         for nome_objeto, prioridade in descricao_prioridade:
             if nome_objeto == "Inclusão de Alimentação Contínua":
-                nome_objeto = "Inclusão de Alimentação"
+                nome_objeto = (
+                    StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
+                )
             if nome_objeto not in sumario:
                 sumario[nome_objeto] = {
                     "TOTAL": 0,
@@ -228,7 +232,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         # TODO: melhorar performance
         sumario = {
             "total": 0,
-            "Inclusão de Alimentação": {
+            StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
@@ -244,11 +248,11 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Kit Lanche Passeio": {
+            StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Kit Lanche Unificado": {
+            StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
@@ -259,7 +263,9 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         }  # type: dict
         for solicitacao in query_set:
             if solicitacao["desc_doc"] == "Inclusão de Alimentação Contínua":
-                solicitacao["desc_doc"] = "Inclusão de Alimentação"
+                solicitacao["desc_doc"] = (
+                    StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
+                )
             sumario[solicitacao["desc_doc"]]["quantidades"][
                 solicitacao["criado_em__month"] - 1
             ] += 1

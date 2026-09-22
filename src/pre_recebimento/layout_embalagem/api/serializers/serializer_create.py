@@ -3,6 +3,7 @@
 from rest_framework import serializers
 from xworkflows.base import InvalidTransitionError
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
 )
@@ -47,7 +48,7 @@ class TipoDeEmbalagemDeLayoutCreateSerializer(serializers.ModelSerializer):
                     raise serializers.ValidationError(
                         {
                             f"Layout Embalagem {tipo_embalagem}": [
-                                "Este campo é obrigatório."
+                                StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
                             ]
                         }
                     )

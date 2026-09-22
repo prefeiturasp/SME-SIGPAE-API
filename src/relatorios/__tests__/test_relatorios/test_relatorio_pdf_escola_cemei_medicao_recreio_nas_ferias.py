@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_ALIMENTACAO,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cemei_recreio_nas_ferias,
 )
@@ -47,7 +48,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
 
     def _setup_categorias(self, categoria_medicao_factory):
         self.categoria_alimentacao = categoria_medicao_factory.create(
-            nome="ALIMENTAÇÃO"
+            nome=CategoriaMedicao.ALIMENTACAO
         )
         self.categoria_dieta_a = categoria_medicao_factory.create(nome="DIETA TIPO A")
         self.categoria_dieta_b = categoria_medicao_factory.create(nome="DIETA TIPO B")

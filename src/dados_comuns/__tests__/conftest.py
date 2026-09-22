@@ -37,8 +37,8 @@ from ...escola import models
 from ..constants import (
     COORDENADOR_LOGISTICA,
     DJANGO_ADMIN_PASSWORD,
-    TIPO_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
 )
 from ..models import (
     CentralDeDownload,
@@ -558,7 +558,7 @@ def escola_cei():
     )
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -641,7 +641,7 @@ def escola_cemei():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -1023,18 +1023,24 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.LANCHE.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        TIPO_ALIMENTACAO,
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
     )
 
@@ -1042,7 +1048,7 @@ def tipo_alimentacao_lanche_emergencial():
 @pytest.fixture
 def periodo_manha():
     return baker.make(
-        "escola.PeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="MANHA",
         uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
     )
@@ -1051,7 +1057,7 @@ def periodo_manha():
 @pytest.fixture
 def periodo_tarde():
     return baker.make(
-        "escola.PeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="TARDE",
         uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
     )
@@ -1236,9 +1242,10 @@ def usuario_nutrimanifestacao(client, django_user_model):
 
 @pytest.fixture
 def ocorrencia_medicao_inicial_status_aprovado_dre():
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",

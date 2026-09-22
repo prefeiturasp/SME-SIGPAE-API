@@ -8,7 +8,7 @@ import numpy
 from django.db import models
 from django.db.models import Q
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
 from ..dados_comuns.behaviors import (
     Ativavel,
@@ -35,10 +35,6 @@ from ..dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_ESCOLA,
-    MODEL_LOTE,
-    MODEL_USUARIO,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -51,7 +47,7 @@ from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
-MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+MODEL_PERIODO_ESCOLAR = StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value
 GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
 
 
@@ -61,8 +57,8 @@ class TipoSobremesaDoce(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel, Ativ
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_SOBREMESA_DOCE.value
-        verbose_name_plural = StringsVerboseNameModels.TIPOS_DE_SOBREMESA_DOCE.value
+        verbose_name = "Tipo de Sobremesa Doce"
+        verbose_name_plural = "Tipos de Sobremesa Doce"
 
 
 class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
@@ -84,8 +80,8 @@ class DiaSobremesaDoce(TemData, TemChaveExterna, CriadoEm, CriadoPor):
         return f"{self.data.strftime(FORMATO_DATA_BRASILEIRO)} - {self.tipo_unidade.iniciais} - Edital {self.edital}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DIA_DE_SOBREMESA_DOCE.value
-        verbose_name_plural = StringsVerboseNameModels.DIAS_DE_SOBREMESA_DOCE.value
+        verbose_name = "Dia de sobremesa doce"
+        verbose_name_plural = "Dias de sobremesa doce"
         unique_together = (
             "tipo_unidade",
             "data",
@@ -108,7 +104,7 @@ class SolicitacaoMedicaoInicial(
     """Solicitação de Medição Inicial."""
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_medicao_inicial",
     )
@@ -128,7 +124,7 @@ class SolicitacaoMedicaoInicial(
     )
     dre_ciencia_correcao_data = models.DateTimeField(blank=True, null=True)
     dre_ciencia_correcao_usuario = models.ForeignKey(
-        MODEL_USUARIO,
+        StringsCaminhoModelos.MODEL_USUARIO.value,
         on_delete=models.SET_NULL,
         related_name="solicitacoes_medicao_ciencia_correcao",
         blank=True,
@@ -530,10 +526,8 @@ class SolicitacaoMedicaoInicial(
         return medicao_legada
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_DE_MEDICAO_INICIAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_MEDICAO_INICIAL.value
-        )
+        verbose_name = "Solicitação de medição inicial"
+        verbose_name_plural = "Solicitações de medição inicial"
         unique_together = (
             "escola",
             "mes",
@@ -600,10 +594,8 @@ class Responsavel(models.Model):
 
 class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
     class Meta:
-        verbose_name = StringsVerboseNameModels.TIPO_DE_CONTAGEM_DAS_ALIMENTACOES.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.TIPOS_DE_CONTAGEM_DAS_ALIMENTACOES.value
-        )
+        verbose_name = "Tipo de contagem das alimentações"
+        verbose_name_plural = "Tipos de contagem das alimentações"
 
     def __str__(self):
         return self.nome
@@ -611,8 +603,8 @@ class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
 
 class GrupoMedicao(Nomeavel, TemChaveExterna, Ativavel):
     class Meta:
-        verbose_name = StringsVerboseNameModels.GRUPO_DE_MEDICAO.value
-        verbose_name_plural = StringsVerboseNameModels.GRUPOS_DE_MEDICAO.value
+        verbose_name = "Grupo de medição"
+        verbose_name_plural = "Grupos de medição"
 
     def __str__(self):
         return self.nome
@@ -699,8 +691,8 @@ class Medicao(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MEDICAO.value
-        verbose_name_plural = StringsVerboseNameModels.MEDICOES.value
+        verbose_name = "Medição"
+        verbose_name_plural = "Medições"
         constraints = [
             models.UniqueConstraint(
                 fields=["solicitacao_medicao_inicial", "periodo_escolar"],
@@ -727,9 +719,19 @@ class Medicao(
 
 
 class CategoriaMedicao(Nomeavel, Ativavel, TemChaveExterna):
+    SOLICITACOES_DE_ALIMENTACAO = "SOLICITAÇÕES DE ALIMENTAÇÃO"
+    DIETA_ESPECIAL_TIPO_B = "DIETA ESPECIAL - TIPO B"
+    DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
+    ALIMENTACAO = "ALIMENTAÇÃO"
+
+    CATEGORIA_CONTEM_DIETA_ESPECIAL = "DIETA ESPECIAL"
+
     class Meta:
-        verbose_name = StringsVerboseNameModels.CATEGORIA_DE_MEDICAO.value
-        verbose_name_plural = StringsVerboseNameModels.CATEGORIAS_DE_MEDICOES.value
+        verbose_name = "Categoria de medição"
+        verbose_name_plural = "Categorias de medições"
 
     def __str__(self):
         return self.nome
@@ -751,7 +753,10 @@ class ValorMedicao(
         "CategoriaMedicao", on_delete=models.CASCADE, related_name="valores_medicao"
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     faixa_etaria = models.ForeignKey(
         "escola.FaixaEtaria", blank=True, null=True, on_delete=models.DO_NOTHING
@@ -776,16 +781,14 @@ class ValorMedicao(
         return f"#{self.id_externo} -- Categoria {categoria} -- Campo {nome_campo} -- Dia/Mês {dia}/{mes}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.VALOR_DA_MEDICAO.value
-        verbose_name_plural = StringsVerboseNameModels.VALORES_DAS_MEDICOES.value
+        verbose_name = "Valor da Medição"
+        verbose_name_plural = "Valores das Medições"
 
 
 class AlimentacaoLancamentoEspecial(Nomeavel, Ativavel, TemChaveExterna, Posicao):
     class Meta:
-        verbose_name = StringsVerboseNameModels.ALIMENTACAO_DE_LANCAMENTO_ESPECIAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.ALIMENTACOES_DE_LANCAMENTOS_ESPECIAIS.value
-        )
+        verbose_name = "Alimentação de Lançamento Especial"
+        verbose_name_plural = "Alimentações de Lançamentos Especiais"
         ordering = ["posicao"]
 
     @property
@@ -805,7 +808,7 @@ class PermissaoLancamentoEspecial(
     CriadoPor, CriadoEm, TemAlteradoEm, TemChaveExterna, TemIdentificadorExternoAmigavel
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="permissoes_lancamento_especial",
     )
@@ -816,7 +819,7 @@ class PermissaoLancamentoEspecial(
         AlimentacaoLancamentoEspecial
     )
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         related_name="permissoes_lancamento_especial",
         on_delete=models.DO_NOTHING,
     )
@@ -840,10 +843,8 @@ class PermissaoLancamentoEspecial(
             return True
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PERMISSAO_DE_LANCAMENTO_ESPECIAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PERMISSOES_DE_LANCAMENTOS_ESPECIAIS.value
-        )
+        verbose_name = "Permissão de Lançamento Especial"
+        verbose_name_plural = "Permissões de Lançamentos Especiais"
         ordering = ["-alterado_em"]
 
     def __str__(self):
@@ -854,7 +855,7 @@ class LancheEmergencialDiario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
     criado_em = models.DateTimeField(CRIADO_EM, auto_now_add=True, null=True)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="lanches_emergenciais_diarios",
     )
@@ -867,10 +868,8 @@ class LancheEmergencialDiario(models.Model):
         return f"{self.escola.codigo_eol}: {self.escola.nome} - {self.data_inicial} até {self.data_final or '--'}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.LANCHE_EMERGENCIAL_DIARIO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.LANCHES_EMERGENCIAIS_DIARIOS.value
-        )
+        verbose_name = "Lanche Emergencial Diário"
+        verbose_name_plural = "Lanches Emergenciais Diários"
         ordering = ("escola__nome", "data_inicial")
 
 
@@ -924,10 +923,8 @@ class DiaParaCorrigir(
         return f"# {self.id_externo} - {escola} - {periodo_ou_grupo} - {self.dia}/{mes}/{ano} - {self.infantil_ou_fundamental}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DIA_DA_MEDICAO_PARA_CORRIGIR.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.DIAS_DA_MEDICAO_PARA_CORRIGIR.value
-        )
+        verbose_name = "Dia da Medição para corrigir"
+        verbose_name_plural = "Dias da Medição para corrigir"
 
 
 class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
@@ -944,7 +941,9 @@ class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
         "terceirizada.Contrato", on_delete=models.PROTECT, related_name="empenhos"
     )
     edital = models.ForeignKey(
-        "terceirizada.Edital", on_delete=models.PROTECT, related_name="empenhos"
+        StringsCaminhoModelos.MODEL_EDITAL.value,
+        on_delete=models.PROTECT,
+        related_name="empenhos",
     )
     tipo_empenho = models.CharField(
         choices=TIPO_EMPENHO_CHOICES, max_length=20, default="PRINCIPAL"
@@ -956,14 +955,14 @@ class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Empenho: {self.numero}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.EMPENHO.value
-        verbose_name_plural = StringsVerboseNameModels.EMPENHOS.value
+        verbose_name = "Empenho"
+        verbose_name_plural = "Empenhos"
         ordering = ["-alterado_em"]
 
 
 class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.CASCADE,
         related_name="clausulas_desconto",
     )
@@ -980,20 +979,20 @@ class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Edital: {self.edital.numero} - Cláusula {self.numero_clausula} - Item {self.item_clausula}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.CLAUSULA_DE_DESCONTO.value
-        verbose_name_plural = StringsVerboseNameModels.CLAUSULAS_DE_DESCONTOS.value
+        verbose_name = "Cláusula de Desconto"
+        verbose_name_plural = "Cláusulas de Descontos"
         ordering = ["-alterado_em"]
         unique_together = ("edital", "numero_clausula", "item_clausula")
 
 
 class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
@@ -1014,8 +1013,8 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Edital {self.edital} | Lote {self.lote} | DRE {self.lote.diretoria_regional} | Tipos de Unidades {', '.join(self.grupo_unidade_escolar.tipos_unidades.values_list('iniciais', flat=True))}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PARAMETRIZACAO_FINANCEIRA.value
-        verbose_name_plural = StringsVerboseNameModels.PARAMETRIZACOES_FINANCEIRAS.value
+        verbose_name = "Parametrização Financeira"
+        verbose_name_plural = "Parametrizações Financeiras"
         ordering = ["-alterado_em"]
 
 
@@ -1036,10 +1035,8 @@ class ParametrizacaoFinanceiraTabela(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Tabela {self.nome}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.PARAMETRIZACAO_FINANCEIRA_TABELA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.PARAMETRIZACOES_FINANCEIRAS_TABELAS.value
-        )
+        verbose_name = "Parametrização Financeira Tabela"
+        verbose_name_plural = "Parametrizações Financeiras Tabelas"
         unique_together = ("nome", "parametrizacao_financeira", "periodo_escolar")
 
 
@@ -1061,7 +1058,7 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
         blank=True,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao",
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         on_delete=models.PROTECT,
         related_name="parametrizacao_valor_tipo_alimentacao",
         null=True,
@@ -1083,12 +1080,8 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
         return f"Tabela {self.tabela} | {descricao}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.PARAMETRIZACAO_FINANCEIRA_TABELA_VALOR.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.PARAMETRIZACOES_FINANCEIRAS_TABELAS_VALORES.value
-        )
+        verbose_name = "Parametrização Financeira Tabela Valor"
+        verbose_name_plural = "Parametrizações Financeiras Tabelas Valores"
         unique_together = ("tabela", "nome_campo", "tipo_valor")
 
 
@@ -1106,7 +1099,7 @@ class RelatorioFinanceiro(
         related_name="relatorios_financeiros",
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         related_name="relatorios_financeiros",
         on_delete=models.PROTECT,
     )
@@ -1120,8 +1113,8 @@ class RelatorioFinanceiro(
         return f"{self.mes} / {self.ano} | Unidades {unidades} | Lote {self.lote} | Status {self.status}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.RELATORIO_FINANCEIRO.value
-        verbose_name_plural = StringsVerboseNameModels.RELATORIOS_FINANCEIROS.value
+        verbose_name = "Relatório Financeiro"
+        verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
 
@@ -1171,8 +1164,8 @@ class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
         return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DADO_LIQUIDACAO.value
-        verbose_name_plural = StringsVerboseNameModels.DADOS_LIQUIDACOES.value
+        verbose_name = "Dado Liquidação"
+        verbose_name_plural = "Dados Liquidações"
         ordering = ["-alterado_em"]
         constraints = [
             models.UniqueConstraint(
@@ -1209,7 +1202,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         choices=TIPO_LANCAMENTO_CHOICES,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao",
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         on_delete=models.PROTECT,
         related_name="descontos_financeiros",
         null=True,
@@ -1249,6 +1242,6 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.DESCONTO_FINANCEIRO.value
-        verbose_name_plural = StringsVerboseNameModels.DESCONTOS_FINANCEIROS.value
+        verbose_name = "Desconto Financeiro"
+        verbose_name_plural = "Descontos Financeiros"
         ordering = ["-alterado_em"]

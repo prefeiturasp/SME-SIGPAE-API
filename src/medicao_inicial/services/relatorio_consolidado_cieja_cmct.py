@@ -134,7 +134,9 @@ def _get_lista_alimentacoes(
                     "numero_de_alunos",
                 ]
             )
-            | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+            | Q(
+                categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+            )
         )
         .values_list("nome_campo", flat=True)
         .distinct()
@@ -197,7 +199,9 @@ def _unificar_dietas_tipo_a(dietas_alimentacoes: dict) -> dict:
         dict: Dicionário com as dietas do Tipo A unificadas. Se existir a dieta alternativa, suas alimentações são mescladas na dieta principal e a alternativa é removida.
     """
     dieta_principal = DIETA_ESPECIAL_TIPO_A
-    dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    dieta_alternativa = (
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+    )
     valor_principal = dietas_alimentacoes.get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
     if valor_alternativo:
@@ -272,7 +276,7 @@ def get_valores_tabela(
             - As primeiras colunas contêm valores iniciais da escola
     """
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []
@@ -409,7 +413,7 @@ def processa_dieta_especial(
     categorias = (
         [
             DIETA_ESPECIAL_TIPO_A,
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         ]
         if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]
@@ -455,7 +459,7 @@ def processa_periodo_regular(
     categorias = (
         [periodo.upper()]
         if periodo == GRUPO_SOLICITACOES_ALIMENTACAO
-        else ["ALIMENTAÇÃO"]
+        else [CategoriaMedicao.ALIMENTACAO]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
     return soma if soma is not None else "-"

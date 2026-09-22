@@ -3,7 +3,7 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
+from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS, StringsCaminhoModelos
 from src.escola.models import DiaSuspensaoAtividades
 from src.medicao_inicial.models import (
     Medicao,
@@ -99,7 +99,9 @@ def _criar_vinculo_alimentacao(tipo_unidade, periodo_escolar, tipos_alimentacao)
 
 
 def _criar_edital_e_contrato_para_escola(escola):
-    edital = baker.make("terceirizada.Edital", numero="Edital Teste Suspensao")
+    edital = baker.make(
+        StringsCaminhoModelos.MODEL_EDITAL.value, numero="Edital Teste Suspensao"
+    )
     contrato = baker.make(
         "terceirizada.Contrato",
         edital=edital,
@@ -137,7 +139,9 @@ def test_get_dias_com_suspensao_ignora_edital_nao_vinculado_a_escola(
 ):
     _criar_edital_e_contrato_para_escola(escola)
     solicitacao = _criar_solicitacao(escola)
-    edital_outro = baker.make("terceirizada.Edital", numero="Edital Outro")
+    edital_outro = baker.make(
+        StringsCaminhoModelos.MODEL_EDITAL.value, numero="Edital Outro"
+    )
     DiaSuspensaoAtividades.objects.create(
         data=datetime.date(ANO, MES, DIA_SUSPENSO),
         tipo_unidade=escola.tipo_unidade,

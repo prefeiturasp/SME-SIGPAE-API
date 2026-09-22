@@ -305,7 +305,9 @@ class InclusaoAlimentacaoViewSetBase(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -540,7 +542,9 @@ class InclusaoAlimentacaoContinuaViewSet(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -596,7 +600,9 @@ class InclusaoAlimentacaoCEMEIViewSet(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 

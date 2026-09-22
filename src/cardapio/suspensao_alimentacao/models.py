@@ -21,7 +21,7 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
@@ -47,10 +47,8 @@ class MotivoSuspensao(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.MOTIVO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
+        verbose_name = "Motivo de suspensão de alimentação"
+        verbose_name_plural = "Motivo de suspensão de alimentação"
 
 
 class SuspensaoAlimentacao(
@@ -87,8 +85,8 @@ class SuspensaoAlimentacao(
         return f"{self.motivo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SUSPENSAO_DE_ALIMENTACAO.value
-        verbose_name_plural = StringsVerboseNameModels.SUSPENSOES_DE_ALIMENTACAO.value
+        verbose_name = "Suspensão de alimentação"
+        verbose_name_plural = "Suspensões de alimentação"
 
 
 class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
@@ -111,7 +109,7 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
     ]
     numero_alunos = models.SmallIntegerField()
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
     grupo_suspensao = models.ForeignKey(
         "GrupoSuspensaoAlimentacao",
@@ -134,12 +132,8 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
         return f"Quantidade de alunos: {self.numero_alunos}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_POR_PERIODO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_POR_PERIODO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
+        verbose_name = "Quantidade por período de suspensão de alimentação"
+        verbose_name_plural = "Quantidade por período de suspensão de alimentação"
 
 
 class GrupoSuspensaoAlimentacao(
@@ -163,7 +157,9 @@ class GrupoSuspensaoAlimentacao(
     """
 
     DESCRICAO = "Suspensão de Alimentação"
-    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, on_delete=models.DO_NOTHING
+    )
     objects = models.Manager()  # Manager Padrão
     desta_semana = GrupoSuspensaoAlimentacaoDestaSemanaManager()
     deste_mes = GrupoSuspensaoAlimentacaoDesteMesManager()
@@ -365,10 +361,8 @@ class GrupoSuspensaoAlimentacao(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.GRUPO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.GRUPO_DE_SUSPENSAO_DE_ALIMENTACAO.value
-        )
+        verbose_name = "Grupo de suspensão de alimentação"
+        verbose_name_plural = "Grupo de suspensão de alimentação"
 
 
 patch_docs(GrupoSuspensaoAlimentacao)

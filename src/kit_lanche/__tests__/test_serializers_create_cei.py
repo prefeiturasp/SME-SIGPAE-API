@@ -3,7 +3,7 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_USUARIO
+from src.dados_comuns.constants import StringsCaminhoModelos
 
 from ..api.serializers.serializers_create_cei import (
     FaixaEtariaSolicitacaoKitLancheCEIAvulsaCreateSerializer,
@@ -28,7 +28,7 @@ def test_faixa_etaria_kit_lanche_cei_serializer():
 @pytest.mark.django_db
 def test_kit_lanche_cei_avulsa_serializer_create_create():
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     hoje = datetime.date.today()
     # TODO: Achar uma forma de esse teste travar a data atual do sistema,
@@ -38,10 +38,10 @@ def test_kit_lanche_cei_avulsa_serializer_create_create():
     if data.year != hoje.year:
         return
 
-    alunos = baker.make("escola.Aluno", _quantity=4)
+    alunos = baker.make(StringsCaminhoModelos.MODEL_ALUNO.value, _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
-    escola = baker.make(MODEL_ESCOLA)
+    escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value)
     local = "Tão-tão distante"
 
     kits_lanche = baker.make("kit_lanche.KitLanche", _quantity=2)
@@ -84,10 +84,10 @@ def test_kit_lanche_cei_avulsa_serializer_create_update():
 
     solic = baker.make("kit_lanche.SolicitacaoKitLancheCEIAvulsa")
 
-    alunos = baker.make("escola.Aluno", _quantity=4)
+    alunos = baker.make(StringsCaminhoModelos.MODEL_ALUNO.value, _quantity=4)
     alunos_com_dieta = [aluno.uuid for aluno in alunos]
 
-    escola = baker.make(MODEL_ESCOLA)
+    escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value)
     local = "Tão-tão distante"
     descricao = "Um texto aleatório"
 

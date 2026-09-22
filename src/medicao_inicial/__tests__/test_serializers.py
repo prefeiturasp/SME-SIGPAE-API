@@ -112,7 +112,7 @@ def test_nao_cria_valores_medicao_cei_sem_faixa_etaria(
     baker.make("Aluno", escola=escola, periodo_escolar=periodo_escolar)
     baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
 
     medicao = Medicao.objects.create(
@@ -158,7 +158,7 @@ def test_cria_valores_medicao_cei_com_faixa_etaria(
     baker.make("Aluno", escola=escola, periodo_escolar=periodo_escolar)
     baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
 
     medicao = Medicao.objects.create(
@@ -360,7 +360,7 @@ def test_cria_valores_medicao_logs_matriculados_emef_emei_nao_duplica(
     escola, periodo_escolar
 ):
     """Verifica que método EMEF/EMEI não duplica Medicao ao ser chamado 2x."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     AlunosMatriculadosPeriodoEscolaFactory(
         escola=escola,
@@ -400,7 +400,7 @@ def test_cria_valores_medicao_logs_matriculados_cei_nao_duplica(
     escola_cei, periodo_escolar
 ):
     """Verifica que método CEI não duplica Medicao ao ser chamado 2x."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     AlunosMatriculadosPeriodoEscolaFactory(
         escola=escola_cei,
@@ -443,7 +443,7 @@ def test_cria_valores_medicao_logs_matriculados_emef_emei_periodo_vigente(
     periodo_escolar_noite,
 ):
     """Verifica que método EMEF/EMEI não cria valores para período não vigente."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     for periodo in [periodo_escolar_manha, periodo_escolar_tarde]:
         AlunosMatriculadosPeriodoEscolaFactory(
@@ -498,7 +498,7 @@ def test_cria_valores_medicao_logs_matriculados_cei_periodo_vigente(
     periodo_escolar_tarde,
 ):
     """Verifica que método CEI não cria valores para período não vigente."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     for periodo in [
         (periodo_escolar_manha, date(2026, 4, 1)),
@@ -573,7 +573,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         )
 
     def _setup_categoria(self):
-        return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        return CategoriaMedicaoFactory.create(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
 
     def _setup_grupo_solicitacoes_alimentacao(self):
         grupo, _ = GrupoMedicao.objects.get_or_create(
@@ -639,7 +641,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         )
 
         medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         valor = ValorMedicao.objects.filter(
             medicao=medicao,
             categoria_medicao=categoria,
@@ -673,7 +677,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         valor = ValorMedicao.objects.filter(
             categoria_medicao=categoria,
             dia="15",
@@ -700,7 +706,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         )
 
         medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         valor = ValorMedicao.objects.filter(
             medicao=medicao,
             categoria_medicao=categoria,

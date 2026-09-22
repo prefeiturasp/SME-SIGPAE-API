@@ -2,7 +2,10 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import (
+    StringsModelosGestaoAlimentacao,
+    StringsVerboseNameModels,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -26,9 +29,9 @@ from ..dados_comuns.behaviors import (
 )
 from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
 )
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -61,9 +64,11 @@ class QuantidadePorPeriodo(
         blank=True,
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
     observacao = models.CharField(
         StringsVerboseNameModels.OBSERVACAO.value, blank=True, max_length=1000
     )
@@ -92,8 +97,8 @@ class QuantidadePorPeriodo(
         return f"{self.numero_alunos} alunos para {self.periodo_escolar} com {qtd} tipo(s) de alimentação"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.QUANTIDADE_POR_PERIODO.value
-        verbose_name_plural = StringsVerboseNameModels.QUANTIDADES_POR_PERIODO.value
+        verbose_name = "Quantidade por periodo"
+        verbose_name_plural = "Quantidades por periodo"
 
 
 class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
@@ -108,10 +113,8 @@ class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_INCLUSAO_CONTINUA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.MOTIVOS_DE_INCLUSAO_CONTINUA.value
-        )
+        verbose_name = "Motivo de inclusao contínua"
+        verbose_name_plural = "Motivos de inclusao contínua"
 
 
 class InclusaoAlimentacaoContinua(
@@ -135,7 +138,7 @@ class InclusaoAlimentacaoContinua(
     )
     motivo = models.ForeignKey(MotivoInclusaoContinua, on_delete=models.DO_NOTHING)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_alimentacao_continua",
     )
@@ -153,7 +156,7 @@ class InclusaoAlimentacaoContinua(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -314,27 +317,25 @@ class InclusaoAlimentacaoContinua(
         return f"de {self.data_inicial} até {self.data_final} para {self.escola}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_CONTINUA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_CONTINUA.value
-        )
+        verbose_name = "Inclusão de alimentação contínua"
+        verbose_name_plural = "Inclusões de alimentação contínua"
         ordering = ["data_inicial"]
 
 
 class MotivoInclusaoNormal(Nomeavel, TemChaveExterna):
-    """Funciona em conjunto com InclusaoAlimentacaoNormal.
+    """Funciona em conjunto com InclusaoAlimentacaoNormal."""
 
-    - reposicao de aula
-    - dia de familia
-    - outro
-    """
+    REPOSICAO_DE_AULA = "Reposição de aula"
+    DIA_DA_FAMILIA = "Dia da família"
+    EVENTO_ESPECIFICO = "Evento Específico"
+    OUTRO = "Outro"
 
     def __str__(self):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_DE_INCLUSAO_NORMAL.value
-        verbose_name_plural = StringsVerboseNameModels.MOTIVOS_DE_INCLUSAO_NORMAIS.value
+        verbose_name = "Motivo de inclusao normal"
+        verbose_name_plural = "Motivos de inclusao normais"
 
 
 class InclusaoAlimentacaoNormal(
@@ -364,10 +365,8 @@ class InclusaoAlimentacaoNormal(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_NORMAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_NORMAL.value
-        )
+        verbose_name = "Inclusão de alimentação normal"
+        verbose_name_plural = "Inclusões de alimentação normal"
         ordering = ("data",)
 
 
@@ -383,10 +382,10 @@ class GrupoInclusaoAlimentacaoNormal(
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
-    DESCRICAO = "Inclusão de Alimentação"
+    DESCRICAO = StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_normais",
     )
@@ -428,7 +427,7 @@ class GrupoInclusaoAlimentacaoNormal(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -516,7 +515,7 @@ class GrupoInclusaoAlimentacaoNormal(
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
-            "tipo_doc": "Inclusão de Alimentação",
+            "tipo_doc": StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "dias_inclusao": self.data,
@@ -533,9 +532,9 @@ class GrupoInclusaoAlimentacaoNormal(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if (
@@ -572,12 +571,8 @@ class GrupoInclusaoAlimentacaoNormal(
         return f"{self.escola} pedindo {self.inclusoes.count()} inclusoes"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.GRUPO_DE_INCLUSAO_DE_ALIMENTACAO_NORMAL.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.GRUPOS_DE_INCLUSAO_DE_ALIMENTACAO_NORMAL.value
-        )
+        verbose_name = "Grupo de inclusão de alimentação normal"
+        verbose_name_plural = "Grupos de inclusão de alimentação normal"
 
 
 class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
@@ -595,10 +590,13 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
         validators=[MinValueValidator(1)]
     )
     periodo = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING, blank=True, null=True
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
     periodo_externo = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
@@ -610,10 +608,10 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação"
         )
 
 
@@ -632,14 +630,19 @@ class InclusaoAlimentacaoDaCEI(
     DESCRICAO = "Inclusão de Alimentação Por CEI"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_por_cei",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING, blank=True, null=True
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
 
     objects = models.Manager()  # Manager Padrão
     desta_semana = InclusaoDeAlimentacaoDeCeiDestaSemanaManager()
@@ -670,7 +673,7 @@ class InclusaoAlimentacaoDaCEI(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -849,9 +852,9 @@ class InclusaoAlimentacaoDaCEI(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if self.status == InclusaoAlimentacaoDaCEI.workflow_class.RASCUNHO or any(
@@ -880,10 +883,8 @@ class InclusaoAlimentacaoDaCEI(
         return f"Inclusao da CEI cód: {self.id_externo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_DA_CEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_DA_CEI.value
-        )
+        verbose_name = "Inclusão de alimentação da CEI"
+        verbose_name_plural = "Inclusões de alimentação da CEI"
 
 
 class DiasMotivosInclusaoDeAlimentacaoCEI(
@@ -905,12 +906,8 @@ class DiasMotivosInclusaoDeAlimentacaoCEI(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.DIA_E_MOTIVO_INCLUSAO_DE_ALIMENTACAO_CEI.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.DIAS_E_MOTIVOS_INCLUSAO_DE_ALIMENTACAO_CEI.value
-        )
+        verbose_name = "Dia e motivo inclusão de alimentação CEI"
+        verbose_name_plural = "Dias e motivos inclusão de alimentação CEI"
         ordering = ("data",)
 
 
@@ -929,7 +926,7 @@ class InclusaoDeAlimentacaoCEMEI(
     DESCRICAO = "Inclusão de Alimentação CEMEI"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_de_alimentacao_cemei",
     )
@@ -960,7 +957,7 @@ class InclusaoDeAlimentacaoCEMEI(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -1020,7 +1017,9 @@ class InclusaoDeAlimentacaoCEMEI(
         return self.dias_motivos_da_inclusao_cemei.all().filter(cancelado=True).exists()
 
     def eh_evento_especifico(self):
-        if self.dias_motivos_da_inclusao_cemei.filter(motivo__nome="Evento Específico"):
+        if self.dias_motivos_da_inclusao_cemei.filter(
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
+        ):
             return True
         return False
 
@@ -1147,7 +1146,7 @@ class InclusaoDeAlimentacaoCEMEI(
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         eh_evento_especifico = self.dias_motivos_da_inclusao_cemei.filter(
-            motivo__nome="Evento Específico"
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
         ).exists()
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
@@ -1170,9 +1169,9 @@ class InclusaoDeAlimentacaoCEMEI(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if self.status == InclusaoDeAlimentacaoCEMEI.workflow_class.RASCUNHO or any(
@@ -1201,10 +1200,8 @@ class InclusaoDeAlimentacaoCEMEI(
         return f"Inclusão de Alimentação CEMEI cód: {self.id_externo}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.INCLUSAO_DE_ALIMENTACAO_CEMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.INCLUSOES_DE_ALIMENTACAO_CEMEI.value
-        )
+        verbose_name = "Inclusão de alimentação CEMEI"
+        verbose_name_plural = "Inclusões de alimentação CEMEI"
 
 
 class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
@@ -1220,7 +1217,7 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
         validators=[MinValueValidator(1)]
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
 
     def __str__(self):
@@ -1228,10 +1225,10 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
 
     class Meta:
         verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação CEMEI"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_POR_FAIXA_ETARIA_DA_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+            "Quantidade de alunos por faixa etária da inclusao de alimentação CEMEI"
         )
 
 
@@ -1247,19 +1244,19 @@ class QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI(
         validators=[MinValueValidator(1)]
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
 
     def __str__(self):
         return f"{self.periodo_escolar.nome} - {self.quantidade_alunos} alunos"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_EMEI_POR_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
-        )
+        verbose_name = "Quantidade de alunos EMEI por inclusao de alimentação CEMEI"
         verbose_name_plural = (
-            StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_EMEI_POR_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
+            "Quantidade de alunos EMEI por inclusao de alimentação CEMEI"
         )
 
 
@@ -1285,10 +1282,6 @@ class DiasMotivosInclusaoDeAlimentacaoCEMEI(
         return f"Dia {self.data} {self.motivo}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.DIAA_E_MOTIVO_INCLUSAO_DE_ALIMENTACAO_CEMEI.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.DIAS_E_MOTIVOS_INCLUSCAO_DE_ALIMENTACAO_CEMEI.value
-        )
+        verbose_name = "Diaa e motivo inclusão de alimentação CEMEI"
+        verbose_name_plural = "Dias e motivos inclusçao de alimentação CEMEI"
         ordering = ("data",)

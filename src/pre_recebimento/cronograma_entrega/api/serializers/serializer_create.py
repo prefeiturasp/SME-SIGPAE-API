@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import NotAuthenticated
 from xworkflows.base import InvalidTransitionError
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import (
     update_instance_from_dict,
@@ -213,7 +214,9 @@ class SolicitacaoDeAlteracaoCronogramaCreateSerializer(serializers.ModelSerializ
 
     def valida_campo_etapa(self, etapa, campo):
         if not etapa[campo]:
-            raise serializers.ValidationError({campo: ["Este campo é obrigatório."]})
+            raise serializers.ValidationError(
+                {campo: [StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value]}
+            )
 
     def validate(self, attrs):
         for etapa in attrs["etapas"]:
@@ -376,9 +379,13 @@ class CronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer):
         for etapa in etapas:
             etapa_error = {}
             if not etapa.get("data_programada"):
-                etapa_error["data_programada"] = ["Este campo é obrigatório."]
+                etapa_error["data_programada"] = [
+                    StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                ]
             if not etapa.get("quantidade"):
-                etapa_error["quantidade"] = ["Este campo é obrigatório."]
+                etapa_error["quantidade"] = [
+                    StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                ]
 
             if etapa_error:
                 has_errors = True
@@ -395,7 +402,9 @@ class CronogramaPontoAPontoCreateSerializer(serializers.ModelSerializer):
 
         errors = {}
         if not attrs.get("unidade_medida"):
-            errors["unidade_medida"] = ["Este campo é obrigatório."]
+            errors["unidade_medida"] = [
+                StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+            ]
 
         etapas = attrs.get("etapas", [])
         if not etapas:

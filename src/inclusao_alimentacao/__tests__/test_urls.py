@@ -463,7 +463,7 @@ def test_permissoes_grupo_inclusao_continua_viewset(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }
     # pode deletar somente se for escola e se estiver como rascunho
     response = client_autenticado_vinculo_escola_inclusao.delete(
@@ -903,7 +903,9 @@ def _cria_solicitacao_com_medicao_programas_e_projetos(escola, mes, ano, dias=No
     grupo_programas, _ = GrupoMedicao.objects.get_or_create(
         nome=GRUPO_PROGRAMAS_E_PROJETOS
     )
-    categoria, _ = CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    categoria, _ = CategoriaMedicao.objects.get_or_create(
+        nome=CategoriaMedicao.ALIMENTACAO
+    )
     solicitacao = baker.make(
         SolicitacaoMedicaoInicial,
         escola=escola,
@@ -1504,7 +1506,7 @@ def test_url_inclusao_cemei_delete_403(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }
 
 

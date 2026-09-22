@@ -453,7 +453,7 @@ def test_url_endpoint_solicitacoes_kit_lanche_avulsa_deletar_403_nao_e_rascunho(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }
 
 
@@ -933,7 +933,7 @@ def test_url_endpoint_solicitacao_kit_lanche_cemei(client_autenticado_da_escola)
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert (
         response.json()["detail"]
-        == "Você só pode excluir quando o status for RASCUNHO."
+        == constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     )
 
 

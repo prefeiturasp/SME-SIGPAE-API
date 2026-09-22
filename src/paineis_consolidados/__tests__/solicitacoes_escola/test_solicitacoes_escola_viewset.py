@@ -22,7 +22,11 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    StringsModelosGestaoAlimentacao,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -56,6 +60,7 @@ from src.inclusao_alimentacao.fixtures.factories.base_factory import (
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
+    MotivoInclusaoNormal,
 )
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.paineis_consolidados.models import SolicitacoesEscola
@@ -833,7 +838,7 @@ class TestEndpointInclusoesAutorizadas:
     ):
         client, usuario = client_autenticado_vinculo_escola_cemei
         motivo_evento_especifico = MotivoInclusaoNormalFactory.create(
-            nome="Evento Específico"
+            nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
         )
         self.setup_solicitacoes(
             escola_cemei,
@@ -1595,7 +1600,7 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
             escola_uuid=escola.uuid,
             data_evento=datetime.date(2024, 12, 16),
             tipo_doc=SolicitacoesEscola.TP_SOL_KIT_LANCHE_UNIFICADA,
-            desc_doc="Kit Lanche Unificado",
+            desc_doc=StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             status_atual="CODAE_AUTORIZADO",
         ),
@@ -1622,7 +1627,7 @@ def test_busca_filtro_tipo_solicitacao_kit_lanche_isolado(monkeypatch, escola):
             escola_uuid=escola.uuid,
             data_evento=datetime.date(2024, 12, 13),
             tipo_doc="INC_ALIMENTA",
-            desc_doc="Inclusão de Alimentação",
+            desc_doc=StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
             status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
             status_atual="CODAE_AUTORIZADO",
         ),

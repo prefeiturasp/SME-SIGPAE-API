@@ -95,7 +95,11 @@ from src.logistica.services import (
     envia_email_e_notificacao_confirmacao_guias,
 )
 
-from ...dados_comuns.constants import COGESTOR_DRE, MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
+from ...dados_comuns.constants import (
+    COGESTOR_DRE,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    StringsValidationErrors,
+)
 from ...escola.models import DiretoriaRegional, Escola
 from ...relatorios.relatorios import relatorio_guia_de_remessa
 from ..models.guia import InsucessoEntregaGuia
@@ -313,7 +317,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
 
         if not numero_requisicao:
             return Response(
-                "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m).",
+                StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value,
                 status=HTTP_406_NOT_ACCEPTABLE,
             )
         if not guias:
@@ -340,7 +344,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
 
         if not numero_requisicao:
             return Response(
-                "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m).",
+                StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value,
                 status=HTTP_406_NOT_ACCEPTABLE,
             )
         if not guias:
@@ -365,7 +369,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
 
         if not numero_requisicao:
             return Response(
-                "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m).",
+                StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value,
                 status=HTTP_406_NOT_ACCEPTABLE,
             )
         if not guias:

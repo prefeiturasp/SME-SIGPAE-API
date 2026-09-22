@@ -10,8 +10,7 @@ from src.cardapio.inversao_dia_cardapio.api.serializers_create import (
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
-    MODEL_USUARIO,
+    StringsCaminhoModelos,
 )
 
 pytestmark = pytest.mark.django_db
@@ -23,7 +22,9 @@ def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
     serializer_obj = InversaoCardapioSerializerCreate()
     tipo_ue = baker.make("escola.TipoUnidadeEscolar")
     lote = baker.make("Lote")
-    escola = baker.make(MODEL_ESCOLA, tipo_unidade=tipo_ue, lote=lote)
+    escola = baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, tipo_unidade=tipo_ue, lote=lote
+    )
     baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=True)
     baker.make("escola.DiaCalendario", escola=escola, data=data_para, dia_letivo=True)
     attrs = {
@@ -44,15 +45,19 @@ def test_inversao_serializer_validators(inversao_card_params, tipo_alimentacao):
 @freeze_time("2019-10-15")
 def test_inversao_serializer_creators(inversao_card_params):
     class FakeObject(object):
-        user = baker.make(MODEL_USUARIO)
+        user = baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
     data_de_cria, data_para, data_de_atualiza, data_para_atualiza = inversao_card_params
     serializer_obj = InversaoCardapioSerializerCreate(context={"request": FakeObject})
 
     tipo_ue = baker.make("escola.TipoUnidadeEscolar")
     lote = baker.make("Lote")
-    escola1 = baker.make(MODEL_ESCOLA, tipo_unidade=tipo_ue, lote=lote)
-    escola2 = baker.make(MODEL_ESCOLA, tipo_unidade=tipo_ue, lote=lote)
+    escola1 = baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, tipo_unidade=tipo_ue, lote=lote
+    )
+    escola2 = baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, tipo_unidade=tipo_ue, lote=lote
+    )
 
     validated_data_create = {
         "data_de": data_de_cria,
@@ -88,7 +93,7 @@ def test_inversao_serializer_falha_em_final_de_semana_nao_letivo(tipo_alimentaca
     data_para = datetime.date(2025, 1, 6)  # Segunda
     serializer_obj = InversaoCardapioSerializerCreate()
 
-    escola = baker.make(MODEL_ESCOLA)
+    escola = baker.make(StringsCaminhoModelos.MODEL_ESCOLA.value)
     # Sábado NÃO letivo
     baker.make("escola.DiaCalendario", escola=escola, data=data_de, dia_letivo=False)
 

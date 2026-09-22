@@ -6,7 +6,11 @@ from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
 
-from src.dados_comuns.constants import StringsVerboseNameModels
+from src.dados_comuns.constants import (
+    StringsCaminhoModelos,
+    StringsModelosGestaoAlimentacao,
+    StringsVerboseNameModels,
+)
 
 from ..dados_comuns.behaviors import (  # noqa I101
     CanceladoIndividualmente,
@@ -27,7 +31,6 @@ from ..dados_comuns.behaviors import (  # noqa I101
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from ..dados_comuns.constants import MODEL_DIRETORIA_REGIONAL, MODEL_ESCOLA
 from ..dados_comuns.fluxo_status import (
     FluxoAprovacaoPartindoDaDiretoriaRegional,
     FluxoAprovacaoPartindoDaEscola,
@@ -58,8 +61,8 @@ class ItemKitLanche(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ITEM_DO_KIT_LANCHE.value
-        verbose_name_plural = StringsVerboseNameModels.ITEM_DO_KIT_LANCHE.value
+        verbose_name = "Item do kit lanche"
+        verbose_name_plural = "Item do kit lanche"
 
 
 class KitLanche(Nomeavel, TemChaveExterna):
@@ -75,7 +78,7 @@ class KitLanche(Nomeavel, TemChaveExterna):
 
     descricao = models.TextField(default="")
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.DO_NOTHING,
         related_name="edital_kit_lanche",
         default=None,
@@ -90,8 +93,8 @@ class KitLanche(Nomeavel, TemChaveExterna):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.KIT_LANCHE.value
-        verbose_name_plural = StringsVerboseNameModels.KIT_LANCHES.value
+        verbose_name = "Kit lanche"
+        verbose_name_plural = "Kit lanches"
         ordering = ("nome",)
 
 
@@ -112,10 +115,8 @@ class SolicitacaoKitLanche(
         return f"{self.motivo} criado em {self.criado_em}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_BASE.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_BASE.value
-        )
+        verbose_name = "Solicitação kit lanche base"
+        verbose_name_plural = "Solicitações kit lanche base"
 
 
 class SolicitacaoKitLancheAvulsaBase(
@@ -171,11 +172,13 @@ class SolicitacaoKitLancheAvulsaBase(
 class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
     quantidade_alunos = models.BigIntegerField(blank=True, null=True)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_avulsa",
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
 
     @property
     def solicitacoes_similares(self):
@@ -195,7 +198,7 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -210,7 +213,7 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada.nome,
-            "tipo_doc": "Kit Lanche Passeio",
+            "tipo_doc": StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "local_passeio": self.local,
@@ -235,19 +238,19 @@ class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
         return f"{self.escola} SOLICITA PARA {self.quantidade_alunos} ALUNOS EM {self.local}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_DE_KIT_LANCHE_AVULSA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_KIT_LANCHE_AVULSA.value
-        )
+        verbose_name = "Solicitação de kit lanche avulsa"
+        verbose_name_plural = "Solicitações de kit lanche avulsa"
 
 
 class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cei_avulsa",
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
 
     @property
     def observacao(self):
@@ -255,7 +258,7 @@ class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -337,12 +340,8 @@ class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
         return f"{self.escola} SOLICITA EM {self.local}"
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.SOLICITACAO_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
+        verbose_name = "Solicitação de kit lanche CEI avulsa"
+        verbose_name_plural = "Solicitações de kit lanche CEI avulsa"
 
 
 class FaixaEtariaSolicitacaoKitLancheCEIAvulsa(
@@ -360,12 +359,8 @@ class FaixaEtariaSolicitacaoKitLancheCEIAvulsa(
         return retorno
 
     class Meta:
-        verbose_name = (
-            StringsVerboseNameModels.FAIXA_ETARIA_DE_SOLICITACAO_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
-        verbose_name_plural = (
-            StringsVerboseNameModels.FAIXAS_ETARIAS_DE_SOLICITACAO_DE_KIT_LANCHE_CEI_AVULSA.value
-        )
+        verbose_name = "Faixa Etária de solicitação de kit lanche CEI avulsa"
+        verbose_name_plural = "Faixas Etárias de solicitação de kit lanche CEI avulsa"
 
 
 class SolicitacaoKitLancheUnificada(
@@ -390,7 +385,7 @@ class SolicitacaoKitLancheUnificada(
 
     # TODO: ao deletar este, deletar solicitacao_kit_lanche também que é uma tabela acessória
     # TODO: passar `local` para solicitacao_kit_lanche
-    DESCRICAO = "Kit Lanche Unificado"
+    DESCRICAO = StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
 
     outro_motivo = models.TextField(blank=True)
     local = models.CharField(max_length=160)
@@ -398,7 +393,8 @@ class SolicitacaoKitLancheUnificada(
     lista_kit_lanche_igual = models.BooleanField(default=True)
 
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
+        on_delete=models.DO_NOTHING,
     )
     solicitacao_kit_lanche = models.ForeignKey(
         SolicitacaoKitLanche, on_delete=models.DO_NOTHING
@@ -420,7 +416,7 @@ class SolicitacaoKitLancheUnificada(
 
     @property
     def tipo(self):
-        return "Kit Lanche Unificado"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
 
     @property
     def path(self):
@@ -582,7 +578,7 @@ class SolicitacaoKitLancheUnificada(
                 else self.escolas_quantidades.get().escola.nome_historico(self.data)
             ),
             "terceirizada": "Várias Terceirizadas",
-            "tipo_doc": "Kit Lanche Unificado",
+            "tipo_doc": StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "local_passeio": self.local,
@@ -627,10 +623,8 @@ class SolicitacaoKitLancheUnificada(
         return f"{dre} pedindo passeio em {self.local} com kits iguais? {self.lista_kit_lanche_igual}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_UNIFICADA.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_KIT_LANCHE_UNIFICADAS.value
-        )
+        verbose_name = "Solicitação kit lanche unificada"
+        verbose_name_plural = "Solicitações de  kit lanche unificadas"
 
 
 class EscolaQuantidade(
@@ -647,7 +641,9 @@ class EscolaQuantidade(
         null=True,
     )
     kits = models.ManyToManyField(KitLanche, blank=True)
-    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, on_delete=models.DO_NOTHING
+    )
 
     @property
     def total_kit_lanche(self):
@@ -659,8 +655,8 @@ class EscolaQuantidade(
         return f"{tempo_passeio} para {self.quantidade_alunos} alunos, kits diferenciados? {kit_lanche_personalizado}"
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.ESCOLA_QUANTIDADE.value
-        verbose_name_plural = StringsVerboseNameModels.ESCOLAS_QUANTIDADES.value
+        verbose_name = "Escola quantidade"
+        verbose_name_plural = "Escolas quantidades"
 
 
 class SolicitacaoKitLancheCEMEI(
@@ -686,7 +682,7 @@ class SolicitacaoKitLancheCEMEI(
     evento = models.CharField(max_length=160, blank=True)
     data = models.DateField(StringsVerboseNameModels.DATA.value)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cemei",
     )
@@ -708,7 +704,7 @@ class SolicitacaoKitLancheCEMEI(
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -829,16 +825,16 @@ class SolicitacaoKitLancheCEMEI(
         )
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_CEMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_CEMEI.value
-        )
+        verbose_name = "Solicitação Kit Lanche CEMEI"
+        verbose_name_plural = "Solicitações Kit Lanche CEMEI"
         ordering = ("-criado_em",)
 
 
 class SolicitacaoKitLancheCEIdaCEMEI(TemChaveExterna, TempoPasseio):
     kits = models.ManyToManyField(KitLanche, blank=True)
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
     solicitacao_kit_lanche_cemei = models.OneToOneField(
         SolicitacaoKitLancheCEMEI,
         blank=True,
@@ -873,10 +869,8 @@ class SolicitacaoKitLancheCEIdaCEMEI(TemChaveExterna, TempoPasseio):
         return self.alunos_com_dieta_especial_participantes.exists()
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_CEI_DA_EMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_CEI_DA_EMEI.value
-        )
+        verbose_name = "Solicitação Kit Lanche CEI da EMEI"
+        verbose_name_plural = "Solicitações Kit Lanche CEI da EMEI"
 
 
 class FaixasQuantidadesKitLancheCEIdaCEMEI(TemChaveExterna, MatriculadosQuandoCriado):
@@ -893,10 +887,10 @@ class FaixasQuantidadesKitLancheCEIdaCEMEI(TemChaveExterna, MatriculadosQuandoCr
     class Meta:
         ordering = ("faixa_etaria__inicio",)
         verbose_name = (
-            StringsVerboseNameModels.FAIXA_E_QUANTIDADE_DE_ALUNOS_DA_CEI_DA_SOLICITACAO_KIT_LANCHE_CEMEI.value
+            "Faixa e quantidade de alunos da CEI da solicitação kit lanche CEMEI"
         )
         verbose_name_plural = (
-            StringsVerboseNameModels.FAIXAS_E_QUANTIDADE_DE_ALUNOS_DA_CEI_DAS_SOLICITACOES_KIT_LANCHE_CEMEI.value
+            "Faixas e quantidade de alunos da CEI das solicitações kit lanche CEMEI"
         )
 
 
@@ -907,7 +901,9 @@ class SolicitacaoKitLancheEMEIdaCEMEI(
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
     solicitacao_kit_lanche_cemei = models.OneToOneField(
         SolicitacaoKitLancheCEMEI,
         blank=True,
@@ -929,7 +925,5 @@ class SolicitacaoKitLancheEMEIdaCEMEI(
         return self.alunos_com_dieta_especial_participantes.exists()
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_KIT_LANCHE_CEI_DA_EMEI.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_KIT_LANCHE_CEI_DA_EMEI.value
-        )
+        verbose_name = "Solicitação Kit Lanche CEI da EMEI"
+        verbose_name_plural = "Solicitações Kit Lanche CEI da EMEI"

@@ -33,8 +33,8 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
     MODULO_DIETA_ESPECIAL,
+    StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
@@ -128,8 +128,8 @@ class MotivoAlteracaoUE(Descritivel, Nomeavel, TemChaveExterna, Ativavel):
         return self.nome
 
     class Meta:
-        verbose_name = StringsVerboseNameModels.MOTIVO_ALTERACAO_U_E.value
-        verbose_name_plural = StringsVerboseNameModels.MOTIVO_ALTERACAO_U_E.value
+        verbose_name = "Motivo Alteração U.E"
+        verbose_name_plural = "Motivo Alteração U.E"
 
 
 class AlergiaIntolerancia(Descritivel):
@@ -209,7 +209,7 @@ class SolicitacaoDietaEspecial(
     ]
 
     aluno = models.ForeignKey(
-        "escola.Aluno",
+        StringsCaminhoModelos.MODEL_ALUNO.value,
         null=True,
         on_delete=models.PROTECT,
         related_name="dietas_especiais",
@@ -282,7 +282,10 @@ class SolicitacaoDietaEspecial(
     )
 
     escola_destino = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.CASCADE
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     dieta_alterada = models.ForeignKey(
@@ -701,10 +704,8 @@ class SolicitacaoDietaEspecial(
 
     class Meta:
         ordering = ("-ativo", "-criado_em")
-        verbose_name = StringsVerboseNameModels.SOLICITACAO_DE_DIETA_ESPECIAL.value
-        verbose_name_plural = (
-            StringsVerboseNameModels.SOLICITACOES_DE_DIETA_ESPECIAL.value
-        )
+        verbose_name = "Solicitação de dieta especial"
+        verbose_name_plural = "Solicitações de dieta especial"
 
     def __str__(self) -> str:
         """Retorna a representação legível da solicitação.
