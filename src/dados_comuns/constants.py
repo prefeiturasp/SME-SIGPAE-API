@@ -621,6 +621,16 @@ class NomesParaTesteEscola(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsPatterns(Enum):
+    CNPJ = "########0001##"
+    CODIGO_UNIDADE = "UNI####"
+    CODIGO_PAPA = "PAPA####"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsModelosGestaoAlimentacao(Enum):
     INCLUSAO_DE_ALIMENTACAO = "Inclusão de Alimentação"
     KIT_LANCHE_PASSEIO = "Kit Lanche Passeio"

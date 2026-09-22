@@ -9,6 +9,7 @@ from spyne.util.dictdoc import get_object_as_dict
 from src.dados_comuns.constants import (
     NomesParaTesteEscola,
     StringsInformacoesPessoais,
+    StringsPatterns,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
 from src.logistica.api.soup.models import (
@@ -321,7 +322,9 @@ def previsoes_contratuais(notificacao_ocorrencia):
 @pytest.fixture
 def setup_solicitacao_remessa_envio():
     data = {
-        "StrCnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "StrCnpj": fake.bothify(
+            text=StringsPatterns.CNPJ.value
+        ),  # Gera um CNPJ fictício
         "StrNumSol": fake.bothify(
             text="####################"
         ),  # Gera o número da solicitação
@@ -332,7 +335,9 @@ def setup_solicitacao_remessa_envio():
             {
                 "StrNumGui": fake.uuid4(),  # Gera um UUID para número da guia
                 "DtEntrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data
-                "StrCodUni": fake.bothify(text="UNI####"),  # Gera um código de unidade
+                "StrCodUni": fake.bothify(
+                    text=StringsPatterns.CODIGO_UNIDADE.value
+                ),  # Gera um código de unidade
                 "StrNomUni": fake.company(),  # Gera um nome de unidade
                 "StrEndUni": fake.street_address(),  # Gera um endereço de unidade
                 "StrNumUni": fake.building_number(),  # Gera um número de unidade
@@ -348,7 +353,7 @@ def setup_solicitacao_remessa_envio():
                             text="SUP####"
                         ),  # Gera um código de suprimento
                         "StrCodPapa": fake.bothify(
-                            text="PAPA####"
+                            text=StringsPatterns.CODIGO_PAPA.value
                         ),  # Gera um código do PAPA
                         "StrNomAli": fake.word(),  # Gera um nome de alimento
                         "StrEmbala": fake.word(),  # Gera um tipo de embalagem
@@ -381,7 +386,9 @@ def dict_to_xml(tag, d):
 @pytest.fixture
 def setup_solicitacao_cancelamento():
     data = {
-        "StrCnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "StrCnpj": fake.bothify(
+            text=StringsPatterns.CNPJ.value
+        ),  # Gera um CNPJ fictício
         "StrNumSol": fake.bothify(
             text="####################"
         ),  # Gera o número da solicitação
@@ -392,7 +399,9 @@ def setup_solicitacao_cancelamento():
             {
                 "StrNumGui": fake.uuid4(),  # Gera um UUID para número da guia
                 "DtEntrega": fake.date(pattern="%Y-%m-%d"),  # Gera uma data
-                "StrCodUni": fake.bothify(text="UNI####"),  # Gera um código de unidade
+                "StrCodUni": fake.bothify(
+                    text=StringsPatterns.CODIGO_UNIDADE.value
+                ),  # Gera um código de unidade
                 "StrNomUni": fake.company(),  # Gera um nome de unidade
                 "StrEndUni": fake.street_address(),  # Gera um endereço de unidade
                 "StrNumUni": fake.building_number(),  # Gera um número de unidade
@@ -408,7 +417,7 @@ def setup_solicitacao_cancelamento():
                             text="SUP####"
                         ),  # Gera um código de suprimento
                         "StrCodPapa": fake.bothify(
-                            text="PAPA####"
+                            text=StringsPatterns.CODIGO_PAPA.value
                         ),  # Gera um código do PAPA
                         "StrNomAli": fake.word(),  # Gera um nome de alimento
                         "StrEmbala": fake.word(),  # Gera um tipo de embalagem
@@ -488,7 +497,7 @@ def setup_solicitacao_confirmar_cancelamento(solicitacao):
             }
         ],
         "status": "AGUARDANDO_ENVIO",  # Valor fixo
-        "cnpj": fake.bothify(text="########0001##"),  # Gera um CNPJ fictício
+        "cnpj": fake.bothify(text=StringsPatterns.CNPJ.value),  # Gera um CNPJ fictício
         "numero_requisicao": solicitacao.numero_solicitacao,  # Gera um número de solicitação
         "quantidade_total_guias": fake.random_int(
             min=1, max=100
@@ -533,7 +542,7 @@ def token_valido():
 def fake_alimento():
     return {
         "StrCodSup": fake.unique.random_number(digits=5, fix_len=True),
-        "StrCodPapa": fake.bothify(text="PAPA####"),
+        "StrCodPapa": fake.bothify(text=StringsPatterns.CODIGO_PAPA.value),
         "StrNomAli": fake.word(),
         "StrTpEmbala": fake.word(),
         "StrQtEmbala": str(fake.random_int(min=1, max=100)),
@@ -555,7 +564,7 @@ def fake_guia(soup_alimento):
     return {
         "StrNumGui": fake.random_int(min=1000, max=9999),
         "DtEntrega": fake.date_object(),
-        "StrCodUni": fake.bothify(text="UNI####"),
+        "StrCodUni": fake.bothify(text=StringsPatterns.CODIGO_UNIDADE.value),
         "StrNomUni": fake.company(),
         "StrEndUni": fake.street_address(),
         "StrNumUni": str(fake.random_int(min=1, max=1000)),
