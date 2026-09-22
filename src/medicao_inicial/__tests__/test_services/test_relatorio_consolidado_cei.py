@@ -417,7 +417,7 @@ def test_calcula_soma_medicao_alimentacao(
     )
 
     faixa_etaria = faixas_etarias_ativas[0].id
-    categoria = "ALIMENTAÇÃO"
+    categoria = CategoriaMedicao.ALIMENTACAO
 
     integral = _calcula_soma_medicao(medicoes[0], faixa_etaria, categoria)
     assert math.isclose(integral, 80.0, rel_tol=1e-9)

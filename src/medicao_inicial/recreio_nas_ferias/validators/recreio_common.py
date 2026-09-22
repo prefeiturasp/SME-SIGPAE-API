@@ -71,7 +71,7 @@ def valida_campo_participantes(
             onde a chave representa o nome do grupo e o valor a quantidade de participantes
     """
     recreio = instance.recreio_nas_ferias
-    categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
     grupos = list(informacoes_participantes.keys())
     grupos_medicao_existentes = {
         medicao.grupo.nome: medicao

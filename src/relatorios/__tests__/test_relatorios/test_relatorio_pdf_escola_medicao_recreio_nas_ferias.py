@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
@@ -39,7 +40,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):
         self.categoria_alimentacao = categoria_medicao_factory.create(
-            nome="ALIMENTAÇÃO"
+            nome=CategoriaMedicao.ALIMENTACAO
         )
 
     def _setup_core(
@@ -181,7 +182,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
 
     def _setup_categoria_solicitacoes(self, categoria_medicao_factory):
         self.categoria_solicitacoes = categoria_medicao_factory.create(
-            nome="SOLICITAÇÕES DE ALIMENTAÇÃO"
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
 
     def _setup_logs_medicao_solicitacoes_alimentacao(self, valor_medicao_factory):
@@ -373,7 +374,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
 
         # Verifica header com coluna SOLICITAÇÕES DE ALIMENTAÇÃO
         assert (
-            "SOLICITAÇÕES DE ALIMENTAÇÃO" in tabela_somatorio_participantes["header"]
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+            in tabela_somatorio_participantes["header"]
         ), f"Header deve conter SOLICITAÇÕES DE ALIMENTAÇÃO: {tabela_somatorio_participantes['header']}"
 
         # Verifica que Kit Lanche e Lanche Emergencial aparecem no somatório de participantes
@@ -459,7 +461,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):
         self.categoria_alimentacao = categoria_medicao_factory.create(
-            nome="ALIMENTAÇÃO"
+            nome=CategoriaMedicao.ALIMENTACAO
         )
 
     def _setup_escola_emei(

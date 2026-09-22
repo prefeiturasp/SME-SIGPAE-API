@@ -36,6 +36,7 @@ from src.escola.models import (
 )
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
+    CategoriaMedicao,
     Medicao,
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
@@ -883,7 +884,7 @@ def solicitacao_medicao_inicial(escola, categoria_medicao, aluno):
                 "periodo_escolar": periodo_manha.nome,
                 "tabelas_lancamentos": [
                     {
-                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                         "semanas": [{"semana": "1", "dias": ["01"]}],
                     }
                 ],
@@ -1477,7 +1478,9 @@ def solicitacao_medicao_inicial_dietas(
 @pytest.fixture
 def medicao_solicitacoes_alimentacao(escola):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    categoria = baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
     grupo = baker.make("GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO)
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=6, ano=2023, escola=escola
@@ -1511,7 +1514,7 @@ def medicao_solicitacoes_alimentacao(escola):
 @pytest.fixture
 def medicao_solicitacoes_alimentacao_cei(escola):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    categoria = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria = baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
     periodo_escolar = baker.make("PeriodoEscolar", nome="INTEGRAL")
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=11, ano=2023, escola=escola
@@ -2591,7 +2594,7 @@ def medicao_aprovada_pela_dre(solicitacao_medicao_inicial, categoria_medicao):
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
 
 
 @pytest.fixture
@@ -2603,7 +2606,7 @@ def categoria_medicao_dieta_a():
 def categoria_medicao_dieta_a_enteral_aminoacidos():
     return baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
 
 
@@ -2614,7 +2617,9 @@ def categoria_medicao_dieta_b():
 
 @pytest.fixture
 def categoria_medicao_solicitacoes_alimentacao():
-    return baker.make("CategoriaMedicao", nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+    return baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
 
 
 @pytest.fixture
@@ -5960,7 +5965,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "justificativa": "<p>Favor, conferir o número de <strong>Lanche 4h </strong>lançados</p>",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [{"semana": "3", "dias": ["12"]}],
                         }
                     ],
@@ -5981,7 +5986,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "periodo_escolar": "MANHA",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [
                                 {
                                     "semana": "3",
@@ -6042,7 +6047,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "justificativa": "<p>Verifique a frequencia, deveria ser 80</p>",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [
                                 {"semana": "3", "dias": ["10", "11", "12", "13", "14"]}
                             ],
@@ -6065,7 +6070,7 @@ def solicitacao_com_historico_correcao(django_user_model, escola):
                     "periodo_escolar": "MANHA",
                     "tabelas_lancamentos": [
                         {
-                            "categoria_medicao": "ALIMENTAÇÃO",
+                            "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                             "semanas": [
                                 {
                                     "semana": "3",

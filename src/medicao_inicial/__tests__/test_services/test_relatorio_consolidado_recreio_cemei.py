@@ -8,6 +8,7 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
     _define_filtro,
     _get_lista_alimentacoes,
@@ -144,7 +145,7 @@ def test_get_lista_alimentacoes_dietas(
 
     categoria_dieta_a = DIETA_ESPECIAL_TIPO_A
     categoria_dieta_a_enteral = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
 
     colaboradores = _get_lista_alimentacoes_dietas(

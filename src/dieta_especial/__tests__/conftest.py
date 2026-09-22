@@ -21,6 +21,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import Aluno, FaixaEtaria, PeriodoEscolar
+from src.medicao_inicial.models import CategoriaMedicao
 from src.perfil.models import Usuario
 from src.produto.models import Produto
 from src.terceirizada.models import Edital
@@ -1228,7 +1229,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
 
 
 @pytest.fixture
@@ -1249,7 +1250,7 @@ def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
                 "periodo_escolar": periodo_manha.nome,
                 "tabelas_lancamentos": [
                     {
-                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                         "semanas": [{"semana": "1", "dias": ["01"]}],
                     }
                 ],

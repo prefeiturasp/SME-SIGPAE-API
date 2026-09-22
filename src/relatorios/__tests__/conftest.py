@@ -30,6 +30,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import Aluno, Lote
+from src.medicao_inicial.models import CategoriaMedicao
 from src.perfil.models.usuario import Usuario
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
@@ -784,11 +785,13 @@ def solicitacao_medicao_inicial_recreio_nas_ferias(escola, recreio_nas_ferias):
     grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
-    categoria_alimentacao = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria_alimentacao = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO
+    )
     categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
     categoria_dieta_enteral = baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
@@ -1095,11 +1098,13 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cei(
     grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
-    categoria_alimentacao = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria_alimentacao = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO
+    )
     categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
     categoria_dieta_enteral = baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
@@ -1250,7 +1255,7 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cemei(
 
     categoria_alimentacao = baker.make(
         "CategoriaMedicao",
-        nome="ALIMENTAÇÃO",
+        nome=CategoriaMedicao.ALIMENTACAO,
     )
     categoria_dieta_a = baker.make(
         "CategoriaMedicao",

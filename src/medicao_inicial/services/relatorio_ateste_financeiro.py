@@ -12,6 +12,7 @@ from src.cardapio.base.models import (
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.escola.models import FaixaEtaria
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     normalizar_nome_campo,
     to_decimal_safe,
@@ -474,7 +475,7 @@ def _build_tabela_alimentacao_emei(
             ).lower()
 
         numero_atendimentos = totais_consumo.get(
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             {},
         ).get(
             f"total_{nome_consumo}",

@@ -15,6 +15,7 @@ from src.dados_comuns.constants import (
     FaixasEtarias,
     NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
     _get_lista_alimentacoes,
@@ -271,13 +272,16 @@ def test_calcula_soma_medicao_alimentacao(
     medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
     medicao_colaboradores = medicoes[0]
     colaboradores = _calcula_soma_medicao(
-        medicao_colaboradores, "sobremesa", None, "ALIMENTAÇÃO"
+        medicao_colaboradores, "sobremesa", None, CategoriaMedicao.ALIMENTACAO
     )
     assert math.isclose(colaboradores, 280.0, rel_tol=1e-9)
 
     medicao_recreio = medicoes[1]
     recreio = _calcula_soma_medicao(
-        medicao_recreio, "frequencia", faixas_etarias_ativas[0].id, "ALIMENTAÇÃO"
+        medicao_recreio,
+        "frequencia",
+        faixas_etarias_ativas[0].id,
+        CategoriaMedicao.ALIMENTACAO,
     )
     assert math.isclose(recreio, 168.0, rel_tol=1e-9)
 

@@ -252,7 +252,7 @@ def test_get_lista_alimentacoes_dietas(solicitacao_recreio_emei):
     medicao_recreio_nas_ferias = medicoes[1]
     dieta_a = DIETA_ESPECIAL_TIPO_A
     dieta_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
     dieta_b = DIETA_ESPECIAL_TIPO_B
 
@@ -459,7 +459,7 @@ def test_calcula_soma_medicao(solicitacao_recreio_emei):
     medicao_recreio = medicoes[1]
 
     campo = "refeicao"
-    categoria = ["ALIMENTAÇÃO"]
+    categoria = [CategoriaMedicao.ALIMENTACAO]
     total_recreio = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
     assert total_recreio == pytest.approx(1260.0)
 
@@ -470,7 +470,7 @@ def test_calcula_soma_medicao(solicitacao_recreio_emei):
 
     categoria = [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     ]
     total_dieta = _calcula_soma_medicao(medicao_recreio, campo, categoria, {})
     assert total_dieta == pytest.approx(14.0)
@@ -505,7 +505,7 @@ def test_total_pagamento_recreio_emei_para_colaboradores(solicitacao_recreio_eme
 def test_unificar_dietas_tipo_a():
     dietas_alimentacoes = {
         DIETA_ESPECIAL_TIPO_A: ["lanche", "lanche_4h"],
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -516,7 +516,8 @@ def test_unificar_dietas_tipo_a():
     assert DIETA_ESPECIAL_TIPO_A in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_A]) == 5
 
@@ -530,14 +531,15 @@ def test_unificar_dietas_tipo_a_sem_dieta_enteral():
     assert DIETA_ESPECIAL_TIPO_A in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_A]) == 2
 
 
 def test_unificar_dietas_tipo_a_sem_dieta_principal():
     dietas_alimentacoes = {
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -548,7 +550,8 @@ def test_unificar_dietas_tipo_a_sem_dieta_principal():
     assert DIETA_ESPECIAL_TIPO_A in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_A]) == 3
 
@@ -561,7 +564,8 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
     assert DIETA_ESPECIAL_TIPO_A not in resultado
     assert DIETA_ESPECIAL_TIPO_B in resultado
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS" not in resultado
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_B]) == 2
 

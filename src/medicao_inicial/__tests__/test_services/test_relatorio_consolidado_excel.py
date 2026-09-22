@@ -16,6 +16,7 @@ from src.dados_comuns.constants import (
     FaixasEtarias,
     NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
     _formata_total_geral,
@@ -1386,7 +1387,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e
     rows = list(sheet.iter_rows(values_only=True))
 
     assert not any(
-        value == "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        value == CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         for value in rows[2]
     )
     assert rows[2].count(DIETA_ESPECIAL_TIPO_A) == 4

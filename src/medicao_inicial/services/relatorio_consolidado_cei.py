@@ -15,7 +15,11 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
 )
 from src.escola.models import FaixaEtaria
-from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+)
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
@@ -243,7 +247,7 @@ def processa_periodo_regular(
     except ObjectDoesNotExist:
         return "-"
 
-    categoria = "ALIMENTAÇÃO"
+    categoria = CategoriaMedicao.ALIMENTACAO
     if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         categoria = periodo.upper()
 

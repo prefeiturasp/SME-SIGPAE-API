@@ -31,7 +31,7 @@ from src.medicao_inicial.services.utils import (
 
 from ..models import CategoriaMedicao
 
-MEDICAO_CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
+MEDICAO_CATEGORIA_ALIMENTACAO = CategoriaMedicao.ALIMENTACAO
 
 
 def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
@@ -117,7 +117,9 @@ def _get_lista_alimentacoes_dietas(medicao, categoria, query_params=None):
 
 def _unificar_dietas_tipo_a(dietas_alimentacoes):
     dieta_principal = DIETA_ESPECIAL_TIPO_A
-    dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    dieta_alternativa = (
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+    )
     valor_principal = dietas_alimentacoes.get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
     if valor_alternativo:
@@ -246,7 +248,7 @@ def processa_dieta_especial(solicitacao, filtros, campo, periodo, query_params=N
     categorias = (
         [
             DIETA_ESPECIAL_TIPO_A,
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         ]
         if periodo == DIETA_ESPECIAL_TIPO_A
         else [periodo]

@@ -1,10 +1,11 @@
 from src.dados_comuns.constants import DIETA_ESPECIAL_TIPO_B
+from src.medicao_inicial.models import CategoriaMedicao
 
 TABELAS_EMEBS = [
     {
         "periodos": ["MANHA - INFANTIL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -177,7 +178,7 @@ TABELAS_EMEBS = [
         ],
         "categorias_dos_periodos": {
             "MANHA - INFANTIL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
@@ -186,7 +187,7 @@ TABELAS_EMEBS = [
     {
         "periodos": ["MANHA - FUNDAMENTAL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -359,7 +360,7 @@ TABELAS_EMEBS = [
         ],
         "categorias_dos_periodos": {
             "MANHA - FUNDAMENTAL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
@@ -368,7 +369,7 @@ TABELAS_EMEBS = [
     {
         "periodos": ["TARDE - INFANTIL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -541,7 +542,7 @@ TABELAS_EMEBS = [
         ],
         "categorias_dos_periodos": {
             "TARDE - INFANTIL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
@@ -550,7 +551,7 @@ TABELAS_EMEBS = [
     {
         "periodos": ["TARDE - FUNDAMENTAL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -723,7 +724,7 @@ TABELAS_EMEBS = [
         ],
         "categorias_dos_periodos": {
             "TARDE - FUNDAMENTAL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {"categoria": "DIETA ESPECIAL - TIPO A ENTERAL", "numero_campos": 4},
                 {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 4},
             ]
@@ -736,7 +737,7 @@ HEADERS_TABELAS_EMEBS = [
     {
         "periodos": ["MANHA - INFANTIL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -763,7 +764,7 @@ HEADERS_TABELAS_EMEBS = [
         "dias_letivos": [],
         "categorias_dos_periodos": {
             "MANHA - INFANTIL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                     "numero_campos": 4,
@@ -775,7 +776,7 @@ HEADERS_TABELAS_EMEBS = [
     {
         "periodos": ["MANHA - FUNDAMENTAL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -802,7 +803,7 @@ HEADERS_TABELAS_EMEBS = [
         "dias_letivos": [],
         "categorias_dos_periodos": {
             "MANHA - FUNDAMENTAL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                     "numero_campos": 4,
@@ -814,7 +815,7 @@ HEADERS_TABELAS_EMEBS = [
     {
         "periodos": ["TARDE - INFANTIL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -841,7 +842,7 @@ HEADERS_TABELAS_EMEBS = [
         "dias_letivos": [],
         "categorias_dos_periodos": {
             "TARDE - INFANTIL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                     "numero_campos": 4,
@@ -853,7 +854,7 @@ HEADERS_TABELAS_EMEBS = [
     {
         "periodos": ["TARDE - FUNDAMENTAL"],
         "categorias": [
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             "DIETA ESPECIAL - TIPO A ENTERAL",
             DIETA_ESPECIAL_TIPO_B,
         ],
@@ -880,7 +881,7 @@ HEADERS_TABELAS_EMEBS = [
         "dias_letivos": [],
         "categorias_dos_periodos": {
             "TARDE - FUNDAMENTAL": [
-                {"categoria": "ALIMENTAÇÃO", "numero_campos": 6},
+                {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
                     "numero_campos": 4,
@@ -893,7 +894,7 @@ HEADERS_TABELAS_EMEBS = [
 
 
 OBSERVACOES_INFANTIL_EMEBS = [
-    ("01", "MANHA", "ALIMENTAÇÃO", "observação INFANTIL dia 01", None),
+    ("01", "MANHA", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 01", None),
     (
         "01",
         "MANHA",
@@ -902,7 +903,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("01", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 01", None),
-    ("01", "TARDE", "ALIMENTAÇÃO", "observação INFANTIL dia 01", None),
+    ("01", "TARDE", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 01", None),
     (
         "01",
         "TARDE",
@@ -911,7 +912,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("01", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 01", None),
-    ("02", "MANHA", "ALIMENTAÇÃO", "observação INFANTIL dia 02", None),
+    ("02", "MANHA", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 02", None),
     (
         "02",
         "MANHA",
@@ -920,7 +921,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("02", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 02", None),
-    ("02", "TARDE", "ALIMENTAÇÃO", "observação INFANTIL dia 02", None),
+    ("02", "TARDE", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 02", None),
     (
         "02",
         "TARDE",
@@ -929,7 +930,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("02", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 02", None),
-    ("03", "MANHA", "ALIMENTAÇÃO", "observação INFANTIL dia 03", None),
+    ("03", "MANHA", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 03", None),
     (
         "03",
         "MANHA",
@@ -938,7 +939,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("03", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 03", None),
-    ("03", "TARDE", "ALIMENTAÇÃO", "observação INFANTIL dia 03", None),
+    ("03", "TARDE", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 03", None),
     (
         "03",
         "TARDE",
@@ -947,7 +948,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("03", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 03", None),
-    ("04", "MANHA", "ALIMENTAÇÃO", "observação INFANTIL dia 04", None),
+    ("04", "MANHA", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 04", None),
     (
         "04",
         "MANHA",
@@ -956,7 +957,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("04", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 04", None),
-    ("04", "TARDE", "ALIMENTAÇÃO", "observação INFANTIL dia 04", None),
+    ("04", "TARDE", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 04", None),
     (
         "04",
         "TARDE",
@@ -965,7 +966,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("04", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 04", None),
-    ("05", "MANHA", "ALIMENTAÇÃO", "observação INFANTIL dia 05", None),
+    ("05", "MANHA", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 05", None),
     (
         "05",
         "MANHA",
@@ -974,7 +975,7 @@ OBSERVACOES_INFANTIL_EMEBS = [
         None,
     ),
     ("05", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação INFANTIL dia 05", None),
-    ("05", "TARDE", "ALIMENTAÇÃO", "observação INFANTIL dia 05", None),
+    ("05", "TARDE", CategoriaMedicao.ALIMENTACAO, "observação INFANTIL dia 05", None),
     (
         "05",
         "TARDE",
@@ -987,7 +988,13 @@ OBSERVACOES_INFANTIL_EMEBS = [
 
 
 OBSERVACOES_FUNDAMENTAL_EMEBS = [
-    ("01", "MANHA", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 01", None),
+    (
+        "01",
+        "MANHA",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 01",
+        None,
+    ),
     (
         "01",
         "MANHA",
@@ -996,7 +1003,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("01", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 01", None),
-    ("01", "TARDE", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 01", None),
+    (
+        "01",
+        "TARDE",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 01",
+        None,
+    ),
     (
         "01",
         "TARDE",
@@ -1005,7 +1018,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("01", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 01", None),
-    ("02", "MANHA", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 02", None),
+    (
+        "02",
+        "MANHA",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 02",
+        None,
+    ),
     (
         "02",
         "MANHA",
@@ -1014,7 +1033,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("02", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 02", None),
-    ("02", "TARDE", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 02", None),
+    (
+        "02",
+        "TARDE",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 02",
+        None,
+    ),
     (
         "02",
         "TARDE",
@@ -1023,7 +1048,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("02", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 02", None),
-    ("03", "MANHA", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 03", None),
+    (
+        "03",
+        "MANHA",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 03",
+        None,
+    ),
     (
         "03",
         "MANHA",
@@ -1032,7 +1063,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("03", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 03", None),
-    ("03", "TARDE", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 03", None),
+    (
+        "03",
+        "TARDE",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 03",
+        None,
+    ),
     (
         "03",
         "TARDE",
@@ -1041,7 +1078,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("03", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 03", None),
-    ("04", "MANHA", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 04", None),
+    (
+        "04",
+        "MANHA",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 04",
+        None,
+    ),
     (
         "04",
         "MANHA",
@@ -1050,7 +1093,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("04", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 04", None),
-    ("04", "TARDE", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 04", None),
+    (
+        "04",
+        "TARDE",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 04",
+        None,
+    ),
     (
         "04",
         "TARDE",
@@ -1059,7 +1108,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("04", "TARDE", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 04", None),
-    ("05", "MANHA", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 05", None),
+    (
+        "05",
+        "MANHA",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 05",
+        None,
+    ),
     (
         "05",
         "MANHA",
@@ -1068,7 +1123,13 @@ OBSERVACOES_FUNDAMENTAL_EMEBS = [
         None,
     ),
     ("05", "MANHA", DIETA_ESPECIAL_TIPO_B, "observação FUNDAMENTAL dia 05", None),
-    ("05", "TARDE", "ALIMENTAÇÃO", "observação FUNDAMENTAL dia 05", None),
+    (
+        "05",
+        "TARDE",
+        CategoriaMedicao.ALIMENTACAO,
+        "observação FUNDAMENTAL dia 05",
+        None,
+    ),
     (
         "05",
         "TARDE",

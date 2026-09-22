@@ -193,7 +193,7 @@ def test_get_lista_alimentacoes_dietas(solicitacao_sem_lancamento):
     medicao_manha = medicoes[0]
     dieta_a = DIETA_ESPECIAL_TIPO_A
     dieta_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
     dieta_b = DIETA_ESPECIAL_TIPO_B
 
@@ -389,14 +389,14 @@ def test_calcula_soma_medicao(solicitacao_sem_lancamento):
     medicao_manha = medicoes[0]
 
     campo = "refeicao"
-    categoria = ["ALIMENTAÇÃO"]
+    categoria = [CategoriaMedicao.ALIMENTACAO]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
     assert total is None
 
     campo = "lanche_4h"
     categoria = [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     ]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
     assert total is None

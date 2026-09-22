@@ -11,14 +11,13 @@ from functools import reduce
 from typing import Any, Dict
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
-from src.dados_comuns.models import LogSolicitacoesUsuario
 from unidecode import unidecode
-from django.db import transaction
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -48,6 +47,7 @@ from src.dados_comuns.constants import (
     TIPOS_TURMAS_EMEBS,
     TIPOS_UNIDADE_ESCOLAR,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_image_to_base64,
@@ -105,7 +105,7 @@ from src.terceirizada.models import Edital
 
 logger = logging.getLogger(__name__)
 
-CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
+CHAVE_ALIMENTACAO_REGULAR = CategoriaMedicao.ALIMENTACAO
 TURMAS_EMEBS = ["INFANTIL", "FUNDAMENTAL"]
 
 
@@ -184,14 +184,17 @@ def get_lista_categorias_campos(medicao, tipo_turma=None):
     if medicao.grupo and medicao.grupo.nome == GRUPO_SOLICITACOES_ALIMENTACAO:
         lista_ = []
         if (
-            "SOLICITAÇÕES DE ALIMENTAÇÃO",
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             "lanche_emergencial",
         ) in lista_categorias_campos:
             lista_ += [
                 ("LANCHE EMERGENCIAL", "solicitado"),
                 ("LANCHE EMERGENCIAL", "consumido"),
             ]
-        if ("SOLICITAÇÕES DE ALIMENTAÇÃO", "kit_lanche") in lista_categorias_campos:
+        if (
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "kit_lanche",
+        ) in lista_categorias_campos:
             lista_ += [("KIT LANCHE", "solicitado"), ("KIT LANCHE", "consumido")]
         lista_categorias_campos = lista_
     return lista_categorias_campos
@@ -3369,7 +3372,7 @@ def _popula_faixas_dias_total(
         categoria_corrente,
     )
     if recreio:
-        if categoria_corrente == "ALIMENTAÇÃO":
+        if categoria_corrente == CategoriaMedicao.ALIMENTACAO:
             if primeira_faixa:
                 valores_dia += ["-"]
             valores_dia += [str(total if total else 0)]
@@ -4157,7 +4160,10 @@ def build_tabela_somatorio_header(
         )
     )
     if categoria == "DIETA":
-        if nome_periodo.upper() in ["ETEC", "SOLICITAÇÕES DE ALIMENTAÇÃO"]:
+        if nome_periodo.upper() in [
+            "ETEC",
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        ]:
             pass
         elif nome_periodo.upper() == "NOITE":
             segunda_tabela_header.append(nome_periodo)
@@ -4327,7 +4333,7 @@ def _build_body_tabela_participantes(
         total_solicitacoes = 0
         if medicao_solicitacoes and campo in ("kit_lanche", "lanche_emergencial"):
             values = medicao_solicitacoes.valores_medicao.filter(
-                categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 nome_campo=campo,
             )
             total_solicitacoes = sum(int(v.valor) for v in values)
@@ -4416,14 +4422,14 @@ def build_tabela_somatorio_recreio_nas_ferias(
 
     MAPA_TIPO_DIETA = {
         "TIPO A": DIETA_ESPECIAL_TIPO_A,
-        "ENTERAL": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "ENTERAL": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "TIPO B": DIETA_ESPECIAL_TIPO_B,
     }
 
     categorias_existentes = (
         set(
             medicao_recreio.valores_medicao.exclude(
-                categoria_medicao__nome="ALIMENTAÇÃO"
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
             )
             .values_list("categoria_medicao__nome", flat=True)
             .distinct()
@@ -4440,7 +4446,11 @@ def build_tabela_somatorio_recreio_nas_ferias(
 
     tabela_participantes = {
         "header": ["TIPOS ALIMENTAÇÃO", "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES"]
-        + (["SOLICITAÇÕES DE ALIMENTAÇÃO"] if medicao_solicitacoes else [])
+        + (
+            [CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO]
+            if medicao_solicitacoes
+            else []
+        )
         + list(dietas_ativas.values()),
         "body": _build_body_tabela_participantes(
             medicao_recreio,
@@ -4677,7 +4687,7 @@ def get_somatorio_periodos_params(
             dict_total_refeicoes,
             dict_total_sobremesas,
         )
-    elif periodo.upper() == "SOLICITAÇÕES DE ALIMENTAÇÃO":
+    elif periodo.upper() == CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO:
         return tipo_alimentacao, solicitacao
     else:
         return (
@@ -4954,7 +4964,7 @@ def _adicionar_solicitacoes_colab(linhas, medicao_solicitacoes):
 
     for campo in ("kit_lanche", "lanche_emergencial"):
         values = medicao_solicitacoes.valores_medicao.filter(
-            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             nome_campo=campo,
         )
         total = sum(int(v.valor) for v in values)
@@ -5021,7 +5031,9 @@ def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
 
 def _build_somatorio_tabela_cei(medicao, mes_ano):
     categorias_dieta = list(
-        medicao.valores_medicao.exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        medicao.valores_medicao.exclude(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        )
         .exclude(categoria_medicao=None)
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
@@ -5044,7 +5056,7 @@ def _build_somatorio_tabela_cei(medicao, mes_ano):
             for v in medicao.valores_medicao.filter(
                 faixa_etaria=fe,
                 nome_campo="frequencia",
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
             ).values_list("valor", flat=True)
             if v and v.isdigit()
         )
@@ -5100,7 +5112,9 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
     ]
 
     categorias_dieta = list(
-        medicao_4a14.valores_medicao.exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        medicao_4a14.valores_medicao.exclude(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        )
         .exclude(categoria_medicao=None)
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
@@ -5110,7 +5124,7 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
         medicao_4a14.valores_medicao.exclude(
             nome_campo__in=CAMPOS_EXCLUIDOS_SOMATORIO_RECREIO
         )
-        .filter(categoria_medicao__nome="ALIMENTAÇÃO")
+        .filter(categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO)
         .values_list("nome_campo", flat=True)
         .distinct()
     )
@@ -5125,7 +5139,7 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
             int(v)
             for v in medicao_4a14.valores_medicao.filter(
                 nome_campo=campo,
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
                 faixa_etaria=None,
             ).values_list("valor", flat=True)
             if v and v.isdigit()
@@ -5167,7 +5181,9 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
     ).first()
 
     categorias_dieta = list(
-        medicao_recreio.valores_medicao.exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        medicao_recreio.valores_medicao.exclude(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        )
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
@@ -5189,7 +5205,7 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
             for v in medicao_recreio.valores_medicao.filter(
                 faixa_etaria=fe,
                 nome_campo="frequencia",
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
             ).values_list("valor", flat=True)
             if v.isdigit()
         )
@@ -7126,7 +7142,7 @@ def _alimentacao_zerada(
     eh_emebs: bool = False,
 ) -> None:
     """
-    Verifica se a categoria "ALIMENTAÇÃO" está zerada no dia.
+    Verifica se a categoria CategoriaMedicao.ALIMENTACAO está zerada no dia.
 
     Args:
         dia (str):  Dia sendo analisado
@@ -7143,7 +7159,10 @@ def _alimentacao_zerada(
         todos_periodos_zerados = True
         for periodo_escolar in periodos_escolares:
             periodo_existe = periodo_escolar in periodos_lancados
-            esta_zerado = periodos.get(periodo_escolar, {}).get("ALIMENTAÇÃO", 1) == 0
+            esta_zerado = (
+                periodos.get(periodo_escolar, {}).get(CategoriaMedicao.ALIMENTACAO, 1)
+                == 0
+            )
             if not (periodo_existe and esta_zerado):
                 todos_periodos_zerados = False
                 break
@@ -7201,7 +7220,7 @@ def _alimentacao_zerada_emebs(
     periodos_escolares: list[str],
 ) -> None:
     """
-    Verifica se "ALIMENTAÇÃO" está zerada por modalidade no dia.
+    Verifica se CategoriaMedicao.ALIMENTACAO está zerada por modalidade no dia.
 
     Args:
         dia (str):  Dia sendo analisado
@@ -7211,7 +7230,11 @@ def _alimentacao_zerada_emebs(
     """
     for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
         if _modalidade_zerada(
-            "ALIMENTAÇÃO", tipo, periodos, periodos_lancados, periodos_escolares
+            CategoriaMedicao.ALIMENTACAO,
+            tipo,
+            periodos,
+            periodos_lancados,
+            periodos_escolares,
         ):
             resultado["alimentacoes"][tipo].append(dia)
 
@@ -7260,7 +7283,7 @@ def _modalidade_zerada(
     Determina se uma categoria está zerada para uma modalidade.
 
     Args:
-        nome_categoria (str): Nome da categoria (ex: "ALIMENTAÇÃO").
+        nome_categoria (str): Nome da categoria (ex: CategoriaMedicao.ALIMENTACAO).
         tipo (str): Modalidade analisada (INFANTIL ou FUNDAMENTAL).
         periodos (dict): estrutura acumulada do dia.
         periodos_lancados (list[str]): Lista de períodos escolares lançados.
@@ -7323,8 +7346,8 @@ def _verifica_dietas_consumidas(
         defaultdict(lambda: defaultdict(set)) if escola_emebs else defaultdict(set)
     )
     dicionario_dieta = {
-        "Tipo A ENTERAL": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "Tipo A RESTRIÇÃO DE AMINOÁCIDOS": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        "Tipo A ENTERAL": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+        "Tipo A RESTRIÇÃO DE AMINOÁCIDOS": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         "Tipo A": DIETA_ESPECIAL_TIPO_A,
         "Tipo B": DIETA_ESPECIAL_TIPO_B,
     }
@@ -7600,7 +7623,7 @@ def _calcula_total_alimentacao(
     chave_consumo = (
         f"ALIMENTAÇÃO - {periodo.nome}"
         if periodo and (tipo == "FAIXA" or not tipo)
-        else "ALIMENTAÇÃO"
+        else CategoriaMedicao.ALIMENTACAO
     )
 
     total = Decimal("0")
@@ -7802,7 +7825,9 @@ def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
     return total_pagamento.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
-def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario):
+def processa_reabrir_lancamentos(
+    relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario
+):
     """Reabre os lançamentos de um relatório financeiro.
 
     Filtra as solicitações do período de acordo com os tipos de unidade
@@ -7837,10 +7862,9 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
 
     """
     tipos_unidades = set(
-        relatorio_financeiro
-        .grupo_unidade_escolar
-        .tipos_unidades
-        .values_list("uuid", flat=True)
+        relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.values_list(
+            "uuid", flat=True
+        )
     )
 
     solicitacoes_grupo = [
@@ -7868,29 +7892,21 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
 
         for solicitacao in solicitacoes:
             solicitacao.status = (
-                SolicitacaoMedicaoInicial
-                .workflow_class
-                .MEDICAO_APROVADA_PELA_DRE
+                SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
             )
             solicitacao.salvar_log_transicao(
-                status_evento=(
-                    LogSolicitacoesUsuario
-                    .MEDICAO_CODAE_REABRIU_LANCAMENTO
-                ),
+                status_evento=(LogSolicitacoesUsuario.MEDICAO_CODAE_REABRIU_LANCAMENTO),
                 usuario=usuario,
             )
             solicitacao.save()
 
             for medicao in solicitacao.medicoes.all():
                 medicao.status = (
-                    SolicitacaoMedicaoInicial
-                    .workflow_class
-                    .MEDICAO_APROVADA_PELA_DRE
+                    SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
                 )
                 medicao.salvar_log_transicao(
                     status_evento=(
-                        LogSolicitacoesUsuario
-                        .MEDICAO_CODAE_REABRIU_LANCAMENTO
+                        LogSolicitacoesUsuario.MEDICAO_CODAE_REABRIU_LANCAMENTO
                     ),
                     usuario=usuario,
                 )

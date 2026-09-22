@@ -9,6 +9,7 @@ from django.template import base as template_base
 from django.template.defaultfilters import title as django_title
 
 from src.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
+from src.medicao_inicial.models import CategoriaMedicao
 from src.produto.constants import RELATORIO_RECLAMACOES_PRODUTOS
 
 from ...cardapio.suspensao_alimentacao.models import (
@@ -37,7 +38,7 @@ register = template.Library()
 
 # Add support for multi-line template tags
 template_base.tag_re = re.compile(template_base.tag_re.pattern, re.DOTALL)
-CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
+CHAVE_ALIMENTACAO_REGULAR = CategoriaMedicao.ALIMENTACAO
 
 
 @register.filter
@@ -692,11 +693,11 @@ def _build_th_faixa(faixa, recreio, categoria):
     if faixa == "total":
         return '<th class="faixa-etaria">Total do Dia</th>'
     if recreio:
-        if categoria == "ALIMENTAÇÃO":
+        if categoria == CategoriaMedicao.ALIMENTACAO:
             return "<th>Frequência</th>"
         return "<th>Aprovadas</th><th>Frequência</th>"
 
-    if categoria == "ALIMENTAÇÃO":
+    if categoria == CategoriaMedicao.ALIMENTACAO:
         return "<th>Matriculados</th><th>Frequência</th>"
     return "<th>Aprovadas</th><th>Frequência</th>"
 
@@ -783,7 +784,7 @@ def build_headers_faixas_etarias(tabela):
 
 @register.simple_tag
 def label_categoria_recreio_cemei(categoria, periodo):
-    if categoria.upper() != "ALIMENTAÇÃO":
+    if categoria.upper() != CategoriaMedicao.ALIMENTACAO:
         return categoria.upper()
     periodo_upper = periodo.upper()
     if "4 A 14" in periodo_upper:
@@ -872,7 +873,7 @@ def get_colspan(periodo):
         "TARDE": 1,
         "INTEGRAL": 1,
         "PROGRAMAS E PROJETOS": 1,
-        "SOLICITAÇÕES DE ALIMENTAÇÃO": 2,
+        CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO: 2,
         "TOTAL": 1,
         "NOITE": 1,
         "ETEC": 1,
@@ -1164,7 +1165,7 @@ def nomes_relatorio_correcao_medicao(nome):
         "ETEC": "ETEC",
         constants.DIETA_ESPECIAL_TIPO_A: "Dieta Tipo A",
         constants.DIETA_ESPECIAL_TIPO_B: "Dieta Tipo B",
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": "Dieta Tipo A Enteral/Restrição de Aminoácidos",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: "Dieta Tipo A Enteral/Restrição de Aminoácidos",
     }
 
     return nomes.get(nome, nome.capitalize())

@@ -258,7 +258,7 @@ def _unificar_dietas_tipo_a(
         >>> _unificar_dietas_tipo_a(
         ...     {
         ...         "DIETA ESPECIAL - TIPO A": ["lanche"],
-        ...         "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+        ...         CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
         ...             "refeicao"
         ...         ]
         ...     }
@@ -271,7 +271,9 @@ def _unificar_dietas_tipo_a(
         }
     """
     dieta_principal = DIETA_ESPECIAL_TIPO_A
-    dieta_alternativa = "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    dieta_alternativa = (
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+    )
     valor_principal = dietas_alimentacoes.get(dieta_principal, [])
     valor_alternativo = dietas_alimentacoes.get(dieta_alternativa, [])
     if valor_alternativo:
@@ -464,7 +466,7 @@ def processa_dieta_especial(
     categorias = (
         [
             DIETA_ESPECIAL_TIPO_A,
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         ]
         if grupo == DIETA_ESPECIAL_TIPO_A
         else [grupo]
@@ -549,7 +551,9 @@ def processa_grupos_recreio(
             return total_pagamento_recreio_emei(medicao, campo, query_params)
 
     categorias = (
-        [grupo.upper()] if grupo == GRUPO_SOLICITACOES_ALIMENTACAO else ["ALIMENTAÇÃO"]
+        [grupo.upper()]
+        if grupo == GRUPO_SOLICITACOES_ALIMENTACAO
+        else [CategoriaMedicao.ALIMENTACAO]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
     return soma if soma is not None else "-"

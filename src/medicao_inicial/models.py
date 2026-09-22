@@ -719,6 +719,14 @@ class Medicao(
 
 
 class CategoriaMedicao(Nomeavel, Ativavel, TemChaveExterna):
+    SOLICITACOES_DE_ALIMENTACAO = "SOLICITAÇÕES DE ALIMENTAÇÃO"
+    DIETA_ESPECIAL_TIPO_B = "DIETA ESPECIAL - TIPO B"
+    DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
+    ALIMENTACAO = "ALIMENTAÇÃO"
+
     class Meta:
         verbose_name = "Categoria de medição"
         verbose_name_plural = "Categorias de medições"

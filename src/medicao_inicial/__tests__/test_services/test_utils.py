@@ -17,6 +17,7 @@ from src.dados_comuns.constants import (
     FaixasEtarias,
     NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -215,7 +216,7 @@ def test_get_categorias_dietas_emef(relatorio_consolidado_xlsx_emef):
     assert len(categoria_manha) == 3
     assert categoria_manha == [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         DIETA_ESPECIAL_TIPO_B,
     ]
 
@@ -242,7 +243,7 @@ def test_get_categorias_dietas_cemei(relatorio_consolidado_xlsx_cemei):
     assert len(categoria_integral_emei) == 3
     assert categoria_integral_emei == [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         DIETA_ESPECIAL_TIPO_B,
     ]
 
@@ -299,7 +300,7 @@ def test_update_dietas_alimentacoes_por_faixa(faixas_etarias_ativas):
 def test_update_dietas_alimentacoes():
     categoria_a = DIETA_ESPECIAL_TIPO_A
     categoria_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
     categoria_b = DIETA_ESPECIAL_TIPO_B
 

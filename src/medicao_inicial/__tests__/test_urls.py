@@ -25,6 +25,7 @@ from src.dados_comuns.constants import (
 )
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
@@ -1648,7 +1649,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_manha.valores_medicao.filter(
-            nome_campo="matriculados", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="matriculados",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1662,7 +1664,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     assert (
         medicao_manha.valores_medicao.filter(
             nome_campo="dietas_autorizadas",
-            categoria_medicao__nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            categoria_medicao__nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         ).count()
         == 30
     )
@@ -1672,7 +1674,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_tarde.valores_medicao.filter(
-            nome_campo="matriculados", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="matriculados",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1682,7 +1685,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_noite.valores_medicao.filter(
-            nome_campo="matriculados", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="matriculados",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1694,7 +1698,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_programas_projetos.valores_medicao.filter(
-            nome_campo="numero_de_alunos", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="numero_de_alunos",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1704,7 +1709,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_etec.valores_medicao.filter(
-            nome_campo="numero_de_alunos", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="numero_de_alunos",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1717,14 +1723,14 @@ def test_finaliza_medicao_inicial_salva_logs(
     assert (
         medicao_solicitacoes_alimentacao.valores_medicao.filter(
             nome_campo="kit_lanche",
-            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
         ).count()
         == 1
     )
     assert (
         medicao_solicitacoes_alimentacao.valores_medicao.get(
             nome_campo="kit_lanche",
-            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
         ).valor
         == "200"
     )
@@ -3552,10 +3558,10 @@ def test_url_endpoint_totais_atendimento_consumo(
 
     data = response.data
 
-    assert "ALIMENTAÇÃO" in data
+    assert CategoriaMedicao.ALIMENTACAO in data
     assert DIETA_ESPECIAL_TIPO_A in data
 
-    alimentacao = data["ALIMENTAÇÃO"]
+    alimentacao = data[CategoriaMedicao.ALIMENTACAO]
     dieta_a = data[DIETA_ESPECIAL_TIPO_A]
 
     assert "total_refeicao" in alimentacao

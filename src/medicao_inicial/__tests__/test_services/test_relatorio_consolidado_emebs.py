@@ -165,7 +165,7 @@ def test_get_categorias_dietas(relatorio_consolidado_xlsx_emebs):
     )
     dietas = [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         DIETA_ESPECIAL_TIPO_B,
     ]
 
@@ -192,7 +192,7 @@ def test_obter_dietas_especiais(relatorio_consolidado_xlsx_emebs):
     )
     dietas = [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         DIETA_ESPECIAL_TIPO_B,
     ]
     dietas_alimentacoes = {}
@@ -207,7 +207,7 @@ def test_obter_dietas_especiais(relatorio_consolidado_xlsx_emebs):
         "lanche_4h",
     ]
     assert dietas_alimentacoes["INFANTIL"][
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     ] == ["lanche", "lanche_4h", "refeicao"]
     assert dietas_alimentacoes["INFANTIL"][DIETA_ESPECIAL_TIPO_B] == [
         "lanche",
@@ -222,7 +222,7 @@ def test_get_lista_alimentacoes_dietas(relatorio_consolidado_xlsx_emebs):
 
     lista_alimentacoes_dietas = _get_lista_alimentacoes_dietas(
         medicoes[4],
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         turma="FUNDAMENTAL",
     )
     assert isinstance(lista_alimentacoes_dietas, list)
@@ -251,7 +251,7 @@ def test_update_dietas_alimentacoes():
 def test_unificar_dietas():
     dietas_alimentacoes = {
         "FUNDAMENTAL": {
-            "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS": [
+            CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
                 "lanche",
                 "lanche_4h",
                 "refeicao",
@@ -264,7 +264,7 @@ def test_unificar_dietas():
     assert DIETA_ESPECIAL_TIPO_A in resultado["FUNDAMENTAL"]
     assert DIETA_ESPECIAL_TIPO_B in resultado["FUNDAMENTAL"]
     assert (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         not in resultado["FUNDAMENTAL"]
     )
     assert len(resultado["FUNDAMENTAL"][DIETA_ESPECIAL_TIPO_A]) == 3
@@ -597,7 +597,7 @@ def test_calcula_soma_medicao_alimentacao(relatorio_consolidado_xlsx_emebs):
         "periodo_escolar__nome", "grupo__nome"
     )
     campo = "refeicao"
-    categoria = ["ALIMENTAÇÃO"]
+    categoria = [CategoriaMedicao.ALIMENTACAO]
 
     turma = ["INFANTIL"]
     manha = _calcula_soma_medicao(medicoes[1], campo, categoria, turma)

@@ -6,7 +6,11 @@ from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
 
 from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
-from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+)
 
 
 def get_nome_periodo(medicao: Medicao) -> str:
@@ -75,7 +79,7 @@ def get_categorias_dietas(medicao_ou_queryset) -> list:
             if hasattr(medicao_ou_queryset, "valores_medicao")
             else medicao_ou_queryset
         )
-        .exclude(categoria_medicao__nome__icontains="ALIMENTAÇÃO")
+        .exclude(categoria_medicao__nome__icontains=CategoriaMedicao.ALIMENTACAO)
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
@@ -273,7 +277,7 @@ def total_pagamento_colaboradores(
     colaboradores.
 
     Realiza a soma dos valores registrados para os campos de refeições ou
-    sobremesas, considerando apenas os registros da categoria "ALIMENTAÇÃO" e os
+    sobremesas, considerando apenas os registros da categoria CategoriaMedicao.ALIMENTACAO e os
     filtros do intervalo de dias quando informados
 
     Args:
@@ -304,7 +308,7 @@ def total_pagamento_colaboradores(
         filtra_queryset_pelo_intervalo_de_dias(medicao.valores_medicao, query_params)
         .filter(
             nome_campo__in=lista_campos,
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         )
         .annotate(valor_float=Cast("valor", output_field=FloatField()))
         .aggregate(total=Sum("valor_float"))

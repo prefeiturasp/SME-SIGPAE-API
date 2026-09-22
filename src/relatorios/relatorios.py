@@ -28,7 +28,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.inclusao_alimentacao.models import MotivoInclusaoNormal
-from src.medicao_inicial.models import SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import CategoriaMedicao, SolicitacaoMedicaoInicial
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -1839,7 +1839,7 @@ def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> No
     """
     PERIODO_PARTICIPANTES = GRUPO_RECREIO_NAS_FERIAS
     PERIODO_COLABORADORES = "Colaboradores"
-    CATEGORIA_ALIMENTACAO = "ALIMENTAÇÃO"
+    CATEGORIA_ALIMENTACAO = CategoriaMedicao.ALIMENTACAO
 
     MAP_CATEGORIA = {
         True: "ALIMENTAÇÕES para COLABORADORES",

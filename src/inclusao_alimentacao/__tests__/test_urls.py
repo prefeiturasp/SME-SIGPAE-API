@@ -903,7 +903,9 @@ def _cria_solicitacao_com_medicao_programas_e_projetos(escola, mes, ano, dias=No
     grupo_programas, _ = GrupoMedicao.objects.get_or_create(
         nome=GRUPO_PROGRAMAS_E_PROJETOS
     )
-    categoria, _ = CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    categoria, _ = CategoriaMedicao.objects.get_or_create(
+        nome=CategoriaMedicao.ALIMENTACAO
+    )
     solicitacao = baker.make(
         SolicitacaoMedicaoInicial,
         escola=escola,

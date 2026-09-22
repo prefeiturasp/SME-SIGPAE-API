@@ -16,6 +16,7 @@ from src.dados_comuns.constants import (
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
@@ -39,7 +40,7 @@ from src.medicao_inicial.services.utils import (
 
 PROGRAMAS_E_PROJETOS = "PROGRAMAS E PROJETOS"
 DIETA_ESPECIAL_TIPO_A_ENTERAL = (
-    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
 )
 
 

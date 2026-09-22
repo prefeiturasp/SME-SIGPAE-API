@@ -1,8 +1,8 @@
 from datetime import date
+from types import SimpleNamespace
 
 import pytest
 from model_bakery import baker
-from types import SimpleNamespace
 
 from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS, TIPOS_UNIDADE_ESCOLAR
 from src.medicao_inicial.api.serializers_create import (
@@ -14,8 +14,8 @@ from src.medicao_inicial.models import (
     DescontoFinanceiro,
     GrupoMedicao,
     Medicao,
-    ValorMedicao,
     TipoContagemAlimentacao,
+    ValorMedicao,
 )
 
 
@@ -313,7 +313,9 @@ MOTIVO_PROGRAMAS_PROJETOS = "Programas/Projetos Contínuos"
 @pytest.mark.django_db
 class TestCriaValoresMedicaoInclusoesContinuas:
     def _setup_dependencias(self):
-        categoria, _ = CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+        categoria, _ = CategoriaMedicao.objects.get_or_create(
+            nome=CategoriaMedicao.ALIMENTACAO
+        )
         grupo_programas, _ = GrupoMedicao.objects.get_or_create(
             nome=GRUPO_PROGRAMAS_E_PROJETOS
         )
@@ -373,7 +375,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             return ValorMedicao.objects.none()
         return medicao.valores_medicao.filter(
             nome_campo="numero_de_alunos",
-            categoria_medicao__nome="ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         )
 
     def _dias_criados(self, valores):
@@ -579,7 +581,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
         escola = self._setup_escola()
         solicitacao = self._setup_solicitacao(escola)
         self._setup_inclusao_continua(escola, numero_alunos=10)
-        categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
         grupo = GrupoMedicao.objects.get(nome=GRUPO_PROGRAMAS_E_PROJETOS)
         medicao = baker.make(
             "Medicao",
@@ -605,10 +607,13 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             categoria_medicao=categoria,
         )
         assert valor_dia_05.valor == "99"
-        assert medicao.valores_medicao.filter(
-            dia="05",
-            nome_campo="numero_de_alunos",
-        ).count() == 1
+        assert (
+            medicao.valores_medicao.filter(
+                dia="05",
+                nome_campo="numero_de_alunos",
+            ).count()
+            == 1
+        )
 
     def test_nao_cria_medicao_quando_todos_os_dias_ficam_sem_alunos(self):
         self._setup_dependencias()
@@ -705,6 +710,4 @@ def test_solicitacao_medicao_inicial_salva_descricao_do_metodo(
     solicitacao = serializer.save()
 
     assert solicitacao.descricao_metodo == "Contagem manual"
-    assert list(solicitacao.tipos_contagem_alimentacao.all()) == [
-        tipo_contagem
-    ]
+    assert list(solicitacao.tipos_contagem_alimentacao.all()) == [tipo_contagem]
