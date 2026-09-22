@@ -640,6 +640,9 @@ class StringsInformacoesPessoais(Enum):
     NOME_ALUNO_SHEILA = "ANA PAULA MENEZES"
     NOME_RESPONSAVEL_SHEILA = "ANA PAULA MENEZES"
     CELULAR_RESPONSAVEL_SHEILA = "11999998888"
+    ENDERECO_UNIDADE = "Rua Alvaro de Azevedo Antunes"
+    BAIRRO_UNIDADE = "VILA CAMPESINA"
+    NOME_MOTORISTA = "José da Silva"
 
     @classmethod
     def choices(cls):

@@ -6,7 +6,10 @@ from faker import Faker
 from model_bakery import baker
 from spyne.util.dictdoc import get_object_as_dict
 
-from src.dados_comuns.constants import NomesParaTesteEscola
+from src.dados_comuns.constants import (
+    NomesParaTesteEscola,
+    StringsInformacoesPessoais,
+)
 from src.dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow
 from src.logistica.api.soup.models import (
     Alimento,
@@ -85,9 +88,9 @@ def guia(solicitacao, escola):
         data_entrega="2019-02-25",
         codigo_unidade="58880",
         nome_unidade=NomesParaTesteEscola.EMEI_ALUISIO_DE_ALMEIDA.value,
-        endereco_unidade="Rua Alvaro de Azevedo Antunes",
+        endereco_unidade=StringsInformacoesPessoais.ENDERECO_UNIDADE.value,
         numero_unidade="1200",
-        bairro_unidade="VILA CAMPESINA",
+        bairro_unidade=StringsInformacoesPessoais.BAIRRO_UNIDADE.value,
         cep_unidade="03046059",
         cidade_unidade="OSASCO",
         estado_unidade="SP",
@@ -106,9 +109,9 @@ def guia_pendente_de_conferencia(solicitacao, escola):
         data_entrega="2019-02-25",
         codigo_unidade="58880",
         nome_unidade=NomesParaTesteEscola.EMEI_ALUISIO_DE_ALMEIDA.value,
-        endereco_unidade="Rua Alvaro de Azevedo Antunes",
+        endereco_unidade=StringsInformacoesPessoais.ENDERECO_UNIDADE.value,
         numero_unidade="1200",
-        bairro_unidade="VILA CAMPESINA",
+        bairro_unidade=StringsInformacoesPessoais.BAIRRO_UNIDADE.value,
         cep_unidade="03046059",
         cidade_unidade="OSASCO",
         estado_unidade="SP",
@@ -128,9 +131,9 @@ def guia_com_escola_client_autenticado(solicitacao, escola_com_guia):
         data_entrega="2019-02-25",
         codigo_unidade="58880",
         nome_unidade=NomesParaTesteEscola.EMEI_ALUISIO_DE_ALMEIDA.value,
-        endereco_unidade="Rua Alvaro de Azevedo Antunes",
+        endereco_unidade=StringsInformacoesPessoais.ENDERECO_UNIDADE.value,
         numero_unidade="1200",
-        bairro_unidade="VILA CAMPESINA",
+        bairro_unidade=StringsInformacoesPessoais.BAIRRO_UNIDADE.value,
         cep_unidade="03046059",
         cidade_unidade="OSASCO",
         estado_unidade="SP",
@@ -186,7 +189,7 @@ def conferencia_guia(guia_com_escola_client_autenticado):
         guia=guia_com_escola_client_autenticado,
         data_recebimento=datetime.now(),
         hora_recebimento=datetime.now().time(),
-        nome_motorista="José da Silva",
+        nome_motorista=StringsInformacoesPessoais.NOME_MOTORISTA.value,
         placa_veiculo="77AB75A",
     )
 
@@ -198,7 +201,7 @@ def conferencia_guia_normal(guia):
         guia=guia,
         data_recebimento=datetime.now(),
         hora_recebimento=datetime.now().time(),
-        nome_motorista="José da Silva",
+        nome_motorista=StringsInformacoesPessoais.NOME_MOTORISTA.value,
         placa_veiculo="77AB75A",
     )
 
@@ -210,7 +213,7 @@ def reposicao_guia(guia):
         guia=guia,
         data_recebimento=datetime.now(),
         hora_recebimento=datetime.now().time(),
-        nome_motorista="José da Silva",
+        nome_motorista=StringsInformacoesPessoais.NOME_MOTORISTA.value,
         placa_veiculo="77AB75A",
         eh_reposicao=True,
     )
@@ -235,7 +238,7 @@ def insucesso_entrega_guia(guia):
         "InsucessoEntregaGuia",
         guia=guia,
         hora_tentativa=datetime.now().time(),
-        nome_motorista="José da Silva",
+        nome_motorista=StringsInformacoesPessoais.NOME_MOTORISTA.value,
         placa_veiculo="77AB75A",
         justificativa="Unidade estava fechada.",
         motivo="UNIDADE_FECHADA",
