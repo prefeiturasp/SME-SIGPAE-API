@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from xworkflows.base import InvalidTransitionError
 
-from src.dados_comuns.constants import EM_ANALISE_LABEL
+from src.dados_comuns.constants import EM_ANALISE_LABEL, StringsValidationErrors
 from src.dados_comuns.fluxo_status import (
     GuiaRemessaWorkFlow,
     SolicitacaoRemessaWorkFlow,
@@ -430,7 +430,7 @@ def verifica_se_a_guia_pode_ser_conferida(guia):
                 "Erro ao buscar guia: Essa guia ainda não pode ser conferida."
             )
     except ObjectDoesNotExist:
-        raise ValidationError("Guia de remessa não existe.")
+        raise ValidationError(StringsValidationErrors.GUIA_DE_REMESSA_NAO_EXISTE.value)
 
 
 def resolve_notificacao_de_pendencia_de_atraso(guia, eh_reposicao):
@@ -481,7 +481,7 @@ def atualiza_guia_com_base_nas_conferencias_por_alimentos(  # noqa: C901
     except InvalidTransitionError as e:
         raise ValidationError(f"Erro de transição de estado: {e}")
     except ObjectDoesNotExist:
-        raise ValidationError("Guia de remessa não existe.")
+        raise ValidationError(StringsValidationErrors.GUIA_DE_REMESSA_NAO_EXISTE.value)
 
 
 def registra_qtd_a_receber(conferencia_individual, edicao=False):  # noqa C901

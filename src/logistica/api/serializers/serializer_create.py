@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import fields, serializers
 from xworkflows.base import InvalidTransitionError
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.utils import update_instance_from_dict
 from src.logistica.api.helpers import (
     registra_conferencias_individuais,
@@ -180,7 +181,9 @@ class ConferenciaDaGuiaCreateSerializer(serializers.ModelSerializer):
             except InvalidTransitionError as e:
                 raise serializers.ValidationError(f"Erro de transição de estado: {e}")
         except ObjectDoesNotExist:
-            raise serializers.ValidationError("Guia de remessa não existe.")
+            raise serializers.ValidationError(
+                StringsValidationErrors.GUIA_DE_REMESSA_NAO_EXISTE.value
+            )
 
         return conferencia_guia
 
@@ -228,7 +231,9 @@ class ConferenciaComOcorrenciaCreateSerializer(serializers.ModelSerializer):
         try:
             guia = Guia.objects.get(uuid=guia_request.uuid)
         except ObjectDoesNotExist:
-            raise serializers.ValidationError("Guia de remessa não existe.")
+            raise serializers.ValidationError(
+                StringsValidationErrors.GUIA_DE_REMESSA_NAO_EXISTE.value
+            )
         eh_reposicao = validated_data.get("eh_reposicao", False)
         verifica_se_a_guia_pode_ser_conferida(guia)
         user = self.context["request"].user
@@ -246,7 +251,9 @@ class ConferenciaComOcorrenciaCreateSerializer(serializers.ModelSerializer):
         try:
             guia = Guia.objects.get(uuid=guia_request.uuid)
         except ObjectDoesNotExist:
-            raise serializers.ValidationError("Guia de remessa não existe.")
+            raise serializers.ValidationError(
+                StringsValidationErrors.GUIA_DE_REMESSA_NAO_EXISTE.value
+            )
         conferencia_dos_alimentos = validated_data.pop("conferencia_dos_alimentos")
         eh_reposicao = validated_data.get("eh_reposicao", False)
         user = self.context["request"].user
@@ -312,7 +319,9 @@ class InsucessoDeEntregaGuiaCreateSerializer(serializers.ModelSerializer):
             except InvalidTransitionError as e:
                 raise serializers.ValidationError(f"Erro de transição de estado: {e}")
         except ObjectDoesNotExist:
-            raise serializers.ValidationError("Guia de remessa não existe.")
+            raise serializers.ValidationError(
+                StringsValidationErrors.GUIA_DE_REMESSA_NAO_EXISTE.value
+            )
 
         return insucesso_entrega
 

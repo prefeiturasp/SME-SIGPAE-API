@@ -711,6 +711,7 @@ class StringsValidationErrors(Enum):
     DIETA_ESPECIAL_PENDENTE = "Aluno já possui Solicitação de Dieta Especial pendente"
     CAMPO_OBRIGATORIO = "Este campo é obrigatório!"
     EXCLUSAO_SOMENTE_RASCUNHO = "Você só pode excluir quando o status for RASCUNHO."
+    GUIA_DE_REMESSA_NAO_EXISTE = "Guia de remessa não existe."
 
     @classmethod
     def choices(cls):
