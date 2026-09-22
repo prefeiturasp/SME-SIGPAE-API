@@ -465,7 +465,7 @@ def test_processa_periodo_campo_unidade_emef(relatorio_consolidado_xlsx_emef):
     ]
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha_refeicao = _processa_periodo_campo(
@@ -534,7 +534,7 @@ def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
     ]
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha_refeicao = _processa_periodo_campo(
@@ -598,7 +598,7 @@ def test_processa_periodo_campo_unidade_emei(relatorio_consolidado_xlsx_emei):
 def test_define_filtro(relatorio_consolidado_xlsx_emef):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)

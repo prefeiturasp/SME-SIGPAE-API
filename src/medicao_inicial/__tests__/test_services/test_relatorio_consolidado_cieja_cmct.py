@@ -354,7 +354,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
     ]
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha_refeicao = _processa_periodo_campo(
@@ -439,7 +439,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
 def test_define_filtro(relatorio_consolidado_xlsx_cieja):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)

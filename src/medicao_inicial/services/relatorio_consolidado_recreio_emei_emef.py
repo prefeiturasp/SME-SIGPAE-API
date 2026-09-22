@@ -168,7 +168,9 @@ def _get_lista_alimentacoes(
                     "frequencia",
                 ]
             )
-            | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+            | Q(
+                categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+            )
         )
         .values_list("nome_campo", flat=True)
         .distinct()
@@ -366,7 +368,7 @@ def get_valores_tabela(
         list: Lista contendo uma linha para cada solicitação processada.
     """
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
     valores = []
     for solicitacao in ordenar_unidades(solicitacoes):

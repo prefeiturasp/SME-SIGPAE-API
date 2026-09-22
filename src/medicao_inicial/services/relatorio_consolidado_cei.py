@@ -186,7 +186,7 @@ def _processa_periodo_campo(
     filtros = _define_filtro(periodo)
 
     try:
-        if "DIETA ESPECIAL" in periodo:
+        if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
             total = processa_dieta_especial(
                 solicitacao, filtros, faixa_etaria, periodo, query_params
             )
@@ -204,7 +204,7 @@ def _define_filtro(periodo: str) -> dict:
     filtros = {}
     if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         filtros["grupo__nome"] = periodo
-    elif "DIETA ESPECIAL" in periodo:
+    elif CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
         else:

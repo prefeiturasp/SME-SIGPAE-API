@@ -92,7 +92,9 @@ def _get_lista_alimentacoes(medicao, nome_periodo, query_params=None):
                 "numero_de_alunos",
             ]
         )
-        | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+        | Q(
+            categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+        )
     )
 
     infantil = sorted(
@@ -283,7 +285,7 @@ def _generate_columns(dict_periodos_dietas):
 
 def get_valores_tabela(solicitacoes, colunas, query_params=None):
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     valores = []

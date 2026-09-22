@@ -1399,7 +1399,7 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao_medicao = self.get_object()
         valores_medicao = ValorMedicao.objects.filter(
             medicao__solicitacao_medicao_inicial=solicitacao_medicao,
-            categoria_medicao__nome__icontains="DIETA ESPECIAL",
+            categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL,
             nome_campo="frequencia",
         )
         return Response(

@@ -348,7 +348,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
         solicitacao_recreio_emei.escola.nome,
     ]
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     recreio_refeicao = _processa_periodo_campo(
@@ -704,7 +704,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
         solicitacao_recreio_emef.escola.nome,
     ]
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     recreio_refeicao = _processa_periodo_campo(

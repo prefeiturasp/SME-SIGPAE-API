@@ -498,7 +498,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_emebs):
     ]
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     integral = _processa_periodo_campo(
@@ -525,7 +525,7 @@ def test_processa_periodo_campo(relatorio_consolidado_xlsx_emebs):
 def test_define_filtro(relatorio_consolidado_xlsx_emebs):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)

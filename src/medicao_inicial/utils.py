@@ -6658,7 +6658,9 @@ def _processa_periodo_tipo_alimentacao(medicao, resultado):
                     "numero_de_alunos",
                 ]
             )
-            | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+            | Q(
+                categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+            )
         )
         .values("nome_campo")
         .annotate(total=Sum(Cast("valor", FloatField())))

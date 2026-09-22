@@ -141,7 +141,9 @@ def _get_lista_alimentacoes(
                         "frequencia",
                     ]
                 )
-                | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+                | Q(
+                    categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+                )
             )
             .values_list("nome_campo", flat=True)
             .distinct()
@@ -334,7 +336,7 @@ def _define_filtro(periodo: str) -> dict:
         Dicionário contendo os filtros para consulta das medições.
     """
     filtros = {}
-    if "DIETA ESPECIAL" in periodo:
+    if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         filtros["grupo__nome__icontains"] = periodo.split(" - ")[-1]
     else:
         filtros["grupo__nome"] = periodo
@@ -366,7 +368,7 @@ def _processa_periodo_campo(
     """
     filtros = _define_filtro(periodo)
     try:
-        if "DIETA ESPECIAL" in periodo:
+        if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
             total = _processa_dieta_especial(
                 solicitacao, filtros, campo, periodo, query_params
             )

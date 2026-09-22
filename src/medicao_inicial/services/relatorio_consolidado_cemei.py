@@ -112,7 +112,9 @@ def _get_lista_alimentacoes(
                         "numero_de_alunos",
                     ]
                 )
-                | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+                | Q(
+                    categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+                )
             )
             .values_list("nome_campo", flat=True)
             .distinct()
@@ -252,7 +254,7 @@ def _processa_periodo_campo(
 
     filtros = _define_filtro(periodo, grupos_medicao)
     try:
-        if "DIETA ESPECIAL" in periodo:
+        if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
             total = _processa_dieta_especial(
                 solicitacao, filtros, campo, periodo, query_params
             )
@@ -272,7 +274,7 @@ def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
         grupos_medicao
     ):
         filtros["grupo__nome"] = periodo
-    elif "DIETA ESPECIAL" in periodo:
+    elif CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
         elif PROGRAMAS_E_PROJETOS in periodo:

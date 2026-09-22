@@ -727,6 +727,8 @@ class CategoriaMedicao(Nomeavel, Ativavel, TemChaveExterna):
     DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
     ALIMENTACAO = "ALIMENTAÇÃO"
 
+    CATEGORIA_CONTEM_DIETA_ESPECIAL = "DIETA ESPECIAL"
+
     class Meta:
         verbose_name = "Categoria de medição"
         verbose_name_plural = "Categorias de medições"
