@@ -252,7 +252,11 @@ def item_kit_lanche():
 
 @pytest.fixture
 def solicitacao_avulsa(escola, terceirizada):
-    baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
+    baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
+        escola=escola,
+        quantidade_alunos=500,
+    )
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche, kits=kits, data=datetime.date(2000, 1, 1)
@@ -271,7 +275,11 @@ def solicitacao_avulsa(escola, terceirizada):
 
 @pytest.fixture
 def solicitacao_cei(escola, terceirizada):
-    baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
+    baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
+        escola=escola,
+        quantidade_alunos=500,
+    )
     kits = baker.make(models.KitLanche, _quantity=3)
     solicitacao_kit_lanche = baker.make(
         models.SolicitacaoKitLanche, kits=kits, data=datetime.date(2000, 1, 1)
@@ -812,7 +820,11 @@ def kit_lanche_cemei():
 
 @pytest.fixture
 def dados_alunos_matriculados(escola):
-    baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
+    baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
+        escola=escola,
+        quantidade_alunos=500,
+    )
     baker.make(
         "AlunosMatriculadosPeriodoEscola",
         escola=escola,

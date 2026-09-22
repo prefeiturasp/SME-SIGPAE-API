@@ -240,13 +240,13 @@ def escola_com_periodos_e_horarios_combos(escola):
         uuid="5d668346-ad83-4334-8fec-94c801198d99",
     )
     baker.make(
-        "escola.EscolaPeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
         quantidade_alunos=325,
         escola=escola,
         periodo_escolar=periodo_manha,
     )
     baker.make(
-        "escola.EscolaPeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
         quantidade_alunos=418,
         escola=escola,
         periodo_escolar=periodo_tarde,

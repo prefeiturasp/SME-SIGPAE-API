@@ -1227,7 +1227,11 @@ def inclusao_alimentacao_cemei(escola):
 
 @pytest.fixture
 def kit_lanche_cei(escola):
-    baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
+    baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
+        escola=escola,
+        quantidade_alunos=500,
+    )
     kits = baker.make("KitLanche", _quantity=3)
     baker.make("FaixaEtaria", _quantity=3, ativo=True)
     solicitacao_kit_lanche = baker.make(
