@@ -31,17 +31,17 @@ ORDEM_PRIORIDADE = {
 
 def obter_config_grupo(grupo_nome):
     grupos_relatorio = {
-        GrupoUnidadeEscolar.GRUPO_1.value.upper(): {
+        GrupoUnidadeEscolar.GRUPO_1.upper(): {
             "builder": build_relatorio_financeiro_grupo_cei,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html",
             "tipo_calculo": "faixa_etaria",
         },
-        GrupoUnidadeEscolar.GRUPO_2.value.upper(): {
+        GrupoUnidadeEscolar.GRUPO_2.upper(): {
             "builder": build_relatorio_financeiro_grupo_cemei,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
             "tipo_calculo": None,
         },
-        GrupoUnidadeEscolar.GRUPO_5.value.upper(): {
+        GrupoUnidadeEscolar.GRUPO_5.upper(): {
             "builder": build_relatorio_financeiro_grupo_emebs,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html",
             "tipo_calculo": "tipo_alimentacao",
@@ -471,7 +471,7 @@ def _build_tabela_alimentacao_emei(
         else:
             nome_consumo = normalizar_nome_campo(
                 tipo["nome"],
-                GrupoUnidadeEscolar.GRUPO_3.value.upper(),
+                GrupoUnidadeEscolar.GRUPO_3.upper(),
             ).lower()
 
         numero_atendimentos = totais_consumo.get(
@@ -492,7 +492,7 @@ def _build_tabela_alimentacao_emei(
             {
                 "tipo": (
                     f"{alimentacao_nome} CIEJA E CMCT"
-                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.value.upper()
+                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
                     and alimentacao_nome == "REFEIÇÃO"
                     else alimentacao_nome
                 ),
@@ -585,7 +585,7 @@ def _build_tabela_dieta_emei(
             {
                 "tipo": (
                     f"{dieta_nome} CIEJA E CMCT"
-                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.value.upper()
+                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
                     and dieta_nome == "REFEIÇÃO"
                     else dieta_nome
                 ),
@@ -625,8 +625,8 @@ def build_relatorio_financeiro_grupo_emei(
     tipos_unidades = grupo_unidade.tipos_unidades.all()
     grupo_nome = grupo_unidade.nome.upper()
 
-    eh_cieja = GrupoUnidadeEscolar.GRUPO_6.value.upper() in grupo_nome
-    eh_emef = GrupoUnidadeEscolar.GRUPO_4.value.upper() in grupo_nome
+    eh_cieja = GrupoUnidadeEscolar.GRUPO_6.upper() in grupo_nome
+    eh_emef = GrupoUnidadeEscolar.GRUPO_4.upper() in grupo_nome
 
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)

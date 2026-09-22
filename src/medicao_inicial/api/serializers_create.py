@@ -2054,13 +2054,13 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             getattr(relatorio.grupo_unidade_escolar, "nome", "") or ""
         ).upper()
 
-        if GrupoUnidadeEscolar.GRUPO_1.value.upper() == grupo_nome:
+        if GrupoUnidadeEscolar.GRUPO_1.upper() == grupo_nome:
             self._validar_grupo_cei(attrs)
 
-        elif GrupoUnidadeEscolar.GRUPO_2.value.upper() == grupo_nome:
+        elif GrupoUnidadeEscolar.GRUPO_2.upper() == grupo_nome:
             self._validar_grupo_cemei(attrs)
 
-        elif GrupoUnidadeEscolar.GRUPO_5.value.upper() == grupo_nome:
+        elif GrupoUnidadeEscolar.GRUPO_5.upper() == grupo_nome:
             self._validar_grupo_emebs(attrs)
 
         else:
