@@ -9,6 +9,7 @@ from django.template import base as template_base
 from django.template.defaultfilters import title as django_title
 
 from src.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.medicao_inicial.models import CategoriaMedicao
 from src.produto.constants import RELATORIO_RECLAMACOES_PRODUTOS
 
@@ -895,8 +896,8 @@ def get_nome_header(nome):
     nomes = {
         "MANHA": "MANHÃ",
         "NOITE": "NOITE/EJA",
-        "TIPO A": "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS",
-        "TIPO B": "DIETAS TIPO B",
+        ClassificacaoDieta.TIPO_A.upper(): "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS",
+        ClassificacaoDieta.TIPO_B.upper(): "DIETAS TIPO B",
         constants.GRUPO_INFANTIL_INTEGRAL: "INTEGRAL",
         constants.GRUPO_INFANTIL_MANHA: "MANHÃ",
         constants.GRUPO_INFANTIL_TARDE: "TARDE",

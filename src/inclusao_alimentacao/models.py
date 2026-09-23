@@ -585,7 +585,9 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
         on_delete=models.CASCADE,
         related_name="quantidade_alunos_da_inclusao",
     )
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.DO_NOTHING)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.DO_NOTHING
+    )
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
@@ -1212,7 +1214,9 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
         on_delete=models.CASCADE,
         related_name="quantidade_alunos_cei_da_inclusao_cemei",
     )
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.DO_NOTHING)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.DO_NOTHING
+    )
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )

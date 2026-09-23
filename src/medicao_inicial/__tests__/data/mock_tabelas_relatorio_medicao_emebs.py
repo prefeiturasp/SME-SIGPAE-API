@@ -1,12 +1,13 @@
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
+    StringsHeadersTabelasSolicitacaoMedicaoPDF,
     StringsObservacaoValorMedicao,
 )
 from src.medicao_inicial.models import CategoriaMedicao
 
 TABELAS_EMEBS = [
     {
-        "periodos": ["MANHA - INFANTIL"],
+        "periodos": [StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_INFANTIL.value],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -180,7 +181,7 @@ TABELAS_EMEBS = [
             False,
         ],
         "categorias_dos_periodos": {
-            "MANHA - INFANTIL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_INFANTIL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -191,7 +192,9 @@ TABELAS_EMEBS = [
         },
     },
     {
-        "periodos": ["MANHA - FUNDAMENTAL"],
+        "periodos": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_FUNDAMENTAL.value
+        ],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -365,7 +368,7 @@ TABELAS_EMEBS = [
             False,
         ],
         "categorias_dos_periodos": {
-            "MANHA - FUNDAMENTAL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_FUNDAMENTAL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -376,7 +379,7 @@ TABELAS_EMEBS = [
         },
     },
     {
-        "periodos": ["TARDE - INFANTIL"],
+        "periodos": [StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_INFANTIL.value],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -550,7 +553,7 @@ TABELAS_EMEBS = [
             False,
         ],
         "categorias_dos_periodos": {
-            "TARDE - INFANTIL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_INFANTIL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -561,7 +564,9 @@ TABELAS_EMEBS = [
         },
     },
     {
-        "periodos": ["TARDE - FUNDAMENTAL"],
+        "periodos": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_FUNDAMENTAL.value
+        ],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -735,7 +740,7 @@ TABELAS_EMEBS = [
             False,
         ],
         "categorias_dos_periodos": {
-            "TARDE - FUNDAMENTAL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_FUNDAMENTAL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -750,7 +755,7 @@ TABELAS_EMEBS = [
 
 HEADERS_TABELAS_EMEBS = [
     {
-        "periodos": ["MANHA - INFANTIL"],
+        "periodos": [StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_INFANTIL.value],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -778,7 +783,7 @@ HEADERS_TABELAS_EMEBS = [
         "ordem_periodos_grupos": [1],
         "dias_letivos": [],
         "categorias_dos_periodos": {
-            "MANHA - INFANTIL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_INFANTIL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -789,7 +794,9 @@ HEADERS_TABELAS_EMEBS = [
         },
     },
     {
-        "periodos": ["MANHA - FUNDAMENTAL"],
+        "periodos": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_FUNDAMENTAL.value
+        ],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -817,7 +824,7 @@ HEADERS_TABELAS_EMEBS = [
         "ordem_periodos_grupos": [2],
         "dias_letivos": [],
         "categorias_dos_periodos": {
-            "MANHA - FUNDAMENTAL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.MANHA_FUNDAMENTAL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -828,7 +835,7 @@ HEADERS_TABELAS_EMEBS = [
         },
     },
     {
-        "periodos": ["TARDE - INFANTIL"],
+        "periodos": [StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_INFANTIL.value],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -856,7 +863,7 @@ HEADERS_TABELAS_EMEBS = [
         "ordem_periodos_grupos": [3],
         "dias_letivos": [],
         "categorias_dos_periodos": {
-            "TARDE - INFANTIL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_INFANTIL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -867,7 +874,9 @@ HEADERS_TABELAS_EMEBS = [
         },
     },
     {
-        "periodos": ["TARDE - FUNDAMENTAL"],
+        "periodos": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_FUNDAMENTAL.value
+        ],
         "categorias": [
             CategoriaMedicao.ALIMENTACAO,
             CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
@@ -895,7 +904,7 @@ HEADERS_TABELAS_EMEBS = [
         "ordem_periodos_grupos": [4],
         "dias_letivos": [],
         "categorias_dos_periodos": {
-            "TARDE - FUNDAMENTAL": [
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TARDE_FUNDAMENTAL.value: [
                 {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 6},
                 {
                     "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,

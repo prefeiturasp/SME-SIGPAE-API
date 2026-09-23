@@ -106,31 +106,43 @@ def _get_random_tipos_alimentacao():
     return alimentacoes
 
 
-def fluxo_escola_felix(obj, user):  # noqa: C901
+def _fluxo_codae_autoriza(obj, user):
+    obj.codae_autoriza(user=user, notificar=True)
+    if RANDOM_FLOAT >= 0.3:
+        obj.terceirizada_toma_ciencia(user=user, notificar=True)
+        if RANDOM_FLOAT >= 0.8:
+            try:
+                obj.cancelar_pedido(user=user)
+            except InvalidTransitionError:
+                return
+
+
+def _fluxo_dre_aprova(obj, user):
+    obj.dre_valida(user=user, notificar=True)
+    if RANDOM_FLOAT >= 0.2:
+        _fluxo_codae_autoriza(obj, user)
+    else:
+        if RANDOM_FLOAT <= 0.2:
+            obj.codae_nega(user=user, notificar=True)
+
+
+def _fluxo_dre_nao_aprova(obj, user):
+    if RANDOM_FLOAT >= 0.1:
+        obj.dre_pede_revisao(user=user, notificar=True)
+    else:
+        obj.dre_nao_valida(user=user, notificar=True)
+
+
+def fluxo_escola_felix(obj, user):
     # print(f'aplicando fluxo ESCOLA feliz em {obj}')
     obj.inicia_fluxo(user=user, notificar=True)
     if RANDOM_FLOAT < 0.3:
         return
 
     if RANDOM_FLOAT >= 0.1:
-        obj.dre_valida(user=user, notificar=True)
-        if RANDOM_FLOAT >= 0.2:
-            obj.codae_autoriza(user=user, notificar=True)
-            if RANDOM_FLOAT >= 0.3:
-                obj.terceirizada_toma_ciencia(user=user, notificar=True)
-                if RANDOM_FLOAT >= 0.8:
-                    try:
-                        obj.cancelar_pedido(user=user)
-                    except InvalidTransitionError:
-                        return
-        else:
-            if RANDOM_FLOAT <= 0.2:
-                obj.codae_nega(user=user, notificar=True)
+        _fluxo_dre_aprova(obj, user)
     else:
-        if RANDOM_FLOAT >= 0.1:
-            obj.dre_pede_revisao(user=user, notificar=True)
-        else:
-            obj.dre_nao_valida(user=user, notificar=True)
+        _fluxo_dre_nao_aprova(obj, user)
 
 
 def fluxo_informativo_felix(obj, user):

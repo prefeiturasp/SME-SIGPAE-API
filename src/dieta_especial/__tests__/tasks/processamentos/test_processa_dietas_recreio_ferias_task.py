@@ -81,8 +81,12 @@ class TestLogsRecreioNasFerias:
 
         self.periodo_integral = PeriodoEscolarFactory.create(nome="INTEGRAL")
 
-        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(nome="Tipo A")
-        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
+        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(
+            nome=ClassificacaoDieta.TIPO_A
+        )
+        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(
+            nome=ClassificacaoDieta.TIPO_B
+        )
 
         self.motivo_recreio = MotivoAlteracaoUEFactory.create(
             nome="Dieta Especial - Recreio nas Férias"

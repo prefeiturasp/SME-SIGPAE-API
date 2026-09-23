@@ -456,7 +456,9 @@ class SolicitacaoForaDoPrazo(models.Model):
 
 
 class TemFaixaEtariaEQuantidade(models.Model):
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.DO_NOTHING)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.DO_NOTHING
+    )
     quantidade = models.PositiveSmallIntegerField()
 
     class Meta:
