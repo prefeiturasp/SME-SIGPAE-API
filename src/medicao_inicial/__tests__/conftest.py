@@ -5785,7 +5785,7 @@ def _cria_valores_dieta_frequencia_zerada(medicoes, categoria_medicao_dieta_a):
             )
     baker.make(
         "ValorMedicao",
-        medicao=medicao_tarde,
+        medicao=medicoes[-1],
         dia="24",
         nome_campo="frequencia",
         categoria_medicao=categoria_medicao_dieta_a,
