@@ -806,6 +806,17 @@ class StringsPatterns(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsNomesAbasXLSX(Enum):
+    RELATORIO_DE_CONFERENCIA = "Relatório de Conferência"
+    VISAO_ANALITICA_ABASTECIMENTO = "Visão Analítica Abastecimento"
+    RELATORIO_DE_INSUCESSO = "Relatório de Insucesso"
+    DIETAS_NAO_RELACIONADAS = "Dietas não relacionadas"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsObservacaoValorMedicao(Enum):
     OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
     OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"

@@ -7,6 +7,7 @@ from openpyxl.styles import Border, Font, PatternFill, Side
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     StringsCabecalhoXLSXGuiaDaRemessa,
+    StringsNomesAbasXLSX,
 )
 
 from ..helpers import (
@@ -98,7 +99,7 @@ class RequisicoesExcelService(object):
 
         wb = Workbook()
         ws = wb.active
-        ws.title = "Visão Analítica Abastecimento"
+        ws.title = StringsNomesAbasXLSX.VISAO_ANALITICA_ABASTECIMENTO.value
 
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=2, column=ind)
@@ -215,7 +216,7 @@ class RequisicoesExcelService(object):
 
         wb = Workbook()
         ws = wb.active
-        ws.title = "Visão Analítica Abastecimento"
+        ws.title = StringsNomesAbasXLSX.VISAO_ANALITICA_ABASTECIMENTO.value
 
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
@@ -363,7 +364,7 @@ class RequisicoesExcelService(object):
         count_fields = len(cabecalho)
         count_data = requisicoes.count()
 
-        ws.title = "Relatório de Insucesso"
+        ws.title = StringsNomesAbasXLSX.RELATORIO_DE_INSUCESSO.value
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
             celula.value = title
@@ -588,7 +589,7 @@ class RequisicoesExcelService(object):
         count_fields = len(cabecalho)
         count_data = requisicoes.count()
 
-        ws.title = "Relatório de Conferência"
+        ws.title = StringsNomesAbasXLSX.RELATORIO_DE_CONFERENCIA.value
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
             celula.value = title
@@ -831,7 +832,7 @@ class RequisicoesExcelService(object):
         count_fields = len(cabecalho)
         count_data = requisicoes.count()
 
-        ws.title = "Relatório de Conferência"
+        ws.title = StringsNomesAbasXLSX.RELATORIO_DE_CONFERENCIA.value
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
             celula.value = title
@@ -1030,7 +1031,7 @@ class RequisicoesExcelService(object):
         count_fields = len(cabecalho)
         count_data = requisicoes.count()
 
-        ws.title = "Relatório de Conferência"
+        ws.title = StringsNomesAbasXLSX.RELATORIO_DE_CONFERENCIA.value
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)
             celula.value = title
