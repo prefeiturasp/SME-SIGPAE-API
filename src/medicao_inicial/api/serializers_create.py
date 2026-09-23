@@ -722,7 +722,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def logs_filtrados_cei(self, categoria, logs_do_mes, dia, periodo_escolar):
         if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
             logs = logs_do_mes.filter(
-                classificacao__nome__icontains="TIPO A",
+                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A,
                 data__day=dia,
                 periodo_escolar__nome=periodo_escolar,
             )
@@ -732,7 +732,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 data__day=dia,
                 periodo_escolar__nome=periodo_escolar,
                 classificacao__nome__icontains=categoria.nome.split(" - ")[1],
-            ).exclude(classificacao__nome__icontains="TIPO A")
+            ).exclude(
+                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A
+            )
             return logs
 
     def valor_log_dietas_autorizadas_cei(
@@ -751,7 +753,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         return [
             v.faixa_etaria
             for v in valores_medicao_a_criar
-            if "TIPO A" in v.categoria_medicao.nome
+            if ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A.upper()
+            in v.categoria_medicao.nome
             and v.medicao.nome_periodo_grupo == log.periodo_escolar.nome
             and v.faixa_etaria == log.faixa_etaria
             and v.dia == f"{log.data.day:02d}"

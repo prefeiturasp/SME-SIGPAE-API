@@ -165,6 +165,7 @@ class ClassificacaoDieta(Descritivel, Nomeavel):
 
     CLASSIFICACAO_CONTEM_ENTERAL = "Enteral"
     CLASSIFICACAO_CONTEM_AMINOACIDOS = "Aminoácidos"
+    CLASSIFICACAO_CONTEM_TIPO_A = "Tipo A"
 
     def __str__(self) -> str:
         """Retorna o nome da classificação de dieta."""
