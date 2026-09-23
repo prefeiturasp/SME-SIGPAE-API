@@ -2009,7 +2009,7 @@ def get_classificacoes_dietas(categoria):
                 nome__icontains=categoria.nome.split(" - ")[1]
             )
             .exclude(nome__icontains="amino")
-            .exclude(nome__icontains="enteral")
+            .exclude(nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL)
         )
     return classificacoes
 
@@ -2823,15 +2823,17 @@ def valida_alimentacoes_solicitacoes_continuas_emei_cemei(
 
 def get_nomes_campos_categoria(nomes_campos, classificacao, categorias, inclusao=None):
     if "ENTERAL" in classificacao.nome or "AMINOÁCIDOS" in classificacao.nome:
-        categoria = categorias.get(nome__icontains="enteral")
+        categoria = categorias.get(
+            nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
+        )
         if "refeicao" not in nomes_campos and (
             not inclusao or "refeicao" in inclusao["linhas_da_tabela"]
         ):
             nomes_campos.append("refeicao")
     else:
-        categoria = categorias.exclude(nome__icontains="enteral").get(
-            nome__icontains=classificacao.nome
-        )
+        categoria = categorias.exclude(
+            nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
+        ).get(nome__icontains=classificacao.nome)
         if "refeicao" in nomes_campos:
             nomes_campos.remove("refeicao")
     return nomes_campos, categoria

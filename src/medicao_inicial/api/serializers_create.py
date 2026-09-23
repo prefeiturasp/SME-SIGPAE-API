@@ -16,6 +16,7 @@ from src.dados_comuns.utils import (
     update_instance_from_dict,
 )
 from src.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
 )
@@ -623,8 +624,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     periodo_escolar__nome=periodo_escolar,
                     quantidade__gt=0,
                 )
-                .exclude(classificacao__nome__icontains="enteral")
-                .exclude(classificacao__nome__icontains="aminoácidos")
+                .exclude(
+                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
+                )
+                .exclude(
+                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS
+                )
                 .exists()
             ):
                 return True
@@ -641,12 +646,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         ):
             log_enteral = logs_do_mes.filter(
-                classificacao__nome__icontains="enteral",
+                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL,
                 periodo_escolar__nome=periodo_escolar,
                 data__day=dia,
             ).first()
             log_restricao_aminoacidos = logs_do_mes.filter(
-                classificacao__nome__icontains="aminoácidos",
+                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS,
                 periodo_escolar__nome=periodo_escolar,
                 data__day=dia,
             ).first()
@@ -660,8 +665,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                     periodo_escolar__nome=periodo_escolar,
                     data__day=dia,
                 )
-                .exclude(classificacao__nome__icontains="enteral")
-                .exclude(classificacao__nome__icontains="aminoácidos")
+                .exclude(
+                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
+                )
+                .exclude(
+                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS
+                )
                 .first()
             )
             valor = log.quantidade if log else 0

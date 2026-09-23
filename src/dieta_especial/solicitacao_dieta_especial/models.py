@@ -163,6 +163,9 @@ class ClassificacaoDieta(Descritivel, Nomeavel):
       adicional. Ex.: troca peixe por carne.
     """
 
+    CLASSIFICACAO_CONTEM_ENTERAL = "Enteral"
+    CLASSIFICACAO_CONTEM_AMINOACIDOS = "Aminoácidos"
+
     def __str__(self) -> str:
         """Retorna o nome da classificação de dieta."""
         return self.nome
