@@ -3094,6 +3094,130 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     assert any(r["resultados"] for r in kwargs["resultados"])
 
 
+@patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_xlsx.delay")
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_individual_por_data(
+    mock_exporta_xlsx,
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    tipo_unidade_escolar_emei,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+    escola.tipo_unidade = tipo_unidade_escolar_emei
+    escola.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola,
+        rastro_lote=escola.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    for dia, valor in zip(["01", "02"], [10, 20]):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    tipo_ceu_emei = baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
+    escola_ceu = baker.make(
+        "Escola",
+        nome="CEU EMEI TESTE",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=tipo_ceu_emei,
+        codigo_eol="400002",
+    )
+    solicitacao_ceu = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola_ceu,
+        rastro_lote=escola_ceu.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao_ceu = make_medicao(solicitacao_ceu, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/"
+        f"?mes_ano={mes}_{ano}"
+        f"&periodo_lancamento_de=01/{mes}/{ano}"
+        f"&periodo_lancamento_ate=02/{mes}/{ano}"
+        "&resultado_individual_por_data=true"
+        f"&tipos_unidades[]={tipo_unidade_escolar_emei.uuid}"
+        f"&tipos_unidades[]={tipo_ceu_emei.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+    mock_exporta_xlsx.assert_called_once()
+    _, kwargs = mock_exporta_xlsx.call_args
+    assert kwargs["nome_arquivo"] == (
+        "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.xlsx"
+    )
+    assert [
+        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
+    ] == [
+        ("01/08/2026", "EMEI"),
+        ("01/08/2026", "CEU EMEI"),
+        ("02/08/2026", "EMEI"),
+    ]
+    assert "escola" not in kwargs["resultados"][0]
+
+
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_individual_sem_periodo(
+    client_autenticado_coordenador_codae,
+    tipo_unidade_escolar_emei,
+):
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/"
+        "?mes_ano=08_2026"
+        "&resultado_individual_por_data=true"
+        f"&tipos_unidades[]={tipo_unidade_escolar_emei.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Para resultado individual por data, 'periodo_lancamento_de' e "
+        "'periodo_lancamento_ate' são obrigatórios"
+    }
+
+
 @freeze_time("2025-09-30")
 def test_url_endpoint_parametrizacao_financeira(
     client_autenticado_codae_medicao,
