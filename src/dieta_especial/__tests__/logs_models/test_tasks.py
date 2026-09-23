@@ -12,6 +12,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.dieta_especial.tasks.logs import (
@@ -61,8 +62,12 @@ def setup_dietas_especiais(
     solicitacao_dieta_especial_factory,
     aluno_factory,
 ):
-    classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
-    classificacao_tipo_b = classificacao_dieta_factory.create(nome="Tipo B")
+    classificacao_tipo_a = classificacao_dieta_factory.create(
+        nome=ClassificacaoDieta.TIPO_A
+    )
+    classificacao_tipo_b = classificacao_dieta_factory.create(
+        nome=ClassificacaoDieta.TIPO_B
+    )
 
     integral = make_periodo_escolar("INTEGRAL")
     manha = make_periodo_escolar("MANHA")

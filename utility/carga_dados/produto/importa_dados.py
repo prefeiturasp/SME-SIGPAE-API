@@ -2,6 +2,7 @@ from secrets import choice, randbelow
 
 from faker import Faker
 
+from src.dados_comuns.constants import EmailsParaTeste
 from src.dados_comuns.fluxo_status import HomologacaoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.protocolo_padrao.models import Alimento
@@ -110,7 +111,7 @@ def cria_fabricante():
 
 
 def cria_homologacao_do_produto_passo_01(produto, codae_homologa=False):
-    criado_por = Usuario.objects.get(email="terceirizada@admin.com")
+    criado_por = Usuario.objects.get(email=EmailsParaTeste.TERCEIRIZADA_ADMIN.value)
     # Se não colocar o 'rastro_terceirizada'
     # ele não mostra os produtos no dashboard.
     rastro_terceirizada = criado_por.vinculo_atual.instituicao
@@ -143,7 +144,7 @@ def cria_homologacao_do_produto_passo_01(produto, codae_homologa=False):
 
 
 def cria_produto():
-    criado_por = Usuario.objects.get(email="terceirizada@admin.com")
+    criado_por = Usuario.objects.get(email=EmailsParaTeste.TERCEIRIZADA_ADMIN.value)
     for item in progressbar(data_produtos, "Produto"):
         marcas = Marca.objects.all()
         marca = choice([item for item in marcas])
@@ -187,7 +188,7 @@ def cria_produto():
 
 
 def cria_produto_marca():
-    criado_por = Usuario.objects.get(email="terceirizada@admin.com")
+    criado_por = Usuario.objects.get(email=EmailsParaTeste.TERCEIRIZADA_ADMIN.value)
     for item in progressbar(data_produtos_marcas, "Produto/Marca"):
         marca = Marca.objects.filter(nome=item[1]).first()
         fabricante = Fabricante.objects.filter(nome__startswith=item[1]).first()
@@ -234,7 +235,7 @@ def cria_produto_marca():
 def cria_homologacao_do_produto():
     # Não utilizado no momento..
     # Percorre os status de homologação
-    criado_por = Usuario.objects.get(email="terceirizada@admin.com")
+    criado_por = Usuario.objects.get(email=EmailsParaTeste.TERCEIRIZADA_ADMIN.value)
     for status in HomologacaoProdutoWorkflow.states:
         produto = Produto.objects.first()
         HomologacaoProduto.objects.create(

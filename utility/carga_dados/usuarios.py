@@ -1,14 +1,14 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authtoken.models import Token
 
-from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
+from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, EmailsParaTeste
 from src.perfil.models import Usuario
 from utility.carga_dados.escola.helper import bcolors
 from utility.carga_dados.helper import progressbar
 
 USUARIOS = [
     {
-        "email": "admin@admin.com",
+        "email": EmailsParaTeste.ADMIN.value,
         "password": DJANGO_ADMIN_PASSWORD,
         "cpf": "11111111100",
         "registro_funcional": "1111111",
@@ -56,7 +56,7 @@ USUARIOS = [
         "cargo": "Nutricionista",
     },
     {
-        "email": "terceirizada@admin.com",
+        "email": EmailsParaTeste.TERCEIRIZADA_ADMIN.value,
         "password": DJANGO_ADMIN_PASSWORD,
         "cpf": "11111111105",
         "registro_funcional": "0000100",

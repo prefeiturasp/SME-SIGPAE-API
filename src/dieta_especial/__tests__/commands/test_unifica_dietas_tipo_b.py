@@ -18,6 +18,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.escola.fixtures.factories.escola_factory import (
@@ -121,31 +122,31 @@ class UnificaDietasTipoBCommandTest(TestCase):
 
         assert (
             SolicitacaoDietaEspecial.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).count()
             == 6
         )
 
         assert (
             LogQuantidadeDietasAutorizadas.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).count()
             == 5
         )
         assert list(
             LogQuantidadeDietasAutorizadas.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).values_list("quantidade", flat=True)
         ) == [30, 30, 30, 30, 30]
 
         assert (
             LogQuantidadeDietasAutorizadasCEI.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).count()
             == 5
         )
         assert list(
             LogQuantidadeDietasAutorizadasCEI.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).values_list("quantidade", flat=True)
         ) == [30, 30, 30, 30, 30]

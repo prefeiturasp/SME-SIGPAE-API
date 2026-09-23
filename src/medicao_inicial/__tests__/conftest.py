@@ -28,6 +28,7 @@ from src.dados_comuns.constants import (
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import (
     DiaCalendario,
     Escola,
@@ -187,12 +188,12 @@ def tipo_alimentacao_lanche_emergencial():
 
 @pytest.fixture
 def classificacao_dieta_tipo_a():
-    return baker.make("ClassificacaoDieta", nome="Tipo A")
+    return baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_A)
 
 
 @pytest.fixture
 def classificacao_dieta_tipo_a_enteral():
-    return baker.make("ClassificacaoDieta", nome="Tipo A ENTERAL")
+    return baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_A_ENTERAL)
 
 
 @pytest.fixture
@@ -1455,7 +1456,7 @@ def solicitacao_medicao_inicial_dietas(
             "lanche",
             "lanche_4h",
         ]
-        if "TIPO A" in categoria.nome:
+        if ClassificacaoDieta.TIPO_A.upper() in categoria.nome:
             campos.append("refeicao")
         for dia in ["10", "11"]:
             for campo in campos:

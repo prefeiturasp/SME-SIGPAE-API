@@ -29,6 +29,7 @@ from src.dados_comuns.fluxo_status import (
     PedidoAPartirDaEscolaWorkflow,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.utils import cria_arquivo_excel
 from src.escola.utils_analise_dietas_ativas import (
     dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
@@ -1091,7 +1092,7 @@ def dieta_codae_autorizou(aluno, escola):
     with freeze_time("2025-01-01"):
         aluno.nome = "Antônio"
         aluno.save()
-        classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+        classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_A)
         solicitacao_dieta = baker.make(
             "SolicitacaoDietaEspecial",
             rastro_escola=escola,
@@ -1118,7 +1119,7 @@ def dieta_codae_autorizou(aluno, escola):
 def dieta_cancelada(aluno, escola):
     aluno.nome = "Lucas"
     aluno.save()
-    classificacao = baker.make("ClassificacaoDieta", nome="Tipo B")
+    classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_B)
 
     solicitacao_dieta = baker.make(
         "SolicitacaoDietaEspecial",
@@ -1140,7 +1141,7 @@ def dieta_com_atualizacao_protocolo(aluno, escola):
     with freeze_time("2025-01-01"):
         aluno.nome = "Beatriz"
         aluno.save()
-        classificacao = baker.make("ClassificacaoDieta", nome="Tipo C")
+        classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_C)
         solicitacao_dieta = baker.make(
             "SolicitacaoDietaEspecial",
             rastro_escola=escola,

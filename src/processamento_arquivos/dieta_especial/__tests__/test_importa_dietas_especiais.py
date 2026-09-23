@@ -56,7 +56,7 @@ def test_eh_exatamente_mesma_solicitacao(
     ]
     assert processador.consulta_classificacao(
         solicitacao_dieta_schema
-    ) == ClassificacaoDieta.objects.get(nome="Tipo A")
+    ) == ClassificacaoDieta.objects.get(nome=ClassificacaoDieta.TIPO_A)
     dicionario_dados_categoria_incorreta = dicionario_dados
     dicionario_dados_categoria_incorreta["codigo_categoria_dieta"] = "B"
     solicitacao_dieta_schema_categoria_incorreta = ArquivoCargaDietaEspecialSchema(

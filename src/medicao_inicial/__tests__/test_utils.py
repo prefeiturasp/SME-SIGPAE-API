@@ -19,6 +19,7 @@ from src.dados_comuns.constants import (
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,
@@ -931,7 +932,7 @@ def test_utils_build_tabela_somatorio_dietas_body(
     solicitacao_medicao_inicial_dietas,
 ):
     primeira_tabela_tipo_a, segunda_tabela_tipo_a = build_tabela_somatorio_dietas_body(
-        solicitacao_medicao_inicial_dietas, "TIPO A"
+        solicitacao_medicao_inicial_dietas, ClassificacaoDieta.TIPO_A.upper()
     )
 
     assert primeira_tabela_tipo_a["body"] == [
@@ -947,7 +948,7 @@ def test_utils_build_tabela_somatorio_dietas_body(
     ]
 
     primeira_tabela_tipo_b, segunda_tabela_tipo_b = build_tabela_somatorio_dietas_body(
-        solicitacao_medicao_inicial_dietas, "TIPO B"
+        solicitacao_medicao_inicial_dietas, ClassificacaoDieta.TIPO_B.upper()
     )
 
     assert primeira_tabela_tipo_b["body"] == [
