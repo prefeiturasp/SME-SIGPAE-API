@@ -335,88 +335,85 @@ def busca_lote(dre=None, lote=None):
     return dre_obj, lote_obj
 
 
-def cria_usuario_diretor(arquivo, in_memory=False):  # noqa_ C901
-    items = excel_to_list(arquivo, in_memory=in_memory)
-    # diretores_unicos = len(
-    #     set([item["DIRETOR"] for item in items if item["DIRETOR"] != ""])
-    # )  # noqa
+def _extrai_dados_diretor(item):
+    if not item.get("E-MAIL DIRETOR"):
+        return None
+    email = item.get("E-MAIL DIRETOR").lower().strip()
+    if "@" not in email:
+        return None
+    cpf = somente_digitos(str(item.get("CPF - DIRETOR"))[:11].zfill(11))
+    if Usuario.objects.filter(cpf=cpf).first():
+        return None
+    registro_funcional = somente_digitos(str(item.get("RF - DIRETOR"))[:7])
+    if Usuario.objects.filter(registro_funcional=registro_funcional).first():
+        return None
+    nome = item.get("DIRETOR").strip()
+    if nome == "NÃO POSSUI":
+        return None
+    return {
+        "email": email,
+        "cpf": cpf,
+        "registro_funcional": registro_funcional,
+        "nome": nome,
+        "codigo_eol": str(item.get("EOL DA U.E")).strip(".0").zfill(6),
+        "telefone": somente_digitos(str(item.get("TELEFONE DIRETOR"))[:13]),
+    }
 
+
+def _cria_usuario_diretor_item(dados, perfil_diretor, item):
+    email = dados["email"]
+    if Usuario.objects.filter(email=email).first():
+        print(
+            f'{bcolors.FAIL}Aviso: Usuario: "{dados["nome"]}" já existe!{bcolors.ENDC}'
+        )
+        return
+    diretor = Usuario.objects.create_user(
+        email=email,
+        cpf=dados["cpf"],
+        registro_funcional=dados["registro_funcional"],
+        nome=dados["nome"],
+        cargo="Diretor",
+        is_active=False,
+        is_staff=False,
+        is_superuser=False,
+    )
+    contato_obj, contato_created = Contato.objects.get_or_create(
+        telefone=dados["telefone"],
+        telefone2="",
+        celular="",
+        email=email,
+    )
+
+    escola = Escola.objects.filter(codigo_eol=dados["codigo_eol"]).first()
+    if escola:
+        escola.contato = contato_obj
+        escola.save()
+    else:
+        unidade_escolar = item.get("UNIDADE ESCOLAR")
+        dre = item.get("DRE").strip()
+        lote = None
+        if dre:
+            dre, lote = busca_lote(dre=dre)
+        escola = cria_escola_faltante(unidade_escolar, dados["codigo_eol"], dre, lote)
+        escola.contato = contato_obj
+        escola.save()
+
+    cria_vinculo_de_perfil_usuario(
+        perfil=perfil_diretor, usuario=diretor, instituicao=escola
+    )
+
+
+def cria_usuario_diretor(arquivo, in_memory=False):
+    items = excel_to_list(arquivo, in_memory=in_memory)
     perfil_diretor, created = Perfil.objects.get_or_create(
         nome="DIRETOR_UE", ativo=True, super_usuario=True
     )
 
     for item in progressbar(items, "Diretores DRE"):
-        # Remove .0 e transforma em tamanho de 6 digitos
-        if not item.get("E-MAIL DIRETOR"):
+        dados = _extrai_dados_diretor(item)
+        if not dados:
             continue
-        email = item.get("E-MAIL DIRETOR").lower().strip()
-        if "@" not in email:
-            continue
-
-        cpf = somente_digitos(str(item.get("CPF - DIRETOR"))[:11].zfill(11))
-
-        existe_cpf = Usuario.objects.filter(cpf=cpf).first()
-        if existe_cpf:
-            continue
-
-        registro_funcional = somente_digitos(str(item.get("RF - DIRETOR"))[:7])
-        existe_registro_funcional = Usuario.objects.filter(
-            registro_funcional=registro_funcional
-        ).first()  # noqa
-        if existe_registro_funcional:
-            continue
-
-        nome = item.get("DIRETOR").strip()
-        if nome == "NÃO POSSUI":
-            continue
-        cargo = "Diretor"
-        codigo_eol = str(item.get("EOL DA U.E")).strip(".0").zfill(6)
-        telefone = somente_digitos(str(item.get("TELEFONE DIRETOR"))[:13])
-        obj = Usuario.objects.filter(email=email).first()
-        if not obj:
-            diretor = Usuario.objects.create_user(
-                email=email,
-                cpf=cpf,
-                registro_funcional=registro_funcional,
-                nome=nome,
-                cargo=cargo,
-                is_active=False,
-                is_staff=False,
-                is_superuser=False,
-            )
-            contato_obj, contato_created = Contato.objects.get_or_create(
-                telefone=telefone,
-                telefone2="",
-                celular="",
-                email=email,
-            )
-
-            escola = Escola.objects.filter(codigo_eol=codigo_eol).first()
-            if escola:
-                escola.contato = contato_obj
-                escola.save()
-            else:
-                unidade_escolar = item.get("UNIDADE ESCOLAR")
-                dre = item.get("DRE").strip()
-
-                lote = None
-                if dre:
-                    # Se necessário, informar lote.
-                    dre, lote = busca_lote(dre=dre)
-
-                escola = cria_escola_faltante(
-                    unidade_escolar, codigo_eol, dre, lote
-                )  # noqa
-                escola.contato = contato_obj
-                escola.save()
-
-            cria_vinculo_de_perfil_usuario(
-                perfil=perfil_diretor, usuario=diretor, instituicao=escola
-            )
-        else:
-            print(
-                f'{bcolors.FAIL}Aviso: Usuario: "{nome}" já existe!{bcolors.ENDC}'
-            )  # noqa
+        _cria_usuario_diretor_item(dados, perfil_diretor, item)
 
     return items
 
