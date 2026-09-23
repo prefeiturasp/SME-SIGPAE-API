@@ -4338,6 +4338,144 @@ def solicitacao_relatorio_consolidado_grupo_emebs(escola_emebs):
     )
 
 
+def _cria_valores_medicao_emebs_turma(
+    dia,
+    medicao,
+    turma,
+    eh_programas,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    if eh_programas:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="numero_de_alunos",
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="90",
+            infantil_ou_fundamental=turma,
+        )
+    else:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo="matriculados",
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="90",
+            infantil_ou_fundamental=turma,
+        )
+    baker.make(
+        "ValorMedicao",
+        dia=dia,
+        nome_campo="frequencia",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        valor="80",
+        infantil_ou_fundamental=turma,
+    )
+    _cria_valores_medicao_emebs_turma_alimentacao(
+        dia,
+        medicao,
+        turma,
+        categoria_medicao,
+        categoria_medicao_dieta_a,
+        categoria_medicao_dieta_b,
+        categoria_medicao_dieta_a_enteral_aminoacidos,
+    )
+
+
+def _cria_valores_medicao_emebs_turma_alimentacao(
+    dia,
+    medicao,
+    turma,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+):
+    for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="70",
+            infantil_ou_fundamental=turma,
+        )
+        if campo in ["lanche", "lanche_4h"]:
+            for categoria in [
+                categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b,
+                categoria_medicao_dieta_a_enteral_aminoacidos,
+            ]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    valor=1,
+                    infantil_ou_fundamental=turma,
+                )
+        elif campo == "refeicao":
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao,
+                categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                valor=1,
+                infantil_ou_fundamental=turma,
+            )
+
+
+def _cria_valores_medicao_emebs_por_dia(
+    dia,
+    medicoes,
+    medicao_noite,
+    medicao_programas_e_projetos,
+    solicitacao_alimentacao,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_dieta_b,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    if dia == "05":
+        for campo in ["kit_lanche", "lanche_emergencial"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=solicitacao_alimentacao,
+                categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                valor="5",
+                infantil_ou_fundamental="FUNDAMENTAL",
+            )
+
+    for medicao in medicoes:
+        for turma in ["INFANTIL", "FUNDAMENTAL"]:
+            if medicao == medicao_noite and turma == "INFANTIL":
+                continue
+            _cria_valores_medicao_emebs_turma(
+                dia=dia,
+                medicao=medicao,
+                turma=turma,
+                eh_programas=medicao == medicao_programas_e_projetos,
+                categoria_medicao=categoria_medicao,
+                categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+                categoria_medicao_dieta_a_enteral_aminoacidos=(
+                    categoria_medicao_dieta_a_enteral_aminoacidos
+                ),
+            )
+
+
 @pytest.fixture
 def relatorio_consolidado_xlsx_emebs(
     solicitacao_relatorio_consolidado_grupo_emebs,
@@ -4388,93 +4526,28 @@ def relatorio_consolidado_xlsx_emebs(
     )
 
     for dia in ["01", "02", "03", "04", "05"]:
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=solicitacao_alimentacao,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor="5",
-                    infantil_ou_fundamental="FUNDAMENTAL",
-                )
-
-        for medicao in [
-            medicao_manha,
-            medicao_tarde,
-            medicao_integral,
-            medicao_noite,
-            medicao_programas_e_projetos,
-        ]:
-            for turma in ["INFANTIL", "FUNDAMENTAL"]:
-                if medicao == medicao_noite and turma == "INFANTIL":
-                    continue
-                if medicao == medicao_programas_e_projetos:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo="numero_de_alunos",
-                        medicao=medicao,
-                        categoria_medicao=categoria_medicao,
-                        valor="90",
-                        infantil_ou_fundamental=turma,
-                    )
-                else:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo="matriculados",
-                        medicao=medicao,
-                        categoria_medicao=categoria_medicao,
-                        valor="90",
-                        infantil_ou_fundamental=turma,
-                    )
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo="frequencia",
-                    medicao=medicao,
-                    categoria_medicao=categoria_medicao,
-                    valor="80",
-                    infantil_ou_fundamental=turma,
-                )
-
-                for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao,
-                        categoria_medicao=categoria_medicao,
-                        valor="70",
-                        infantil_ou_fundamental=turma,
-                    )
-                    if campo in ["lanche", "lanche_4h"]:
-                        for categoria in [
-                            categoria_medicao_dieta_a,
-                            categoria_medicao_dieta_b,
-                            categoria_medicao_dieta_a_enteral_aminoacidos,
-                        ]:
-                            baker.make(
-                                "ValorMedicao",
-                                dia=dia,
-                                nome_campo=campo,
-                                medicao=medicao,
-                                categoria_medicao=categoria,
-                                valor=1,
-                                infantil_ou_fundamental=turma,
-                            )
-                    elif campo == "refeicao":
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao,
-                            categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                            valor=1,
-                            infantil_ou_fundamental=turma,
-                        )
+        _cria_valores_medicao_emebs_por_dia(
+            dia=dia,
+            medicoes=[
+                medicao_manha,
+                medicao_tarde,
+                medicao_integral,
+                medicao_noite,
+                medicao_programas_e_projetos,
+            ],
+            medicao_noite=medicao_noite,
+            medicao_programas_e_projetos=medicao_programas_e_projetos,
+            solicitacao_alimentacao=solicitacao_alimentacao,
+            categoria_medicao=categoria_medicao,
+            categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+            categoria_medicao_dieta_a_enteral_aminoacidos=(
+                categoria_medicao_dieta_a_enteral_aminoacidos
+            ),
+            categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+            categoria_medicao_solicitacoes_alimentacao=(
+                categoria_medicao_solicitacoes_alimentacao
+            ),
+        )
 
     return solicitacao_relatorio_consolidado_grupo_emebs
 
