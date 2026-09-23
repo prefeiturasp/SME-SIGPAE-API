@@ -610,8 +610,8 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         ):
             if not logs_do_mes.filter(
                 classificacao__nome__in=[
-                    "Tipo A ENTERAL",
-                    "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
+                    ClassificacaoDieta.TIPO_A_ENTERAL,
+                    ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
                 ],
                 periodo_escolar__nome=periodo_escolar,
                 quantidade__gt=0,

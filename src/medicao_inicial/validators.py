@@ -55,8 +55,6 @@ from .utils import (
     incluir_lanche,
 )
 
-TIPO_C = "Tipo C"
-
 calendario = BrazilSaoPauloCity()
 
 
@@ -383,7 +381,7 @@ def get_quantidade_dietas_autorizadas(medicao, ano, mes, dia, faixa_etaria):
             periodo_escolar=periodo,
             faixa_etaria=faixa_etaria,
         )
-        .exclude(classificacao__nome__icontains="Tipo C")
+        .exclude(classificacao__nome__icontains=ClassificacaoDieta.TIPO_C)
         .values_list("quantidade", flat=True)
     )
     return quantidade_dietas_autorizadas
@@ -2001,8 +1999,8 @@ def get_classificacoes_dietas_cei(categoria):
 def get_classificacoes_dietas(categoria):
     if "AMINOÁCIDOS" in categoria.nome:
         classificacoes = ClassificacaoDieta.objects.filter(
-            nome__icontains="Tipo A"
-        ).exclude(nome="Tipo A")
+            nome__icontains=ClassificacaoDieta.TIPO_A
+        ).exclude(nome=ClassificacaoDieta.TIPO_A)
     else:
         classificacoes = (
             ClassificacaoDieta.objects.filter(
@@ -2958,7 +2956,7 @@ def valida_dietas_solicitacoes_continuas(
         quantidade__gt=0,
         periodo_escolar__nome=None,
         infantil_ou_fundamental=infantil_ou_fundamental,
-    ).exclude(classificacao__nome=TIPO_C)
+    ).exclude(classificacao__nome=ClassificacaoDieta.TIPO_C)
     ids_categorias_existentes_no_mes = list(
         set(
             logs_dietas_autorizadas_no_mes.values_list(
@@ -3047,7 +3045,7 @@ def valida_dietas_solicitacoes_continuas_emei_cemei(
             escola.logs_dietas_autorizadas.filter(
                 data__month=mes, data__year=ano, quantidade__gt=0
             )
-            .exclude(classificacao__nome=TIPO_C)
+            .exclude(classificacao__nome=ClassificacaoDieta.TIPO_C)
             .values_list("classificacao", flat=True)
             .distinct()
         )
@@ -3437,7 +3435,7 @@ def validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares(
             escola.logs_dietas_autorizadas.filter(
                 data__month=mes, data__year=ano, quantidade__gt=0
             )
-            .exclude(classificacao__nome=TIPO_C)
+            .exclude(classificacao__nome=ClassificacaoDieta.TIPO_C)
             .values_list("classificacao", flat=True)
             .distinct()
         )

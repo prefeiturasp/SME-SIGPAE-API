@@ -11,6 +11,7 @@ from src.cardapio.base.models import (
 )
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import converte_numero_em_mes
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
@@ -357,9 +358,13 @@ def build_relatorio_financeiro_grupo_cei(
 
     alimentacao = _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo)
 
-    dieta_a = _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, "TIPO A")
+    dieta_a = _build_tabela_dieta_cei(
+        tabelas, faixas_etarias, totais_consumo, ClassificacaoDieta.TIPO_A.upper()
+    )
 
-    dieta_b = _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, "TIPO B")
+    dieta_b = _build_tabela_dieta_cei(
+        tabelas, faixas_etarias, totais_consumo, ClassificacaoDieta.TIPO_B.upper()
+    )
 
     consolidado = _build_consolidado_total(alimentacao, dieta_a, dieta_b)
 
@@ -693,7 +698,7 @@ def build_relatorio_financeiro_grupo_emei(
         tabelas,
         tipos_dieta_a,
         totais_consumo,
-        "TIPO A",
+        ClassificacaoDieta.TIPO_A.upper(),
         grupo_nome,
     )
 
@@ -711,7 +716,7 @@ def build_relatorio_financeiro_grupo_emei(
         tabelas,
         tipos_dieta_b,
         totais_consumo,
-        "TIPO B",
+        ClassificacaoDieta.TIPO_B.upper(),
         grupo_nome,
     )
 

@@ -59,6 +59,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
@@ -1171,6 +1172,66 @@ def _cei_colaboradores_ordenar_campos(campos_raw, tem_refeicao, tem_sobremesa):
     return campos_ordenados
 
 
+def _cei_colaboradores_processa_dia(
+    dia_str,
+    campos_raw,
+    campos_ordenados,
+    valores_medicao,
+    totais_raw,
+    total_participantes,
+    tem_refeicao,
+    tem_sobremesa,
+    total_pgto_refeicao,
+    total_pgto_sobremesa,
+):
+    valor_part = (
+        valores_medicao.filter(
+            dia=dia_str, nome_campo="participantes", faixa_etaria=None
+        )
+        .values_list("valor", flat=True)
+        .first()
+        or "0"
+    )
+    participantes = int(valor_part) if str(valor_part).isdigit() else 0
+    total_participantes += participantes
+
+    valores_dia = {}
+    for c in campos_raw:
+        v = (
+            valores_medicao.filter(dia=dia_str, nome_campo=c, faixa_etaria=None)
+            .values_list("valor", flat=True)
+            .first()
+            or "0"
+        )
+        v_int = int(v) if str(v).isdigit() else 0
+        valores_dia[c] = v_int
+        totais_raw[c] += v_int
+
+    pgto_ref = 0
+    if tem_refeicao:
+        pgto_ref = valores_dia.get("refeicao", 0) + valores_dia.get(
+            "repeticao_refeicao", 0
+        )
+        total_pgto_refeicao += pgto_ref
+
+    pgto_sob = 0
+    if tem_sobremesa:
+        pgto_sob = valores_dia.get("sobremesa", 0) + valores_dia.get(
+            "repeticao_sobremesa", 0
+        )
+        total_pgto_sobremesa += pgto_sob
+
+    linha = _cei_colaboradores_linha_dia(
+        int(dia_str), participantes, campos_ordenados, valores_dia, pgto_ref, pgto_sob
+    )
+    return (
+        linha,
+        total_participantes,
+        total_pgto_refeicao,
+        total_pgto_sobremesa,
+    )
+
+
 def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
     recreio = solicitacao.recreio_nas_ferias
     dias_range = range(recreio.data_inicio.day, recreio.data_fim.day + 1)
@@ -1206,50 +1267,22 @@ def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
             continue
 
         dia_str = f"{dia_int:02d}"
-
-        valor_part = (
-            medicao_colaboradores.valores_medicao.filter(
-                dia=dia_str, nome_campo="participantes", faixa_etaria=None
-            )
-            .values_list("valor", flat=True)
-            .first()
-            or "0"
-        )
-        participantes = int(valor_part) if str(valor_part).isdigit() else 0
-        total_participantes += participantes
-
-        valores_dia = {}
-        for c in campos_raw:
-            v = (
-                medicao_colaboradores.valores_medicao.filter(
-                    dia=dia_str, nome_campo=c, faixa_etaria=None
-                )
-                .values_list("valor", flat=True)
-                .first()
-                or "0"
-            )
-            v_int = int(v) if str(v).isdigit() else 0
-            valores_dia[c] = v_int
-            totais_raw[c] += v_int
-
-        pgto_ref = 0
-        if tem_refeicao:
-            soma_ref = valores_dia.get("refeicao", 0) + valores_dia.get(
-                "repeticao_refeicao", 0
-            )
-            pgto_ref = soma_ref
-            total_pgto_refeicao += pgto_ref
-
-        pgto_sob = 0
-        if tem_sobremesa:
-            soma_sob = valores_dia.get("sobremesa", 0) + valores_dia.get(
-                "repeticao_sobremesa", 0
-            )
-            pgto_sob = soma_sob
-            total_pgto_sobremesa += pgto_sob
-
-        linha = _cei_colaboradores_linha_dia(
-            dia_int, participantes, campos_ordenados, valores_dia, pgto_ref, pgto_sob
+        (
+            linha,
+            total_participantes,
+            total_pgto_refeicao,
+            total_pgto_sobremesa,
+        ) = _cei_colaboradores_processa_dia(
+            dia_str,
+            campos_raw,
+            campos_ordenados,
+            medicao_colaboradores.valores_medicao,
+            totais_raw,
+            total_participantes,
+            tem_refeicao,
+            tem_sobremesa,
+            total_pgto_refeicao,
+            total_pgto_sobremesa,
         )
         valores_campos.append(linha)
 
@@ -1632,15 +1665,15 @@ def popula_campo_matriculados_cei(
 def get_nomes_classificacoes(categoria_corrente):
     if "ENTERAL" in categoria_corrente:
         classificacoes_nomes = [
-            "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-            "Tipo A ENTERAL",
+            ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+            ClassificacaoDieta.TIPO_A_ENTERAL,
         ]
-    elif "TIPO B" in categoria_corrente:
+    elif ClassificacaoDieta.TIPO_B.upper() in categoria_corrente:
         classificacoes_nomes = [
-            "Tipo B",
+            ClassificacaoDieta.TIPO_B,
         ]
     else:
-        classificacoes_nomes = ["Tipo A"]
+        classificacoes_nomes = [ClassificacaoDieta.TIPO_A]
     return classificacoes_nomes
 
 
@@ -1688,14 +1721,14 @@ def popula_campo_aprovadas_cei(
 ):
     try:
         periodo = tabela["periodos"][indice_periodo]
-        if "TIPO A" in categoria_corrente.upper():
+        if ClassificacaoDieta.TIPO_A.upper() in categoria_corrente.upper():
             nomes_classificacoes = [
-                "Tipo A",
-                "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-                "Tipo A ENTERAL",
+                ClassificacaoDieta.TIPO_A,
+                ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+                ClassificacaoDieta.TIPO_A_ENTERAL,
             ]
         else:
-            nomes_classificacoes = ["Tipo B"]
+            nomes_classificacoes = [ClassificacaoDieta.TIPO_B]
 
         filtros = dict(
             data__day=dia,
@@ -4390,9 +4423,9 @@ def build_tabela_somatorio_recreio_nas_ferias(
     ]
 
     MAPA_TIPO_DIETA = {
-        "TIPO A": DIETA_ESPECIAL_TIPO_A,
+        ClassificacaoDieta.TIPO_A.upper(): DIETA_ESPECIAL_TIPO_A,
         "ENTERAL": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
-        "TIPO B": DIETA_ESPECIAL_TIPO_B,
+        ClassificacaoDieta.TIPO_B.upper(): DIETA_ESPECIAL_TIPO_B,
     }
 
     categorias_existentes = (
@@ -5853,12 +5886,15 @@ def build_row_solicitacao(solicitacao, id_tabela):
         {
             "categoria": "DIETA TIPO A",
             "campos": ["lanche_4h", "lanche_5h", "refeicao"],
-            "classificacao": ["Tipo A RESTRIÇÃO DE AMINOÁCIDOS", "Tipo A ENTERAL"],
+            "classificacao": [
+                ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+                ClassificacaoDieta.TIPO_A_ENTERAL,
+            ],
         },
         {
             "categoria": "DIETA TIPO B",
             "campos": ["lanche_4h", "lanche_5h"],
-            "classificacao": ["TIPO B"],
+            "classificacao": [ClassificacaoDieta.TIPO_B.upper()],
         },
     ]
 
@@ -6664,7 +6700,11 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
     )
 
     for dieta in dietas:
-        dieta_base = DIETA_ESPECIAL_TIPO_A if "TIPO A" in dieta.upper() else dieta
+        dieta_base = (
+            DIETA_ESPECIAL_TIPO_A
+            if ClassificacaoDieta.TIPO_A.upper() in dieta.upper()
+            else dieta
+        )
 
         valores = (
             medicao.valores_medicao.filter(categoria_medicao__nome=dieta)
@@ -7302,7 +7342,7 @@ def _verifica_dietas_consumidas(
             data__month=int(solicitacao.mes),
             periodo_escolar__isnull=False,
         )
-        .exclude(classificacao__nome__icontains="Tipo C")
+        .exclude(classificacao__nome__icontains=ClassificacaoDieta.TIPO_C)
         .values(
             "classificacao__nome",
             "periodo_escolar__nome",
@@ -7317,10 +7357,10 @@ def _verifica_dietas_consumidas(
         defaultdict(lambda: defaultdict(set)) if escola_emebs else defaultdict(set)
     )
     dicionario_dieta = {
-        "Tipo A ENTERAL": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
-        "Tipo A RESTRIÇÃO DE AMINOÁCIDOS": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
-        "Tipo A": DIETA_ESPECIAL_TIPO_A,
-        "Tipo B": DIETA_ESPECIAL_TIPO_B,
+        ClassificacaoDieta.TIPO_A_ENTERAL: CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+        ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS: CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+        ClassificacaoDieta.TIPO_A: DIETA_ESPECIAL_TIPO_A,
+        ClassificacaoDieta.TIPO_B: DIETA_ESPECIAL_TIPO_B,
     }
 
     for item in dados_agregados:
