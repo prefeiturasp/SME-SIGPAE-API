@@ -759,7 +759,10 @@ class ValorMedicao(
         on_delete=models.DO_NOTHING,
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     habilitado_correcao = models.BooleanField(default=False)
     infantil_ou_fundamental = models.CharField(
@@ -1051,7 +1054,7 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
     )
     nome_campo = models.CharField(max_length=255, null=True, blank=True)
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria",
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
         on_delete=models.PROTECT,
         related_name="parametrizacao_valor_faixa_etaria",
         null=True,
@@ -1209,7 +1212,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         blank=True,
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria",
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
         on_delete=models.PROTECT,
         related_name="descontos_financeiros",
         null=True,

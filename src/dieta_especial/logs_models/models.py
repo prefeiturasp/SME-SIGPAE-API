@@ -136,7 +136,9 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         on_delete=models.CASCADE,
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria", null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self) -> str:
@@ -195,7 +197,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria",
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
         null=True,
         on_delete=models.DO_NOTHING,
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
