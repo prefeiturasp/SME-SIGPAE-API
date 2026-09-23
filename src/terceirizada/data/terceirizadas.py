@@ -1,3 +1,5 @@
+from src.dados_comuns.constants import EmailsParaTeste
+
 data_terceirizadas = [
     {
         "id": 1,
@@ -6,7 +8,7 @@ data_terceirizadas = [
         "cnpj": "01920177000179",
         "representante_legal": "Celso Peretti Alves de Souza",
         "representante_telefone": "11950345921",
-        "representante_email": "admin@admin.com.br",
+        "representante_email": EmailsParaTeste.ADMIN_COM_BR.value,
     },
     {
         "id": 2,
@@ -15,7 +17,7 @@ data_terceirizadas = [
         "cnpj": "03706826000169",
         "representante_legal": "Márcio Rodrigues Pereira",
         "representante_telefone": "11950345921",
-        "representante_email": "admin@admin.com.br",
+        "representante_email": EmailsParaTeste.ADMIN_COM_BR.value,
     },
     {
         "id": 3,
@@ -24,7 +26,7 @@ data_terceirizadas = [
         "cnpj": "61980272000190",
         "representante_legal": "David Fernando dos Santos Azevedo",
         "representante_telefone": "11950345921",
-        "representante_email": "admin@admin.com.br",
+        "representante_email": EmailsParaTeste.ADMIN_COM_BR.value,
     },
     {
         "id": 4,
@@ -33,7 +35,7 @@ data_terceirizadas = [
         "cnpj": "60166832000104",
         "representante_legal": "Luis Ricardo Ferri Botelho",
         "representante_telefone": "11950345921",
-        "representante_email": "admin@admin.com.br",
+        "representante_email": EmailsParaTeste.ADMIN_COM_BR.value,
     },
     {
         "id": 5,
@@ -42,6 +44,6 @@ data_terceirizadas = [
         "cnpj": "05951758000129",
         "representante_legal": "Paulo Cesar Ribeiro Alves",
         "representante_telefone": "11950345921",
-        "representante_email": "admin@admin.com.br",
+        "representante_email": EmailsParaTeste.ADMIN_COM_BR.value,
     },
 ]
