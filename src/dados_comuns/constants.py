@@ -817,6 +817,14 @@ class StringsNomesAbasXLSX(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsSourceSerializers(Enum):
+    ESCOLA_UUID = "escola.uuid"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsObservacaoValorMedicao(Enum):
     OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
     OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"

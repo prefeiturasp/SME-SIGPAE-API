@@ -10,7 +10,7 @@ from src.dados_comuns.api.serializers import (
     LogSolicitacoesUsuarioComAnexosSerializer,
     LogSolicitacoesUsuarioSerializer,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
@@ -145,7 +145,9 @@ class ResponsavelSerializer(serializers.ModelSerializer):
 
 class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
     escola = serializers.SerializerMethodField()
-    escola_uuid = serializers.CharField(source="escola.uuid")
+    escola_uuid = serializers.CharField(
+        source=StringsSourceSerializers.ESCOLA_UUID.value
+    )
     tipos_contagem_alimentacao = TipoContagemAlimentacaoSerializer(many=True)
     responsaveis = ResponsavelSerializer(many=True)
     ocorrencia = OcorrenciaMedicaoInicialSerializer()
@@ -190,7 +192,9 @@ class SolicitacaoMedicaoInicialSerializer(serializers.ModelSerializer):
 
 class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
     escola = serializers.SerializerMethodField()
-    escola_uuid = serializers.CharField(source="escola.uuid")
+    escola_uuid = serializers.CharField(
+        source=StringsSourceSerializers.ESCOLA_UUID.value
+    )
     recreio_nas_ferias = RecreioNasFeriasSerializer()
 
     def get_escola(self, obj):
@@ -211,7 +215,9 @@ class SolicitacaoMedicaoInicialLancadaSerializer(serializers.ModelSerializer):
 
 class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
     escola = serializers.SerializerMethodField()
-    escola_uuid = serializers.CharField(source="escola.uuid")
+    escola_uuid = serializers.CharField(
+        source=StringsSourceSerializers.ESCOLA_UUID.value
+    )
     status = serializers.CharField(source="get_status_display")
     tipo_unidade = serializers.SerializerMethodField()
     log_mais_recente = serializers.SerializerMethodField()
@@ -356,7 +362,9 @@ class PermissaoLancamentoEspecialSerializer(serializers.ModelSerializer):
 
 class LancheEmergencialDiarioSerializer(serializers.ModelSerializer):
     escola_nome = serializers.CharField(source="escola.nome")
-    escola_uuid = serializers.CharField(source="escola.uuid")
+    escola_uuid = serializers.CharField(
+        source=StringsSourceSerializers.ESCOLA_UUID.value
+    )
 
     class Meta:
         model = LancheEmergencialDiario
