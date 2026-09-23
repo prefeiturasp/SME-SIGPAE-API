@@ -14,11 +14,15 @@ from src.medicao_inicial.services.relatorio_adesao import (
     _parse_data,
     _valida_ano_mes,
     _validar_mes_ano_data,
+    obtem_dias_com_dados,
     obtem_escolas_ordenadas,
+    obtem_identificacao_tipo_unidade,
     obtem_resultados,
+    obtem_resultados_para_dia,
     obtem_resultados_para_escola,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
+    valida_parametros_resultado_individual_por_data,
 )
 
 pytestmark = pytest.mark.django_db
@@ -74,6 +78,16 @@ def _cria_medicao_com_valores(
             dia=dia,
         )
     return medicao
+
+
+def _query_params_individual(mes, ano, tipos_unidades, dia_de="01", dia_ate="05"):
+    query_params = QueryDict(mutable=True)
+    query_params["mes_ano"] = f"{mes}_{ano}"
+    query_params["periodo_lancamento_de"] = f"{dia_de}/{mes}/{ano}"
+    query_params["periodo_lancamento_ate"] = f"{dia_ate}/{mes}/{ano}"
+    query_params["resultado_individual_por_data"] = "true"
+    query_params.setlist("tipos_unidades[]", [str(uuid) for uuid in tipos_unidades])
+    return query_params
 
 
 def test_obtem_resultados_relatorio_adesao_sem_periodo_de_lancamento(
@@ -517,6 +531,213 @@ def test_obtem_resultados_para_escola(
                 "total_servido": total_servido,
                 "total_frequencia": total_frequencia,
                 "total_adesao": total_adesao,
+            }
+        }
+    }
+
+
+def test_valida_parametros_resultado_individual_por_data_exige_periodo_e_tipo():
+    query_params = QueryDict("mes_ano=08_2026&resultado_individual_por_data=true")
+    with pytest.raises(
+        ValidationError,
+        match="Para resultado individual por data, 'periodo_lancamento_de' e "
+        "'periodo_lancamento_ate' são obrigatórios",
+    ):
+        valida_parametros_resultado_individual_por_data(query_params)
+
+    query_params = QueryDict(
+        "mes_ano=08_2026"
+        "&periodo_lancamento_de=01/08/2026"
+        "&periodo_lancamento_ate=05/08/2026"
+        "&resultado_individual_por_data=true"
+    )
+    with pytest.raises(
+        ValidationError,
+        match="Para resultado individual por data, 'tipos_unidades' é obrigatório",
+    ):
+        valida_parametros_resultado_individual_por_data(query_params)
+
+
+def test_obtem_identificacao_tipo_unidade_grupo_3(
+    tipo_unidade_escolar_emei,
+    tipo_unidade_escolar_ceu_emei,
+    grupo_unidade_escolar_emei,
+):
+    query_params = QueryDict(mutable=True)
+    query_params.setlist(
+        "tipos_unidades[]",
+        [
+            str(tipo_unidade_escolar_ceu_emei.uuid),
+            str(tipo_unidade_escolar_emei.uuid),
+        ],
+    )
+
+    assert obtem_identificacao_tipo_unidade(query_params) == "Grupo 3 - EMEI, CEU EMEI"
+
+
+def test_obtem_dias_com_dados_apenas_datas_do_periodo_com_lancamento(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        [1, 2, 3, 4, 5],
+    )
+
+    query_params = _query_params_individual(
+        mes, ano, [escola.tipo_unidade.uuid], dia_de="01", dia_ate="03"
+    )
+
+    assert obtem_dias_com_dados(query_params) == ["01", "02", "03"]
+
+
+def test_obtem_dias_com_dados_ignora_dias_sem_lancamento(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    for dia in ["01", "02", "04"]:
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="10",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor="10",
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    query_params = _query_params_individual(mes, ano, [escola.tipo_unidade.uuid])
+
+    assert obtem_dias_com_dados(query_params) == ["01", "02", "04"]
+
+
+def test_obtem_resultados_para_dia_calcula_totais_da_data(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    valores = [1, 2, 3, 4, 5]
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        valores,
+    )
+    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 4")
+    grupo.tipos_unidades.add(escola.tipo_unidade)
+
+    query_params = _query_params_individual(mes, ano, [escola.tipo_unidade.uuid])
+    resultado = obtem_resultados_para_dia("02", query_params)
+
+    assert resultado["data"] == "02/08/2026"
+    assert resultado["tipo_unidade"] == f"Grupo 4 - {escola.tipo_unidade.iniciais}"
+    assert resultado["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 2,
+                "total_frequencia": 2,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+
+def test_obtem_resultados_para_dia_agrega_escolas_do_mesmo_grupo_e_ignora_escola_uuid(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    medicao = _cria_medicao_com_valores(
+        solicitacao,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        [10],
+    )
+    _, solicitacao2 = _cria_escola_e_solicitacao_aprovada(
+        escola, mes, ano, "EMEF DOIS", "654321"
+    )
+    _cria_medicao_com_valores(
+        solicitacao2,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        [14],
+    )
+
+    query_params = _query_params_individual(
+        mes, ano, [escola.tipo_unidade.uuid], dia_ate="01"
+    )
+    query_params.setlist("escola__uuid[]", [str(escola.uuid)])
+
+    resultado = obtem_resultados_para_dia("01", query_params)
+
+    assert resultado["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 24,
+                "total_frequencia": 24,
+                "total_adesao": 1.0,
             }
         }
     }
