@@ -5674,6 +5674,125 @@ def medicoes_frequencia_zerada_emef(
     return solicitacao_medicao
 
 
+def _cria_logs_matriculados_frequencia_zerada(escola, periodo_escolares, ano, mes):
+    for periodo_escolar in periodo_escolares:
+        for tipo in ("INFANTIL", "FUNDAMENTAL"):
+            log = baker.make(
+                "LogAlunosMatriculadosPeriodoEscola",
+                escola=escola,
+                periodo_escolar=periodo_escolar,
+                quantidade_alunos=100,
+                tipo_turma="REGULAR",
+                infantil_ou_fundamental=tipo,
+            )
+            log.criado_em = datetime.date(ano, mes, 5)
+            log.save()
+        logq = baker.make(
+            "AlunosMatriculadosPeriodoEscola",
+            escola=escola,
+            periodo_escolar=periodo_escolar,
+            quantidade_alunos=100,
+            tipo_turma="REGULAR",
+        )
+        logq.criado_em = datetime.date(ano, mes, 5)
+        logq.save()
+
+
+def _cria_valores_frequencia_zerada(medicoes, categoria_medicao, tipos):
+    for medicao in medicoes:
+        for tipo in tipos:
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                dia="10",
+                nome_campo="frequencia",
+                categoria_medicao=categoria_medicao,
+                infantil_ou_fundamental=tipo,
+                valor="0",
+            )
+            if tipo == "INFANTIL":
+                baker.make(
+                    "ValorMedicao",
+                    medicao=medicao,
+                    dia="13",
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria_medicao,
+                    infantil_ou_fundamental=tipo,
+                    valor="0",
+                )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        dia="24",
+        nome_campo="frequencia",
+        categoria_medicao=categoria_medicao,
+        infantil_ou_fundamental="INFANTIL",
+        valor="0",
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        dia="24",
+        nome_campo="frequencia",
+        categoria_medicao=categoria_medicao,
+        infantil_ou_fundamental="FUNDAMENTAL",
+        valor="0",
+    )
+
+
+def _cria_logs_dietas_frequencia_zerada(
+    escola, periodo_escolares, classificacao_dieta_tipo_a, ano, mes
+):
+    for tipo in ("INFANTIL", "FUNDAMENTAL"):
+        for periodo_escolar in periodo_escolares:
+            log_cinco = baker.make(
+                "LogQuantidadeDietasAutorizadas",
+                escola=escola,
+                periodo_escolar=periodo_escolar,
+                quantidade=2,
+                classificacao=classificacao_dieta_tipo_a,
+                infantil_ou_fundamental=tipo,
+                data=datetime.date(ano, mes, 10),
+            )
+            log_cinco.criado_em = datetime.date(ano, mes, 10)
+            log_cinco.save()
+            if tipo == "INFANTIL":
+                log_treze = baker.make(
+                    "LogQuantidadeDietasAutorizadas",
+                    escola=escola,
+                    periodo_escolar=periodo_escolar,
+                    quantidade=2,
+                    classificacao=classificacao_dieta_tipo_a,
+                    infantil_ou_fundamental=tipo,
+                    data=datetime.date(ano, mes, 24),
+                )
+                log_treze.criado_em = datetime.date(ano, mes, 24)
+                log_treze.save()
+
+
+def _cria_valores_dieta_frequencia_zerada(medicoes, categoria_medicao_dieta_a):
+    for medicao in medicoes:
+        for tipo in ("INFANTIL", "FUNDAMENTAL"):
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                dia="10",
+                nome_campo="frequencia",
+                categoria_medicao=categoria_medicao_dieta_a,
+                valor="0",
+                infantil_ou_fundamental=tipo,
+            )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_tarde,
+        dia="24",
+        nome_campo="frequencia",
+        categoria_medicao=categoria_medicao_dieta_a,
+        valor="0",
+        infantil_ou_fundamental="INFANTIL",
+    )
+
+
 @pytest.fixture()
 def medicoes_frequencia_zerada_emebs(
     periodo_escolar_manha,
@@ -5709,119 +5828,27 @@ def medicoes_frequencia_zerada_emebs(
     )
 
     # log para os períodos escolares
-    for periodo_escolar in [periodo_escolar_manha, periodo_escolar_tarde]:
-        for tipo in ("INFANTIL", "FUNDAMENTAL"):
-            log = baker.make(
-                "LogAlunosMatriculadosPeriodoEscola",
-                escola=escola,
-                periodo_escolar=periodo_escolar,
-                quantidade_alunos=100,
-                tipo_turma="REGULAR",
-                infantil_ou_fundamental=tipo,
-            )
-            log.criado_em = datetime.date(ano, mes, 5)
-            log.save()
-
-        logq = baker.make(
-            "AlunosMatriculadosPeriodoEscola",
-            escola=escola,
-            periodo_escolar=periodo_escolar,
-            quantidade_alunos=100,
-            tipo_turma="REGULAR",
-        )
-        logq.criado_em = datetime.date(ano, mes, 5)
-        logq.save()
-
-    # Categoria Alimentacao
-    for medicao in [medicao_manha, medicao_tarde]:
-        for tipo in ("INFANTIL", "FUNDAMENTAL"):
-            baker.make(
-                "ValorMedicao",
-                medicao=medicao,
-                dia="10",
-                nome_campo="frequencia",
-                categoria_medicao=categoria_medicao,
-                infantil_ou_fundamental=tipo,
-                valor="0",
-            )
-            if tipo == "INFANTIL":
-                baker.make(
-                    "ValorMedicao",
-                    medicao=medicao,
-                    dia="13",
-                    nome_campo="frequencia",
-                    categoria_medicao=categoria_medicao,
-                    infantil_ou_fundamental=tipo,
-                    valor="0",
-                )
-    baker.make(
-        "ValorMedicao",
-        medicao=medicao,
-        dia="24",
-        nome_campo="frequencia",
-        categoria_medicao=categoria_medicao,
-        infantil_ou_fundamental="INFANTIL",
-        valor="0",
+    _cria_logs_matriculados_frequencia_zerada(
+        escola, [periodo_escolar_manha, periodo_escolar_tarde], ano, mes
     )
 
-    baker.make(
-        "ValorMedicao",
-        medicao=medicao,
-        dia="24",
-        nome_campo="frequencia",
-        categoria_medicao=categoria_medicao,
-        infantil_ou_fundamental="FUNDAMENTAL",
-        valor="0",
+    # Categoria Alimentacao
+    _cria_valores_frequencia_zerada(
+        [medicao_manha, medicao_tarde], categoria_medicao, ("INFANTIL", "FUNDAMENTAL")
     )
 
     # Categoria Dieta A
-    for tipo in ("INFANTIL", "FUNDAMENTAL"):
-        for periodo_escolar in [periodo_escolar_manha, periodo_escolar_tarde]:
-            log_cinco = baker.make(
-                "LogQuantidadeDietasAutorizadas",
-                escola=escola,
-                periodo_escolar=periodo_escolar,
-                quantidade=2,
-                classificacao=classificacao_dieta_tipo_a,
-                infantil_ou_fundamental=tipo,
-                data=datetime.date(ano, mes, 10),
-            )
-            log_cinco.criado_em = datetime.date(ano, mes, 10)
-            log_cinco.save()
-
-            if tipo == "INFANTIL":
-                log_treze = baker.make(
-                    "LogQuantidadeDietasAutorizadas",
-                    escola=escola,
-                    periodo_escolar=periodo_escolar,
-                    quantidade=2,
-                    classificacao=classificacao_dieta_tipo_a,
-                    infantil_ou_fundamental=tipo,
-                    data=datetime.date(ano, mes, 24),
-                )
-                log_treze.criado_em = datetime.date(ano, mes, 24)
-                log_treze.save()
-
-    for medicao in [medicao_manha, medicao_tarde]:
-        for tipo in ("INFANTIL", "FUNDAMENTAL"):
-            baker.make(
-                "ValorMedicao",
-                medicao=medicao,
-                dia="10",
-                nome_campo="frequencia",
-                categoria_medicao=categoria_medicao_dieta_a,
-                valor="0",
-                infantil_ou_fundamental=tipo,
-            )
-    baker.make(
-        "ValorMedicao",
-        medicao=medicao_tarde,
-        dia="24",
-        nome_campo="frequencia",
-        categoria_medicao=categoria_medicao_dieta_a,
-        valor="0",
-        infantil_ou_fundamental="INFANTIL",
+    _cria_logs_dietas_frequencia_zerada(
+        escola,
+        [periodo_escolar_manha, periodo_escolar_tarde],
+        classificacao_dieta_tipo_a,
+        ano,
+        mes,
     )
+    _cria_valores_dieta_frequencia_zerada(
+        [medicao_manha, medicao_tarde], categoria_medicao_dieta_a
+    )
+
     return solicitacao_medicao
 
 
