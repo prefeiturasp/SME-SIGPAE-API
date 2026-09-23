@@ -681,7 +681,26 @@ def create_new_table():
     }
 
 
-def add_periodo_to_table(  # noqa: C901
+def _adiciona_faixa(
+    table,
+    categoria_obj,
+    nome_periodo,
+    categoria,
+    faixa,
+    len_faixas,
+    dict_categorias_campos,
+):
+    categoria_obj["faixas_etarias"].append(faixa)
+    table["periodo_values"][nome_periodo] += 2
+    nome_categoria = f"{categoria}__PARCIAL" if nome_periodo == "PARCIAL" else categoria
+    table["categoria_values"][nome_categoria] += 2
+    if len_faixas == len(dict_categorias_campos[categoria]):
+        categoria_obj["faixas_etarias"].append("total")
+        table["periodo_values"][nome_periodo] += 1
+        table["categoria_values"][nome_categoria] += 1
+
+
+def add_periodo_to_table(
     table, nome_periodo, categoria, faixa, len_faixas, dict_categorias_campos
 ):
     if nome_periodo not in table["periodos"]:
@@ -696,39 +715,35 @@ def add_periodo_to_table(  # noqa: C901
         None,
     )
 
-    if "periodo_values" not in table:
-        table["periodo_values"] = defaultdict(int)
-    if "categoria_values" not in table:
-        table["categoria_values"] = defaultdict(int)
+    table.setdefault("periodo_values", defaultdict(int))
+    table.setdefault("categoria_values", defaultdict(int))
 
     if not categoria_obj:
-        table["categorias"].append(
-            {"categoria": categoria, "faixas_etarias": [faixa], "periodo": nome_periodo}
+        categoria_obj = {
+            "categoria": categoria,
+            "faixas_etarias": [],
+            "periodo": nome_periodo,
+        }
+        table["categorias"].append(categoria_obj)
+        _adiciona_faixa(
+            table,
+            categoria_obj,
+            nome_periodo,
+            categoria,
+            faixa,
+            len_faixas,
+            dict_categorias_campos,
         )
-        table["periodo_values"][nome_periodo] += 2
-        nome_categoria = categoria
-        if nome_periodo == "PARCIAL":
-            nome_categoria = f"{categoria}__PARCIAL"
-        table["categoria_values"][nome_categoria] += 2
-
-        if len_faixas == len(dict_categorias_campos[categoria]):
-            table["categorias"][-1]["faixas_etarias"].append("total")
-            table["periodo_values"][nome_periodo] += 1
-            table["categoria_values"][nome_categoria] += 1
-    else:
-        if faixa not in categoria_obj["faixas_etarias"]:
-            categoria_obj["faixas_etarias"].append(faixa)
-
-            table["periodo_values"][nome_periodo] += 2
-            nome_categoria = categoria
-            if nome_periodo == "PARCIAL":
-                nome_categoria = f"{categoria}__PARCIAL"
-            table["categoria_values"][nome_categoria] += 2
-
-            if len_faixas == len(dict_categorias_campos[categoria]):
-                categoria_obj["faixas_etarias"].append("total")
-                table["periodo_values"][nome_periodo] += 1
-                table["categoria_values"][nome_categoria] += 1
+    elif faixa not in categoria_obj["faixas_etarias"]:
+        _adiciona_faixa(
+            table,
+            categoria_obj,
+            nome_periodo,
+            categoria,
+            faixa,
+            len_faixas,
+            dict_categorias_campos,
+        )
 
     table["len_periodos"] = [
         table["periodo_values"][periodo] for periodo in table["periodos"]
