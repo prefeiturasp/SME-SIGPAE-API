@@ -59,3 +59,17 @@ class ServicoDadosHistoricosProduto:
             },
         )
         return dados_copia
+
+    @staticmethod
+    def remover_snapshots_logs_remanescentes(
+        homologacao: HomologacaoProduto,
+    ) -> int:
+        uuids_solicitacoes_copiadas = [
+            homologacao.uuid,
+            *homologacao.reclamacoes.values_list("uuid", flat=True),
+        ]
+        snapshots = DadosHistoricosProduto.objects.filter(
+            log__uuid_original__in=uuids_solicitacoes_copiadas
+        )
+        quantidade, _ = snapshots.delete()
+        return quantidade

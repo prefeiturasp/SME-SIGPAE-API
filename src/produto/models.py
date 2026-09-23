@@ -649,10 +649,15 @@ class HomologacaoProduto(
 
     @transaction.atomic
     def equaliza_homologacoes_e_se_destroi(self):
+        from src.produto.services.dados_historicos_produto import (
+            ServicoDadosHistoricosProduto,
+        )
+
         if not self.eh_copia:
             return "Não é cópia."
         original = self.get_original()
         self.transfere_logs_para_original()
+        ServicoDadosHistoricosProduto.remover_snapshots_logs_remanescentes(self)
         self.transfere_analises_sensoriais_para_original()
         self.transfere_respostas_analises_sensoriais()
         original.status = self.status
