@@ -16,9 +16,9 @@ from ...dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
     DJANGO_ADMIN_PASSWORD,
-    EMAIL_ADMIN,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    EmailsParaTeste,
     NomesParaTesteDiretoriaRegional,
 )
 from .. import models
@@ -833,7 +833,7 @@ def email_list_invalidos(request):
 
 @pytest.fixture
 def fake_user(client):
-    email = EMAIL_ADMIN
+    email = EmailsParaTeste.ADMIN.value
     password = DJANGO_ADMIN_PASSWORD
     user = models.Usuario.objects.create_user(
         email=email,
@@ -847,7 +847,7 @@ def fake_user(client):
 
 @pytest.fixture
 def usuario_autenticado(client):
-    email = EMAIL_ADMIN
+    email = EmailsParaTeste.ADMIN.value
     password = DJANGO_ADMIN_PASSWORD
     client.login(username=email, password=password)
     return client

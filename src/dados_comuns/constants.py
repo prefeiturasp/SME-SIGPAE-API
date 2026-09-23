@@ -836,6 +836,15 @@ class StringsHeadersTabelasSolicitacaoMedicaoPDF(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class EmailsParaTeste(Enum):
+    ADMIN = "admin@admin.com"
+    TERCEIRIZADA_ADMIN = "terceirizada@admin.com"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsObservacaoValorMedicao(Enum):
     OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
     OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"
@@ -1578,7 +1587,6 @@ TRADUCOES_FERIADOS = {
 DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
 FORMATO_DATA_HORA_BRASILEIRO = "%d/%m/%Y - %H:%M"
-EMAIL_ADMIN = "admin@admin.com"
 TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR = "fluxo_autorizar_negar_cancelar.html"
 TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA = "fluxo_codae_autoriza_ou_nega.html"
 MODULO_GESTAO_PRODUTO = "Gestão de Produto"

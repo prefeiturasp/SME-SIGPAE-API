@@ -35,7 +35,9 @@ CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
 
 @pytest.fixture
 def usuario_admin():
-    return baker.make("Usuario", email=constants.EMAIL_ADMIN, is_superuser=True)
+    return baker.make(
+        "Usuario", email=constants.EmailsParaTeste.ADMIN.value, is_superuser=True
+    )
 
 
 @pytest.fixture
@@ -260,7 +262,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
 ):
-    email = "terceirizada@admin.com"
+    email = constants.EmailsParaTeste.TERCEIRIZADA_ADMIN.value
     password = constants.DJANGO_ADMIN_PASSWORD
     rf = "4545454"
     user = Usuario.objects.create_user(
