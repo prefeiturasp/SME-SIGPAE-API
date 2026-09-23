@@ -513,6 +513,96 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
     ]
 
 
+def eh_resultado_individual_por_data(query_params: QueryDict) -> bool:
+    """
+    Indica se a consulta/exportação deve usar o modo resultado individual por data.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        bool: True quando ``resultado_individual_por_data`` estiver marcado.
+    """
+    valor = query_params.get("resultado_individual_por_data")
+    if isinstance(valor, bool):
+        return valor
+    if valor is None:
+        return False
+    return str(valor).strip().lower() in {"true", "1", "sim"}
+
+
+def obtem_tipos_unidades_ordenados(query_params: QueryDict) -> list[TipoUnidadeEscolar]:
+    """
+    Retorna os tipos de unidade do filtro, na ordem padrão dos grupos.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        list[TipoUnidadeEscolar]: tipos selecionados, ordenados.
+    """
+    tipos_uuids = _obtem_tipos_unidades_selecionados(query_params)
+    tipos = list(TipoUnidadeEscolar.objects.filter(uuid__in=tipos_uuids))
+    tipos.sort(
+        key=lambda tipo: ORDEM_TIPOS_UNIDADE.get(
+            tipo.iniciais, len(ORDEM_TIPOS_UNIDADE) + 1
+        )
+    )
+    return tipos
+
+
+def obtem_resultados_para_dia_e_tipo(
+    dia: str, tipo: TipoUnidadeEscolar, query_params: QueryDict
+) -> dict:
+    """
+    Calcula os resultados de uma data para um único tipo de unidade.
+
+    Args:
+        dia (str): dia da medição no formato ``DD``.
+        tipo (TipoUnidadeEscolar): tipo de unidade da combinação.
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        dict: identificação da data/tipo e os resultados consolidados.
+    """
+    mes, ano, _, _, tipos_alimentacao = _parametros_consulta(query_params)
+    filtros = _cria_filtros(query_params, ignorar_escolas=True)
+    filtros["solicitacao_medicao_inicial__escola__tipo_unidade__uuid__in"] = [
+        str(tipo.uuid)
+    ]
+    resultados = _calcula_resultados(mes, ano, filtros, tipos_alimentacao, dia, dia)
+    data = datetime(int(ano), int(mes), int(dia)).strftime(FORMATO_DATA_BRASILEIRO)
+    return {
+        "data": data,
+        "tipo_unidade": tipo.iniciais,
+        "resultados": resultados,
+    }
+
+
+def obtem_resultados_por_data_e_tipo_unidade(query_params: QueryDict) -> list[dict]:
+    """
+    Obtém os resultados individualizados por data e tipo de unidade.
+
+    Cada combinação data + tipo de unidade com lançamento é um item independente,
+    na ordem das datas e, dentro da data, na ordem dos tipos de unidade.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        list[dict]: lista no formato
+        ``{"data": str, "tipo_unidade": str, "resultados": dict}``
+    """
+    tipos = obtem_tipos_unidades_ordenados(query_params)
+    combinacoes = []
+    for dia in obtem_dias_com_dados(query_params):
+        for tipo in tipos:
+            resultado = obtem_resultados_para_dia_e_tipo(dia, tipo, query_params)
+            if resultado["resultados"]:
+                combinacoes.append(resultado)
+    return combinacoes
+
+
 def _obtem_tipos_unidades_selecionados(query_params: QueryDict) -> list[str]:
     """
     Retorna os UUIDs de tipos de unidade informados, ignorando valores vazios.
@@ -585,6 +675,28 @@ def obtem_identificacao_tipo_unidade(query_params: QueryDict) -> str:
     if grupo:
         return grupo.nome
     return iniciais
+
+
+def obtem_nome_arquivo_xlsx_relatorio_adesao(query_params: QueryDict) -> str:
+    """
+    Monta o nome do arquivo Excel do Relatório de Adesão.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        str: nome no formato
+        ``Relatório de Adesão das Alimentações Servidas - EMEI - 08/2026.xlsx``.
+    """
+    mes, ano = query_params.get("mes_ano").split("_")
+    partes = ["Relatório de Adesão das Alimentações Servidas"]
+    tipos = ", ".join(
+        tipo.iniciais for tipo in obtem_tipos_unidades_ordenados(query_params)
+    )
+    if tipos:
+        partes.append(tipos)
+    partes.append(f"{mes}/{ano}")
+    return f"{' - '.join(partes)}.xlsx"
 
 
 def obtem_dias_com_dados(query_params: QueryDict) -> list[str]:

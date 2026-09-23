@@ -84,7 +84,48 @@ def _formata_segmento_periodo_lancamento(query_params: dict) -> str:
     )
 
 
-def _formata_filtros(query_params: dict, nome_escola: str = None):
+def _obtem_nome_dre(query_params: dict) -> str:
+    dre = _obtem_dre(query_params)
+    if dre:
+        return dre.nome
+
+    lotes_uuid = query_params.get("lotes")
+    if not lotes_uuid:
+        return ""
+    if isinstance(lotes_uuid, str):
+        lotes_uuid = [lotes_uuid]
+
+    nomes = [
+        nome
+        for nome in Lote.objects.filter(uuid__in=lotes_uuid)
+        .values_list("diretoria_regional__nome", flat=True)
+        .distinct()
+        if nome
+    ]
+    return ", ".join(nomes)
+
+
+def _formata_filtros_por_data(
+    query_params: dict, tipo_unidade: str, data_lancamento: str
+) -> str:
+    mes, ano = query_params.get("mes_ano").split("_")
+    partes = [f"{converte_numero_em_mes(int(mes))} - {ano}"]
+    dre_nome = _obtem_nome_dre(query_params)
+    if dre_nome:
+        partes.append(dre_nome)
+    partes.extend([tipo_unidade, data_lancamento])
+    return " | ".join(partes)
+
+
+def _formata_filtros(
+    query_params: dict,
+    nome_escola: str = None,
+    tipo_unidade: str = None,
+    data_lancamento: str = None,
+):
+    if tipo_unidade and data_lancamento:
+        return _formata_filtros_por_data(query_params, tipo_unidade, data_lancamento)
+
     mes, ano = query_params.get("mes_ano").split("_")
     filtros = f"{converte_numero_em_mes(int(mes))} {ano}"
 
@@ -136,8 +177,15 @@ def _preenche_linha_dos_filtros_selecionados(
     query_params: dict,
     colunas: List[str],
     nome_escola: str = None,
+    tipo_unidade: str = None,
+    data_lancamento: str = None,
 ):
-    filtros = _formata_filtros(query_params, nome_escola)
+    filtros = _formata_filtros(
+        query_params,
+        nome_escola=nome_escola,
+        tipo_unidade=tipo_unidade,
+        data_lancamento=data_lancamento,
+    )
 
     worksheet.merge_range(1, 0, 1, len(colunas) - 1, filtros.upper())
     worksheet.set_row(1, 40, workbook.add_format({"align": "vcenter"}))
@@ -234,16 +282,29 @@ def _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas):
 
 
 def _preenche_aba(
-    workbook, writer, aba: str, resultados, query_params, colunas, nome_escola=None
+    workbook,
+    writer,
+    aba: str,
+    resultados,
+    query_params,
+    colunas,
+    complemento_filtros=None,
 ):
-    proxima_linha = 4  # 4 linhas em branco para o cabecalho
+    proxima_linha = 4
     quantidade_de_linhas_em_branco_apos_tabela = 2
+    complemento_filtros = complemento_filtros or {}
 
     worksheet = workbook.add_worksheet(aba)
 
     _preenche_titulo(workbook, worksheet, colunas)
     _preenche_linha_dos_filtros_selecionados(
-        workbook, worksheet, query_params, colunas, nome_escola
+        workbook,
+        worksheet,
+        query_params,
+        colunas,
+        nome_escola=complemento_filtros.get("nome_escola"),
+        tipo_unidade=complemento_filtros.get("tipo_unidade"),
+        data_lancamento=complemento_filtros.get("data_lancamento"),
     )
     _preenche_data_do_relatorio(workbook, worksheet, colunas)
 
@@ -275,16 +336,83 @@ def _preenche_aba(
     _formata_numeros_coluna_total_adesao(workbook, worksheet, colunas)
 
 
-def _normaliza_nome_aba(nome: str) -> str:
+def _normaliza_nome_aba(nome: str, nomes_usados: set[str] | None = None) -> str:
     """
-    Trunca o nome da aba do Excel para no máximo 31 caracteres.
+    Ajusta o nome da aba às limitações do Excel (31 caracteres e caracteres inválidos).
 
-    O Excel limita o nome de uma planilha a 31 caracteres. Nomes de unidades
-    educacionais podem ultrapassar esse limite, o que faz o xlsxwriter lançar
-    um erro ao gerar o relatório de adesão separado por escola. Truncar o nome
-    evita esse erro mantendo a aba identificável.
+    O Excel limita o nome de uma planilha a 31 caracteres e não aceita
+    ``: \\ / ? * [ ]``. Truncar e substituir esses caracteres evita erro na geração.
     """
-    return nome[:31]
+    caracteres_invalidos = set(r":\/?*[]")
+    nome = "".join(
+        "-" if caractere in caracteres_invalidos else caractere for caractere in nome
+    )
+    nome = nome.strip()[:31] or "Aba"
+    if nomes_usados is None:
+        return nome
+
+    base = nome
+    indice = 2
+    while nome in nomes_usados:
+        sufixo = f" ({indice})"
+        nome = f"{base[: 31 - len(sufixo)]}{sufixo}"
+        indice += 1
+    nomes_usados.add(nome)
+    return nome
+
+
+def _nome_aba_por_data_e_tipo(tipo_unidade: str, data: str) -> str:
+    """
+    Monta o nome da aba no formato ``[Tipo de Unidade] - [DDMMAAAA]``.
+    """
+    data_compacta = data.replace("/", "")
+    return f"{tipo_unidade} - {data_compacta}"
+
+
+def _eh_relatorio_por_data(resultados) -> bool:
+    return (
+        isinstance(resultados, list)
+        and bool(resultados)
+        and "data" in resultados[0]
+        and "tipo_unidade" in resultados[0]
+        and "escola" not in resultados[0]
+    )
+
+
+def _preenche_abas_por_escola(workbook, writer, resultados, query_params, colunas):
+    nomes_abas = set()
+    for resultado in resultados:
+        aba = _normaliza_nome_aba(resultado["escola"]["nome"], nomes_abas)
+        _preenche_aba(
+            workbook,
+            writer,
+            aba,
+            resultado["resultados"],
+            query_params,
+            colunas,
+            {"nome_escola": resultado["escola"]["nome"]},
+        )
+
+
+def _preenche_abas_por_data(workbook, writer, resultados, query_params, colunas):
+    nomes_abas = set()
+    for resultado in resultados:
+        aba = _normaliza_nome_aba(
+            _nome_aba_por_data_e_tipo(resultado["tipo_unidade"], resultado["data"]),
+            nomes_abas,
+        )
+        _preenche_aba(
+            workbook,
+            writer,
+            aba,
+            resultado["resultados"],
+            query_params,
+            colunas,
+            {
+                "tipo_unidade": resultado["tipo_unidade"],
+                "data_lancamento": resultado["data"],
+            },
+        )
 
 
 def gera_relatorio_adesao_xlsx(resultados, query_params):
@@ -301,17 +429,20 @@ def gera_relatorio_adesao_xlsx(resultados, query_params):
         workbook = writer.book
 
         if _eh_relatorio_por_escola(resultados):
-            for resultado in resultados:
-                aba = _normaliza_nome_aba(resultado["escola"]["nome"])
-                _preenche_aba(
-                    workbook,
-                    writer,
-                    aba,
-                    resultado["resultados"],
-                    query_params,
-                    colunas,
-                    nome_escola=resultado["escola"]["nome"],
-                )
+            _preenche_abas_por_escola(
+                workbook, writer, resultados, query_params, colunas
+            )
+        elif _eh_relatorio_por_data(resultados):
+            _preenche_abas_por_data(workbook, writer, resultados, query_params, colunas)
+        elif isinstance(resultados, list):
+            _preenche_aba(
+                workbook,
+                writer,
+                "Relatório de Adesão",
+                {},
+                query_params,
+                colunas,
+            )
         else:
             _preenche_aba(
                 workbook,
