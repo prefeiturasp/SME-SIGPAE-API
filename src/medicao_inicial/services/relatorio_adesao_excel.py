@@ -84,25 +84,24 @@ def _formata_segmento_periodo_lancamento(query_params: dict) -> str:
     )
 
 
-def _obtem_nome_dre(query_params: dict) -> str:
-    dre = _obtem_dre(query_params)
-    if dre:
-        return dre.nome
-
-    lotes_uuid = query_params.get("lotes")
-    if not lotes_uuid:
-        return ""
+def _rotulo_dre_lote(query_params: dict) -> str:
+    dre_filtro = _obtem_dre(query_params)
+    lotes_uuid = query_params.get("lotes") or []
     if isinstance(lotes_uuid, str):
         lotes_uuid = [lotes_uuid]
 
-    nomes = [
-        nome
-        for nome in Lote.objects.filter(uuid__in=lotes_uuid)
-        .values_list("diretoria_regional__nome", flat=True)
-        .distinct()
-        if nome
-    ]
-    return ", ".join(nomes)
+    lotes = (
+        Lote.objects.filter(uuid__in=lotes_uuid)
+        .select_related("diretoria_regional")
+        .order_by("nome")
+    )
+    rotulos = []
+    for lote in lotes:
+        diretoria = lote.diretoria_regional or dre_filtro
+        iniciais = getattr(diretoria, "iniciais", "")
+        rotulos.append(f"{iniciais} - {lote.nome}" if iniciais else lote.nome)
+
+    return ", ".join(rotulos) or getattr(dre_filtro, "iniciais", "")
 
 
 def _formata_filtros_por_data(
@@ -110,9 +109,9 @@ def _formata_filtros_por_data(
 ) -> str:
     mes, ano = query_params.get("mes_ano").split("_")
     partes = [f"{converte_numero_em_mes(int(mes))} - {ano}"]
-    dre_nome = _obtem_nome_dre(query_params)
-    if dre_nome:
-        partes.append(dre_nome)
+    dre_lote = _rotulo_dre_lote(query_params)
+    if dre_lote:
+        partes.append(dre_lote)
     partes.extend([tipo_unidade, data_lancamento])
     return " | ".join(partes)
 

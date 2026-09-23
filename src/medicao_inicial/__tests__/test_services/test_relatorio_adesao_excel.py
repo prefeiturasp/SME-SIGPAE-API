@@ -410,13 +410,16 @@ def test_gera_relatorio_adesao_xlsx_por_data_uma_aba_por_combinacao(
 
 def test_formata_filtros_com_tipo_unidade_e_data_lancamento(
     mock_exportacao_relatorio_adesao,
+    diretoria_regional,
 ):
     _, query_params = mock_exportacao_relatorio_adesao
+    diretoria_regional.iniciais = "IP"
+    diretoria_regional.save(update_fields=["iniciais"])
     filtros = _formata_filtros(
         query_params, tipo_unidade="EMEI", data_lancamento="04/08/2025"
     )
     assert filtros == (
-        "Março - 2025 | DIRETORIA REGIONAL IPIRANGA | EMEI | 04/08/2025"
+        "Março - 2025 | IP - Lote 01, IP - Lote 02, IP - Lote 03 | EMEI | 04/08/2025"
     )
 
 
