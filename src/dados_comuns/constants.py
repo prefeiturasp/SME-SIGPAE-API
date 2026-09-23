@@ -845,6 +845,22 @@ class EmailsParaTeste(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsValidationSchema(Enum):
+    NOME_DO_USUARIO = "Nome do usuário"
+    CARGO_DO_USUARIO = "Cargo do usuário"
+    EMAIL_DO_USUARIO = "Email do usuário"
+    CPF_DO_USUARIO = "CPF do usuário"
+    CPF_DEVE_CONTER_11_DIGITOS = "CPF deve conter 11 dígitos."
+    TELEFONE_DO_USUARIO = "Telefone do usuário"
+    RF_DO_USUARIO = "RF do usuário"
+    RF_DEVE_TER_7_DIGITOS = "RF deve ter 7 dígitos."
+    PERFIL_DO_USUARIO = "Perfil do usuário"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsObservacaoValorMedicao(Enum):
     OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
     OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"
