@@ -6710,6 +6710,21 @@ def relatorio_financeiro_cieja(
     )
 
 
+def _cria_valores_parametrizacao(tabelas, tipos_valor, valores_config):
+    for tabela, tipos, valores in valores_config:
+        for tipo in tipos:
+            for nome_campo, tipo_alimentacao, valor in valores:
+                baker.make(
+                    "ParametrizacaoFinanceiraTabelaValor",
+                    tabela=tabela,
+                    nome_campo=nome_campo,
+                    faixa_etaria=None,
+                    tipo_alimentacao=tipo_alimentacao,
+                    tipo_valor=tipos_valor[tipo],
+                    valor=valor,
+                )
+
+
 @pytest.fixture
 def parametrizacao_financeira_cieja(
     edital,
@@ -6781,18 +6796,7 @@ def parametrizacao_financeira_cieja(
         ),
     ]
 
-    for tabela, tipos, valores in valores_config:
-        for tipo in tipos:
-            for nome_campo, tipo_alimentacao, valor in valores:
-                baker.make(
-                    "ParametrizacaoFinanceiraTabelaValor",
-                    tabela=tabela,
-                    nome_campo=nome_campo,
-                    faixa_etaria=None,
-                    tipo_alimentacao=tipo_alimentacao,
-                    tipo_valor=tipos_valor[tipo],
-                    valor=valor,
-                )
+    _cria_valores_parametrizacao(tabelas, tipos_valor, valores_config)
 
     return parametrizacao_financeira
 
@@ -7299,6 +7303,91 @@ def parametrizacao_financeira_emebs(
     return parametrizacao_financeira
 
 
+def _cria_valores_recreio_por_dia(
+    dia,
+    data,
+    medicao_recreio_nas_ferias,
+    medicao_colaboradores,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    classificacao_dieta_tipo_a_enteral,
+    solicitacao_recreio_nas_ferias,
+    participante,
+    quantidade_dieta_autorizada,
+    frequencia_por_faixa,
+    faixas_etarias_ativas,
+):
+    if dia in ["13", "14", "20", "21", "25", "27", "28"]:
+        return
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_recreio_nas_ferias,
+        categoria_medicao=categoria_medicao,
+        nome_campo="participantes",
+        dia=dia,
+        valor=str(participante.num_inscritos - quantidade_dieta_autorizada),
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_colaboradores,
+        categoria_medicao=categoria_medicao,
+        nome_campo="participantes",
+        dia=dia,
+        valor=str(participante.num_colaboradores),
+    )
+    for campo in [
+        "frequencia",
+        "refeicao",
+        "repeticao_refeicao",
+        "sobremesa",
+        "repeticao_sobremesa",
+    ]:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_colaboradores,
+            categoria_medicao=categoria_medicao,
+            nome_campo=campo,
+            dia=dia,
+            valor="20",
+        )
+    for faixa in faixas_etarias_ativas:
+        dieta = baker.make(
+            "LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI",
+            escola=solicitacao_recreio_nas_ferias.escola,
+            data=data,
+            classificacao=classificacao_dieta_tipo_a_enteral,
+            quantidade=quantidade_dieta_autorizada,
+            faixa_etaria=faixa,
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_recreio_nas_ferias,
+            categoria_medicao=categoria_medicao_dieta_a,
+            nome_campo="dietas_autorizadas",
+            dia=dia,
+            valor=dieta.quantidade,
+            faixa_etaria=faixa,
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_recreio_nas_ferias,
+            categoria_medicao=categoria_medicao,
+            nome_campo="frequencia",
+            dia=dia,
+            valor=str(frequencia_por_faixa),
+            faixa_etaria=faixa,
+        )
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao_recreio_nas_ferias,
+            categoria_medicao=categoria_medicao_dieta_a,
+            nome_campo="frequencia",
+            dia=dia,
+            valor=dieta.quantidade - 1,
+            faixa_etaria=faixa,
+        )
+
+
 @pytest.fixture
 def solicitacao_recreio_cei(
     escola_cei,
@@ -7380,86 +7469,20 @@ def solicitacao_recreio_cei(
     ):
         data = recreio_nas_ferias.data_inicio + datetime.timedelta(days=offset)
         dia = f"{data.day:02d}"
-
-        if dia not in [
-            "13",
-            "14",
-            "20",
-            "21",
-            "25",
-            "27",
-            "28",
-        ]:
-            baker.make(
-                "ValorMedicao",
-                medicao=medicao_recreio_nas_ferias,
-                categoria_medicao=categoria_medicao,
-                nome_campo="participantes",
-                dia=dia,
-                valor=str(participante.num_inscritos - quantidade_dieta_autorizada),
-            )
-            baker.make(
-                "ValorMedicao",
-                medicao=medicao_colaboradores,
-                categoria_medicao=categoria_medicao,
-                nome_campo="participantes",
-                dia=dia,
-                valor=str(participante.num_colaboradores),
-            )
-
-            for campo in [
-                "frequencia",
-                "refeicao",
-                "repeticao_refeicao",
-                "sobremesa",
-                "repeticao_sobremesa",
-            ]:
-                baker.make(
-                    "ValorMedicao",
-                    medicao=medicao_colaboradores,
-                    categoria_medicao=categoria_medicao,
-                    nome_campo=campo,
-                    dia=dia,
-                    valor="20",
-                )
-
-            for faixa in faixas_etarias_ativas:
-                dieta = baker.make(
-                    "LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI",
-                    escola=solicitacao_recreio_nas_ferias.escola,
-                    data=data,
-                    classificacao=classificacao_dieta_tipo_a_enteral,
-                    quantidade=quantidade_dieta_autorizada,
-                    faixa_etaria=faixa,
-                )
-                baker.make(
-                    "ValorMedicao",
-                    medicao=medicao_recreio_nas_ferias,
-                    categoria_medicao=categoria_medicao_dieta_a,
-                    nome_campo="dietas_autorizadas",
-                    dia=dia,
-                    valor=dieta.quantidade,
-                    faixa_etaria=faixa,
-                )
-
-                baker.make(
-                    "ValorMedicao",
-                    medicao=medicao_recreio_nas_ferias,
-                    categoria_medicao=categoria_medicao,
-                    nome_campo="frequencia",
-                    dia=dia,
-                    valor=str(frequencia_por_faixa),
-                    faixa_etaria=faixa,
-                )
-                baker.make(
-                    "ValorMedicao",
-                    medicao=medicao_recreio_nas_ferias,
-                    categoria_medicao=categoria_medicao_dieta_a,
-                    nome_campo="frequencia",
-                    dia=dia,
-                    valor=dieta.quantidade - 1,
-                    faixa_etaria=faixa,
-                )
+        _cria_valores_recreio_por_dia(
+            dia=dia,
+            data=data,
+            medicao_recreio_nas_ferias=medicao_recreio_nas_ferias,
+            medicao_colaboradores=medicao_colaboradores,
+            categoria_medicao=categoria_medicao,
+            categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+            classificacao_dieta_tipo_a_enteral=classificacao_dieta_tipo_a_enteral,
+            solicitacao_recreio_nas_ferias=solicitacao_recreio_nas_ferias,
+            participante=participante,
+            quantidade_dieta_autorizada=quantidade_dieta_autorizada,
+            frequencia_por_faixa=frequencia_por_faixa,
+            faixas_etarias_ativas=faixas_etarias_ativas,
+        )
 
     return solicitacao_recreio_nas_ferias
 
