@@ -825,6 +825,17 @@ class StringsSourceSerializers(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsHeadersTabelasSolicitacaoMedicaoPDF(Enum):
+    MANHA_INFANTIL = "MANHA - INFANTIL"
+    MANHA_FUNDAMENTAL = "MANHA - FUNDAMENTAL"
+    TARDE_INFANTIL = "TARDE - INFANTIL"
+    TARDE_FUNDAMENTAL = "TARDE - FUNDAMENTAL"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsObservacaoValorMedicao(Enum):
     OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
     OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"
