@@ -25,7 +25,6 @@ from xworkflows import InvalidTransitionError
 from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
-    eh_resultado_individual_por_data,
     obtem_dias_com_dados,
     obtem_escolas_ordenadas,
     obtem_nome_arquivo_xlsx_relatorio_adesao,
@@ -2302,7 +2301,7 @@ class RelatoriosViewSet(ViewSet):
             )
 
     def _resolver_relatorio_adesao(self, request: Request, query_params) -> Response:
-        if eh_resultado_individual_por_data(query_params):
+        if query_params.get("resultado_individual_por_data"):
             valida_parametros_resultado_individual_por_data(query_params)
             return self._relatorio_adesao_por_data(request, query_params)
         if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
@@ -2361,7 +2360,7 @@ class RelatoriosViewSet(ViewSet):
         )
 
     def _obtem_resultados_exportacao_xlsx(self, query_params):
-        if eh_resultado_individual_por_data(query_params):
+        if query_params.get("resultado_individual_por_data"):
             valida_parametros_resultado_individual_por_data(query_params)
             return obtem_resultados_por_data_e_tipo_unidade(query_params)
         if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):

@@ -513,24 +513,6 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
     ]
 
 
-def eh_resultado_individual_por_data(query_params: QueryDict) -> bool:
-    """
-    Indica se a consulta/exportação deve usar o modo resultado individual por data.
-
-    Args:
-        query_params (QueryDict): parâmetros da requisição.
-
-    Returns:
-        bool: True quando ``resultado_individual_por_data`` estiver marcado.
-    """
-    valor = query_params.get("resultado_individual_por_data")
-    if isinstance(valor, bool):
-        return valor
-    if valor is None:
-        return False
-    return str(valor).strip().lower() in {"true", "1", "sim"}
-
-
 def obtem_tipos_unidades_ordenados(query_params: QueryDict) -> list[TipoUnidadeEscolar]:
     """
     Retorna os tipos de unidade do filtro, na ordem padrão dos grupos.
