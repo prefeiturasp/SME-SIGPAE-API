@@ -307,10 +307,7 @@ def cria_periodo_escolar():
 
 def cria_escola_faltante(unidade_escolar, codigo_eol, dre, lote):
     tipo_gestao = TipoGestao.objects.get(nome="TERC TOTAL")
-    if "CEU GESTAO" or "CEU GESTÃO" in unidade_escolar:
-        nome_tipo_unidade = "CEU GESTAO"
-    else:
-        nome_tipo_unidade = unidade_escolar.split()[0]
+    nome_tipo_unidade = unidade_escolar.split()[0]
     tipo_unidade = TipoUnidadeEscolar.objects.filter(
         iniciais=nome_tipo_unidade
     ).first()  # noqa
@@ -424,90 +421,80 @@ def cria_usuario_diretor(arquivo, in_memory=False):  # noqa_ C901
     return items
 
 
-def cria_usuario_cogestor(items):  # noqa_ C901
+def _extrai_dados_cogestor(item):
+    email = item.get("E-MAIL - ASSISTENTE DE DIRETOR").lower().strip()
+    if "@" not in email:
+        return None
+    cpf = None
+    if item.get("CPF - ASSISTENTE DE DIRETOR"):
+        cpf = somente_digitos(
+            str(item.get("CPF - ASSISTENTE DE DIRETOR"))[:11].zfill(11)
+        )
+    registro_funcional = None
+    if item.get("RF - ASSISTENTE DE DIRETOR"):
+        registro_funcional = somente_digitos(item.get("RF - ASSISTENTE DE DIRETOR")[:7])
+        if Usuario.objects.filter(registro_funcional=registro_funcional).first():
+            return None
+    nome = item.get("ASSISTENTE DE DIRETOR").strip()
+    if nome == "SEM ASSISTENTE":
+        return None
+    codigo_eol = str(item.get("CÓDIGO EOL DA U.E")).strip(".0").zfill(6)
+    return {
+        "email": email,
+        "cpf": cpf,
+        "registro_funcional": registro_funcional,
+        "nome": nome,
+        "codigo_eol": codigo_eol,
+    }
+
+
+def _cria_usuario_cogestor_item(dados, perfil_diretor, item):
+    email = dados["email"]
+    if Usuario.objects.filter(email=email).first():
+        print(
+            f'{bcolors.FAIL}Aviso: Usuario: "{dados["nome"]}" já existe!{bcolors.ENDC}'
+        )
+        return
+    if not dados["cpf"]:
+        return
+    diretor = Usuario.objects.create_user(
+        email=email,
+        cpf=dados["cpf"],
+        registro_funcional=dados["registro_funcional"],
+        nome=dados["nome"],
+        cargo="Cogestor",
+        is_active=False,
+        is_staff=False,
+        is_superuser=False,
+    )
+    escola = Escola.objects.filter(codigo_eol=dados["codigo_eol"]).first()
+    if not escola:
+        unidade_escolar = item.get("UNIDADE ESCOLAR")
+        dre = DiretoriaRegional.objects.filter(nome__icontains="IPIRANGA").first()
+        if item.get("LOTE") == "7 B":
+            lote = Lote.objects.get(nome="LOTE 07 B")
+        else:
+            lote = Lote.objects.get(nome="LOTE 07 A")
+        cria_escola_faltante(unidade_escolar, dados["codigo_eol"], dre, lote)
+    cria_vinculo_de_perfil_usuario(
+        perfil=perfil_diretor, usuario=diretor, instituicao=escola
+    )
+
+
+def cria_usuario_cogestor(items):
     """
     Específico: depende dos items de cria_usuario_diretor,
     porque o InMemoryUploadedFile não deu certo aqui.
     """
-    # cogestores_unicos = len(
-    #     set(
-    #         [
-    #             item["ASSISTENTE DE DIRETOR"]
-    #             for item in items
-    #             if item["ASSISTENTE DE DIRETOR"] != ""
-    #         ]
-    #     )
-    # )  # noqa
     perfil_diretor, created = Perfil.objects.get_or_create(
         nome="COGESTOR_DRE", ativo=True, super_usuario=True
     )
 
     for item in progressbar(items, "Cogestores DRE"):
-        # Remove .0 e transforma em tamanho de 6 digitos
-        email = item.get("E-MAIL - ASSISTENTE DE DIRETOR").lower().strip()
-        if "@" not in email:
+        dados = _extrai_dados_cogestor(item)
+        if not dados:
             continue
-
-        cpf = None
-        if item.get("CPF - ASSISTENTE DE DIRETOR"):
-            cpf = somente_digitos(
-                str(item.get("CPF - ASSISTENTE DE DIRETOR"))[:11].zfill(11)
-            )  # noqa
-
-        registro_funcional = None
-        if item.get("RF - ASSISTENTE DE DIRETOR"):
-            registro_funcional = somente_digitos(
-                item.get("RF - ASSISTENTE DE DIRETOR")[:7]
-            )  # noqa
-            existe_registro_funcional = Usuario.objects.filter(
-                registro_funcional=registro_funcional
-            ).first()  # noqa
-            if existe_registro_funcional:
-                continue
-
-        nome = item.get("ASSISTENTE DE DIRETOR").strip()
-        if nome == "SEM ASSISTENTE":
-            continue
-
-        cargo = "Cogestor"
-        codigo_eol = str(item.get("CÓDIGO EOL DA U.E")).strip(".0").zfill(6)
-
-        obj = Usuario.objects.filter(email=email).first()
-        if not obj:
-            if cpf:
-                diretor = Usuario.objects.create_user(
-                    email=email,
-                    cpf=cpf,
-                    registro_funcional=registro_funcional,
-                    nome=nome,
-                    cargo=cargo,
-                    is_active=False,
-                    is_staff=False,
-                    is_superuser=False,
-                )
-                escola = Escola.objects.filter(codigo_eol=codigo_eol).first()
-                if not escola:
-                    unidade_escolar = item.get("UNIDADE ESCOLAR")
-                    dre = DiretoriaRegional.objects.filter(
-                        nome__icontains="IPIRANGA"
-                    ).first()  # noqa
-
-                    if item.get("LOTE") == "7 A":
-                        lote = Lote.objects.get(nome="LOTE 07 A")
-                    if item.get("LOTE") == "7 B":
-                        lote = Lote.objects.get(nome="LOTE 07 B")
-                    else:
-                        lote = Lote.objects.get(nome="LOTE 07 A")
-
-                    cria_escola_faltante(unidade_escolar, codigo_eol, dre, lote)
-
-                cria_vinculo_de_perfil_usuario(
-                    perfil=perfil_diretor, usuario=diretor, instituicao=escola
-                )
-        else:
-            print(
-                f'{bcolors.FAIL}Aviso: Usuario: "{nome}" já existe!{bcolors.ENDC}'
-            )  # noqa
+        _cria_usuario_cogestor_item(dados, perfil_diretor, item)
 
 
 def cria_escola_com_periodo_escolar():
