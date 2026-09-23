@@ -210,3 +210,64 @@ Then('a exclusao de cronograma retorna nao encontrado ou permissao negada', func
 	expect([403, 404]).to.include(this.response.status)
 	if (this.response.status === 403) validarPermissao(this.response)
 })
+
+When('acesso complemento de cronogramas {string} sem autenticacao', function (operacao) {
+	cy.clearCookies()
+	cy.requisitar_complemento_cronogramas(operacao, { uuid: uuidInvalido, autenticado: false }).then((response) => { this.response = response })
+})
+Then('o complemento de cronogramas retorna status {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if ([401, 403].includes(status)) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
+When('consulto complemento de cronogramas {string} com UUID inexistente', function (operacao) {
+	cy.requisitar_complemento_cronogramas(operacao, { uuid: uuidInvalido }).then((response) => { this.response = response })
+})
+When('consulto complemento de cronogramas {string} com registro existente', function (operacao) {
+	cy.validar_cronogramas('limit=1&offset=0').then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array').and.not.be.empty
+		const cronograma = response.body.results[0]
+		this.cronogramaComplemento = cronograma
+		cy.requisitar_complemento_cronogramas(operacao, {
+			uuid: cronograma.uuid,
+			query: operacao === 'lista_pos_recebimento' ? { empresa_id: cronograma.empresa.uuid, contrato_id: cronograma.contrato.uuid } : {},
+		}).then((resposta) => { this.response = resposta })
+	})
+})
+Then('o PDF individual de cronograma e valido', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.headers['content-type']).to.contain('application/pdf')
+	expect(this.response.body.slice(0, 5)).to.eq('%PDF-')
+})
+Then('os dados de pos recebimento do cronograma sao validos', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body).to.be.an('object').and.not.be.empty
+})
+Then('a lista de pos recebimento inclui o cronograma selecionado', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body.results).to.be.an('array')
+	expect(this.response.body.results.map((item) => item.uuid)).to.include(this.cronogramaComplemento.uuid)
+})
+When('solicito exportacao de cronogramas {string}', function (operacao) {
+	cy.validar_cronogramas('limit=1&offset=0').then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array').and.not.be.empty
+		cy.requisitar_complemento_cronogramas(operacao, { query: { numero: response.body.results[0].numero } }).then((resposta) => { this.response = resposta })
+	})
+})
+Then('a exportacao de cronogramas confirma o recebimento', function () {
+	expect(this.response.status).to.eq(200)
+	const texto = this.response.body.detail.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	expect(texto).to.eq('Solicitacao de geracao de arquivo recebida com sucesso.')
+})
+When('consulto pos recebimento de cronogramas sem filtros', function () {
+	cy.requisitar_complemento_cronogramas('lista_pos_recebimento').then((response) => { this.response = response })
+})
+Then('a lista de pos recebimento de cronogramas esta vazia', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body.results).to.deep.eq([])
+})
+When('tento alterar cronogramas com {string} como escola', function (operacao) {
+	cy.autenticar_login(Cypress.env('usuario_diretor_ue'), Cypress.env('senha'))
+	cy.requisitar_complemento_cronogramas(operacao, { uuid: uuidInvalido, dados: {} }).then((response) => { this.response = response })
+})

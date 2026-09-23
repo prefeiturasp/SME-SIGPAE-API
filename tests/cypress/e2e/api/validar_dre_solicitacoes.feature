@@ -39,3 +39,34 @@ Funcionalidade: Validar solicitacoes da DRE
       | daqui_a_30_dias   | dre              |
       | daqui_a_30_dias   | lote             |
       | daqui_a_30_dias   | tipo_solicitacao |
+
+  @complemento_dre
+  Esquema do Cenario: Consultar relatorios DRE com sucesso
+    Quando consulto o relatorio DRE pela operacao "<operacao>" com acesso "autenticado"
+    Entao o relatorio DRE apresenta os dados esperados
+    Exemplos:
+      | operacao |
+      | filtrar  |
+      | cards    |
+      | graficos |
+
+  @complemento_dre
+  Esquema do Cenario: Solicitar exportacao de relatorio DRE com sucesso
+    Quando consulto o relatorio DRE pela operacao "<operacao>" com acesso "autenticado"
+    Entao a exportacao DRE confirma o recebimento do pedido
+    Exemplos:
+      | operacao |
+      | pdf      |
+      | xlsx     |
+
+  @complemento_dre
+  Esquema do Cenario: Rejeitar relatorio DRE sem autenticacao
+    Quando consulto o relatorio DRE pela operacao "<operacao>" com acesso "anonimo"
+    Entao o relatorio DRE rejeita a consulta sem autenticacao
+    Exemplos:
+      | operacao |
+      | filtrar  |
+      | cards    |
+      | graficos |
+      | pdf      |
+      | xlsx     |

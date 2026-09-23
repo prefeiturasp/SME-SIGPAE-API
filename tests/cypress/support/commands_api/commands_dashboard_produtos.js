@@ -124,3 +124,14 @@ Cypress.Commands.add('consultar_pendente_homologacao', () => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('executar_dashboard_produtos', (metodo, uuid = '', body, autenticado = true) => {
+	return cy.request({
+		method: metodo,
+		url: `${Cypress.config('baseUrl')}api/dashboard-produtos/${uuid ? `${encodeURIComponent(uuid)}/` : ''}`,
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		body,
+		timeout: 60000,
+		failOnStatusCode: false,
+	})
+})
