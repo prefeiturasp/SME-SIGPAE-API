@@ -472,36 +472,56 @@ def append_segunda_tabela(
     return tabelas
 
 
+def _nova_tabela_vazia():
+    return {
+        "periodos": [],
+        "categorias": [],
+        "nomes_campos": [],
+        "len_periodos": [],
+        "len_categorias": [],
+        "valores_campos": [],
+        "ordem_periodos_grupos": [],
+        "dias_letivos": [],
+        "categorias_dos_periodos": {},
+    }
+
+
+def _nome_periodo_medicao(medicao):
+    if not medicao.grupo:
+        return medicao.periodo_escolar.nome
+    if medicao.periodo_escolar:
+        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
+    return medicao.grupo.nome
+
+
+def _adiciona_categoria_na_tabela_atual(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos
+):
+    tabelas[indice_atual]["periodos"] += [nome_periodo]
+    tabelas[indice_atual]["categorias"] += [categoria]
+    tabelas[indice_atual]["nomes_campos"] += [
+        campo for campo in ORDEM_CAMPOS if campo in dict_categorias_campos[categoria]
+    ]
+    tabelas[indice_atual]["len_categorias"] += [len(dict_categorias_campos[categoria])]
+    get_categorias_dos_periodos(
+        nome_periodo,
+        tabelas,
+        indice_atual,
+        categoria,
+        dict_categorias_campos,
+    )
+
+
 def build_headers_tabelas(solicitacao, ordem_periodos=None):
     if ordem_periodos is None:
         ordem_periodos = ORDEM_PERIODOS_GRUPOS
-    tabelas = [
-        {
-            "periodos": [],
-            "categorias": [],
-            "nomes_campos": [],
-            "len_periodos": [],
-            "len_categorias": [],
-            "valores_campos": [],
-            "ordem_periodos_grupos": [],
-            "dias_letivos": [],
-            "categorias_dos_periodos": {},
-        }
-    ]
+    tabelas = [_nova_tabela_vazia()]
 
     indice_atual = 0
     for medicao in get_medicoes_ordenadas(solicitacao, ordem_periodos):
         dict_categorias_campos = build_dict_relacao_categorias_e_campos(medicao)
         for categoria in dict_categorias_campos.keys():
-            nome_periodo = (
-                medicao.periodo_escolar.nome
-                if not medicao.grupo
-                else (
-                    f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-                    if medicao.periodo_escolar
-                    else medicao.grupo.nome
-                )
-            )
+            nome_periodo = _nome_periodo_medicao(medicao)
             if (
                 len(tabelas[indice_atual]["nomes_campos"])
                 + len(dict_categorias_campos[categoria])
@@ -519,19 +539,7 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
                         dict_categorias_campos,
                     )
                     indice_atual += 1
-                    tabelas += [
-                        {
-                            "periodos": [],
-                            "categorias": [],
-                            "nomes_campos": [],
-                            "len_periodos": [],
-                            "len_categorias": [],
-                            "valores_campos": [],
-                            "ordem_periodos_grupos": [],
-                            "dias_letivos": [],
-                            "categorias_dos_periodos": {},
-                        }
-                    ]
+                    tabelas += [_nova_tabela_vazia()]
                     append_tabela(
                         tabelas,
                         indice_atual,
@@ -543,33 +551,11 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
                     )
                 else:
                     indice_atual += 1
-                    tabelas += [
-                        {
-                            "periodos": [],
-                            "categorias": [],
-                            "nomes_campos": [],
-                            "len_periodos": [],
-                            "len_categorias": [],
-                            "valores_campos": [],
-                            "ordem_periodos_grupos": [],
-                            "dias_letivos": [],
-                            "categorias_dos_periodos": {},
-                        }
-                    ]
-                    tabelas[indice_atual]["periodos"] += [nome_periodo]
-                    tabelas[indice_atual]["categorias"] += [categoria]
-                    tabelas[indice_atual]["nomes_campos"] += [
-                        campo
-                        for campo in ORDEM_CAMPOS
-                        if campo in dict_categorias_campos[categoria]
-                    ]
-                    tabelas[indice_atual]["len_categorias"] += [
-                        len(dict_categorias_campos[categoria])
-                    ]
-                    get_categorias_dos_periodos(
-                        nome_periodo,
+                    tabelas += [_nova_tabela_vazia()]
+                    _adiciona_categoria_na_tabela_atual(
                         tabelas,
                         indice_atual,
+                        nome_periodo,
                         categoria,
                         dict_categorias_campos,
                     )
