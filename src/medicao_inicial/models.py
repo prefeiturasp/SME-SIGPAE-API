@@ -773,7 +773,7 @@ class ValorMedicao(
     def get_week_of_month(cls, year, month, day):
         setfirstweekday(0)
         x = numpy.array(monthcalendar(year, month))
-        week_of_month = numpy.where(x == day)[0][0] + 1
+        week_of_month = numpy.nonzero(x == day)[0][0] + 1
         return week_of_month
 
     def __str__(self):
