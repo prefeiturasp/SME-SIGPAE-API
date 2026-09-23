@@ -107,6 +107,8 @@ logger = logging.getLogger(__name__)
 
 CHAVE_ALIMENTACAO_REGULAR = CategoriaMedicao.ALIMENTACAO
 TURMAS_EMEBS = ["INFANTIL", "FUNDAMENTAL"]
+LANCHE_EMERGENCIAL = TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value.upper()
+KIT_LANCHE = "KIT LANCHE"
 
 
 def process_single_anexo(anexo, usuario):
@@ -188,14 +190,14 @@ def get_lista_categorias_campos(medicao, tipo_turma=None):
             "lanche_emergencial",
         ) in lista_categorias_campos:
             lista_ += [
-                ("LANCHE EMERGENCIAL", "solicitado"),
-                ("LANCHE EMERGENCIAL", "consumido"),
+                (LANCHE_EMERGENCIAL, "solicitado"),
+                (LANCHE_EMERGENCIAL, "consumido"),
             ]
         if (
             CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             "kit_lanche",
         ) in lista_categorias_campos:
-            lista_ += [("KIT LANCHE", "solicitado"), ("KIT LANCHE", "consumido")]
+            lista_ += [(KIT_LANCHE, "solicitado"), (KIT_LANCHE, "consumido")]
         lista_categorias_campos = lista_
     return lista_categorias_campos
 
@@ -1878,7 +1880,7 @@ def popula_campo_consumido_solicitacoes_alimentacao(
             medicao = solicitacao.medicoes.get(grupo__nome__icontains="Solicitações")
             nome_campo = (
                 "lanche_emergencial"
-                if categoria_corrente == "LANCHE EMERGENCIAL"
+                if categoria_corrente == LANCHE_EMERGENCIAL
                 else "kit_lanche"
             )
             valores_dia += [
@@ -2266,7 +2268,7 @@ def popula_campo_total_sobremesas_pagamento(
 def popula_solicitado_total_lanche_emergencial(
     categoria_corrente, alteracoes_lanche_emergencial, valores_dia, dia
 ):
-    if categoria_corrente != "LANCHE EMERGENCIAL":
+    if categoria_corrente != LANCHE_EMERGENCIAL:
         return valores_dia
 
     total_lanche_emergencial = sum(
@@ -2281,7 +2283,7 @@ def popula_solicitado_total_lanche_emergencial(
 def popula_solicitado_total_kit_lanche(
     categoria_corrente, kits_lanches, valores_dia, dia
 ):
-    if categoria_corrente != "KIT LANCHE":
+    if categoria_corrente != KIT_LANCHE:
         return valores_dia
 
     total_kits = sum(
