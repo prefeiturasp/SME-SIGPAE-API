@@ -2092,10 +2092,14 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
             periodo_escolar = getattr(self.instance, "periodo_escolar", None)
 
         if not faixa_etaria:
-            errors["faixa_etaria"] = "Campo obrigatório para o grupo."
+            errors["faixa_etaria"] = (
+                StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+            )
 
         if not periodo_escolar:
-            errors["periodo_escolar"] = "Campo obrigatório para o grupo."
+            errors["periodo_escolar"] = (
+                StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+            )
 
         if errors:
             raise serializers.ValidationError(errors)
@@ -2118,7 +2122,9 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         cei_ou_emei = attrs.get("cei_ou_emei")
         if not cei_ou_emei or cei_ou_emei == "N/A":
             raise serializers.ValidationError(
-                {"cei_ou_emei": "Campo obrigatório para o grupo."}
+                {
+                    "cei_ou_emei": StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+                }
             )
 
         if cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.CEI.value:
@@ -2130,6 +2136,8 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
         infantil_ou_fundamental = attrs.get("infantil_ou_fundamental")
         if not infantil_ou_fundamental or infantil_ou_fundamental == "N/A":
             raise serializers.ValidationError(
-                {"infantil_ou_fundamental": "Campo obrigatório para o grupo."}
+                {
+                    "infantil_ou_fundamental": StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+                }
             )
         self._validar_grupo_emei(attrs)

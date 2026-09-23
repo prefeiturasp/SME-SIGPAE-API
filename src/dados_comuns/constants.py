@@ -935,6 +935,7 @@ class StringsValidationErrors(Enum):
     INFORMAR_NUMERO_REQUISICAO = (
         "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
     )
+    CAMPO_OBRIGATORIO_PARA_O_GRUPO = "Campo obrigatório para o grupo."
 
     @classmethod
     def choices(cls):
