@@ -8,14 +8,14 @@ TAMANHO_RF = 7
 
 
 class ImportacaoPlanilhaUsuarioPerfilEscolaSchema(BaseModel):
-    codigo_eol_escola: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    telefone: Optional[str]
-    rf: Optional[str]
-    perfil: Optional[str]
+    codigo_eol_escola: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    telefone: Optional[str] = None
+    rf: Optional[str] = None
+    perfil: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -84,14 +84,14 @@ class ImportacaoPlanilhaUsuarioPerfilEscolaSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioPerfilCodaeSchema(BaseModel):
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    telefone: Optional[str]
-    rf: Optional[str]
-    perfil: Optional[str]
-    crn_numero: Optional[str]
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    telefone: Optional[str] = None
+    rf: Optional[str] = None
+    perfil: Optional[str] = None
+    crn_numero: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -157,14 +157,14 @@ class ImportacaoPlanilhaUsuarioPerfilCodaeSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioPerfilDreSchema(BaseModel):
-    codigo_eol_dre: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    telefone: Optional[str]
-    rf: Optional[str]
-    perfil: Optional[str]
+    codigo_eol_dre: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    telefone: Optional[str] = None
+    rf: Optional[str] = None
+    perfil: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -233,15 +233,15 @@ class ImportacaoPlanilhaUsuarioPerfilDreSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
-    codigo_eol: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    rf: Optional[str]
-    tipo_perfil: Optional[str]
-    perfil: Optional[str]
-    codae: Optional[str]
+    codigo_eol: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    rf: Optional[str] = None
+    tipo_perfil: Optional[str] = None
+    perfil: Optional[str] = None
+    codae: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -321,11 +321,11 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioExternoCoreSSOSchema(BaseModel):
-    nome: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    perfil: Optional[str]
-    cnpj_terceirizada: Optional[str]
+    nome: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    perfil: Optional[str] = None
+    cnpj_terceirizada: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -365,12 +365,12 @@ class ImportacaoPlanilhaUsuarioExternoCoreSSOSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOSchema(BaseModel):
-    codigo_eol: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    perfil: Optional[str]
+    codigo_eol: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    perfil: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
