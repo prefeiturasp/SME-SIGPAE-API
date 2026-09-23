@@ -2,6 +2,7 @@ import datetime
 import json
 import random
 from io import BytesIO
+from itertools import product
 from unittest.mock import MagicMock
 
 import pandas as pd
@@ -1071,24 +1072,20 @@ def solicitacao_medicao_inicial_varios_valores(escola, categoria_medicao):
 
 
 def _cria_valores_medicao_emebs(medicoes, categorias, tipos_turmas, dias, campos):
-    for dia in dias:
-        for tipo_turma in tipos_turmas:
-            for campo in campos:
-                for categoria in categorias:
-                    for medicao_ in medicoes:
-                        baker.make(
-                            "ValorMedicao",
-                            dia=dia,
-                            nome_campo=campo,
-                            medicao=medicao_,
-                            categoria_medicao=categoria,
-                            valor=(
-                                "10"
-                                if campo != "observacoes"
-                                else f"observação {tipo_turma} dia {dia}"
-                            ),
-                            infantil_ou_fundamental=tipo_turma,
-                        )
+    for dia, tipo_turma, campo, categoria, medicao_ in product(
+        dias, tipos_turmas, campos, categorias, medicoes
+    ):
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=medicao_,
+            categoria_medicao=categoria,
+            valor=(
+                "10" if campo != "observacoes" else f"observação {tipo_turma} dia {dia}"
+            ),
+            infantil_ou_fundamental=tipo_turma,
+        )
 
 
 @pytest.fixture
@@ -3261,6 +3258,82 @@ def medicao_grupo_alimentacao(
     return medicao_emef, medicao_emei
 
 
+def _cria_valores_medicao_por_dia(
+    dia,
+    medicao_alimentacao,
+    medicao_solicitacao,
+    valor_alimentacao,
+    valor_dieta,
+    valor_solicitacao,
+    valor_matriculados,
+    valor_frequencia,
+    categoria_medicao,
+    categoria_medicao_dieta_a,
+    categoria_medicao_dieta_b,
+    categoria_medicao_dieta_a_enteral_aminoacidos,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
+        baker.make(
+            "ValorMedicao",
+            dia=dia,
+            nome_campo=campo,
+            medicao=medicao_alimentacao,
+            categoria_medicao=categoria_medicao,
+            valor=valor_alimentacao,
+        )
+        if campo in ["lanche", "lanche_4h"]:
+            for categoria in [
+                categoria_medicao_dieta_a,
+                categoria_medicao_dieta_b,
+                categoria_medicao_dieta_a_enteral_aminoacidos,
+            ]:
+                baker.make(
+                    "ValorMedicao",
+                    dia=dia,
+                    nome_campo=campo,
+                    medicao=medicao_alimentacao,
+                    categoria_medicao=categoria,
+                    valor=valor_dieta,
+                )
+        elif campo == "refeicao":
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_alimentacao,
+                categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
+                valor=valor_dieta,
+            )
+    if dia == "05":
+        for campo in ["kit_lanche", "lanche_emergencial"]:
+            baker.make(
+                "ValorMedicao",
+                dia=dia,
+                nome_campo=campo,
+                medicao=medicao_solicitacao,
+                categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+                valor=valor_solicitacao,
+            )
+
+    baker.make(
+        "ValorMedicao",
+        dia=dia,
+        nome_campo="matriculados",
+        medicao=medicao_alimentacao,
+        categoria_medicao=categoria_medicao,
+        valor=valor_matriculados,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia=dia,
+        nome_campo="frequencia",
+        medicao=medicao_alimentacao,
+        categoria_medicao=categoria_medicao,
+        valor=valor_frequencia,
+    )
+
+
 def _cria_valores_medicao_relatorio_consolidado(
     medicao_alimentacao,
     medicao_solicitacao,
@@ -3276,64 +3349,24 @@ def _cria_valores_medicao_relatorio_consolidado(
     categoria_medicao_solicitacoes_alimentacao,
 ):
     for dia in ["01", "02", "03", "04", "05"]:
-        for campo in ["lanche", "lanche_4h", "refeicao", "sobremesa"]:
-            baker.make(
-                "ValorMedicao",
-                dia=dia,
-                nome_campo=campo,
-                medicao=medicao_alimentacao,
-                categoria_medicao=categoria_medicao,
-                valor=valor_alimentacao,
-            )
-            if campo in ["lanche", "lanche_4h"]:
-                for categoria in [
-                    categoria_medicao_dieta_a,
-                    categoria_medicao_dieta_b,
-                    categoria_medicao_dieta_a_enteral_aminoacidos,
-                ]:
-                    baker.make(
-                        "ValorMedicao",
-                        dia=dia,
-                        nome_campo=campo,
-                        medicao=medicao_alimentacao,
-                        categoria_medicao=categoria,
-                        valor=valor_dieta,
-                    )
-            elif campo == "refeicao":
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_alimentacao,
-                    categoria_medicao=categoria_medicao_dieta_a_enteral_aminoacidos,
-                    valor=valor_dieta,
-                )
-        if dia == "05":
-            for campo in ["kit_lanche", "lanche_emergencial"]:
-                baker.make(
-                    "ValorMedicao",
-                    dia=dia,
-                    nome_campo=campo,
-                    medicao=medicao_solicitacao,
-                    categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
-                    valor=valor_solicitacao,
-                )
-
-        baker.make(
-            "ValorMedicao",
+        _cria_valores_medicao_por_dia(
             dia=dia,
-            nome_campo="matriculados",
-            medicao=medicao_alimentacao,
+            medicao_alimentacao=medicao_alimentacao,
+            medicao_solicitacao=medicao_solicitacao,
+            valor_alimentacao=valor_alimentacao,
+            valor_dieta=valor_dieta,
+            valor_solicitacao=valor_solicitacao,
+            valor_matriculados=valor_matriculados,
+            valor_frequencia=valor_frequencia,
             categoria_medicao=categoria_medicao,
-            valor=valor_matriculados,
-        )
-        baker.make(
-            "ValorMedicao",
-            dia=dia,
-            nome_campo="frequencia",
-            medicao=medicao_alimentacao,
-            categoria_medicao=categoria_medicao,
-            valor=valor_frequencia,
+            categoria_medicao_dieta_a=categoria_medicao_dieta_a,
+            categoria_medicao_dieta_b=categoria_medicao_dieta_b,
+            categoria_medicao_dieta_a_enteral_aminoacidos=(
+                categoria_medicao_dieta_a_enteral_aminoacidos
+            ),
+            categoria_medicao_solicitacoes_alimentacao=(
+                categoria_medicao_solicitacoes_alimentacao
+            ),
         )
 
 
