@@ -494,6 +494,72 @@ def _nome_periodo_medicao(medicao):
     return medicao.grupo.nome
 
 
+def _nome_periodo_medicao_turma(medicao, tipo_turma):
+    if not medicao.grupo:
+        return f"{medicao.periodo_escolar.nome} - {tipo_turma}"
+    if medicao.periodo_escolar:
+        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
+    return f"{medicao.grupo.nome} - {tipo_turma}"
+
+
+def _processa_categoria_emebs(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos
+):
+    if (
+        len(tabelas[indice_atual]["nomes_campos"])
+        + len(dict_categorias_campos[categoria])
+        > MAX_COLUNAS
+    ) or (
+        "total_refeicoes_pagamento" in tabelas[indice_atual]["nomes_campos"]
+        and "total_refeicoes_pagamento" in dict_categorias_campos[categoria]
+    ):
+        if len(dict_categorias_campos[categoria]) > MAX_COLUNAS:
+            tabelas, limite = append_tabela(
+                tabelas,
+                indice_atual,
+                nome_periodo,
+                categoria,
+                dict_categorias_campos,
+            )
+            indice_atual += 1
+            tabelas += [_nova_tabela_vazia()]
+            append_tabela(
+                tabelas,
+                indice_atual,
+                nome_periodo,
+                categoria,
+                dict_categorias_campos,
+                True,
+                limite_campos=limite,
+            )
+        else:
+            indice_atual += 1
+            tabelas += [_nova_tabela_vazia()]
+        _adiciona_categoria_na_tabela_atual(
+            tabelas,
+            indice_atual,
+            nome_periodo,
+            categoria,
+            dict_categorias_campos,
+        )
+    else:
+        adiciona_valores_header(
+            nome_periodo,
+            tabelas,
+            dict_categorias_campos,
+            indice_atual,
+            categoria,
+        )
+        get_categorias_dos_periodos(
+            nome_periodo,
+            tabelas,
+            indice_atual,
+            categoria,
+            dict_categorias_campos,
+        )
+    return tabelas, indice_atual
+
+
 def _adiciona_categoria_na_tabela_atual(
     tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos
 ):
@@ -580,19 +646,7 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
 
 
 def build_headers_tabelas_emebs(solicitacao):
-    tabelas = [
-        {
-            "periodos": [],
-            "categorias": [],
-            "nomes_campos": [],
-            "len_periodos": [],
-            "len_categorias": [],
-            "valores_campos": [],
-            "ordem_periodos_grupos": [],
-            "dias_letivos": [],
-            "categorias_dos_periodos": {},
-        }
-    ]
+    tabelas = [_nova_tabela_vazia()]
 
     indice_atual = 0
 
@@ -603,102 +657,14 @@ def build_headers_tabelas_emebs(solicitacao):
             )
 
             for categoria in dict_categorias_campos.keys():
-                nome_periodo = (
-                    f"{medicao.periodo_escolar.nome} - {tipo_turma}"
-                    if not medicao.grupo
-                    else (
-                        f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
-                        if medicao.periodo_escolar
-                        else f"{medicao.grupo.nome} - {tipo_turma}"
-                    )
+                nome_periodo = _nome_periodo_medicao_turma(medicao, tipo_turma)
+                tabelas, indice_atual = _processa_categoria_emebs(
+                    tabelas,
+                    indice_atual,
+                    nome_periodo,
+                    categoria,
+                    dict_categorias_campos,
                 )
-
-                if (
-                    len(tabelas[indice_atual]["nomes_campos"])
-                    + len(dict_categorias_campos[categoria])
-                    > MAX_COLUNAS
-                ) or (
-                    "total_refeicoes_pagamento" in tabelas[indice_atual]["nomes_campos"]
-                    and "total_refeicoes_pagamento" in dict_categorias_campos[categoria]
-                ):
-                    if len(dict_categorias_campos[categoria]) > MAX_COLUNAS:
-                        tabelas, limite = append_tabela(
-                            tabelas,
-                            indice_atual,
-                            nome_periodo,
-                            categoria,
-                            dict_categorias_campos,
-                        )
-                        indice_atual += 1
-                        tabelas += [
-                            {
-                                "periodos": [],
-                                "categorias": [],
-                                "nomes_campos": [],
-                                "len_periodos": [],
-                                "len_categorias": [],
-                                "valores_campos": [],
-                                "ordem_periodos_grupos": [],
-                                "dias_letivos": [],
-                                "categorias_dos_periodos": {},
-                            }
-                        ]
-                        append_tabela(
-                            tabelas,
-                            indice_atual,
-                            nome_periodo,
-                            categoria,
-                            dict_categorias_campos,
-                            True,
-                            limite_campos=limite,
-                        )
-                    else:
-                        indice_atual += 1
-                        tabelas += [
-                            {
-                                "periodos": [],
-                                "categorias": [],
-                                "nomes_campos": [],
-                                "len_periodos": [],
-                                "len_categorias": [],
-                                "valores_campos": [],
-                                "ordem_periodos_grupos": [],
-                                "dias_letivos": [],
-                                "categorias_dos_periodos": {},
-                            }
-                        ]
-                    tabelas[indice_atual]["periodos"] += [nome_periodo]
-                    tabelas[indice_atual]["categorias"] += [categoria]
-                    tabelas[indice_atual]["nomes_campos"] += [
-                        campo
-                        for campo in ORDEM_CAMPOS
-                        if campo in dict_categorias_campos[categoria]
-                    ]
-                    tabelas[indice_atual]["len_categorias"] += [
-                        len(dict_categorias_campos[categoria])
-                    ]
-                    get_categorias_dos_periodos(
-                        nome_periodo,
-                        tabelas,
-                        indice_atual,
-                        categoria,
-                        dict_categorias_campos,
-                    )
-                else:
-                    adiciona_valores_header(
-                        nome_periodo,
-                        tabelas,
-                        dict_categorias_campos,
-                        indice_atual,
-                        categoria,
-                    )
-                    get_categorias_dos_periodos(
-                        nome_periodo,
-                        tabelas,
-                        indice_atual,
-                        categoria,
-                        dict_categorias_campos,
-                    )
 
     get_tamanho_colunas_periodos(tabelas, ORDEM_PERIODOS_GRUPOS_EMEBS)
     return tabelas
