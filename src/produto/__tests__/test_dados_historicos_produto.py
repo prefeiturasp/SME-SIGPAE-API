@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import pytest
 from model_bakery import baker
 
@@ -245,3 +247,126 @@ def test_copia_de_log_da_reclamacao_preserva_dados_historicos(
         log_original.dados_produto.componentes
     )
     assert log_copia.dados_produto.pk != log_original.dados_produto.pk
+
+
+def test_remove_snapshots_da_homologacao_e_das_reclamacoes_copiadas(
+    homologacao_produto,
+    reclamacao,
+    user,
+):
+    log_homologacao = criar_log(homologacao_produto, user)
+    log_reclamacao = baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=reclamacao.uuid,
+        solicitacao_tipo=LogSolicitacoesUsuario.RECLAMACAO_PRODUTO,
+        status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
+        usuario=user,
+    )
+    log_nao_relacionado = baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=uuid4(),
+        solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=user,
+    )
+    snapshot_homologacao = ServicoDadosHistoricosProduto.registrar(
+        log_homologacao,
+        homologacao_produto,
+    )
+    snapshot_reclamacao = ServicoDadosHistoricosProduto.registrar(
+        log_reclamacao,
+        homologacao_produto,
+    )
+    snapshot_nao_relacionado = ServicoDadosHistoricosProduto.registrar(
+        log_nao_relacionado,
+        homologacao_produto,
+    )
+
+    quantidade = (
+        ServicoDadosHistoricosProduto.remover_snapshots_logs_remanescentes(
+            homologacao_produto
+        )
+    )
+
+    assert quantidade == 2
+    assert not DadosHistoricosProduto.objects.filter(
+        pk=snapshot_homologacao.pk
+    ).exists()
+    assert not DadosHistoricosProduto.objects.filter(
+        pk=snapshot_reclamacao.pk
+    ).exists()
+    assert DadosHistoricosProduto.objects.filter(
+        pk=snapshot_nao_relacionado.pk
+    ).exists()
+    assert LogSolicitacoesUsuario.objects.filter(pk=log_homologacao.pk).exists()
+    assert LogSolicitacoesUsuario.objects.filter(pk=log_reclamacao.pk).exists()
+
+
+def test_remover_snapshots_sem_registros_retorna_zero(
+    homologacao_produto,
+    user,
+):
+    log = criar_log(homologacao_produto, user)
+
+    quantidade = (
+        ServicoDadosHistoricosProduto.remover_snapshots_logs_remanescentes(
+            homologacao_produto
+        )
+    )
+
+    assert quantidade == 0
+    assert LogSolicitacoesUsuario.objects.filter(pk=log.pk).exists()
+
+
+def test_equalizacao_remove_apenas_snapshots_dos_logs_remanescentes(
+    homologacao_produto,
+    reclamacao,
+    terceirizada,
+    user,
+):
+    log_homologacao_original = homologacao_produto.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=user,
+    )
+    log_reclamacao_original = reclamacao.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_RECLAMACAO,
+        user=user,
+    )
+    homologacao_copia = homologacao_produto.cria_copia(terceirizada)
+    reclamacao_copia = homologacao_copia.reclamacoes.get()
+    log_homologacao_copia = homologacao_copia.logs.get(
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO
+    )
+    log_reclamacao_copia = reclamacao_copia.logs.get(
+        status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_RECLAMACAO
+    )
+    log_transferido = homologacao_copia.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.CODAE_QUESTIONOU,
+        usuario=user,
+    )
+
+    homologacao_original = homologacao_copia.equaliza_homologacoes_e_se_destroi()
+    log_transferido.refresh_from_db()
+
+    assert LogSolicitacoesUsuario.objects.filter(
+        pk=log_homologacao_copia.pk
+    ).exists()
+    assert LogSolicitacoesUsuario.objects.filter(
+        pk=log_reclamacao_copia.pk
+    ).exists()
+    assert not DadosHistoricosProduto.objects.filter(
+        log_id=log_homologacao_copia.pk
+    ).exists()
+    assert not DadosHistoricosProduto.objects.filter(
+        log_id=log_reclamacao_copia.pk
+    ).exists()
+    assert DadosHistoricosProduto.objects.filter(
+        log_id=log_homologacao_original.pk
+    ).exists()
+    assert DadosHistoricosProduto.objects.filter(
+        log_id=log_reclamacao_original.pk
+    ).exists()
+    assert DadosHistoricosProduto.objects.filter(
+        log_id=log_transferido.pk
+    ).exists()
+    assert log_transferido.uuid_original == homologacao_original.uuid
