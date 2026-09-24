@@ -27,9 +27,11 @@ from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_dias_com_dados,
     obtem_escolas_ordenadas,
+    obtem_nome_arquivo_xlsx_relatorio_adesao,
     obtem_resultados,
     obtem_resultados_para_dia,
     obtem_resultados_para_escola,
+    obtem_resultados_por_data_e_tipo_unidade,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
     valida_parametros_resultado_individual_por_data,
@@ -2357,6 +2359,26 @@ class RelatoriosViewSet(ViewSet):
             }
         )
 
+    def _obtem_resultados_exportacao_xlsx(self, query_params):
+        if query_params.get("resultado_individual_por_data"):
+            valida_parametros_resultado_individual_por_data(query_params)
+            return obtem_resultados_por_data_e_tipo_unidade(query_params)
+        if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
+            return obtem_resultados_por_escola(query_params)
+        return obtem_resultados(query_params)
+
+    def _query_params_dict_exportacao(self, query_params) -> dict:
+        query_params_dict = query_params.dict()
+        if query_params.get(PayloadVariaveis.LOTES.value):
+            query_params_dict["lotes"] = query_params.getlist(
+                PayloadVariaveis.LOTES.value
+            )
+        if query_params.get(PayloadVariaveis.TIPOS_UNIDADES.value):
+            query_params_dict["tipos_unidades"] = query_params.getlist(
+                PayloadVariaveis.TIPOS_UNIDADES.value
+            )
+        return query_params_dict
+
     @action(
         detail=False,
         url_name="relatorio-adesao_exportar-xlsx",
@@ -2366,21 +2388,12 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
-                resultados = obtem_resultados_por_escola(query_params)
-            else:
-                resultados = obtem_resultados(query_params)
-
-            query_params_dict = query_params.dict()
-
-            if query_params.get(PayloadVariaveis.LOTES.value):
-                query_params_dict["lotes"] = query_params.getlist(
-                    PayloadVariaveis.LOTES.value
-                )
+            resultados = self._obtem_resultados_exportacao_xlsx(query_params)
+            query_params_dict = self._query_params_dict_exportacao(query_params)
 
             exporta_relatorio_adesao_para_xlsx.delay(
                 user=request.user.get_username(),
-                nome_arquivo="relatorio-adesao.xlsx",
+                nome_arquivo=obtem_nome_arquivo_xlsx_relatorio_adesao(query_params),
                 resultados=resultados,
                 query_params=query_params_dict,
             )

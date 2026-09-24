@@ -17,9 +17,11 @@ from src.medicao_inicial.services.relatorio_adesao import (
     obtem_dias_com_dados,
     obtem_escolas_ordenadas,
     obtem_identificacao_tipo_unidade,
+    obtem_nome_arquivo_xlsx_relatorio_adesao,
     obtem_resultados,
     obtem_resultados_para_dia,
     obtem_resultados_para_escola,
+    obtem_resultados_por_data_e_tipo_unidade,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
     valida_parametros_resultado_individual_por_data,
@@ -575,6 +577,34 @@ def test_obtem_identificacao_tipo_unidade_grupo_3(
     assert obtem_identificacao_tipo_unidade(query_params) == "Grupo 3 - EMEI, CEU EMEI"
 
 
+def test_obtem_nome_arquivo_xlsx_relatorio_adesao_com_tipos(
+    tipo_unidade_escolar_emei,
+    tipo_unidade_escolar_ceu_emei,
+):
+    query_params = QueryDict(mutable=True)
+    query_params["mes_ano"] = "08_2026"
+    query_params.setlist(
+        "tipos_unidades[]",
+        [
+            str(tipo_unidade_escolar_ceu_emei.uuid),
+            str(tipo_unidade_escolar_emei.uuid),
+        ],
+    )
+
+    assert obtem_nome_arquivo_xlsx_relatorio_adesao(query_params) == (
+        "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.xlsx"
+    )
+
+
+def test_obtem_nome_arquivo_xlsx_relatorio_adesao_sem_tipo():
+    query_params = QueryDict(mutable=True)
+    query_params["mes_ano"] = "08_2026"
+
+    assert obtem_nome_arquivo_xlsx_relatorio_adesao(query_params) == (
+        "Relatório de Adesão das Alimentações Servidas - 08/2026.xlsx"
+    )
+
+
 def test_obtem_dias_com_dados_apenas_datas_do_periodo_com_lancamento(
     categoria_medicao,
     tipo_alimentacao_refeicao,
@@ -737,6 +767,87 @@ def test_obtem_resultados_para_dia_agrega_escolas_do_mesmo_grupo_e_ignora_escola
             tipo_alimentacao_refeicao.nome.upper(): {
                 "total_servido": 24,
                 "total_frequencia": 24,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+
+def test_obtem_resultados_por_data_e_tipo_unidade_separa_combinacoes(
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    tipo_unidade_escolar_emei,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+
+    _, solicitacao_emei = _cria_escola_e_solicitacao_aprovada(
+        escola, mes, ano, "EMEI UM", "400001", tipo_unidade=tipo_unidade_escolar_emei
+    )
+    medicao_emei = _cria_medicao_com_valores(
+        solicitacao_emei,
+        periodo_escolar,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        make_medicao,
+        make_valores_medicao,
+        [10, 20],
+    )
+
+    tipo_ceu_emei = baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
+    _, solicitacao_ceu = _cria_escola_e_solicitacao_aprovada(
+        escola, mes, ano, "CEU EMEI UM", "400002", tipo_unidade=tipo_ceu_emei
+    )
+    medicao_ceu = make_medicao(solicitacao_ceu, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    query_params = _query_params_individual(
+        mes,
+        ano,
+        [tipo_unidade_escolar_emei.uuid, tipo_ceu_emei.uuid],
+        dia_ate="02",
+    )
+    resultados = obtem_resultados_por_data_e_tipo_unidade(query_params)
+
+    assert [
+        (item["data"], item["tipo_unidade"]) for item in resultados
+    ] == [
+        ("01/08/2026", "EMEI"),
+        ("01/08/2026", "CEU EMEI"),
+        ("02/08/2026", "EMEI"),
+    ]
+    assert resultados[0]["resultados"] == {
+        medicao_emei.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 10,
+                "total_frequencia": 10,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+    assert resultados[1]["resultados"] == {
+        medicao_ceu.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 14,
+                "total_frequencia": 14,
                 "total_adesao": 1.0,
             }
         }
