@@ -37,6 +37,7 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_resultados_para_dia,
     obtem_resultados_para_escola,
 )
 
@@ -2470,6 +2471,301 @@ def test_url_endpoint_relatorio_adesao_com_escolas_calcula_apenas_pagina_solicit
     data = response.json()
     assert data["count"] == 2
     assert len(data["results"]) == 1
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_paginado(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    valores = [1, 2, 3, 4, 5]
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 4")
+    grupo.tipos_unidades.add(escola.tipo_unidade)
+
+    dias = [str(dia).rjust(2, "0") for dia in range(1, 6)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    url = "/medicao-inicial/relatorios/relatorio-adesao/"
+    payload = {
+        "mes_ano": f"{mes}_{ano}",
+        "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+        "periodo_lancamento_de": f"01/{mes}/{ano}",
+        "periodo_lancamento_ate": f"05/{mes}/{ano}",
+        "resultado_individual_por_data": True,
+    }
+
+    primeira_pagina = client_autenticado_coordenador_codae.post(
+        url,
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    segunda_pagina = client_autenticado_coordenador_codae.post(
+        url,
+        data=json.dumps({**payload, "page": 2}),
+        content_type="application/json",
+    )
+
+    assert primeira_pagina.status_code == status.HTTP_200_OK
+    assert segunda_pagina.status_code == status.HTTP_200_OK
+
+    data_primeira = primeira_pagina.json()
+    assert data_primeira["count"] == 5
+    assert data_primeira["page_size"] == 1
+    assert len(data_primeira["results"]) == 1
+    assert data_primeira["next"]
+    assert data_primeira["previous"] is None
+    assert data_primeira["results"][0]["data"] == f"01/{mes}/{ano}"
+    assert (
+        data_primeira["results"][0]["tipo_unidade"]
+        == f"Grupo 4 - {escola.tipo_unidade.iniciais}"
+    )
+    assert data_primeira["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 1,
+                "total_frequencia": 1,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+    data_segunda = segunda_pagina.json()
+    assert data_segunda["results"][0]["data"] == f"02/{mes}/{ano}"
+    assert data_segunda["previous"]
+    assert data_segunda["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 2,
+                "total_frequencia": 2,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_ignora_escola_uuid(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        valor="10",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        valor="10",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    escola2 = baker.make(
+        "Escola",
+        nome="EMEF DOIS",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=escola.tipo_unidade,
+        codigo_eol="654321",
+    )
+    solicitacao2 = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola2,
+        rastro_lote=escola2.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao2 = make_medicao(solicitacao2, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao2,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao2,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": f"{mes}_{ano}",
+                "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+                "escola__uuid": [str(escola.uuid)],
+                "periodo_lancamento_de": f"01/{mes}/{ano}",
+                "periodo_lancamento_ate": f"01/{mes}/{ano}",
+                "resultado_individual_por_data": True,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert "escola" not in data["results"][0]
+    assert data["results"][0]["data"] == f"01/{mes}/{ano}"
+    assert data["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 24,
+                "total_frequencia": 24,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_calcula_apenas_pagina_solicitada(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    for dia, valor in zip(["01", "02", "03"], [1, 2, 3]):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    with patch(
+        "src.medicao_inicial.api.viewsets.obtem_resultados_para_dia",
+        wraps=obtem_resultados_para_dia,
+    ) as mock_obtem_resultados:
+        response = client_autenticado_coordenador_codae.post(
+            "/medicao-inicial/relatorios/relatorio-adesao/",
+            data=json.dumps(
+                {
+                    "mes_ano": f"{mes}_{ano}",
+                    "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+                    "periodo_lancamento_de": f"01/{mes}/{ano}",
+                    "periodo_lancamento_ate": f"03/{mes}/{ano}",
+                    "resultado_individual_por_data": True,
+                    "page": 2,
+                }
+            ),
+            content_type="application/json",
+        )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert mock_obtem_resultados.call_count == 1
+    data = response.json()
+    assert data["count"] == 3
+    assert data["results"][0]["data"] == f"02/{mes}/{ano}"
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_sem_periodo(
+    client_autenticado_coordenador_codae,
+    escola,
+):
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": "08_2026",
+                "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+                "resultado_individual_por_data": True,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Para resultado individual por data, 'periodo_lancamento_de' e "
+        "'periodo_lancamento_ate' são obrigatórios"
+    }
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_sem_tipos_unidades(
+    client_autenticado_coordenador_codae,
+):
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": "08_2026",
+                "periodo_lancamento_de": "01/08/2026",
+                "periodo_lancamento_ate": "05/08/2026",
+                "resultado_individual_por_data": True,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Para resultado individual por data, 'tipos_unidades' é obrigatório"
+    }
 
 
 def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento_ate(
