@@ -25,6 +25,7 @@ from src.dados_comuns.constants import (
 from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.utils import convert_image_to_base64
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.inclusao_alimentacao.models import MotivoInclusaoNormal
@@ -1716,12 +1717,16 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     (
         primeira_tabela_somatorio_dietas_tipo_a,
         segunda_tabela_somatorio_dietas_tipo_a,
-    ) = build_tabela_somatorio_dietas_body(solicitacao, "TIPO A")
+    ) = build_tabela_somatorio_dietas_body(
+        solicitacao, ClassificacaoDieta.TIPO_A.upper()
+    )
 
     (
         primeira_tabela_somatorio_dietas_tipo_b,
         segunda_tabela_somatorio_dietas_tipo_b,
-    ) = build_tabela_somatorio_dietas_body(solicitacao, "TIPO B")
+    ) = build_tabela_somatorio_dietas_body(
+        solicitacao, ClassificacaoDieta.TIPO_B.upper()
+    )
 
     alimentacao_rows = _get_body_len(primeira_tabela_somatorio)
     dietas_a_rows = _get_body_len(primeira_tabela_somatorio_dietas_tipo_a)
@@ -2231,7 +2236,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_a_infantil,
     ) = build_tabela_somatorio_dietas_body(
         solicitacao,
-        "TIPO A",
+        ClassificacaoDieta.TIPO_A.upper(),
         ValorMedicao.INFANTIL,
     )
 
@@ -2240,7 +2245,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_b_infantil,
     ) = build_tabela_somatorio_dietas_body(
         solicitacao,
-        "TIPO B",
+        ClassificacaoDieta.TIPO_B.upper(),
         ValorMedicao.INFANTIL,
     )
 
@@ -2259,7 +2264,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_a_fundamental,
     ) = build_tabela_somatorio_dietas_body(
         solicitacao,
-        "TIPO A",
+        ClassificacaoDieta.TIPO_A.upper(),
         ValorMedicao.FUNDAMENTAL,
     )
 
@@ -2268,7 +2273,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         segunda_tabela_somatorio_dietas_tipo_b_fundamental,
     ) = build_tabela_somatorio_dietas_body(
         solicitacao,
-        "TIPO B",
+        ClassificacaoDieta.TIPO_B.upper(),
         ValorMedicao.FUNDAMENTAL,
     )
 

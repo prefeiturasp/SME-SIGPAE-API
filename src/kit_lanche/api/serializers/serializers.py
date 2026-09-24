@@ -3,7 +3,7 @@ import datetime
 from rest_framework import serializers
 
 from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
 from ....dados_comuns.utils import update_instance_from_dict
 from ....eol_servico.utils import EOLServicoSGP
 from ....escola.api.serializers import (
@@ -448,7 +448,7 @@ class SolicitacaoKitLancheCEMEISerializer(serializers.ModelSerializer):
     solicitacao_cei = SolicitacaoKitLancheCEIdaCEMEISerializer()
     solicitacao_emei = SolicitacaoKitLancheEMEIdaCEMEISerializer()
     id_externo = serializers.CharField()
-    escola = serializers.UUIDField(source="escola.uuid")
+    escola = serializers.UUIDField(source=StringsSourceSerializers.ESCOLA_UUID.value)
 
     class Meta:
         model = SolicitacaoKitLancheCEMEI

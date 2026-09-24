@@ -15,6 +15,7 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     SolicitacaoDietaEspecialFactory,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.dieta_especial.tasks.utils.processamentos import termina_dietas_especiais
@@ -49,8 +50,8 @@ class TestUseCaseDietaOriginalAlterada:
         alergia_ovo = AlergiaIntoleranciaFactory.create(descricao="Alergia a Ovo")
         alergia_soja = AlergiaIntoleranciaFactory.create(descricao="Alergia a Soja")
 
-        tipo_a = ClassificacaoDietaFactory.create(nome="Tipo A")
-        tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
+        tipo_a = ClassificacaoDietaFactory.create(nome=ClassificacaoDieta.TIPO_A)
+        tipo_b = ClassificacaoDietaFactory.create(nome=ClassificacaoDieta.TIPO_B)
         tipo_a_enteral = ClassificacaoDietaFactory.create(nome="Tipo A Enteral")
 
         protocolo_padrao = ProtocoloPadraoDietaEspecialFactory.create(

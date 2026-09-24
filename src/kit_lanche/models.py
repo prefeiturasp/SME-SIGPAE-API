@@ -882,7 +882,9 @@ class FaixasQuantidadesKitLancheCEIdaCEMEI(TemChaveExterna, MatriculadosQuandoCr
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.PROTECT)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.PROTECT
+    )
 
     class Meta:
         ordering = ("faixa_etaria__inicio",)

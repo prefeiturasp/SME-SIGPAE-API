@@ -733,7 +733,7 @@ def get_classificacoes_dietas_cei(
     """
 
     termo = (
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
         if categoria.nome == DIETA_ESPECIAL_TIPO_A
         else categoria.nome.split(" - ")[1]
     )

@@ -4,7 +4,11 @@ from types import SimpleNamespace
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    GRUPO_PROGRAMAS_E_PROJETOS,
+    TIPOS_UNIDADE_ESCOLAR,
+    StringsValidationErrors,
+)
 from src.medicao_inicial.api.serializers_create import (
     DescontoFinanceiroUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
@@ -106,8 +110,14 @@ def test_desconto_financeiro_grupo_cei_campos_obrigatorios(
     assert not serializer.is_valid()
     assert "faixa_etaria" in serializer.errors
     assert "periodo_escolar" in serializer.errors
-    assert serializer.errors["faixa_etaria"][0] == "Campo obrigatório para o grupo."
-    assert serializer.errors["periodo_escolar"][0] == "Campo obrigatório para o grupo."
+    assert (
+        serializer.errors["faixa_etaria"][0]
+        == StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+    )
+    assert (
+        serializer.errors["periodo_escolar"][0]
+        == StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+    )
 
 
 @pytest.mark.django_db
@@ -156,7 +166,10 @@ def test_desconto_financeiro_grupo_cemei_campos_obrigatorios(
     assert not serializer.is_valid()
 
     assert "cei_ou_emei" in serializer.errors
-    assert serializer.errors["cei_ou_emei"][0] == "Campo obrigatório para o grupo."
+    assert (
+        serializer.errors["cei_ou_emei"][0]
+        == StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+    )
 
     payload["cei_ou_emei"] = TIPOS_UNIDADE_ESCOLAR.CEI.value
 
@@ -167,8 +180,14 @@ def test_desconto_financeiro_grupo_cemei_campos_obrigatorios(
     assert "faixa_etaria" in serializer.errors
     assert "periodo_escolar" in serializer.errors
 
-    assert serializer.errors["faixa_etaria"][0] == "Campo obrigatório para o grupo."
-    assert serializer.errors["periodo_escolar"][0] == "Campo obrigatório para o grupo."
+    assert (
+        serializer.errors["faixa_etaria"][0]
+        == StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+    )
+    assert (
+        serializer.errors["periodo_escolar"][0]
+        == StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
+    )
 
     payload["cei_ou_emei"] = TIPOS_UNIDADE_ESCOLAR.EMEI.value
     payload["faixa_etaria"] = str(faixas_etarias_ativas[0].uuid)
@@ -257,7 +276,7 @@ def test_desconto_financeiro_grupo_emebs_campos_obrigatorios(
     assert "infantil_ou_fundamental" in serializer.errors
     assert (
         serializer.errors["infantil_ou_fundamental"][0]
-        == "Campo obrigatório para o grupo."
+        == StringsValidationErrors.CAMPO_OBRIGATORIO_PARA_O_GRUPO.value
     )
 
 

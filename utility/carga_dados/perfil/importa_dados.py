@@ -10,7 +10,10 @@ from django.db.models import F, Func, Q, Value
 from openpyxl import Workbook, load_workbook, styles
 from rest_framework import status
 
-from src.dados_comuns.constants import DJANGO_ADMIN_TREINAMENTO_PASSWORD
+from src.dados_comuns.constants import (
+    DJANGO_ADMIN_TREINAMENTO_PASSWORD,
+    EmailsParaTeste,
+)
 from src.dados_comuns.models import Contato
 from src.eol_servico.utils import EOLException, EOLServicoSGP
 from src.escola.models import Codae, DiretoriaRegional, Escola
@@ -136,7 +139,9 @@ def cria_vinculos():
             email="nutricionistamanifestacao@admin.com"
         ),
         "usuario_gestao_produto_codae": Usuario.objects.get(email="gpcodae@admin.com"),
-        "usuario_terceirizada": Usuario.objects.get(email="terceirizada@admin.com"),
+        "usuario_terceirizada": Usuario.objects.get(
+            email=EmailsParaTeste.TERCEIRIZADA_ADMIN.value
+        ),
         "usuario_ue": Usuario.objects.get(email="ue@admin.com"),
         "usuario_codae_gabinete": Usuario.objects.get(email="codaegabinete@admin.com"),
         "usuario_codae_logistica": Usuario.objects.get(

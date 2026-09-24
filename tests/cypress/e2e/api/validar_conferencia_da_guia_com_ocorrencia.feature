@@ -32,3 +32,32 @@ Funcionalidade: Validar conferencia da guia com ocorrencia
   Cenario: Cadastrar conferencia com dados invalidos
     Quando cadastro uma conferencia com ocorrencia invalida
     Entao o cadastro da conferencia com ocorrencia retorna status 400
+
+  @ultimas_conferencias
+  Esquema do Cenario: Consultar ultima conferencia ou reposicao com sucesso
+    Quando consulto a ultima "<tipo>" de uma guia existente
+    Entao a ultima conferencia ou reposicao corresponde a guia e ao tipo
+    Exemplos:
+      | tipo        |
+      | conferencia |
+      | reposicao   |
+
+  @ultimas_conferencias
+  Esquema do Cenario: Consultar ultima conferencia ou reposicao sem guia valida
+    Quando consulto a ultima "<tipo>" com guia "<condicao>"
+    Entao a consulta da ultima "<tipo>" informa que nao existe registro
+    Exemplos:
+      | tipo        | condicao    |
+      | conferencia | inexistente |
+      | reposicao   | inexistente |
+      | conferencia | ausente     |
+      | reposicao   | ausente     |
+
+  @ultimas_conferencias
+  Esquema do Cenario: Rejeitar consulta da ultima conferencia ou reposicao sem autenticacao
+    Quando consulto a ultima "<tipo>" sem autenticacao
+    Entao a consulta da ultima conferencia ou reposicao exige autenticacao
+    Exemplos:
+      | tipo        |
+      | conferencia |
+      | reposicao   |

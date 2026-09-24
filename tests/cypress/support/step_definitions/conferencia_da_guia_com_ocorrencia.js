@@ -169,3 +169,42 @@ Then('o cadastro da conferencia com ocorrencia retorna status 400', function () 
 	expect(this.response.status).to.eq(400)
 	expect(this.response.body).to.be.an('object').and.not.be.empty
 })
+
+When('consulto a ultima {string} de uma guia existente', function (tipo) {
+	this.ehReposicao = tipo === 'reposicao'
+	buscarConferencia((item) => item.eh_reposicao === this.ehReposicao && item.guia?.uuid, `do tipo ${tipo}`).then((conferencia) => {
+		this.uuidGuia = conferencia.guia.uuid
+		cy.consultar_ultima_conferencia_ou_reposicao(tipo, this.uuidGuia).then((response) => { this.response = response })
+	})
+})
+Then('a ultima conferencia ou reposicao corresponde a guia e ao tipo', function () {
+	expect(this.response.status).to.eq(200)
+	const resultado = this.response.body.results
+	expect(resultado).to.be.an('object')
+	expect(resultado.uuid).to.be.a('string').and.not.be.empty
+	expect(resultado.guia.uuid).to.eq(this.uuidGuia)
+	expect(resultado.eh_reposicao).to.eq(this.ehReposicao)
+	expect(resultado.conferencia_dos_alimentos).to.be.an('array')
+})
+When('consulto a ultima {string} com guia {string}', function (tipo, condicao) {
+	cy.consultar_ultima_conferencia_ou_reposicao(tipo, condicao === 'ausente' ? undefined : inexistente).then((response) => { this.response = response })
+})
+Then('a consulta da ultima {string} informa que nao existe registro', function (tipo) {
+	expect(this.response.status).to.eq(404)
+	// Em QA, o tratamento global de 404 pode substituir o JSON por HTML.
+	if (this.response.headers['content-type'].includes('text/html')) {
+		expect(this.response.body).to.be.a('string').and.not.be.empty
+		return
+	}
+	expect(this.response.body.detail).to.be.a('string')
+	const mensagem = this.response.body.detail.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	expect(mensagem).to.eq(`Erro: Nao existe ${tipo === 'reposicao' ? 'reposicao' : 'conferencia'} para edicao na guia informada.`)
+})
+When('consulto a ultima {string} sem autenticacao', function (tipo) {
+	cy.clearCookies()
+	cy.consultar_ultima_conferencia_ou_reposicao(tipo, inexistente, false).then((response) => { this.response = response })
+})
+Then('a consulta da ultima conferencia ou reposicao exige autenticacao', function () {
+	expect(this.response.status).to.eq(401)
+	expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})

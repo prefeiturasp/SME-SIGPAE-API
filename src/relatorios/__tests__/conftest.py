@@ -21,6 +21,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    EmailsParaTeste,
     StringsCaminhoModelos,
     StringsInformacoesPessoais,
 )
@@ -244,7 +245,7 @@ def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
 ):
     with freeze_time("2025-12-20"):
-        email = "terceirizada@admin.com"
+        email = EmailsParaTeste.TERCEIRIZADA_ADMIN.value
         password = DJANGO_ADMIN_PASSWORD
         rf = "4545454"
         user = Usuario.objects.create_user(
@@ -313,7 +314,7 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     solicitacao_dieta_especial_a_autorizar,
     escola_destino,
 ):
-    email = "terceirizada@admin.com"
+    email = EmailsParaTeste.TERCEIRIZADA_ADMIN.value
     password = DJANGO_ADMIN_PASSWORD
     rf = "4545454"
     user = Usuario.objects.create_user(

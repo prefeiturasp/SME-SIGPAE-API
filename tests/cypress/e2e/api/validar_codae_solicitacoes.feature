@@ -55,3 +55,31 @@ Funcionalidade: Validar solicitacoes da CODAE
       | daqui_a_30_dias | dre              |
       | daqui_a_30_dias | lote             |
       | daqui_a_30_dias | tipo_solicitacao |
+
+  Esquema do Cenario: Consultar filtros e indicadores CODAE com sucesso
+    Quando consulto o relatorio CODAE pela operacao "<operacao>"
+    Entao o relatorio CODAE retorna os dados esperados
+    Exemplos:
+      | operacao      |
+      | filtrar       |
+      | totalizadores |
+      | graficos      |
+
+  Esquema do Cenario: Solicitar exportacao de relatorio CODAE com sucesso
+    Quando consulto o relatorio CODAE pela operacao "<operacao>"
+    Entao a exportacao CODAE confirma o recebimento da solicitacao
+    Exemplos:
+      | operacao |
+      | pdf      |
+      | xlsx     |
+
+  Esquema do Cenario: Rejeitar filtros e exportacoes CODAE sem autenticacao
+    Quando consulto o relatorio CODAE pela operacao "<operacao>" sem autenticacao
+    Entao o relatorio CODAE rejeita a consulta sem autenticacao
+    Exemplos:
+      | operacao      |
+      | filtrar       |
+      | totalizadores |
+      | graficos      |
+      | pdf           |
+      | xlsx          |

@@ -30,12 +30,14 @@ fake = Faker("pt_BR")
 Faker.seed(420)
 
 
-CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
+CLASSIFICACAO_DIETA_NOME_TIPO_A = ClassificacaoDieta.TIPO_A
 
 
 @pytest.fixture
 def usuario_admin():
-    return baker.make("Usuario", email=constants.EMAIL_ADMIN, is_superuser=True)
+    return baker.make(
+        "Usuario", email=constants.EmailsParaTeste.ADMIN.value, is_superuser=True
+    )
 
 
 @pytest.fixture
@@ -260,7 +262,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
 ):
-    email = "terceirizada@admin.com"
+    email = constants.EmailsParaTeste.TERCEIRIZADA_ADMIN.value
     password = constants.DJANGO_ADMIN_PASSWORD
     rf = "4545454"
     user = Usuario.objects.create_user(
@@ -1043,7 +1045,7 @@ def classificacoes_dietas():
     return [
         baker.make(ClassificacaoDieta, nome=CLASSIFICACAO_DIETA_NOME_TIPO_A),
         baker.make(ClassificacaoDieta, nome="Tipo A Enteral"),
-        baker.make(ClassificacaoDieta, nome="Tipo B"),
+        baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_B),
     ]
 
 
@@ -1294,7 +1296,7 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
     periodo_escolar_integral,
 ):
     baker.make(FaixaEtaria, inicio=1, fim=50)
-    baker.make(ClassificacaoDieta, nome="Tipo C")
+    baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_C)
     aluno = baker.make(
         Aluno,
         nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
@@ -1777,7 +1779,7 @@ def classificacao_tipo_a():
 
 @pytest.fixture
 def classificacao_tipo_b():
-    return baker.make("ClassificacaoDieta", nome="Tipo B")
+    return baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_B)
 
 
 @pytest.fixture

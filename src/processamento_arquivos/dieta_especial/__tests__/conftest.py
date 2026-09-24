@@ -61,7 +61,7 @@ def escola():
 
 @pytest.fixture
 def classificacao_dieta():
-    return baker.make(ClassificacaoDieta, nome="Tipo A")
+    return baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_A)
 
 
 @pytest.fixture

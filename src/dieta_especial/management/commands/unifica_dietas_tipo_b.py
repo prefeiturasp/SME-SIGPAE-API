@@ -161,7 +161,7 @@ class Command(BaseCommand):
                 "Renomeia classificação para Tipo B e exclui a classificação extra"
             )
         )
-        classificacao_tipo_b_lanche.nome = "Tipo B"
+        classificacao_tipo_b_lanche.nome = ClassificacaoDieta.TIPO_B
         classificacao_tipo_b_lanche.save()
         classificacao_tipo_b_lanche_refeicao.delete()
 

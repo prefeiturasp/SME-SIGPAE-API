@@ -11,6 +11,7 @@ from src.dados_comuns.constants import (
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.validators import (
     validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
@@ -33,7 +34,9 @@ class TestUseCaseFinalizaMedicaoEscolaSemAlunosRegulares:
         tipo_alimentacao_factory,
     ):
         self.periodo_manha = periodo_escolar_factory.create(nome="MANHA")
-        self.classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
+        self.classificacao_tipo_a = classificacao_dieta_factory.create(
+            nome=ClassificacaoDieta.TIPO_A
+        )
         self.categoria_medicao_dieta_tipo_a = categoria_medicao_factory.create(
             nome=DIETA_ESPECIAL_TIPO_A
         )

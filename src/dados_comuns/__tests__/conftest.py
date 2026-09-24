@@ -605,7 +605,7 @@ def logs_quantidade_dietas_autorizadas_escola_comum(escola, periodo_escolar):
     ontem = hoje - datetime.timedelta(days=1)
     tres_dias_atras = hoje - datetime.timedelta(days=3)
     quantidades = [10, 10]
-    classificacao = baker.make(ClassificacaoDieta, nome="Tipo A")
+    classificacao = baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_A)
     for quantidade in quantidades:
         baker.make(
             LogQuantidadeDietasAutorizadas,
@@ -675,7 +675,7 @@ def logs_quantidade_dietas_autorizadas_escola_cei(
     ontem = hoje - datetime.timedelta(days=1)
     quatro_dias_atras = hoje - datetime.timedelta(days=4)
     quantidades = [15, 15]
-    classificacao = baker.make(ClassificacaoDieta, nome="Tipo B")
+    classificacao = baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_B)
     for quantidade in quantidades:
         baker.make(
             LogQuantidadeDietasAutorizadasCEI,
@@ -706,7 +706,7 @@ def logs_quantidade_dietas_autorizadas_escola_cemei(
     dois_dias_atras = hoje - datetime.timedelta(days=2)
     quatro_dias_atras = hoje - datetime.timedelta(days=5)
     quantidades = [25, 25]
-    classificacao = baker.make(ClassificacaoDieta, nome="Tipo C")
+    classificacao = baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_C)
     for quantidade in quantidades:
         baker.make(
             LogQuantidadeDietasAutorizadasCEI,

@@ -806,6 +806,62 @@ class StringsPatterns(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsNomesAbasXLSX(Enum):
+    RELATORIO_DE_CONFERENCIA = "Relatório de Conferência"
+    VISAO_ANALITICA_ABASTECIMENTO = "Visão Analítica Abastecimento"
+    RELATORIO_DE_INSUCESSO = "Relatório de Insucesso"
+    DIETAS_NAO_RELACIONADAS = "Dietas não relacionadas"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsSourceSerializers(Enum):
+    ESCOLA_UUID = "escola.uuid"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsHeadersTabelasSolicitacaoMedicaoPDF(Enum):
+    MANHA_INFANTIL = "MANHA - INFANTIL"
+    MANHA_FUNDAMENTAL = "MANHA - FUNDAMENTAL"
+    TARDE_INFANTIL = "TARDE - INFANTIL"
+    TARDE_FUNDAMENTAL = "TARDE - FUNDAMENTAL"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class EmailsParaTeste(Enum):
+    ADMIN = "admin@admin.com"
+    ADMIN_COM_BR = "admin@admin.com.br"
+    TERCEIRIZADA_ADMIN = "terceirizada@admin.com"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsValidationSchema(Enum):
+    NOME_DO_USUARIO = "Nome do usuário"
+    CARGO_DO_USUARIO = "Cargo do usuário"
+    EMAIL_DO_USUARIO = "Email do usuário"
+    CPF_DO_USUARIO = "CPF do usuário"
+    CPF_DEVE_CONTER_11_DIGITOS = "CPF deve conter 11 dígitos."
+    TELEFONE_DO_USUARIO = "Telefone do usuário"
+    RF_DO_USUARIO = "RF do usuário"
+    RF_DEVE_TER_7_DIGITOS = "RF deve ter 7 dígitos."
+    PERFIL_DO_USUARIO = "Perfil do usuário"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StringsObservacaoValorMedicao(Enum):
     OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
     OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"
@@ -916,6 +972,7 @@ class StringsValidationErrors(Enum):
     INFORMAR_NUMERO_REQUISICAO = (
         "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
     )
+    CAMPO_OBRIGATORIO_PARA_O_GRUPO = "Campo obrigatório para o grupo."
 
     @classmethod
     def choices(cls):
@@ -1547,7 +1604,6 @@ TRADUCOES_FERIADOS = {
 DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
 FORMATO_DATA_HORA_BRASILEIRO = "%d/%m/%Y - %H:%M"
-EMAIL_ADMIN = "admin@admin.com"
 TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR = "fluxo_autorizar_negar_cancelar.html"
 TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA = "fluxo_codae_autoriza_ou_nega.html"
 MODULO_GESTAO_PRODUTO = "Gestão de Produto"

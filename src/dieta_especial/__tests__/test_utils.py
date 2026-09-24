@@ -7,6 +7,8 @@ from django.http import QueryDict
 from freezegun.api import freeze_time
 from model_bakery import baker
 
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+
 from ...dados_comuns.constants import (
     NOME_ESCOLA_CEI_DIRET,
     NOME_ESCOLA_CEMEI,
@@ -116,7 +118,12 @@ def test_gera_logs_dietas_escolas_comuns(escola, solicitacoes_dieta_especial_ati
         escola, solicitacoes_dieta_especial_ativas, ontem
     )
     assert len(logs) == 6
-    assert len([log for log in logs if log.classificacao.nome == "Tipo A"]) == 2
+    assert (
+        len(
+            [log for log in logs if log.classificacao.nome == ClassificacaoDieta.TIPO_A]
+        )
+        == 2
+    )
 
 
 @freeze_time("2025-05-05")
@@ -132,8 +139,13 @@ def test_gera_logs_dietas_escolas_cei(
         escola_cei, solicitacoes_dieta_especial_ativas_cei, ontem
     )
     assert len(logs) == 2
-    assert len([log for log in logs if log.classificacao.nome == "Tipo A"]) == 1
-    assert [log for log in logs if log.classificacao.nome == "Tipo A"][
+    assert (
+        len(
+            [log for log in logs if log.classificacao.nome == ClassificacaoDieta.TIPO_A]
+        )
+        == 1
+    )
+    assert [log for log in logs if log.classificacao.nome == ClassificacaoDieta.TIPO_A][
         0
     ].quantidade == 2
 
@@ -194,19 +206,20 @@ def test_gera_logs_dietas_escolas_cemei(
     assert [
         log
         for log in logs
-        if log.cei_ou_emei == "N/A" and log.classificacao.nome == "Tipo A"
+        if log.cei_ou_emei == "N/A"
+        and log.classificacao.nome == ClassificacaoDieta.TIPO_A
     ][0].quantidade == 3
     assert [
         log
         for log in logs
         if log.cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.CEI.value
-        and log.classificacao.nome == "Tipo A"
+        and log.classificacao.nome == ClassificacaoDieta.TIPO_A
     ][0].quantidade == 2
     assert [
         log
         for log in logs
         if log.cei_ou_emei == TIPOS_UNIDADE_ESCOLAR.EMEI.value
-        and log.classificacao.nome == "Tipo A"
+        and log.classificacao.nome == ClassificacaoDieta.TIPO_A
     ][0].quantidade == 1
 
 
@@ -225,11 +238,16 @@ def test_gera_logs_dietas_escolas_cei_com_solicitacao_medicao(
         ontem,
     )
     assert len(logs) == 3
-    assert len([log for log in logs if log.classificacao.nome == "Tipo B"]) == 1
+    assert (
+        len(
+            [log for log in logs if log.classificacao.nome == ClassificacaoDieta.TIPO_B]
+        )
+        == 1
+    )
     assert [log for log in logs if log.classificacao.nome == "Tipo A Enteral"][
         0
     ].quantidade == 1
-    assert [log for log in logs if log.classificacao.nome == "Tipo B"][
+    assert [log for log in logs if log.classificacao.nome == ClassificacaoDieta.TIPO_B][
         0
     ].quantidade == 2
 
@@ -250,7 +268,7 @@ def test_gera_logs_dietas_escolas_emebs(
                 log
                 for log in logs
                 if log.infantil_ou_fundamental == "INFANTIL"
-                and log.classificacao.nome == "Tipo A"
+                and log.classificacao.nome == ClassificacaoDieta.TIPO_A
             ]
         )
         == 2
@@ -371,7 +389,7 @@ def test_unidades_tipo_emebs(escolas_tipo_emebs):
     dietas = _unidades_tipo_emebs(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao[NOME_ESCOLA_EMEBS]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "fundamental" in informacao_classificacao
@@ -385,7 +403,7 @@ def test_unidades_tipo_emebs(escolas_tipo_emebs):
     dietas = _unidades_tipo_emebs(item_somatorio, classificacao)
     assert dietas == 6
     informacao_classificacao = classificacao[NOME_ESCOLA_EMEBS]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "fundamental" in informacao_classificacao
@@ -404,7 +422,7 @@ def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     dietas = _unidades_tipos_emei_emef_cieja(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao[NOME_ESCOLA_EMEF]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "periodos" in informacao_classificacao
@@ -418,7 +436,7 @@ def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
     dietas = _unidades_tipos_emei_emef_cieja(item_somatorio, classificacao)
     assert dietas == 6
     informacao_classificacao = classificacao[NOME_ESCOLA_EMEF]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "periodos" in informacao_classificacao
@@ -432,14 +450,14 @@ def test_unidades_tipos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
 
 def test__unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
     item, item_somatorio, classificacao = escolas_tipos_cmct_ceugestao
-    total_dietas = classificacao[NOME_ESCOLA_CEU_GESTAO]["classificacoes"]["Tipo A"][
-        "total"
-    ]
+    total_dietas = classificacao[NOME_ESCOLA_CEU_GESTAO]["classificacoes"][
+        ClassificacaoDieta.TIPO_A
+    ]["total"]
 
     dietas = _unidades_tipos_cmct_ceugestao(item, classificacao)
     assert dietas == 10
     informacao_classificacao = classificacao[NOME_ESCOLA_CEU_GESTAO]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert informacao_classificacao["total"] == total_dietas
@@ -447,7 +465,7 @@ def test__unidades_tipos_cmct_ceugestao(escolas_tipos_cmct_ceugestao):
     dietas = _unidades_tipos_cmct_ceugestao(item_somatorio, classificacao)
     assert dietas == 5
     informacao_classificacao = classificacao[NOME_ESCOLA_CEU_GESTAO]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert informacao_classificacao["total"] == total_dietas
@@ -460,7 +478,7 @@ def test__unidades_tipo_cei(escolas_tipo_cei):
     dietas = _unidades_tipo_cei(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao[NOME_ESCOLA_CEI_DIRET]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "periodos" in informacao_classificacao
@@ -474,7 +492,7 @@ def test__unidades_tipo_cei(escolas_tipo_cei):
     dietas = _unidades_tipo_cei(item_somatorio, classificacao)
     assert dietas == 4
     informacao_classificacao = classificacao[NOME_ESCOLA_CEI_DIRET]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "periodos" in informacao_classificacao
@@ -493,7 +511,7 @@ def test__unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etar
     dietas = _unidades_tipo_cemei(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "por_idade" in informacao_classificacao
@@ -506,7 +524,7 @@ def test__unidades_tipo_cemei_por_faixa_etaria(escolas_tipo_cemei_por_faixa_etar
     dietas = _unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
     informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "por_idade" in informacao_classificacao
@@ -524,7 +542,7 @@ def test__unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
     dietas = _unidades_tipo_cemei(item, classificacao)
     assert dietas == 0
     informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "turma_infantil" in informacao_classificacao
@@ -538,7 +556,7 @@ def test__unidades_tipo_cemei_por_periodo(escolas_tipo_cemei_por_periodo):
     dietas = _unidades_tipo_cemei(item_somatorio, classificacao)
     assert dietas == 4
     informacao_classificacao = classificacao[NOME_ESCOLA_CEMEI]["classificacoes"][
-        "Tipo A"
+        ClassificacaoDieta.TIPO_A
     ]
     total_dietas += dietas
     assert "turma_infantil" in informacao_classificacao
@@ -564,19 +582,19 @@ def test_gera_dicionario_historico_dietas(
     assert len(informacoes["resultados"]) == 4
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
-    assert resultados[0]["classificacao"] == "Tipo B"
+    assert resultados[0]["classificacao"] == ClassificacaoDieta.TIPO_B
     assert resultados[0]["total"] == 32
 
     assert resultados[1]["unidade_educacional"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert resultados[1]["classificacao"] == "Tipo A"
+    assert resultados[1]["classificacao"] == ClassificacaoDieta.TIPO_A
     assert resultados[1]["total"] == 25
 
     assert resultados[2]["unidade_educacional"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert resultados[2]["classificacao"] == "Tipo B"
+    assert resultados[2]["classificacao"] == ClassificacaoDieta.TIPO_B
     assert resultados[2]["total"] == 15
 
     assert resultados[3]["unidade_educacional"] == TIPOS_UNIDADE_ESCOLAR.EMEBS.value
-    assert resultados[3]["classificacao"] == "Tipo A"
+    assert resultados[3]["classificacao"] == ClassificacaoDieta.TIPO_A
     assert resultados[3]["total"] == 11
 
 
@@ -595,11 +613,11 @@ def test_gera_dicionario_historico_dietas_escola_cemei(
     assert len(informacoes["resultados"]) == 2
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert resultados[0]["classificacao"] == "Tipo A"
+    assert resultados[0]["classificacao"] == ClassificacaoDieta.TIPO_A
     assert resultados[0]["total"] == 25
 
     assert resultados[1]["unidade_educacional"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert resultados[1]["classificacao"] == "Tipo B"
+    assert resultados[1]["classificacao"] == ClassificacaoDieta.TIPO_B
     assert resultados[1]["total"] == 15
 
 
@@ -618,7 +636,7 @@ def test_gera_dicionario_historico_dietas_escola_cei(
     assert len(informacoes["resultados"]) == 1
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == "CEI DIRET JOAO MENDES"
-    assert resultados[0]["classificacao"] == "Tipo B"
+    assert resultados[0]["classificacao"] == ClassificacaoDieta.TIPO_B
     assert resultados[0]["total"] == 32
 
 
@@ -637,7 +655,7 @@ def test_gera_dicionario_historico_dietas_escola_emebs(
     assert len(informacoes["resultados"]) == 1
     resultados = informacoes["resultados"]
     assert resultados[0]["unidade_educacional"] == TIPOS_UNIDADE_ESCOLAR.EMEBS.value
-    assert resultados[0]["classificacao"] == "Tipo A"
+    assert resultados[0]["classificacao"] == ClassificacaoDieta.TIPO_A
     assert resultados[0]["total"] == 11
 
 
@@ -673,29 +691,29 @@ def test_dados_dietas_escolas_cei(log_dietas_autorizadas_cei):
     logs = _dados_dietas_escolas_cei(filtros)
     assert len(logs) == 6
     assert logs[0]["nome_escola"] == "CEI DIRET JOAO MENDES"
-    assert logs[0]["nome_classificacao"] == "Tipo B"
+    assert logs[0]["nome_classificacao"] == ClassificacaoDieta.TIPO_B
     assert logs[0]["nome_periodo_escolar"] == "INTEGRAL"
 
     assert logs[1]["nome_escola"] == "CEI DIRET JOAO MENDES"
-    assert logs[1]["nome_classificacao"] == "Tipo B"
+    assert logs[1]["nome_classificacao"] == ClassificacaoDieta.TIPO_B
     assert logs[1]["nome_periodo_escolar"] == "MANHA"
 
     assert logs[2]["nome_escola"] == "CEI DIRET JOAO MENDES"
-    assert logs[2]["nome_classificacao"] == "Tipo B"
+    assert logs[2]["nome_classificacao"] == ClassificacaoDieta.TIPO_B
     assert logs[2]["nome_periodo_escolar"] == "INTEGRAL"
     assert logs[2]["inicio"] is None
     assert logs[2]["fim"] is None
 
     assert logs[3]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert logs[3]["nome_classificacao"] == "Tipo A"
+    assert logs[3]["nome_classificacao"] == ClassificacaoDieta.TIPO_A
     assert logs[3]["nome_periodo_escolar"] == "INTEGRAL"
 
     assert logs[4]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert logs[4]["nome_classificacao"] == "Tipo A"
+    assert logs[4]["nome_classificacao"] == ClassificacaoDieta.TIPO_A
     assert logs[4]["nome_periodo_escolar"] == "MANHA"
 
     assert logs[5]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert logs[5]["nome_classificacao"] == "Tipo A"
+    assert logs[5]["nome_classificacao"] == ClassificacaoDieta.TIPO_A
     assert logs[5]["nome_periodo_escolar"] == "INTEGRAL"
     assert logs[5]["inicio"] is None
     assert logs[5]["fim"] is None
@@ -712,27 +730,27 @@ def test_dados_dietas_escolas_comuns(log_dietas_autorizadas):
     assert len(logs) == 6
 
     assert logs[0]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert logs[0]["nome_classificacao"] == "Tipo B"
+    assert logs[0]["nome_classificacao"] == ClassificacaoDieta.TIPO_B
     assert logs[0]["nome_periodo_escolar"] == "INTEGRAL"
 
     assert logs[1]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert logs[1]["nome_classificacao"] == "Tipo B"
+    assert logs[1]["nome_classificacao"] == ClassificacaoDieta.TIPO_B
     assert logs[1]["nome_periodo_escolar"] == "MANHA"
 
     assert logs[2]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.CEMEI.value
-    assert logs[2]["nome_classificacao"] == "Tipo B"
+    assert logs[2]["nome_classificacao"] == ClassificacaoDieta.TIPO_B
     assert logs[2]["nome_periodo_escolar"] is None
 
     assert logs[3]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.EMEBS.value
-    assert logs[3]["nome_classificacao"] == "Tipo A"
+    assert logs[3]["nome_classificacao"] == ClassificacaoDieta.TIPO_A
     assert logs[3]["nome_periodo_escolar"] == "INTEGRAL"
 
     assert logs[4]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.EMEBS.value
-    assert logs[4]["nome_classificacao"] == "Tipo A"
+    assert logs[4]["nome_classificacao"] == ClassificacaoDieta.TIPO_A
     assert logs[4]["nome_periodo_escolar"] == "MANHA"
 
     assert logs[5]["nome_escola"] == TIPOS_UNIDADE_ESCOLAR.EMEBS.value
-    assert logs[5]["nome_classificacao"] == "Tipo A"
+    assert logs[5]["nome_classificacao"] == ClassificacaoDieta.TIPO_A
     assert logs[5]["nome_periodo_escolar"] is None
 
 
@@ -742,7 +760,7 @@ def test__formatar_periodos_emebs():
         "unidade_educacional": NOME_ESCOLA_EMEBS,
         "tipo_unidade": TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
         "lote": NOME_LOTE_EMEBS,
-        "classificacao": "Tipo A",
+        "classificacao": ClassificacaoDieta.TIPO_A,
         "total": 2,
     }
     classificacao = {
@@ -780,11 +798,12 @@ def test__formatar_periodos_emei_emef_cieja(escolas_tipo_emei_emef_cieja):
         "unidade_educacional": NOME_ESCOLA_EMEF,
         "tipo_unidade": TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "lote": NOME_LOTE_EMEF,
-        "classificacao": "Tipo A",
+        "classificacao": ClassificacaoDieta.TIPO_A,
         "total": 1,
     }
     _formatar_periodos_emei_emef_cieja(
-        informacao, classificacao[NOME_ESCOLA_EMEF]["classificacoes"]["Tipo A"]
+        informacao,
+        classificacao[NOME_ESCOLA_EMEF]["classificacoes"][ClassificacaoDieta.TIPO_A],
     )
     assert "periodos" in informacao
     assert isinstance(informacao["periodos"], list)
@@ -798,7 +817,7 @@ def test__formatar_periodos_cemei():
         "unidade_educacional": NOME_ESCOLA_CEMEI,
         "tipo_unidade": TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "lote": NOME_LOTE_CEMEI,
-        "classificacao": "Tipo A",
+        "classificacao": ClassificacaoDieta.TIPO_A,
         "total": 2,
     }
     classificacao = {
@@ -850,12 +869,15 @@ def test__formatar_periodos_cei(escolas_tipo_cei):
         "unidade_educacional": NOME_ESCOLA_CEI_DIRET,
         "tipo_unidade": TIPO_UNIDADE_CEI_DIRET,
         "lote": NOME_LOTE_CEI_DIRET,
-        "classificacao": "Tipo A",
+        "classificacao": ClassificacaoDieta.TIPO_A,
         "total": 1,
     }
 
     _formatar_periodos_cei(
-        informacao, classificacao[NOME_ESCOLA_CEI_DIRET]["classificacoes"]["Tipo A"]
+        informacao,
+        classificacao[NOME_ESCOLA_CEI_DIRET]["classificacoes"][
+            ClassificacaoDieta.TIPO_A
+        ],
     )
 
     assert "periodos" in informacao
