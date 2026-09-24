@@ -84,3 +84,70 @@ Funcionalidade: Validar cronogramas
   Cenario: Excluir cronograma com UUID invalido
     Quando excluo um cronograma com UUID invalido
     Entao a exclusao de cronograma retorna nao encontrado ou permissao negada
+
+  @complemento_cronogramas
+  Cenario: Consultar dados de cronograma para pos recebimento
+    Quando consulto complemento de cronogramas "dados_pos_recebimento" com registro existente
+    Entao os dados de pos recebimento do cronograma sao validos
+
+  @complemento_cronogramas
+  Cenario: Listar cronogramas do contrato e empresa
+    Quando consulto complemento de cronogramas "lista_pos_recebimento" com registro existente
+    Entao a lista de pos recebimento inclui o cronograma selecionado
+
+  @complemento_cronogramas
+  Cenario: Gerar PDF individual de cronograma
+    Quando consulto complemento de cronogramas "pdf_cronograma" com registro existente
+    Entao o PDF individual de cronograma e valido
+
+  @complemento_cronogramas
+  Esquema do Cenario: Solicitar exportacao assincrona de cronogramas
+    Quando solicito exportacao de cronogramas "<operacao>"
+    Entao a exportacao de cronogramas confirma o recebimento
+    Exemplos:
+      | operacao       |
+      | relatorio_pdf  |
+      | relatorio_xlsx |
+
+  @complemento_cronogramas
+  Cenario: Consultar pos recebimento sem filtros obrigatorios
+    Quando consulto pos recebimento de cronogramas sem filtros
+    Entao a lista de pos recebimento de cronogramas esta vazia
+
+  @complemento_cronogramas
+  Esquema do Cenario: Rejeitar consultas complementares por UUID inexistente
+    Quando consulto complemento de cronogramas "<operacao>" com UUID inexistente
+    Entao o complemento de cronogramas retorna status 404
+    Exemplos:
+      | operacao              |
+      | dados_pos_recebimento |
+      | pdf_cronograma        |
+
+  @complemento_cronogramas
+  Esquema do Cenario: Bloquear escola nas alteracoes e assinaturas de cronogramas
+    Quando tento alterar cronogramas com "<operacao>" como escola
+    Entao o complemento de cronogramas retorna status 403
+    Exemplos:
+      | operacao             |
+      | atualizar            |
+      | parcial              |
+      | assinar_abastecimento |
+      | assinar_codae        |
+      | assinar_fornecedor   |
+
+  @complemento_cronogramas
+  Esquema do Cenario: Exigir autenticacao nos metodos complementares de cronogramas
+    Quando acesso complemento de cronogramas "<operacao>" sem autenticacao
+    Entao o complemento de cronogramas retorna status 401
+    Exemplos:
+      | operacao              |
+      | atualizar             |
+      | parcial               |
+      | assinar_abastecimento |
+      | assinar_codae         |
+      | assinar_fornecedor    |
+      | dados_pos_recebimento |
+      | pdf_cronograma        |
+      | relatorio_pdf         |
+      | relatorio_xlsx        |
+      | lista_pos_recebimento |

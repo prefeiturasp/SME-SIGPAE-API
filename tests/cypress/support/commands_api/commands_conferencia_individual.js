@@ -15,3 +15,14 @@ Cypress.Commands.add(
 		})
 	},
 )
+
+Cypress.Commands.add('requisitar_conferencia_individual', (metodo, opcoes = {}) => {
+	return cy.request({
+		method: metodo,
+		url: `${Cypress.config('baseUrl')}api/conferencia-individual/${opcoes.uuid ? `${encodeURIComponent(opcoes.uuid)}/` : ''}`,
+		body: opcoes.dados,
+		headers: opcoes.autenticado === false ? {} : { Authorization: `JWT ${globalThis.token}` },
+		timeout: 60000,
+		failOnStatusCode: false,
+	})
+})

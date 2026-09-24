@@ -19,3 +19,37 @@ Funcionalidade: Validar dashboard de produtos
       | correcao_produtos                   | gpcodae |
       | aguardando_amostra_analise_sensorial| gpcodae |
       | pendente_homologacao                | gpcodae |
+
+  @complemento_dashboard
+  Cenario: Consultar detalhe de produto pelo UUID com sucesso
+    Quando consulto um produto existente pelo UUID no dashboard
+    Entao o detalhe do dashboard corresponde ao produto consultado
+
+  @complemento_dashboard
+  Esquema do Cenario: Rejeitar UUID inexistente no dashboard
+    Quando executo "<metodo>" no dashboard com UUID inexistente
+    Entao a operacao do dashboard retorna 404
+    Exemplos:
+      | metodo |
+      | GET    |
+      | PUT    |
+      | PATCH  |
+      | DELETE |
+
+  @complemento_dashboard
+  Esquema do Cenario: Rejeitar operacao no dashboard sem autenticacao
+    Quando executo "<metodo>" no dashboard sem autenticacao
+    Entao a operacao do dashboard retorna 401
+    Exemplos:
+      | metodo |
+      | POST   |
+      | GET    |
+      | PUT    |
+      | PATCH  |
+      | DELETE |
+
+  @complemento_dashboard
+  Cenario: Rejeitar cadastro no dashboard com status invalido
+    Quando cadastro no dashboard um status invalido
+    Entao a operacao do dashboard retorna 400
+    E o dashboard informa erro no campo status
