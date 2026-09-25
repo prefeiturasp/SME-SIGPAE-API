@@ -438,3 +438,128 @@ def test_termo_retrieve_uuid_inexistente_retorna_404(
     )
 
     assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+URL_PENDENTES_ASSINATURA = "/pos-recebimento/termos/pendentes-assinatura/"
+URL_ASSINADOS = "/pos-recebimento/termos/assinados/"
+
+
+def _uuids(response):
+    return [termo["uuid"] for termo in response.json()["results"]]
+
+
+def test_pendentes_assinatura_traz_apenas_termos_do_fiscal(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    """Só traz os termos ENVIADO_FISCAIS em que o usuário é fiscal."""
+    client, _ = client_fiscal
+
+    response = client.get(URL_PENDENTES_ASSINATURA)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _uuids(response) == [str(termos_painel_assinatura.pendente_do_fiscal.uuid)]
+
+
+def test_pendentes_assinatura_nao_traz_termo_de_outro_fiscal(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    client, _ = client_fiscal
+
+    response = client.get(URL_PENDENTES_ASSINATURA)
+
+    assert str(termos_painel_assinatura.pendente_de_outro_fiscal.uuid) not in _uuids(
+        response
+    )
+
+
+def test_pendentes_assinatura_nao_traz_termo_em_outro_status(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    """O usuário é fiscal do termo, mas ele já saiu de ENVIADO_FISCAIS."""
+    client, _ = client_fiscal
+
+    response = client.get(URL_PENDENTES_ASSINATURA)
+
+    assert str(termos_painel_assinatura.de_outro_status.uuid) not in _uuids(response)
+
+
+def test_assinados_traz_apenas_termos_assinados_do_fiscal(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    """O usuário é o fiscal_2 desse termo: a busca olha os três fiscais."""
+    client, _ = client_fiscal
+
+    response = client.get(URL_ASSINADOS)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _uuids(response) == [str(termos_painel_assinatura.assinado_do_fiscal.uuid)]
+
+
+def test_assinados_nao_traz_termos_pendentes(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    client, _ = client_fiscal
+
+    response = client.get(URL_ASSINADOS)
+
+    assert str(termos_painel_assinatura.pendente_do_fiscal.uuid) not in _uuids(response)
+
+
+@pytest.mark.parametrize(
+    "filtro",
+    [
+        {"nome_produto": "mam"},
+        {"nome_empresa": "alfa"},
+        {"numero_contrato": "111"},
+    ],
+)
+def test_pendentes_assinatura_aplica_filtros_do_painel(
+    client_fiscal,
+    termos_painel_assinatura,
+    filtro,
+):
+    client, _ = client_fiscal
+
+    response = client.get(URL_PENDENTES_ASSINATURA, filtro)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert _uuids(response) == [str(termos_painel_assinatura.pendente_do_fiscal.uuid)]
+
+
+def test_pendentes_assinatura_filtro_sem_correspondencia_retorna_vazio(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    client, _ = client_fiscal
+
+    response = client.get(URL_PENDENTES_ASSINATURA, {"nome_produto": "xyz"})
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["results"] == []
+
+
+def test_pendentes_assinatura_nao_duplica_termo_com_varios_cronogramas(
+    client_fiscal,
+    termos_painel_assinatura,
+):
+    client, _ = client_fiscal
+
+    response = client.get(URL_PENDENTES_ASSINATURA, {"numero_contrato": "111"})
+
+    assert response.json()["count"] == 1
+    assert len(response.json()["results"]) == 1
+
+
+@pytest.mark.parametrize("url", [URL_PENDENTES_ASSINATURA, URL_ASSINADOS])
+def test_painel_assinatura_negado_para_perfil_fora_da_codae(
+    client_autenticado_distribuidor,
+    url,
+):
+    response = client_autenticado_distribuidor.get(url)
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
