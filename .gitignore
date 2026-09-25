@@ -60,6 +60,19 @@ staticfiles/
 # Sphinx build
 docs/_build/
 docs/build/
+docs/.buildinfo
+docs/.doctrees/
+docs/_modules/
+docs/_sources/
+docs/_static/
+docs/cardapio/
+docs/dieta_especial/
+docs/pos_recebimento/
+docs/pre_recebimento/
+docs/recebimento/
+docs/objects.inv
+docs/searchindex.js
+docs/*.html
 
 # PyBuilder
 target/
