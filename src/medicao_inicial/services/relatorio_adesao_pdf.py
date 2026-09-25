@@ -56,7 +56,38 @@ def _formata_segmento_periodo_lancamento(query_params: dict) -> str:
     )
 
 
-def _formata_filtros(query_params: dict, nome_escola: str = None):
+def _nome_dre_lote(query_params: dict) -> str:
+    dre = _obtem_dre(query_params)
+    sigla = ""
+    if dre:
+        sigla = dre.iniciais or dre.nome
+    lote_nomes = _obtem_nomes_lotes(query_params)
+    if lote_nomes and sigla:
+        return f"{', '.join(lote_nomes)} - DRE {sigla}"
+    if lote_nomes:
+        return ", ".join(lote_nomes)
+    return sigla
+
+
+def _formata_filtros_por_data(query_params: dict, tipo_unidade: str) -> str:
+    mes, ano = query_params.get("mes_ano").split("_")
+    partes = [f"{converte_numero_em_mes(int(mes))} {ano}"]
+    lote_dre = _nome_dre_lote(query_params)
+    if lote_dre:
+        partes.append(lote_dre)
+    partes.append(tipo_unidade)
+    return " | ".join(partes)
+
+
+def _formata_filtros(
+    query_params: dict,
+    nome_escola: str = None,
+    tipo_unidade: str = None,
+    data_lancamento: str = None,
+):
+    if tipo_unidade and data_lancamento:
+        return _formata_filtros_por_data(query_params, tipo_unidade)
+
     mes, ano = query_params.get("mes_ano").split("_")
     filtros = f"{converte_numero_em_mes(int(mes))} {ano}"
 
@@ -73,6 +104,31 @@ def _eh_relatorio_por_escola(resultados):
     return (
         isinstance(resultados, list) and bool(resultados) and "escola" in resultados[0]
     )
+
+
+def _eh_relatorio_por_data(resultados) -> bool:
+    return (
+        isinstance(resultados, list)
+        and bool(resultados)
+        and "data" in resultados[0]
+        and "tipo_unidade" in resultados[0]
+        and "escola" not in resultados[0]
+    )
+
+
+def _paginas_por_data(resultados, query_params) -> list[dict]:
+    return [
+        {
+            "filtros": _formata_filtros(
+                query_params,
+                tipo_unidade=resultado["tipo_unidade"],
+                data_lancamento=resultado["data"],
+            ),
+            "data_lancamento": resultado["data"],
+            "resultados": resultado["resultados"],
+        }
+        for resultado in resultados
+    ]
 
 
 def gera_relatorio_adesao_pdf(resultados, query_params):
@@ -104,7 +160,18 @@ def gera_relatorio_adesao_pdf(resultados, query_params):
                 "colunas": colunas,
             },
         )
+    elif _eh_relatorio_por_data(resultados):
+        html_string = render_to_string(
+            "relatorio_adesao_por_data.html",
+            {
+                "paginas": _paginas_por_data(resultados, query_params),
+                "data_relatorio": data_relatorio,
+                "colunas": colunas,
+            },
+        )
     else:
+        if isinstance(resultados, list):
+            resultados = {}
         filtros = _formata_filtros(query_params)
         html_string = render_to_string(
             "relatorio_adesao.html",

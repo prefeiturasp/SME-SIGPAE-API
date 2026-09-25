@@ -17,7 +17,7 @@ from src.medicao_inicial.services.relatorio_adesao import (
     obtem_dias_com_dados,
     obtem_escolas_ordenadas,
     obtem_identificacao_tipo_unidade,
-    obtem_nome_arquivo_xlsx_relatorio_adesao,
+    obtem_nome_arquivo_relatorio_adesao,
     obtem_resultados,
     obtem_resultados_para_dia,
     obtem_resultados_para_escola,
@@ -577,7 +577,7 @@ def test_obtem_identificacao_tipo_unidade_grupo_3(
     assert obtem_identificacao_tipo_unidade(query_params) == "Grupo 3 - EMEI, CEU EMEI"
 
 
-def test_obtem_nome_arquivo_xlsx_relatorio_adesao_com_tipos(
+def test_obtem_nome_arquivo_relatorio_adesao_com_tipos(
     tipo_unidade_escolar_emei,
     tipo_unidade_escolar_ceu_emei,
 ):
@@ -591,17 +591,23 @@ def test_obtem_nome_arquivo_xlsx_relatorio_adesao_com_tipos(
         ],
     )
 
-    assert obtem_nome_arquivo_xlsx_relatorio_adesao(query_params) == (
+    assert obtem_nome_arquivo_relatorio_adesao(query_params, ".xlsx") == (
         "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.xlsx"
+    )
+    assert obtem_nome_arquivo_relatorio_adesao(query_params, ".pdf") == (
+        "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.pdf"
     )
 
 
-def test_obtem_nome_arquivo_xlsx_relatorio_adesao_sem_tipo():
+def test_obtem_nome_arquivo_relatorio_adesao_sem_tipo():
     query_params = QueryDict(mutable=True)
     query_params["mes_ano"] = "08_2026"
 
-    assert obtem_nome_arquivo_xlsx_relatorio_adesao(query_params) == (
+    assert obtem_nome_arquivo_relatorio_adesao(query_params, ".xlsx") == (
         "Relatório de Adesão das Alimentações Servidas - 08/2026.xlsx"
+    )
+    assert obtem_nome_arquivo_relatorio_adesao(query_params, ".pdf") == (
+        "Relatório de Adesão das Alimentações Servidas - 08/2026.pdf"
     )
 
 
