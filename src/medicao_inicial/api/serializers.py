@@ -219,6 +219,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
         source=StringsSourceSerializers.ESCOLA_UUID.value
     )
     status = serializers.CharField(source="get_status_display")
+    pendente_acao_dre = serializers.BooleanField(read_only=True)
     tipo_unidade = serializers.SerializerMethodField()
     log_mais_recente = serializers.SerializerMethodField()
     mes_ano = serializers.SerializerMethodField()
@@ -261,6 +262,7 @@ class SolicitacaoMedicaoInicialDashboardSerializer(serializers.ModelSerializer):
             "mes_ano",
             "tipo_unidade",
             "status",
+            "pendente_acao_dre",
             "log_mais_recente",
             "dre_ciencia_correcao_data",
             "todas_medicoes_e_ocorrencia_aprovados_por_medicao",

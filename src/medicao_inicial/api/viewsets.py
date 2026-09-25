@@ -24,6 +24,9 @@ from xworkflows import InvalidTransitionError
 
 from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
+from src.medicao_inicial.services.pendencias_acao_dre import (
+    anotar_pendencia_acao_dre,
+)
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_dias_com_dados,
     obtem_escolas_ordenadas,
@@ -437,6 +440,9 @@ class SolicitacaoMedicaoInicialViewSet(
 
     def _get_totalizadores(self, query_set: QuerySet, kwargs: dict) -> list:
         sumario = []
+        status_corrigido_para_codae = (
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE
+        )
 
         for workflow in self._get_lista_status():
             todos_lancamentos = workflow == "TODOS_OS_LANCAMENTOS"
@@ -447,11 +453,20 @@ class SolicitacaoMedicaoInicialViewSet(
             )
             qs = self._condicao_por_usuario(qs)
             qs = qs.filter(**kwargs)
+            total_pendentes_acao_dre = 0
+            if workflow == status_corrigido_para_codae:
+                total_pendentes_acao_dre = anotar_pendencia_acao_dre(qs).filter(
+                    pendente_acao_dre=True
+                ).count()
             sumario.append(
                 {
                     "status": workflow,
                     "label": self._get_label(workflow),
                     "total": len(qs),
+                    "total_pendentes_acao_dre": total_pendentes_acao_dre,
+                    "possui_pendencias_acao_dre": (
+                        total_pendentes_acao_dre > 0
+                    ),
                 }
             )
         return sumario
@@ -464,6 +479,13 @@ class SolicitacaoMedicaoInicialViewSet(
         workflow = request.query_params.get("status")
         qs = self._condicao_por_usuario(query_set)
         qs = qs.filter(**kwargs)
+        qs = anotar_pendencia_acao_dre(qs)
+        somente_pendentes_acao_dre = (
+            request.query_params.get("somente_pendentes_acao_dre", "").lower()
+            == "true"
+        )
+        if somente_pendentes_acao_dre:
+            qs = qs.filter(pendente_acao_dre=True)
 
         logs_map = {}
         for log in LogSolicitacoesUsuario.objects.filter(
