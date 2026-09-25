@@ -30,10 +30,11 @@ from src.medicao_inicial.services.pendencias_acao_dre import (
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_dias_com_dados,
     obtem_escolas_ordenadas,
-    obtem_nome_arquivo_xlsx_relatorio_adesao,
+    obtem_nome_arquivo_relatorio_adesao,
     obtem_resultados,
     obtem_resultados_para_dia,
     obtem_resultados_para_escola,
+    obtem_resultados_por_data,
     obtem_resultados_por_data_e_tipo_unidade,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
@@ -2401,6 +2402,14 @@ class RelatoriosViewSet(ViewSet):
             )
         return query_params_dict
 
+    def _obtem_resultados_exportacao_pdf(self, query_params):
+        if query_params.get("resultado_individual_por_data"):
+            valida_parametros_resultado_individual_por_data(query_params)
+            return obtem_resultados_por_data(query_params)
+        if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
+            return obtem_resultados_por_escola(query_params)
+        return obtem_resultados(query_params)
+
     @action(
         detail=False,
         url_name="relatorio-adesao_exportar-xlsx",
@@ -2415,7 +2424,7 @@ class RelatoriosViewSet(ViewSet):
 
             exporta_relatorio_adesao_para_xlsx.delay(
                 user=request.user.get_username(),
-                nome_arquivo=obtem_nome_arquivo_xlsx_relatorio_adesao(query_params),
+                nome_arquivo=obtem_nome_arquivo_relatorio_adesao(query_params, ".xlsx"),
                 resultados=resultados,
                 query_params=query_params_dict,
             )
@@ -2443,20 +2452,12 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
-                resultados = obtem_resultados_por_escola(query_params)
-            else:
-                resultados = obtem_resultados(query_params)
-            query_params_dict = query_params.dict()
-
-            if query_params.get(PayloadVariaveis.LOTES.value):
-                query_params_dict["lotes"] = query_params.getlist(
-                    PayloadVariaveis.LOTES.value
-                )
+            resultados = self._obtem_resultados_exportacao_pdf(query_params)
+            query_params_dict = self._query_params_dict_exportacao(query_params)
 
             exporta_relatorio_adesao_para_pdf.delay(
                 user=request.user.get_username(),
-                nome_arquivo="relatorio-adesao.pdf",
+                nome_arquivo=obtem_nome_arquivo_relatorio_adesao(query_params, ".pdf"),
                 resultados=resultados,
                 query_params=query_params_dict,
             )

@@ -659,12 +659,13 @@ def obtem_identificacao_tipo_unidade(query_params: QueryDict) -> str:
     return iniciais
 
 
-def obtem_nome_arquivo_xlsx_relatorio_adesao(query_params: QueryDict) -> str:
+def obtem_nome_arquivo_relatorio_adesao(query_params: QueryDict, extensao: str) -> str:
     """
     Monta o nome do arquivo Excel do Relatório de Adesão.
 
     Args:
         query_params (QueryDict): parâmetros da requisição.
+        extensao (str): extensão do arquivo.
 
     Returns:
         str: nome no formato
@@ -678,7 +679,29 @@ def obtem_nome_arquivo_xlsx_relatorio_adesao(query_params: QueryDict) -> str:
     if tipos:
         partes.append(tipos)
     partes.append(f"{mes}/{ano}")
-    return f"{' - '.join(partes)}.xlsx"
+    return f"{' - '.join(partes)}{extensao}"
+
+
+def obtem_resultados_por_data(query_params: QueryDict) -> list[dict]:
+    """
+    Obtém os resultados individualizados por data e grupo de unidades.
+
+    Cada data com lançamento é um item independente, na ordem crescente das datas.
+    O grupo é o mesmo exibido na consulta em tela.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        list[dict]: lista no formato
+        ``{"data": str, "tipo_unidade": str, "resultados": dict}``
+    """
+    combinacoes = []
+    for dia in obtem_dias_com_dados(query_params):
+        resultado = obtem_resultados_para_dia(dia, query_params)
+        if resultado["resultados"]:
+            combinacoes.append(resultado)
+    return combinacoes
 
 
 def obtem_dias_com_dados(query_params: QueryDict) -> list[str]:
