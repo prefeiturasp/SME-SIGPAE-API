@@ -6325,6 +6325,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             "numero_cronograma": numero_cronograma,
             "data_evento": data_evento,
             "url_detalhe_cronograma": url_detalhe_cronograma,
+            "nome_produto": nome_produto,
         }
 
         EmailENotificacaoService.enviar_email(

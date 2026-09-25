@@ -7,6 +7,7 @@ def test_template_email_base():
     template = "pre_recebimento_email_criacao_cronograma_semanal.html"
     hidden_email = False
     data_evento = "20/11/2025"
+    nome_produto = "FARINHA DE MILHO FLOCADA FLOCAO"
     url_detalhe_cronograma = "https:test.br/pre-recebimento/detalhe-cronograma-semanal?uuid=7f67f203-f0f3-4d7d-9543-f3e29b465651"
 
     dados_template = {
@@ -14,6 +15,7 @@ def test_template_email_base():
         "hidden_email": hidden_email,
         "numero_cronograma": numero_cronograma,
         "data_evento": data_evento,
+        "nome_produto": nome_produto,
         "url_detalhe_cronograma": url_detalhe_cronograma,
     }
     html = render_to_string(template, context=dados_template)
@@ -26,7 +28,7 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"Olá! A <strong>CODAE</strong> criou o Cronograma <strong> Nº {numero_cronograma}</strong> em {data_evento}: "
+        f"Olá! A <strong>CODAE</strong> criou o Cronograma <strong> Nº {numero_cronograma}</strong> de <strong>{nome_produto}</strong> em <strong>{data_evento}</strong>: "
         in html
     )
 
@@ -43,6 +45,7 @@ def test_template_email_base_hidden_email_true():
     template = "pre_recebimento_email_criacao_cronograma_semanal.html"
     hidden_email = True
     data_evento = "20/11/2025"
+    nome_produto = "FARINHA DE MILHO FLOCADA FLOCAO"
     url_detalhe_cronograma = "https:test.br/pre-recebimento/detalhe-cronograma-semanal?uuid=7f67f203-f0f3-4d7d-9543-f3e29b465651"
 
     dados_template = {
@@ -50,6 +53,7 @@ def test_template_email_base_hidden_email_true():
         "hidden_email": hidden_email,
         "numero_cronograma": numero_cronograma,
         "data_evento": data_evento,
+        "nome_produto": nome_produto,
         "url_detalhe_cronograma": url_detalhe_cronograma,
     }
     html = render_to_string(template, context=dados_template)
@@ -62,7 +66,7 @@ def test_template_email_base_hidden_email_true():
         in html
     )
     assert (
-        f"Olá! A <strong>CODAE</strong> criou o Cronograma <strong> Nº {numero_cronograma}</strong> em {data_evento}: "
+        f"Olá! A <strong>CODAE</strong> criou o Cronograma <strong> Nº {numero_cronograma}</strong> de <strong>{nome_produto}</strong> em <strong>{data_evento}</strong>: "
         in html
     )
 
