@@ -23,6 +23,7 @@ from src.dados_comuns.constants import (
     PayloadVariaveis,
     StringsValidationErrors,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
     CategoriaMedicao,
@@ -785,6 +786,101 @@ def test_url_endpoint_medicao_dashboard_totalizadores_dre(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 9
+
+
+def cria_solicitacao_dashboard_pendencia_dre(
+    escola,
+    mes,
+    status_medicao,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        mes=mes,
+        ano="2025",
+        status="MEDICAO_CORRIGIDA_PARA_CODAE",
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        status=status_medicao,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+    )
+    return solicitacao
+
+
+def test_dashboard_totalizadores_informa_pendencias_acao_dre(
+    client_autenticado_diretoria_regional,
+    escola,
+):
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="08",
+        status_medicao=Medicao.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="09",
+        status_medicao=Medicao.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+    )
+
+    response = client_autenticado_diretoria_regional.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard-totalizadores/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    totalizador = next(
+        item
+        for item in response.json()["results"]
+        if item["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    assert totalizador["total"] == 2
+    assert totalizador["total_pendentes_acao_dre"] == 1
+    assert totalizador["possui_pendencias_acao_dre"] is True
+
+
+def test_dashboard_resultados_filtra_pendencias_acao_dre(
+    client_autenticado_diretoria_regional,
+    escola,
+):
+    solicitacao_pendente = cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="08",
+        status_medicao=Medicao.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="09",
+        status_medicao=Medicao.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+    )
+    url_base = (
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard-resultados/"
+        "?status=MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    response_sem_filtro = client_autenticado_diretoria_regional.get(
+        f"{url_base}&somente_pendentes_acao_dre=false",
+        content_type="application/json",
+    )
+
+    assert response_sem_filtro.status_code == status.HTTP_200_OK
+    assert response_sem_filtro.json()["results"]["total"] == 2
+
+    response = client_autenticado_diretoria_regional.get(
+        f"{url_base}&somente_pendentes_acao_dre=true",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resultados = response.json()["results"]
+    assert resultados["total"] == 1
+    assert resultados["dados"][0]["uuid"] == str(solicitacao_pendente.uuid)
+    assert resultados["dados"][0]["pendente_acao_dre"] is True
 
 
 def test_url_endpoint_medicao_dashboard_resultados_dre(
