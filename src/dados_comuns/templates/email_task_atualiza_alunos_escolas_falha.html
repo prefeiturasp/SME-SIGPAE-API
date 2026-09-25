@@ -1,9 +1,0 @@
-{% extends "email_base.html" %}
-
-{% block conteudo %}
-<p>🚨 A task <b>atualiza_alunos_escolas</b> falhou definitivamente após esgotar todos os retries.</p>
-
-<p><b>Erro:</b> {{ erro }}</p>
-<p><b>Task UUID:</b> {{ task_id }}</p>
-<p><b>Horário:</b> {{ horario }}</p>
-{% endblock %}

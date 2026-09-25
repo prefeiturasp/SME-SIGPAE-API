@@ -1,2 +1,0 @@
-from .mock_historico_lorena import HISTORICO_LORENA
-from .mock_historico_sheila import HISTORICO_SHEILA

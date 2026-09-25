@@ -1,8 +1,0 @@
-{% extends 'email_base.html' %}
-{% load email_templatetags %}
-
-{% block conteudo %}
-  <p>A solicitação de {{ tipo_solicitacao }} <strong>{{ movimentacao_realizada | traduz_movimentacao }}</strong> por {{ perfil_que_autorizou }}.</p>
-  <p>Para acompanhar e visualizar todos os detalhes da solicitação, acesse o sistema.</p>
-  <br/>
-{% endblock %}

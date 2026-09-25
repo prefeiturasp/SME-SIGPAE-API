@@ -1,1 +1,0 @@
-ENDPOINT_ALIMENTOS = "alimentos"
