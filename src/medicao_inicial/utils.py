@@ -6,7 +6,7 @@ import logging
 import re
 from calendar import monthrange
 from collections import defaultdict
-from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation
 from functools import reduce
 from typing import Any, Dict
 
