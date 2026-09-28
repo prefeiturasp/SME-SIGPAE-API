@@ -440,6 +440,13 @@ class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
     dre = serializers.CharField(source="lote.diretoria_regional.nome")
     lote = LoteSimplesSerializer()
     grupo_unidade_escolar = GrupoUnidadeEscolarSerializer()
+    vigente = serializers.SerializerMethodField()
+
+    def get_vigente(self, obj):
+        hoje = datetime.date.today()
+        inicio_valido = obj.data_inicial is not None and obj.data_inicial <= hoje
+        fim_valido = obj.data_final is None or obj.data_final >= hoje
+        return inicio_valido and fim_valido
 
     class Meta:
         model = ParametrizacaoFinanceira

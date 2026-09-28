@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 import pytest
+from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import serializers
 
@@ -22,6 +23,7 @@ from src.escola.fixtures.factories.escola_factory import (
     PeriodoEscolarFactory,
 )
 from src.medicao_inicial.api.serializers import (
+    ParametrizacaoFinanceiraSerializer,
     RelatorioFinanceiroSerializer,
 )
 from src.medicao_inicial.api.serializers_create import (
@@ -687,3 +689,33 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
 
         assert valor is not None
         assert int(valor.valor) > 0
+
+
+def _parametrizacao_vigente(parametrizacao):
+    return ParametrizacaoFinanceiraSerializer(parametrizacao).data["vigente"]
+
+
+def test_parametrizacao_financeira_serializer_vigente(parametrizacao_financeira_emef):
+    parametrizacao_financeira_emef.refresh_from_db()
+
+    with freeze_time("2025-10-15"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+    with freeze_time("2025-10-01"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+    with freeze_time("2025-10-30"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+    with freeze_time("2025-09-30"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is False
+
+    with freeze_time("2025-10-31"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is False
+
+    parametrizacao_financeira_emef.data_final = None
+    parametrizacao_financeira_emef.save(update_fields=["data_final"])
+    parametrizacao_financeira_emef.refresh_from_db()
+
+    with freeze_time("2025-11-01"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
