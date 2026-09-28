@@ -29,6 +29,7 @@ class CronogramaSemanalListagemSerializer(serializers.ModelSerializer):
     """
 
     numero = serializers.CharField(source="cronograma_mensal.numero", read_only=True)
+    numero_semanal = serializers.CharField(source="numero", read_only=True)
     produto = serializers.CharField(
         source="cronograma_mensal.ficha_tecnica.produto.nome", read_only=True
     )
@@ -64,6 +65,7 @@ class CronogramaSemanalListagemSerializer(serializers.ModelSerializer):
         fields = [
             "uuid",
             "numero",
+            "numero_semanal",
             "produto",
             "quantidade_total",
             "unidade_medida",
