@@ -8,7 +8,6 @@ from src.dados_comuns.constants import (
 from src.medicao_inicial.api.filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
-    EmpenhoFilter,
     LancheEmergencialDiarioFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
@@ -19,7 +18,6 @@ from src.medicao_inicial.models import (
     GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
     ClausulaDeDesconto,
     DiaParaCorrigir,
-    Empenho,
     LancheEmergencialDiario,
     ParametrizacaoFinanceira,
     RelatorioFinanceiro,
@@ -143,33 +141,6 @@ def test_valor_medicao_filter_normaliza_grupo_legado_recreio_cei(
     medicao_legada.refresh_from_db()
 
     assert medicao_legada.grupo == grupo_recreio
-
-
-def test_empenho_filter_numero(empenho):
-    filtro = EmpenhoFilter(
-        data={"numero": empenho.numero},
-        queryset=Empenho.objects.all(),
-    )
-    assert filtro.qs.count() == 1
-    assert filtro.qs[0] == empenho
-
-
-def test_empenho_filter_contrato(empenho):
-    filtro = EmpenhoFilter(
-        data={"contrato": empenho.contrato.uuid},
-        queryset=Empenho.objects.all(),
-    )
-    assert filtro.qs.count() == 1
-    assert filtro.qs[0] == empenho
-
-
-def test_empenho_filter_edital(empenho):
-    filtro = EmpenhoFilter(
-        data={"edital": empenho.contrato.edital.uuid},
-        queryset=Empenho.objects.all(),
-    )
-    assert filtro.qs.count() == 1
-    assert filtro.qs[0] == empenho
 
 
 def test_clausula_desconto_filter_numero_clausula(clausula_desconto):

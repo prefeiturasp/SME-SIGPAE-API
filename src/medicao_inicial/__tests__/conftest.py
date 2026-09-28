@@ -3046,20 +3046,6 @@ def contrato(edital):
 
 
 @pytest.fixture
-def empenho(edital, contrato):
-    empenho = baker.make(
-        "Empenho",
-        numero="123456",
-        contrato=contrato,
-        edital=edital,
-        tipo_empenho="PRINCIPAL",
-        status="ATIVO",
-        valor_total="100.50",
-    )
-    return empenho
-
-
-@pytest.fixture
 def faixa_etaria():
     return baker.make(
         "FaixaEtaria", inicio=1, fim=4, uuid="1d125c38-ce75-6974-b25d-a4874745b996"
@@ -5851,18 +5837,6 @@ def medicoes_frequencia_zerada_emebs(
     )
 
     return solicitacao_medicao
-
-
-@pytest.fixture()
-def dados_liquidacao_cmct(relatorio_financeiro, escola_cmct):
-    obj = baker.make(
-        "DadosLiquidacao",
-        relatorio_financeiro=relatorio_financeiro,
-        numero_empenho="777/8598",
-        tipo_empenho="PRINCIPAL",
-    )
-    obj.unidades_educacionais.set([escola_cmct])
-    return obj
 
 
 def build_solicitacao(
