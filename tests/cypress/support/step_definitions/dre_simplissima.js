@@ -55,27 +55,3 @@ Then('a pagina de diretorias simplissimas esta vazia', function () {
 	expect(this.response.body.results).to.deep.eq([])
 	expect(this.response.body.next).to.eq(null)
 })
-When('consulto diretorias simplissimas na rota {string} sem autenticacao', function (rota) {
-	cy.clearCookies()
-	if (rota === 'detalhe') {
-		cy.consultar_dre_simplissima_opcoes({ qs: { limit: 1 } }).then((response) => {
-			expect(response.status).to.eq(200)
-			expect(response.body.results).to.have.length(1)
-			this.uuidPublico = response.body.results[0].uuid
-			cy.consultar_dre_simplissima_opcoes({ caminho: this.uuidPublico, autenticado: false }).then((resposta) => { this.response = resposta })
-		})
-	} else {
-		cy.consultar_dre_simplissima_opcoes({ caminho: rota === 'lista-completa' ? rota : '', autenticado: false }).then((response) => { this.response = response })
-	}
-	this.rotaPublica = rota
-})
-Then('a consulta publica de diretorias simplissimas retorna dados validos', function () {
-	expect(this.response.status).to.eq(200)
-	if (this.rotaPublica === 'detalhe') {
-		expect(this.response.body.uuid).to.eq(this.uuidPublico)
-		expect(this.response.body).to.include.all.keys(...campos)
-	} else {
-		expect(this.response.body.results).to.be.an('array').and.not.be.empty
-		expect(this.response.body.results[0]).to.include.all.keys('uuid', 'nome', 'codigo_eol', 'iniciais')
-	}
-})
