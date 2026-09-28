@@ -35,10 +35,8 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DadosLiquidacao,
     DescontoFinanceiro,
     DiaSobremesaDoce,
-    Empenho,
     GrupoMedicao,
     Medicao,
     OcorrenciaMedicaoInicial,
@@ -74,7 +72,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
 )
 from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
-from src.terceirizada.models import Contrato, Edital
+from src.terceirizada.models import Edital
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.constants import (
@@ -1703,19 +1701,6 @@ class PermissaoLancamentoEspecialCreateUpdateSerializer(serializers.ModelSeriali
         fields = "__all__"
 
 
-class EmpenhoCreateUpdateSerializer(serializers.ModelSerializer):
-    contrato = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=Contrato.objects.all()
-    )
-    edital = serializers.SlugRelatedField(
-        slug_field="uuid", queryset=Edital.objects.all()
-    )
-
-    class Meta:
-        model = Empenho
-        fields = "__all__"
-
-
 class ClausulaDeDescontoCreateUpdateSerializer(serializers.ModelSerializer):
     edital = serializers.SlugRelatedField(
         slug_field="uuid", queryset=Edital.objects.all()
@@ -1916,49 +1901,6 @@ class InformacoesBasicasMedicaoInicialUpdateSerializer(
         substitui_criador_system_por_usuario_real(instance, usuario)
 
         return instance
-
-
-class DadosLiquidacaoUpdateSerializer(serializers.ModelSerializer):
-    """
-    Serializer responsável pela criação e atualização de DadosLiquidacao.
-
-    Utiliza SlugRelatedField para associar:
-    - Relatório financeiro via UUID
-    - Unidades educacionais via UUID
-
-    Attributes:
-        relatorio_financeiro_id (UUID): UUID do relatório financeiro.
-        unidades_educacionais (List[UUID]): Lista de UUIDs das unidades educacionais.
-
-    Notes:
-        - O campo relatorio_financeiro_id é write_only.
-        - O campo unidades_educacionais aceita múltiplos valores.
-    """
-
-    relatorio_financeiro_id = serializers.SlugRelatedField(
-        queryset=RelatorioFinanceiro.objects.all(),
-        slug_field="uuid",
-        source="relatorio_financeiro",
-        write_only=True,
-    )
-    unidades_educacionais = serializers.SlugRelatedField(
-        many=True,
-        queryset=Escola.objects.all(),
-        slug_field="uuid",
-        write_only=True,
-    )
-
-    class Meta:
-        model = DadosLiquidacao
-        fields = [
-            "uuid",
-            "relatorio_financeiro_id",
-            "numero_empenho",
-            "tipo_empenho",
-            "unidades_educacionais",
-            "criado_em",
-            "alterado_em",
-        ]
 
 
 class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):

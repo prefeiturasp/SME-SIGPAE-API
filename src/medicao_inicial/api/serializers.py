@@ -1,9 +1,7 @@
 import datetime
 import json
-from calendar import monthrange
 
 import environ
-from django.db.models import Q
 from rest_framework import serializers
 
 from src.dados_comuns.api.serializers import (
@@ -27,16 +25,13 @@ from src.escola.api.serializers import (
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
-from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DadosLiquidacao,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
-    Empenho,
     LancheEmergencialDiario,
     Medicao,
     OcorrenciaMedicaoInicial,
@@ -59,11 +54,6 @@ from src.terceirizada.api.serializers.serializers import (
     LoteSimplesSerializer,
 )
 from src.terceirizada.models import Edital
-
-from ..utils import (
-    calcula_totais_consumo_por_escolas,
-    calcular_total_pagamento,
-)
 
 FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
 
@@ -379,15 +369,6 @@ class DiaParaCorrigirSerializer(serializers.ModelSerializer):
         exclude = ("id", "criado_por")
 
 
-class EmpenhoSerializer(serializers.ModelSerializer):
-    contrato = serializers.CharField(source="contrato.numero")
-    edital = serializers.CharField(source="edital.numero")
-
-    class Meta:
-        model = Empenho
-        exclude = ("id", "criado_em", "alterado_em")
-
-
 class ClausulaDeDescontoSerializer(serializers.ModelSerializer):
     edital = EditalSimplesSerializer()
 
@@ -470,101 +451,6 @@ class RelatorioFinanceiroSerializer(serializers.ModelSerializer):
     class Meta:
         model = RelatorioFinanceiro
         exclude = ("id", "criado_em", "alterado_em")
-
-
-class DadosLiquidacaoSerializer(serializers.ModelSerializer):
-    """
-    Serializer de leitura para DadosLiquidacao.
-
-    Retorna os dados completos com relacionamentos aninhados.
-
-    Attributes:
-        relatorio_financeiro (RelatorioFinanceiroSerializer): Dados do relatório financeiro.
-        unidades_educacionais (List[EscolaSerializer]): Lista de unidades educacionais associadas.
-        total_pagamento (Decimal): Valor total calculado com base no consumo e parametrização financeira.
-    """
-
-    relatorio_financeiro = RelatorioFinanceiroSerializer(read_only=True)
-    unidades_educacionais = EscolaSerializer(many=True, read_only=True)
-    total_pagamento = serializers.SerializerMethodField()
-
-    class Meta:
-        model = DadosLiquidacao
-        fields = [
-            "uuid",
-            "relatorio_financeiro",
-            "numero_empenho",
-            "tipo_empenho",
-            "unidades_educacionais",
-            "total_pagamento",
-            "criado_em",
-            "alterado_em",
-        ]
-
-    def get_total_pagamento(self, obj):
-        """
-        Calcula o valor total de pagamento para o objeto de liquidação.
-
-        O cálculo considera:
-        - As unidades educacionais associadas
-        - O tipo de cálculo definido pelo grupo da unidade escolar:
-            - Grupo 1 → cálculo por faixa etária
-            - Grupo 2 → cálculo combinado (tipo e faixa)
-            - Demais grupos → cálculo por tipo de alimentação
-        - O consumo consolidado no período do relatório financeiro
-        - A parametrização financeira vigente no mês/ano do relatório
-
-        Etapas:
-        1. Obtém as escolas vinculadas
-        2. Determina o tipo de cálculo
-        3. Calcula o consumo e atendimento total das escolas
-        4. Busca a parametrização válida no período
-        5. Calcula o valor total com base na parametrização
-
-        Args:
-            obj (DadosLiquidacao): Instância sendo serializada.
-
-        Returns:
-            Decimal: Valor total calculado para pagamento.
-        """
-        escolas = obj.unidades_educacionais.values_list("uuid", flat=True)
-        grupo_nome = obj.relatorio_financeiro.grupo_unidade_escolar.nome
-
-        tipo_calculo = (
-            "faixa_etaria"
-            if grupo_nome == GrupoUnidadeEscolar.GRUPO_1
-            else (
-                None
-                if grupo_nome == GrupoUnidadeEscolar.GRUPO_2
-                else "tipo_alimentacao"
-            )
-        )
-
-        consumo = calcula_totais_consumo_por_escolas(
-            escolas, obj.relatorio_financeiro, tipo_calculo=tipo_calculo
-        )
-
-        mes = int(obj.relatorio_financeiro.mes)
-        ano = int(obj.relatorio_financeiro.ano)
-
-        parametrizacao = (
-            ParametrizacaoFinanceira.objects.filter(
-                grupo_unidade_escolar=obj.relatorio_financeiro.grupo_unidade_escolar,
-                lote=obj.relatorio_financeiro.lote,
-                data_inicial__lte=datetime.date(ano, mes, monthrange(ano, mes)[1]),
-            )
-            .filter(
-                Q(data_final__gte=datetime.date(ano, mes, 1))
-                | Q(data_final__isnull=True)
-            )
-            .order_by("-data_inicial")
-            .first()
-        )
-
-        if not parametrizacao or not consumo:
-            return 0
-
-        return calcular_total_pagamento(consumo, parametrizacao, tipo_calculo)
 
 
 class DescontoFinanceiroSerializer(serializers.ModelSerializer):
