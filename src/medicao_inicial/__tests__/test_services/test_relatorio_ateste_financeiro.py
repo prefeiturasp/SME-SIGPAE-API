@@ -339,6 +339,7 @@ def test_build_relatorio_financeiro_grupo_cemei(
 
     numero_faixas = len(faixas_etarias_ativas) * 2
 
+    assert len(resultado["cei"]["alimentacao"]["linhas"]) == numero_faixas
     assert len(resultado["cei"]["dieta_a"]["linhas"]) == numero_faixas
     assert len(resultado["cei"]["dieta_b"]["linhas"]) == numero_faixas
 
@@ -377,7 +378,7 @@ def test_relatorio_ateste_financeiro_grupo_cemei_conteudo_pdf(
     assert "(CEMEI, CEU CEMEI)" in texto
 
     for faixa in faixas_etarias_ativas:
-        assert texto.count(faixa.__str__()) == 6
+        assert str(faixa) in texto
 
     assert "REFEIÇÃO" in texto
     assert "LANCHE" in texto

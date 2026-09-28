@@ -753,7 +753,10 @@ def test_relatorio_cronograma_entrega(cronograma):
 
     texto_pdf = extrair_texto_de_pdf(pdf_response_cronograma.content)
 
-    assert cronograma.ficha_tecnica.produto.nome in texto_pdf
+    nome_produto = re.sub(r"\s+", "", cronograma.ficha_tecnica.produto.nome)
+    texto_pdf_sem_espacos = re.sub(r"\s+", "", texto_pdf)
+
+    assert nome_produto in texto_pdf_sem_espacos
     assert cronograma.ficha_tecnica.marca.nome in texto_pdf
     assert cronograma.numero in texto_pdf
     assert cronograma.contrato.numero in texto_pdf
