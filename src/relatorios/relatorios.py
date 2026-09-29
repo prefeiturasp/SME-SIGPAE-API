@@ -2643,6 +2643,8 @@ def get_pdf_ficha_tecnica(request, ficha):
             "cnpj_distribuidor": cnpj_distribuidor,
             "telefone_distribuidor": telefone_distribuidor,
             "tipo_entrega": ficha.get_tipo_entrega_display(),
+            "exibir_bloco_fabricante": ficha.exibir_bloco_fabricante,
+            "exibir_numero_registro": ficha.exibir_numero_registro,
         },
     )
     data_arquivo = datetime.datetime.today().strftime("%d/%m/%Y às %H:%M")

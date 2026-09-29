@@ -1,6 +1,7 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
@@ -15,6 +16,7 @@ from .permissions import (
 )
 from .serializers.serializers import (
     TermoRecebimentoDefinitivoListagemSerializer,
+    TermoRecebimentoDefinitivoPainelAssinaturaSerializer,
     TermoRecebimentoDefinitivoSerializer,
 )
 from .serializers.serializers_create import TermoRecebimentoDefinitivoCreateSerializer
@@ -33,6 +35,8 @@ class TermoRecebimentoDefinitivoViewSet(
     - ``GET /`` — Lista os termos (paginado, com filtros por produto,
       empresa, número de cronograma, status e período de cadastro).
     - ``GET /<uuid>/`` — Detalhe do termo.
+    - ``GET /pendentes-assinatura/`` — Painel do fiscal: termos a assinar.
+    - ``GET /assinados/`` — Painel do fiscal: termos já assinados.
     """
 
     lookup_field = "uuid"
@@ -42,6 +46,8 @@ class TermoRecebimentoDefinitivoViewSet(
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = TermoRecebimentoDefinitivoFilter
     pagination_class = DefaultPagination
+
+    ACTIONS_PAINEL_ASSINATURA = ("pendentes_assinatura", "assinados")
 
     def get_queryset(self):
         """Termos ordenados por data de criação (decrescente).
@@ -63,7 +69,7 @@ class TermoRecebimentoDefinitivoViewSet(
                 ],
             )
 
-        if self.action == "list":
+        if self.action in ("list", *self.ACTIONS_PAINEL_ASSINATURA):
             return queryset.select_related("empresa", "contrato").prefetch_related(
                 Prefetch(
                     "cronogramas",
@@ -77,7 +83,7 @@ class TermoRecebimentoDefinitivoViewSet(
 
     def get_permissions(self):
         """Visualização é liberada para mais perfis do que o cadastro."""
-        if self.action in ("list", "retrieve"):
+        if self.action in ("list", "retrieve", *self.ACTIONS_PAINEL_ASSINATURA):
             return [PermissaoParaVisualizarTermoRecebimentoDefinitivo()]
 
         return [PermissaoParaCadastrarTermoRecebimentoDefinitivo()]
@@ -88,6 +94,8 @@ class TermoRecebimentoDefinitivoViewSet(
             return TermoRecebimentoDefinitivoListagemSerializer
         if self.action == "retrieve":
             return TermoRecebimentoDefinitivoSerializer
+        if self.action in self.ACTIONS_PAINEL_ASSINATURA:
+            return TermoRecebimentoDefinitivoPainelAssinaturaSerializer
 
         return TermoRecebimentoDefinitivoCreateSerializer
 
@@ -106,6 +114,62 @@ class TermoRecebimentoDefinitivoViewSet(
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    def _termos_do_fiscal(self, request, status_termo):
+        """Resposta paginada do painel de assinaturas do fiscal.
+
+        Termos no status informado em que o usuário da requisição é um dos
+        três fiscais, já com os filtros do painel (``numero_contrato``,
+        ``nome_produto`` e ``nome_empresa``) aplicados.
+        """
+        usuario = request.user
+
+        queryset = (
+            self.filter_queryset(self.get_queryset())
+            .filter(status=status_termo)
+            .filter(Q(fiscal_1=usuario) | Q(fiscal_2=usuario) | Q(fiscal_3=usuario))
+            .order_by("-criado_em")
+            .distinct()
+        )
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="pendentes-assinatura",
+        url_name="pendentes_assinatura",
+    )
+    def pendentes_assinatura(self, request):
+        """Termos aguardando a assinatura do fiscal logado.
+
+        Endpoint: ``GET /pos-recebimento/termos/pendentes-assinatura/``
+        """
+        return self._termos_do_fiscal(
+            request, TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+        )
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="assinados",
+        url_name="assinados",
+    )
+    def assinados(self, request):
+        """Termos já assinados pelo fornecedor, dos quais o usuário logado
+        é fiscal.
+
+        Endpoint: ``GET /pos-recebimento/termos/assinados/``
+        """
+        return self._termos_do_fiscal(
+            request, TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR
+        )
 
     def perform_create(self, serializer):
         """Persiste o termo com status ``ENVIADO_FISCAIS`` e cria as linhas do

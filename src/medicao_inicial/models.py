@@ -930,39 +930,6 @@ class DiaParaCorrigir(
         verbose_name_plural = "Dias da Medição para corrigir"
 
 
-class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    # Tipo de empenho
-    TIPO_EMPENHO_CHOICES = (("PRINCIPAL", "Principal"), ("REAJUSTE", "Reajuste"))
-
-    # Status
-    STATUS_CHOICES = (("ATIVO", "Ativo"), ("INATIVO", "Inativo"))
-
-    numero = models.CharField(
-        StringsVerboseNameModels.NUMERO_DO_EMPENHO_2.value, max_length=100, unique=True
-    )
-    contrato = models.ForeignKey(
-        "terceirizada.Contrato", on_delete=models.PROTECT, related_name="empenhos"
-    )
-    edital = models.ForeignKey(
-        StringsCaminhoModelos.MODEL_EDITAL.value,
-        on_delete=models.PROTECT,
-        related_name="empenhos",
-    )
-    tipo_empenho = models.CharField(
-        choices=TIPO_EMPENHO_CHOICES, max_length=20, default="PRINCIPAL"
-    )
-    status = models.CharField(choices=STATUS_CHOICES, max_length=10, default="ATIVO")
-    valor_total = models.DecimalField(max_digits=12, decimal_places=2)
-
-    def __str__(self):
-        return f"Empenho: {self.numero}"
-
-    class Meta:
-        verbose_name = "Empenho"
-        verbose_name_plural = "Empenhos"
-        ordering = ["-alterado_em"]
-
-
 class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
         StringsCaminhoModelos.MODEL_EDITAL.value,
@@ -1120,66 +1087,6 @@ class RelatorioFinanceiro(
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
-
-
-class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    """
-    Dados para liquidação vinculados a um relatório financeiro.
-
-    Essa entidade armazena informações relacionadas a empenhos, incluindo
-    número, tipo e as unidades educacionais associadas.
-
-    Attributes:
-        relatorio_financeiro (RelatorioFinanceiro): Relatório financeiro ao qual o dado pertence.
-        numero_empenho (str): Número identificador do empenho.
-        tipo_empenho (str): Tipo/classificação do empenho.
-        unidades_educacionais (ManyToMany[Escola]): Lista de unidades educacionais (escolas) associadas ao empenho.
-
-    Meta:
-        verbose_name (str): Nome singular da entidade.
-        verbose_name_plural (str): Nome plural da entidade.
-        ordering (list): Ordenação padrão por data de alteração decrescente.
-        constraints (list): Garante unicidade da combinação entre número do empenho,
-            tipo e relatório financeiro.
-    """
-
-    relatorio_financeiro = models.ForeignKey(
-        RelatorioFinanceiro,
-        to_field="uuid",
-        on_delete=models.CASCADE,
-        related_name="dados_liquidacao",
-    )
-    numero_empenho = models.CharField(
-        StringsVerboseNameModels.NUMERO_DO_EMPENHO_2.value,
-        max_length=40,
-    )
-    tipo_empenho = models.CharField(
-        StringsVerboseNameModels.TIPO_DE_EMPENHO.value,
-        max_length=100,
-    )
-    unidades_educacionais = models.ManyToManyField(
-        Escola,
-        blank=True,
-        related_name="dados_liquidacao",
-    )
-
-    def __str__(self):
-        return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
-
-    class Meta:
-        verbose_name = "Dado Liquidação"
-        verbose_name_plural = "Dados Liquidações"
-        ordering = ["-alterado_em"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=[
-                    "numero_empenho",
-                    "tipo_empenho",
-                    "relatorio_financeiro",
-                ],
-                name="unique_dados_liquidacao_empenho_por_relatorio",
-            )
-        ]
 
 
 class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):

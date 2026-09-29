@@ -10,10 +10,8 @@ from .models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DadosLiquidacao,
     DescontoFinanceiro,
     DiaSobremesaDoce,
-    Empenho,
     GrupoMedicao,
     LancheEmergencialDiario,
     Medicao,
@@ -198,14 +196,6 @@ class ValorMedicaoAdmin(admin.ModelAdmin):
         return f"{escola.codigo_eol}: {escola.nome}"
 
 
-@admin.register(Empenho)
-class EmpenhoAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "contrato", "edital", "status", "alterado_em")
-    search_fields = ("numero",)
-    list_filter = ("alterado_em", "status")
-    ordering = ("-alterado_em",)
-
-
 @admin.register(ClausulaDeDesconto)
 class ClausulaDeDescontoAdmin(admin.ModelAdmin):
     list_display = ("__str__", "porcentagem_desconto", "criado_em", "alterado_em")
@@ -262,11 +252,6 @@ class ParametrizacaoFinanceiraTabelaValorAdmin(admin.ModelAdmin):
 @admin.register(RelatorioFinanceiro)
 class RelatorioFinanceiroAdmin(admin.ModelAdmin):
     list_display = ("__str__", "grupo_unidade_escolar")
-
-
-@admin.register(DadosLiquidacao)
-class DadosLiquidacaoAdmin(admin.ModelAdmin):
-    list_display = ("__str__", "relatorio_financeiro")
 
 
 @admin.register(DescontoFinanceiro)

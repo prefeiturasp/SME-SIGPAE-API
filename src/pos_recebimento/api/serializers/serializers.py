@@ -86,6 +86,51 @@ class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class TermoRecebimentoDefinitivoPainelAssinaturaSerializer(serializers.ModelSerializer):
+    """Termo no painel de assinaturas do fiscal."""
+
+    empresa = serializers.CharField(
+        source="empresa.nome_fantasia",
+        read_only=True,
+    )
+    numero_contrato = serializers.CharField(
+        source="contrato.numero",
+        read_only=True,
+    )
+    numeros_cronogramas = serializers.SerializerMethodField()
+    nomes_produtos = serializers.SerializerMethodField()
+    criado_em = serializers.SerializerMethodField()
+
+    def get_numeros_cronogramas(self, obj):
+        """Números dos cronogramas vinculados ao termo."""
+        return [cronograma.numero for cronograma in obj.cronogramas.all()]
+
+    def get_nomes_produtos(self, obj):
+        """Nomes dos produtos dos cronogramas do termo, sem duplicidades."""
+        produtos = []
+        for cronograma in obj.cronogramas.all():
+            ficha_tecnica = cronograma.ficha_tecnica
+            nome = ficha_tecnica.produto.nome if ficha_tecnica else None
+            if nome and nome not in produtos:
+                produtos.append(nome)
+        return produtos
+
+    def get_criado_em(self, obj):
+        return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
+
+    class Meta:
+        model = TermoRecebimentoDefinitivo
+        fields = (
+            "uuid",
+            "empresa",
+            "numero_contrato",
+            "numeros_cronogramas",
+            "nomes_produtos",
+            "criado_em",
+        )
+        read_only_fields = fields
+
+
 class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
     """Serializador de saída do Termo de Recebimento Definitivo.
 

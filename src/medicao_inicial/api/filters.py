@@ -60,18 +60,6 @@ class ValorMedicaoFilter(filters.FilterSet):
         return queryset
 
 
-class EmpenhoFilter(filters.FilterSet):
-    numero = filters.CharFilter(field_name="numero", lookup_expr="icontains")
-    contrato = filters.UUIDFilter(method="filtra_contrato")
-    edital = filters.UUIDFilter(method="filtra_edital")
-
-    def filtra_contrato(self, queryset, _, value):
-        return queryset.filter(contrato__uuid=value)
-
-    def filtra_edital(self, queryset, _, value):
-        return queryset.filter(contrato__edital__uuid=value)
-
-
 class ClausulaDeDescontoFilter(filters.FilterSet):
     numero_clausula = filters.CharFilter(
         field_name="numero_clausula", lookup_expr="icontains"

@@ -381,6 +381,44 @@ class FichaTecnicaDoProduto(
     def eh_ponto_a_ponto(self) -> bool:
         return self.tipo_entrega == self.PONTO_A_PONTO
 
+    @property
+    def eh_flv_ponto_a_ponto(self) -> bool:
+        return self.categoria == self.CATEGORIA_FLV and self.eh_ponto_a_ponto
+
+    @property
+    def bloco_fabricante_preenchido(self) -> bool:
+        return _entidade_fabricante_possui_dados(
+            self.fabricante
+        ) or _entidade_fabricante_possui_dados(self.envasador_distribuidor)
+
+    @property
+    def exibir_bloco_fabricante(self) -> bool:
+        return not self.eh_flv_ponto_a_ponto or self.bloco_fabricante_preenchido
+
+    @property
+    def exibir_numero_registro(self) -> bool:
+        return not self.eh_flv_ponto_a_ponto or bool(self.numero_registro)
+
+
+def _entidade_fabricante_possui_dados(entidade) -> bool:
+    if not entidade:
+        return False
+
+    campos = [
+        "fabricante",
+        "cnpj",
+        "cep",
+        "endereco",
+        "numero",
+        "complemento",
+        "bairro",
+        "cidade",
+        "estado",
+        "email",
+        "telefone",
+    ]
+    return any(getattr(entidade, campo) for campo in campos)
+
 
 @receiver(post_save, sender=FichaTecnicaDoProduto)
 def gerar_numero_ficha_tecnica(sender, instance, created, **kwargs):
@@ -444,13 +482,19 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
     modo_preparo_correcoes = models.TextField(blank=True)
     outras_informacoes_conferido = models.BooleanField(null=True)
 
+    def _fabricante_envasador_valido(self):
+        if self.fabricante_envasador_correcoes:
+            return False
+
+        if not self.ficha_tecnica.exibir_bloco_fabricante:
+            return self.fabricante_envasador_conferido in [True, None]
+
+        return self.fabricante_envasador_conferido is True
+
     @property
     def aprovada(self):
         valido = (
-            (
-                self.fabricante_envasador_conferido is True
-                and not self.fabricante_envasador_correcoes
-            )
+            self._fabricante_envasador_valido()
             and (
                 self.detalhes_produto_conferido is True
                 and not self.detalhes_produto_correcoes

@@ -23,13 +23,13 @@ from src.dados_comuns.constants import (
     PayloadVariaveis,
     StringsValidationErrors,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
-    Empenho,
     LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
@@ -785,6 +785,101 @@ def test_url_endpoint_medicao_dashboard_totalizadores_dre(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 9
+
+
+def cria_solicitacao_dashboard_pendencia_dre(
+    escola,
+    mes,
+    status_medicao,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        mes=mes,
+        ano="2025",
+        status="MEDICAO_CORRIGIDA_PARA_CODAE",
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        status=status_medicao,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+    )
+    return solicitacao
+
+
+def test_dashboard_totalizadores_informa_pendencias_acao_dre(
+    client_autenticado_diretoria_regional,
+    escola,
+):
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="08",
+        status_medicao=Medicao.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="09",
+        status_medicao=Medicao.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+    )
+
+    response = client_autenticado_diretoria_regional.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard-totalizadores/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    totalizador = next(
+        item
+        for item in response.json()["results"]
+        if item["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    assert totalizador["total"] == 2
+    assert totalizador["total_pendentes_acao_dre"] == 1
+    assert totalizador["possui_pendencias_acao_dre"] is True
+
+
+def test_dashboard_resultados_filtra_pendencias_acao_dre(
+    client_autenticado_diretoria_regional,
+    escola,
+):
+    solicitacao_pendente = cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="08",
+        status_medicao=Medicao.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="09",
+        status_medicao=Medicao.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+    )
+    url_base = (
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard-resultados/"
+        "?status=MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    response_sem_filtro = client_autenticado_diretoria_regional.get(
+        f"{url_base}&somente_pendentes_acao_dre=false",
+        content_type="application/json",
+    )
+
+    assert response_sem_filtro.status_code == status.HTTP_200_OK
+    assert response_sem_filtro.json()["results"]["total"] == 2
+
+    response = client_autenticado_diretoria_regional.get(
+        f"{url_base}&somente_pendentes_acao_dre=true",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resultados = response.json()["results"]
+    assert resultados["total"] == 1
+    assert resultados["dados"][0]["uuid"] == str(solicitacao_pendente.uuid)
+    assert resultados["dados"][0]["pendente_acao_dre"] is True
 
 
 def test_url_endpoint_medicao_dashboard_resultados_dre(
@@ -1996,38 +2091,6 @@ def test_periodos_permissoes_lancamentos_especiais_mes_ano(
             "2ª Refeição 1ª oferta",
         ]
     )
-
-
-def test_url_endpoint_empenho(client_autenticado_coordenador_codae, edital, contrato):
-    data = {
-        "numero": "1234599",
-        "contrato": contrato.uuid,
-        "edital": edital.uuid,
-        "tipo_empenho": "PRINCIPAL",
-        "status": "ATIVO",
-        "valor_total": 1050.99,
-        "uuid": "c1203fab-b189-4cac-8930-6e2f315bbe2e",
-    }
-
-    response = client_autenticado_coordenador_codae.post(
-        "/medicao-inicial/empenhos/",
-        content_type="application/json",
-        data=data,
-    )
-    assert response.status_code == status.HTTP_201_CREATED
-    assert Empenho.objects.count() == 1
-
-    response = client_autenticado_coordenador_codae.get(
-        "/medicao-inicial/empenhos/",
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json()["results"][0]["contrato"] == "Contrato 78/SME/2024"
-    assert response.json()["results"][0]["edital"] == "Edital de Pregão nº 78/SME/2024"
-    assert response.json()["results"][0]["numero"] == "1234599"
-    assert response.json()["results"][0]["tipo_empenho"] == "PRINCIPAL"
-    assert response.json()["results"][0]["status"] == "ATIVO"
-    assert response.json()["results"][0]["valor_total"] == "1050.99"
 
 
 def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
@@ -4133,47 +4196,6 @@ def test_url_dias_frequencia_zerada_uuid_nao_enviado(client_autenticado_codae_me
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert isinstance(response.data, dict)
     assert response.json() == {"detail": "Parâmetro 'uuid_solicitacao' é obrigatório."}
-
-
-def test_registrar_empenhos_relatorio_financeiro(
-    client_autenticado_codae_medicao,
-    relatorio_financeiro,
-    dados_liquidacao_cmct,
-    escola_cei,
-    escola_cmct,
-):
-    payload = [
-        {
-            "uuid": str(dados_liquidacao_cmct.uuid),
-            "numero_empenho": "888/7987",
-            "tipo_empenho": "PRINCIPAL",
-            "unidades_educacionais": [
-                str(escola_cei.uuid),
-                str(escola_cmct.uuid),
-            ],
-        }
-    ]
-
-    url = f"/medicao-inicial/dados-liquidacao/registrar-empenhos/{relatorio_financeiro.uuid}/"
-
-    response = client_autenticado_codae_medicao.put(
-        url,
-        data=json.dumps(payload),
-        content_type="application/json",
-    )
-
-    result = json.loads(response.content)
-
-    assert response.status_code == status.HTTP_200_OK
-
-    dados_liquidacao_cmct.refresh_from_db()
-
-    assert dados_liquidacao_cmct.numero_empenho == "888/7987"
-    assert dados_liquidacao_cmct.unidades_educacionais.count() == 2
-
-    assert isinstance(result, list)
-    assert result[0]["numero_empenho"] == "888/7987"
-    assert len(result[0]["unidades_educacionais"]) == 2
 
 
 def test_url_endpoint_historico_correcoes_medicao_pdf(

@@ -84,3 +84,63 @@ def test_valida_campos_flv_erro_campo_nao_permitido():
         validator.valida_campos_nao_permitidos_por_collapse()
 
     assert "porcao" in excinfo.value.detail
+
+
+def test_valida_correcao_flv_ponto_a_ponto_sem_fabricante_valida():
+    ficha = FichaTecnicaFactory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        fabricante=None,
+        envasador_distribuidor=None,
+        status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+    )
+    AnaliseFichaTecnicaFactory(
+        ficha_tecnica=ficha,
+        fabricante_envasador_conferido=False,
+    )
+
+    attrs = {"envasador_distribuidor": None}
+
+    validator = ServiceValidacaoCorrecaoFichaTecnica(ficha, attrs)
+    validator.valida_campos_obrigatorios_por_collapse()
+    validator.valida_campos_nao_permitidos_por_collapse()
+
+
+def test_valida_correcao_flv_armazem_exige_fabricante():
+    ficha = FichaTecnicaFactory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+        status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+    )
+    AnaliseFichaTecnicaFactory(
+        ficha_tecnica=ficha,
+        fabricante_envasador_conferido=False,
+    )
+
+    attrs = {"envasador_distribuidor": None}
+
+    validator = ServiceValidacaoCorrecaoFichaTecnica(ficha, attrs)
+    with pytest.raises(ValidationError) as excinfo:
+        validator.valida_campos_obrigatorios_por_collapse()
+
+    assert "fabricante" in excinfo.value.detail
+
+
+def test_valida_correcao_categoria_normal_exige_fabricante():
+    ficha = FichaTecnicaFactory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+        status=FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO,
+    )
+    AnaliseFichaTecnicaFactory(
+        ficha_tecnica=ficha,
+        fabricante_envasador_conferido=False,
+    )
+
+    attrs = {"envasador_distribuidor": None}
+
+    validator = ServiceValidacaoCorrecaoFichaTecnica(ficha, attrs)
+    with pytest.raises(ValidationError) as excinfo:
+        validator.valida_campos_obrigatorios_por_collapse()
+
+    assert "fabricante" in excinfo.value.detail
