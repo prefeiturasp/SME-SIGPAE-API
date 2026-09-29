@@ -4,6 +4,7 @@ import pytest
 from freezegun import freeze_time
 from pypdf import PdfReader
 
+from src.escola.models import Lote
 from src.medicao_inicial.services.relatorio_adesao_pdf import (
     _formata_filtros,
     gera_relatorio_adesao_pdf,
@@ -191,8 +192,12 @@ def test_gera_relatorio_adesao_pdf_por_data_uma_pagina_por_combinacao(
     diretoria_regional,
 ):
     _, query_params = mock_exportacao_relatorio_adesao
-    diretoria_regional.iniciais = "IP"
+    diretoria_regional.iniciais = "BT"
     diretoria_regional.save(update_fields=["iniciais"])
+    Lote.objects.filter(uuid__in=query_params["lotes"]).update(
+        diretoria_regional=diretoria_regional
+    )
+    query_params.pop("diretoria_regional", None)
     resultados_por_data = [
         {
             "data": "04/08/2025",
@@ -230,12 +235,12 @@ def test_gera_relatorio_adesao_pdf_por_data_uma_pagina_por_combinacao(
         page.extract_text().replace("\n", " ") for page in pdf_reader.pages
     ]
     assert (
-        "Março 2025 | Lote 01, Lote 02, Lote 03 - DRE IP | Grupo 3 - EMEI, CEU EMEI"
+        "Março 2025 | BT - Lote 01, BT - Lote 02, BT - Lote 03 | Grupo 3 - EMEI, CEU EMEI"
         in texto_por_pagina[0]
     )
     assert "Data do Lançamento: 04/08/2025" in texto_por_pagina[0]
     assert (
-        "Março 2025 | Lote 01, Lote 02, Lote 03 - DRE IP | Grupo 3 - EMEI, CEU EMEI"
+        "Março 2025 | BT - Lote 01, BT - Lote 02, BT - Lote 03 | Grupo 3 - EMEI, CEU EMEI"
         in texto_por_pagina[1]
     )
     assert "Data do Lançamento: 05/08/2025" in texto_por_pagina[1]
