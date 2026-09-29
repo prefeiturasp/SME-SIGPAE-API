@@ -54,6 +54,7 @@ def test_painel_assinatura_retorna_apenas_os_campos_do_card(
     assert set(data.keys()) == {
         "uuid",
         "empresa",
+        "razao_social",
         "numero_contrato",
         "numeros_cronogramas",
         "nomes_produtos",
@@ -68,6 +69,7 @@ def test_painel_assinatura_serializa_dados_do_termo(termos_painel_assinatura):
 
     assert data["uuid"] == str(termo.uuid)
     assert data["empresa"] == "ALFA ALIMENTOS"
+    assert data["razao_social"] == "ALFA ALIMENTOS LTDA"
     assert data["numero_contrato"] == "111/2026"
     assert sorted(data["numeros_cronogramas"]) == ["001/2026", "002/2026"]
     assert sorted(data["nomes_produtos"]) == ["ABACATE", "MAMAO PAPAYA"]
