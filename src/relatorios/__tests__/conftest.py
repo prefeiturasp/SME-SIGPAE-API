@@ -419,6 +419,27 @@ def ficha_tecnica_sem_envasador(ficha_tecnica):
 
 
 @pytest.fixture
+def ficha_tecnica_flv_ponto_a_ponto_sem_fabricante():
+    return FichaTecnicaFactory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        fabricante=None,
+        envasador_distribuidor=None,
+        status=FichaTecnicaDoProdutoWorkflow.APROVADA,
+    )
+
+
+@pytest.fixture
+def ficha_tecnica_flv_ponto_a_ponto_com_fabricante():
+    return FichaTecnicaFactory(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        numero_registro="987654",
+        status=FichaTecnicaDoProdutoWorkflow.APROVADA,
+    )
+
+
+@pytest.fixture
 def lote():
     diretoria_regional = baker.make("DiretoriaRegional", iniciais="IP")
     return baker.make(Lote, nome="3567-3", diretoria_regional=diretoria_regional)
