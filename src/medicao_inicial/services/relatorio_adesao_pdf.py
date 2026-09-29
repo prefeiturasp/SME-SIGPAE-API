@@ -57,16 +57,23 @@ def _formata_segmento_periodo_lancamento(query_params: dict) -> str:
 
 
 def _nome_dre_lote(query_params: dict) -> str:
-    dre = _obtem_dre(query_params)
-    sigla = ""
-    if dre:
-        sigla = dre.iniciais or dre.nome
-    lote_nomes = _obtem_nomes_lotes(query_params)
-    if lote_nomes and sigla:
-        return f"{', '.join(lote_nomes)} - DRE {sigla}"
-    if lote_nomes:
-        return ", ".join(lote_nomes)
-    return sigla
+    dre_filtro = _obtem_dre(query_params)
+    lotes_uuid = query_params.get("lotes") or []
+    if isinstance(lotes_uuid, str):
+        lotes_uuid = [lotes_uuid]
+
+    lotes = (
+        Lote.objects.filter(uuid__in=lotes_uuid)
+        .select_related("diretoria_regional")
+        .order_by("nome")
+    )
+    rotulos = []
+    for lote in lotes:
+        diretoria = lote.diretoria_regional or dre_filtro
+        iniciais = getattr(diretoria, "iniciais", "")
+        rotulos.append(f"{iniciais} - {lote.nome}" if iniciais else lote.nome)
+
+    return ", ".join(rotulos) or getattr(dre_filtro, "iniciais", "")
 
 
 def _formata_filtros_por_data(query_params: dict, tipo_unidade: str) -> str:
