@@ -93,6 +93,10 @@ class TermoRecebimentoDefinitivoPainelAssinaturaSerializer(serializers.ModelSeri
         source="empresa.nome_fantasia",
         read_only=True,
     )
+    razao_social = serializers.CharField(
+        source="empresa.razao_social",
+        read_only=True,
+    )
     numero_contrato = serializers.CharField(
         source="contrato.numero",
         read_only=True,
@@ -123,6 +127,7 @@ class TermoRecebimentoDefinitivoPainelAssinaturaSerializer(serializers.ModelSeri
         fields = (
             "uuid",
             "empresa",
+            "razao_social",
             "numero_contrato",
             "numeros_cronogramas",
             "nomes_produtos",
