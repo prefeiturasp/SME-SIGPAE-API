@@ -13,10 +13,9 @@ from .constants import (
     FORMATO_DATA_BRASILEIRO,
     LIMITE_INFERIOR,
     LIMITE_SUPERIOR,
-    MODEL_USUARIO,
-    MODEL_VINCULO,
     PRIORITARIO,
     StatusProcessamentoArquivo,
+    StringsCaminhoModelos,
 )
 from .models import LogSolicitacoesUsuario
 from .utils import eh_dia_util, obter_dias_uteis_apos, ordena_dias_semana_comeca_domingo
@@ -227,7 +226,10 @@ class CriadoPor(models.Model):
 
     # TODO: futuramente deixar obrigatorio esse campo
     criado_por = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -438,7 +440,7 @@ class Logs(object):
 
 
 class TemVinculos(models.Model):
-    vinculos = GenericRelation(MODEL_VINCULO)
+    vinculos = GenericRelation(StringsCaminhoModelos.MODEL_VINCULO.value)
 
     class Meta:
         abstract = True
@@ -454,7 +456,9 @@ class SolicitacaoForaDoPrazo(models.Model):
 
 
 class TemFaixaEtariaEQuantidade(models.Model):
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.DO_NOTHING)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.DO_NOTHING
+    )
     quantidade = models.PositiveSmallIntegerField()
 
     class Meta:
@@ -555,7 +559,10 @@ class CanceladoIndividualmente(models.Model):
     )
     cancelado_em = models.DateTimeField("Cancelado em", null=True, blank=True)
     cancelado_por = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.DO_NOTHING, null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.DO_NOTHING,
+        null=True,
+        blank=True,
     )
 
     class Meta:

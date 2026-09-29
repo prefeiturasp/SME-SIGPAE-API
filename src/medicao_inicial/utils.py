@@ -6,19 +6,18 @@ import logging
 import re
 from calendar import monthrange
 from collections import defaultdict
-from decimal import ROUND_HALF_UP, Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation
 from functools import reduce
 from typing import Any, Dict
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import transaction
 from django.db.models import FloatField, IntegerField, Q, QuerySet, Sum
 from django.db.models.functions import Cast
 from django.db.utils import IntegrityError
 from django.template.loader import render_to_string
 from django.utils import timezone
-from src.dados_comuns.models import LogSolicitacoesUsuario
 from unidecode import unidecode
-from django.db import transaction
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -48,6 +47,7 @@ from src.dados_comuns.constants import (
     TIPOS_TURMAS_EMEBS,
     TIPOS_UNIDADE_ESCOLAR,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     convert_image_to_base64,
@@ -59,6 +59,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
@@ -105,8 +106,10 @@ from src.terceirizada.models import Edital
 
 logger = logging.getLogger(__name__)
 
-CHAVE_ALIMENTACAO_REGULAR = "ALIMENTAÇÃO"
+CHAVE_ALIMENTACAO_REGULAR = CategoriaMedicao.ALIMENTACAO
 TURMAS_EMEBS = ["INFANTIL", "FUNDAMENTAL"]
+LANCHE_EMERGENCIAL = TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value.upper()
+KIT_LANCHE = "KIT LANCHE"
 
 
 def process_single_anexo(anexo, usuario):
@@ -184,15 +187,18 @@ def get_lista_categorias_campos(medicao, tipo_turma=None):
     if medicao.grupo and medicao.grupo.nome == GRUPO_SOLICITACOES_ALIMENTACAO:
         lista_ = []
         if (
-            "SOLICITAÇÕES DE ALIMENTAÇÃO",
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             "lanche_emergencial",
         ) in lista_categorias_campos:
             lista_ += [
-                ("LANCHE EMERGENCIAL", "solicitado"),
-                ("LANCHE EMERGENCIAL", "consumido"),
+                (LANCHE_EMERGENCIAL, "solicitado"),
+                (LANCHE_EMERGENCIAL, "consumido"),
             ]
-        if ("SOLICITAÇÕES DE ALIMENTAÇÃO", "kit_lanche") in lista_categorias_campos:
-            lista_ += [("KIT LANCHE", "solicitado"), ("KIT LANCHE", "consumido")]
+        if (
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "kit_lanche",
+        ) in lista_categorias_campos:
+            lista_ += [(KIT_LANCHE, "solicitado"), (KIT_LANCHE, "consumido")]
         lista_categorias_campos = lista_
     return lista_categorias_campos
 
@@ -467,36 +473,122 @@ def append_segunda_tabela(
     return tabelas
 
 
+def _nova_tabela_vazia():
+    return {
+        "periodos": [],
+        "categorias": [],
+        "nomes_campos": [],
+        "len_periodos": [],
+        "len_categorias": [],
+        "valores_campos": [],
+        "ordem_periodos_grupos": [],
+        "dias_letivos": [],
+        "categorias_dos_periodos": {},
+    }
+
+
+def _nome_periodo_medicao(medicao):
+    if not medicao.grupo:
+        return medicao.periodo_escolar.nome
+    if medicao.periodo_escolar:
+        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
+    return medicao.grupo.nome
+
+
+def _nome_periodo_medicao_turma(medicao, tipo_turma):
+    if not medicao.grupo:
+        return f"{medicao.periodo_escolar.nome} - {tipo_turma}"
+    if medicao.periodo_escolar:
+        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
+    return f"{medicao.grupo.nome} - {tipo_turma}"
+
+
+def _processa_categoria_emebs(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos
+):
+    if (
+        len(tabelas[indice_atual]["nomes_campos"])
+        + len(dict_categorias_campos[categoria])
+        > MAX_COLUNAS
+    ) or (
+        "total_refeicoes_pagamento" in tabelas[indice_atual]["nomes_campos"]
+        and "total_refeicoes_pagamento" in dict_categorias_campos[categoria]
+    ):
+        if len(dict_categorias_campos[categoria]) > MAX_COLUNAS:
+            tabelas, limite = append_tabela(
+                tabelas,
+                indice_atual,
+                nome_periodo,
+                categoria,
+                dict_categorias_campos,
+            )
+            indice_atual += 1
+            tabelas += [_nova_tabela_vazia()]
+            append_tabela(
+                tabelas,
+                indice_atual,
+                nome_periodo,
+                categoria,
+                dict_categorias_campos,
+                True,
+                limite_campos=limite,
+            )
+        else:
+            indice_atual += 1
+            tabelas += [_nova_tabela_vazia()]
+        _adiciona_categoria_na_tabela_atual(
+            tabelas,
+            indice_atual,
+            nome_periodo,
+            categoria,
+            dict_categorias_campos,
+        )
+    else:
+        adiciona_valores_header(
+            nome_periodo,
+            tabelas,
+            dict_categorias_campos,
+            indice_atual,
+            categoria,
+        )
+        get_categorias_dos_periodos(
+            nome_periodo,
+            tabelas,
+            indice_atual,
+            categoria,
+            dict_categorias_campos,
+        )
+    return tabelas, indice_atual
+
+
+def _adiciona_categoria_na_tabela_atual(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos
+):
+    tabelas[indice_atual]["periodos"] += [nome_periodo]
+    tabelas[indice_atual]["categorias"] += [categoria]
+    tabelas[indice_atual]["nomes_campos"] += [
+        campo for campo in ORDEM_CAMPOS if campo in dict_categorias_campos[categoria]
+    ]
+    tabelas[indice_atual]["len_categorias"] += [len(dict_categorias_campos[categoria])]
+    get_categorias_dos_periodos(
+        nome_periodo,
+        tabelas,
+        indice_atual,
+        categoria,
+        dict_categorias_campos,
+    )
+
+
 def build_headers_tabelas(solicitacao, ordem_periodos=None):
     if ordem_periodos is None:
         ordem_periodos = ORDEM_PERIODOS_GRUPOS
-    tabelas = [
-        {
-            "periodos": [],
-            "categorias": [],
-            "nomes_campos": [],
-            "len_periodos": [],
-            "len_categorias": [],
-            "valores_campos": [],
-            "ordem_periodos_grupos": [],
-            "dias_letivos": [],
-            "categorias_dos_periodos": {},
-        }
-    ]
+    tabelas = [_nova_tabela_vazia()]
 
     indice_atual = 0
     for medicao in get_medicoes_ordenadas(solicitacao, ordem_periodos):
         dict_categorias_campos = build_dict_relacao_categorias_e_campos(medicao)
         for categoria in dict_categorias_campos.keys():
-            nome_periodo = (
-                medicao.periodo_escolar.nome
-                if not medicao.grupo
-                else (
-                    f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-                    if medicao.periodo_escolar
-                    else medicao.grupo.nome
-                )
-            )
+            nome_periodo = _nome_periodo_medicao(medicao)
             if (
                 len(tabelas[indice_atual]["nomes_campos"])
                 + len(dict_categorias_campos[categoria])
@@ -514,19 +606,7 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
                         dict_categorias_campos,
                     )
                     indice_atual += 1
-                    tabelas += [
-                        {
-                            "periodos": [],
-                            "categorias": [],
-                            "nomes_campos": [],
-                            "len_periodos": [],
-                            "len_categorias": [],
-                            "valores_campos": [],
-                            "ordem_periodos_grupos": [],
-                            "dias_letivos": [],
-                            "categorias_dos_periodos": {},
-                        }
-                    ]
+                    tabelas += [_nova_tabela_vazia()]
                     append_tabela(
                         tabelas,
                         indice_atual,
@@ -538,33 +618,11 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
                     )
                 else:
                     indice_atual += 1
-                    tabelas += [
-                        {
-                            "periodos": [],
-                            "categorias": [],
-                            "nomes_campos": [],
-                            "len_periodos": [],
-                            "len_categorias": [],
-                            "valores_campos": [],
-                            "ordem_periodos_grupos": [],
-                            "dias_letivos": [],
-                            "categorias_dos_periodos": {},
-                        }
-                    ]
-                    tabelas[indice_atual]["periodos"] += [nome_periodo]
-                    tabelas[indice_atual]["categorias"] += [categoria]
-                    tabelas[indice_atual]["nomes_campos"] += [
-                        campo
-                        for campo in ORDEM_CAMPOS
-                        if campo in dict_categorias_campos[categoria]
-                    ]
-                    tabelas[indice_atual]["len_categorias"] += [
-                        len(dict_categorias_campos[categoria])
-                    ]
-                    get_categorias_dos_periodos(
-                        nome_periodo,
+                    tabelas += [_nova_tabela_vazia()]
+                    _adiciona_categoria_na_tabela_atual(
                         tabelas,
                         indice_atual,
+                        nome_periodo,
                         categoria,
                         dict_categorias_campos,
                     )
@@ -589,19 +647,7 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
 
 
 def build_headers_tabelas_emebs(solicitacao):
-    tabelas = [
-        {
-            "periodos": [],
-            "categorias": [],
-            "nomes_campos": [],
-            "len_periodos": [],
-            "len_categorias": [],
-            "valores_campos": [],
-            "ordem_periodos_grupos": [],
-            "dias_letivos": [],
-            "categorias_dos_periodos": {},
-        }
-    ]
+    tabelas = [_nova_tabela_vazia()]
 
     indice_atual = 0
 
@@ -612,102 +658,14 @@ def build_headers_tabelas_emebs(solicitacao):
             )
 
             for categoria in dict_categorias_campos.keys():
-                nome_periodo = (
-                    f"{medicao.periodo_escolar.nome} - {tipo_turma}"
-                    if not medicao.grupo
-                    else (
-                        f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
-                        if medicao.periodo_escolar
-                        else f"{medicao.grupo.nome} - {tipo_turma}"
-                    )
+                nome_periodo = _nome_periodo_medicao_turma(medicao, tipo_turma)
+                tabelas, indice_atual = _processa_categoria_emebs(
+                    tabelas,
+                    indice_atual,
+                    nome_periodo,
+                    categoria,
+                    dict_categorias_campos,
                 )
-
-                if (
-                    len(tabelas[indice_atual]["nomes_campos"])
-                    + len(dict_categorias_campos[categoria])
-                    > MAX_COLUNAS
-                ) or (
-                    "total_refeicoes_pagamento" in tabelas[indice_atual]["nomes_campos"]
-                    and "total_refeicoes_pagamento" in dict_categorias_campos[categoria]
-                ):
-                    if len(dict_categorias_campos[categoria]) > MAX_COLUNAS:
-                        tabelas, limite = append_tabela(
-                            tabelas,
-                            indice_atual,
-                            nome_periodo,
-                            categoria,
-                            dict_categorias_campos,
-                        )
-                        indice_atual += 1
-                        tabelas += [
-                            {
-                                "periodos": [],
-                                "categorias": [],
-                                "nomes_campos": [],
-                                "len_periodos": [],
-                                "len_categorias": [],
-                                "valores_campos": [],
-                                "ordem_periodos_grupos": [],
-                                "dias_letivos": [],
-                                "categorias_dos_periodos": {},
-                            }
-                        ]
-                        append_tabela(
-                            tabelas,
-                            indice_atual,
-                            nome_periodo,
-                            categoria,
-                            dict_categorias_campos,
-                            True,
-                            limite_campos=limite,
-                        )
-                    else:
-                        indice_atual += 1
-                        tabelas += [
-                            {
-                                "periodos": [],
-                                "categorias": [],
-                                "nomes_campos": [],
-                                "len_periodos": [],
-                                "len_categorias": [],
-                                "valores_campos": [],
-                                "ordem_periodos_grupos": [],
-                                "dias_letivos": [],
-                                "categorias_dos_periodos": {},
-                            }
-                        ]
-                    tabelas[indice_atual]["periodos"] += [nome_periodo]
-                    tabelas[indice_atual]["categorias"] += [categoria]
-                    tabelas[indice_atual]["nomes_campos"] += [
-                        campo
-                        for campo in ORDEM_CAMPOS
-                        if campo in dict_categorias_campos[categoria]
-                    ]
-                    tabelas[indice_atual]["len_categorias"] += [
-                        len(dict_categorias_campos[categoria])
-                    ]
-                    get_categorias_dos_periodos(
-                        nome_periodo,
-                        tabelas,
-                        indice_atual,
-                        categoria,
-                        dict_categorias_campos,
-                    )
-                else:
-                    adiciona_valores_header(
-                        nome_periodo,
-                        tabelas,
-                        dict_categorias_campos,
-                        indice_atual,
-                        categoria,
-                    )
-                    get_categorias_dos_periodos(
-                        nome_periodo,
-                        tabelas,
-                        indice_atual,
-                        categoria,
-                        dict_categorias_campos,
-                    )
 
     get_tamanho_colunas_periodos(tabelas, ORDEM_PERIODOS_GRUPOS_EMEBS)
     return tabelas
@@ -724,7 +682,26 @@ def create_new_table():
     }
 
 
-def add_periodo_to_table(  # noqa: C901
+def _adiciona_faixa(
+    table,
+    categoria_obj,
+    nome_periodo,
+    categoria,
+    faixa,
+    len_faixas,
+    dict_categorias_campos,
+):
+    categoria_obj["faixas_etarias"].append(faixa)
+    table["periodo_values"][nome_periodo] += 2
+    nome_categoria = f"{categoria}__PARCIAL" if nome_periodo == "PARCIAL" else categoria
+    table["categoria_values"][nome_categoria] += 2
+    if len_faixas == len(dict_categorias_campos[categoria]):
+        categoria_obj["faixas_etarias"].append("total")
+        table["periodo_values"][nome_periodo] += 1
+        table["categoria_values"][nome_categoria] += 1
+
+
+def add_periodo_to_table(
     table, nome_periodo, categoria, faixa, len_faixas, dict_categorias_campos
 ):
     if nome_periodo not in table["periodos"]:
@@ -739,39 +716,35 @@ def add_periodo_to_table(  # noqa: C901
         None,
     )
 
-    if "periodo_values" not in table:
-        table["periodo_values"] = defaultdict(int)
-    if "categoria_values" not in table:
-        table["categoria_values"] = defaultdict(int)
+    table.setdefault("periodo_values", defaultdict(int))
+    table.setdefault("categoria_values", defaultdict(int))
 
     if not categoria_obj:
-        table["categorias"].append(
-            {"categoria": categoria, "faixas_etarias": [faixa], "periodo": nome_periodo}
+        categoria_obj = {
+            "categoria": categoria,
+            "faixas_etarias": [],
+            "periodo": nome_periodo,
+        }
+        table["categorias"].append(categoria_obj)
+        _adiciona_faixa(
+            table,
+            categoria_obj,
+            nome_periodo,
+            categoria,
+            faixa,
+            len_faixas,
+            dict_categorias_campos,
         )
-        table["periodo_values"][nome_periodo] += 2
-        nome_categoria = categoria
-        if nome_periodo == "PARCIAL":
-            nome_categoria = f"{categoria}__PARCIAL"
-        table["categoria_values"][nome_categoria] += 2
-
-        if len_faixas == len(dict_categorias_campos[categoria]):
-            table["categorias"][-1]["faixas_etarias"].append("total")
-            table["periodo_values"][nome_periodo] += 1
-            table["categoria_values"][nome_categoria] += 1
-    else:
-        if faixa not in categoria_obj["faixas_etarias"]:
-            categoria_obj["faixas_etarias"].append(faixa)
-
-            table["periodo_values"][nome_periodo] += 2
-            nome_categoria = categoria
-            if nome_periodo == "PARCIAL":
-                nome_categoria = f"{categoria}__PARCIAL"
-            table["categoria_values"][nome_categoria] += 2
-
-            if len_faixas == len(dict_categorias_campos[categoria]):
-                categoria_obj["faixas_etarias"].append("total")
-                table["periodo_values"][nome_periodo] += 1
-                table["categoria_values"][nome_categoria] += 1
+    elif faixa not in categoria_obj["faixas_etarias"]:
+        _adiciona_faixa(
+            table,
+            categoria_obj,
+            nome_periodo,
+            categoria,
+            faixa,
+            len_faixas,
+            dict_categorias_campos,
+        )
 
     table["len_periodos"] = [
         table["periodo_values"][periodo] for periodo in table["periodos"]
@@ -1199,6 +1172,66 @@ def _cei_colaboradores_ordenar_campos(campos_raw, tem_refeicao, tem_sobremesa):
     return campos_ordenados
 
 
+def _cei_colaboradores_processa_dia(
+    dia_str,
+    campos_raw,
+    campos_ordenados,
+    valores_medicao,
+    totais_raw,
+    total_participantes,
+    tem_refeicao,
+    tem_sobremesa,
+    total_pgto_refeicao,
+    total_pgto_sobremesa,
+):
+    valor_part = (
+        valores_medicao.filter(
+            dia=dia_str, nome_campo="participantes", faixa_etaria=None
+        )
+        .values_list("valor", flat=True)
+        .first()
+        or "0"
+    )
+    participantes = int(valor_part) if str(valor_part).isdigit() else 0
+    total_participantes += participantes
+
+    valores_dia = {}
+    for c in campos_raw:
+        v = (
+            valores_medicao.filter(dia=dia_str, nome_campo=c, faixa_etaria=None)
+            .values_list("valor", flat=True)
+            .first()
+            or "0"
+        )
+        v_int = int(v) if str(v).isdigit() else 0
+        valores_dia[c] = v_int
+        totais_raw[c] += v_int
+
+    pgto_ref = 0
+    if tem_refeicao:
+        pgto_ref = valores_dia.get("refeicao", 0) + valores_dia.get(
+            "repeticao_refeicao", 0
+        )
+        total_pgto_refeicao += pgto_ref
+
+    pgto_sob = 0
+    if tem_sobremesa:
+        pgto_sob = valores_dia.get("sobremesa", 0) + valores_dia.get(
+            "repeticao_sobremesa", 0
+        )
+        total_pgto_sobremesa += pgto_sob
+
+    linha = _cei_colaboradores_linha_dia(
+        int(dia_str), participantes, campos_ordenados, valores_dia, pgto_ref, pgto_sob
+    )
+    return (
+        linha,
+        total_participantes,
+        total_pgto_refeicao,
+        total_pgto_sobremesa,
+    )
+
+
 def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
     recreio = solicitacao.recreio_nas_ferias
     dias_range = range(recreio.data_inicio.day, recreio.data_fim.day + 1)
@@ -1234,50 +1267,22 @@ def build_tabela_colaboradores_cei(solicitacao, medicao_colaboradores):
             continue
 
         dia_str = f"{dia_int:02d}"
-
-        valor_part = (
-            medicao_colaboradores.valores_medicao.filter(
-                dia=dia_str, nome_campo="participantes", faixa_etaria=None
-            )
-            .values_list("valor", flat=True)
-            .first()
-            or "0"
-        )
-        participantes = int(valor_part) if str(valor_part).isdigit() else 0
-        total_participantes += participantes
-
-        valores_dia = {}
-        for c in campos_raw:
-            v = (
-                medicao_colaboradores.valores_medicao.filter(
-                    dia=dia_str, nome_campo=c, faixa_etaria=None
-                )
-                .values_list("valor", flat=True)
-                .first()
-                or "0"
-            )
-            v_int = int(v) if str(v).isdigit() else 0
-            valores_dia[c] = v_int
-            totais_raw[c] += v_int
-
-        pgto_ref = 0
-        if tem_refeicao:
-            soma_ref = valores_dia.get("refeicao", 0) + valores_dia.get(
-                "repeticao_refeicao", 0
-            )
-            pgto_ref = soma_ref
-            total_pgto_refeicao += pgto_ref
-
-        pgto_sob = 0
-        if tem_sobremesa:
-            soma_sob = valores_dia.get("sobremesa", 0) + valores_dia.get(
-                "repeticao_sobremesa", 0
-            )
-            pgto_sob = soma_sob
-            total_pgto_sobremesa += pgto_sob
-
-        linha = _cei_colaboradores_linha_dia(
-            dia_int, participantes, campos_ordenados, valores_dia, pgto_ref, pgto_sob
+        (
+            linha,
+            total_participantes,
+            total_pgto_refeicao,
+            total_pgto_sobremesa,
+        ) = _cei_colaboradores_processa_dia(
+            dia_str,
+            campos_raw,
+            campos_ordenados,
+            medicao_colaboradores.valores_medicao,
+            totais_raw,
+            total_participantes,
+            tem_refeicao,
+            tem_sobremesa,
+            total_pgto_refeicao,
+            total_pgto_sobremesa,
         )
         valores_campos.append(linha)
 
@@ -1660,15 +1665,15 @@ def popula_campo_matriculados_cei(
 def get_nomes_classificacoes(categoria_corrente):
     if "ENTERAL" in categoria_corrente:
         classificacoes_nomes = [
-            "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-            "Tipo A ENTERAL",
+            ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+            ClassificacaoDieta.TIPO_A_ENTERAL,
         ]
-    elif "TIPO B" in categoria_corrente:
+    elif ClassificacaoDieta.TIPO_B.upper() in categoria_corrente:
         classificacoes_nomes = [
-            "Tipo B",
+            ClassificacaoDieta.TIPO_B,
         ]
     else:
-        classificacoes_nomes = ["Tipo A"]
+        classificacoes_nomes = [ClassificacaoDieta.TIPO_A]
     return classificacoes_nomes
 
 
@@ -1716,14 +1721,14 @@ def popula_campo_aprovadas_cei(
 ):
     try:
         periodo = tabela["periodos"][indice_periodo]
-        if "TIPO A" in categoria_corrente.upper():
+        if ClassificacaoDieta.TIPO_A.upper() in categoria_corrente.upper():
             nomes_classificacoes = [
-                "Tipo A",
-                "Tipo A RESTRIÇÃO DE AMINOÁCIDOS",
-                "Tipo A ENTERAL",
+                ClassificacaoDieta.TIPO_A,
+                ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+                ClassificacaoDieta.TIPO_A_ENTERAL,
             ]
         else:
-            nomes_classificacoes = ["Tipo B"]
+            nomes_classificacoes = [ClassificacaoDieta.TIPO_B]
 
         filtros = dict(
             data__day=dia,
@@ -1875,7 +1880,7 @@ def popula_campo_consumido_solicitacoes_alimentacao(
             medicao = solicitacao.medicoes.get(grupo__nome__icontains="Solicitações")
             nome_campo = (
                 "lanche_emergencial"
-                if categoria_corrente == "LANCHE EMERGENCIAL"
+                if categoria_corrente == LANCHE_EMERGENCIAL
                 else "kit_lanche"
             )
             valores_dia += [
@@ -2263,7 +2268,7 @@ def popula_campo_total_sobremesas_pagamento(
 def popula_solicitado_total_lanche_emergencial(
     categoria_corrente, alteracoes_lanche_emergencial, valores_dia, dia
 ):
-    if categoria_corrente != "LANCHE EMERGENCIAL":
+    if categoria_corrente != LANCHE_EMERGENCIAL:
         return valores_dia
 
     total_lanche_emergencial = sum(
@@ -2278,7 +2283,7 @@ def popula_solicitado_total_lanche_emergencial(
 def popula_solicitado_total_kit_lanche(
     categoria_corrente, kits_lanches, valores_dia, dia
 ):
-    if categoria_corrente != "KIT LANCHE":
+    if categoria_corrente != KIT_LANCHE:
         return valores_dia
 
     total_kits = sum(
@@ -3369,7 +3374,7 @@ def _popula_faixas_dias_total(
         categoria_corrente,
     )
     if recreio:
-        if categoria_corrente == "ALIMENTAÇÃO":
+        if categoria_corrente == CategoriaMedicao.ALIMENTACAO:
             if primeira_faixa:
                 valores_dia += ["-"]
             valores_dia += [str(total if total else 0)]
@@ -4157,7 +4162,10 @@ def build_tabela_somatorio_header(
         )
     )
     if categoria == "DIETA":
-        if nome_periodo.upper() in ["ETEC", "SOLICITAÇÕES DE ALIMENTAÇÃO"]:
+        if nome_periodo.upper() in [
+            "ETEC",
+            CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        ]:
             pass
         elif nome_periodo.upper() == "NOITE":
             segunda_tabela_header.append(nome_periodo)
@@ -4327,7 +4335,7 @@ def _build_body_tabela_participantes(
         total_solicitacoes = 0
         if medicao_solicitacoes and campo in ("kit_lanche", "lanche_emergencial"):
             values = medicao_solicitacoes.valores_medicao.filter(
-                categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 nome_campo=campo,
             )
             total_solicitacoes = sum(int(v.valor) for v in values)
@@ -4415,15 +4423,15 @@ def build_tabela_somatorio_recreio_nas_ferias(
     ]
 
     MAPA_TIPO_DIETA = {
-        "TIPO A": DIETA_ESPECIAL_TIPO_A,
-        "ENTERAL": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "TIPO B": DIETA_ESPECIAL_TIPO_B,
+        ClassificacaoDieta.TIPO_A.upper(): DIETA_ESPECIAL_TIPO_A,
+        "ENTERAL": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+        ClassificacaoDieta.TIPO_B.upper(): DIETA_ESPECIAL_TIPO_B,
     }
 
     categorias_existentes = (
         set(
             medicao_recreio.valores_medicao.exclude(
-                categoria_medicao__nome="ALIMENTAÇÃO"
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
             )
             .values_list("categoria_medicao__nome", flat=True)
             .distinct()
@@ -4440,7 +4448,11 @@ def build_tabela_somatorio_recreio_nas_ferias(
 
     tabela_participantes = {
         "header": ["TIPOS ALIMENTAÇÃO", "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES"]
-        + (["SOLICITAÇÕES DE ALIMENTAÇÃO"] if medicao_solicitacoes else [])
+        + (
+            [CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO]
+            if medicao_solicitacoes
+            else []
+        )
         + list(dietas_ativas.values()),
         "body": _build_body_tabela_participantes(
             medicao_recreio,
@@ -4677,7 +4689,7 @@ def get_somatorio_periodos_params(
             dict_total_refeicoes,
             dict_total_sobremesas,
         )
-    elif periodo.upper() == "SOLICITAÇÕES DE ALIMENTAÇÃO":
+    elif periodo.upper() == CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO:
         return tipo_alimentacao, solicitacao
     else:
         return (
@@ -4954,7 +4966,7 @@ def _adicionar_solicitacoes_colab(linhas, medicao_solicitacoes):
 
     for campo in ("kit_lanche", "lanche_emergencial"):
         values = medicao_solicitacoes.valores_medicao.filter(
-            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             nome_campo=campo,
         )
         total = sum(int(v.valor) for v in values)
@@ -5021,7 +5033,9 @@ def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
 
 def _build_somatorio_tabela_cei(medicao, mes_ano):
     categorias_dieta = list(
-        medicao.valores_medicao.exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        medicao.valores_medicao.exclude(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        )
         .exclude(categoria_medicao=None)
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
@@ -5044,7 +5058,7 @@ def _build_somatorio_tabela_cei(medicao, mes_ano):
             for v in medicao.valores_medicao.filter(
                 faixa_etaria=fe,
                 nome_campo="frequencia",
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
             ).values_list("valor", flat=True)
             if v and v.isdigit()
         )
@@ -5100,7 +5114,9 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
     ]
 
     categorias_dieta = list(
-        medicao_4a14.valores_medicao.exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        medicao_4a14.valores_medicao.exclude(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        )
         .exclude(categoria_medicao=None)
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
@@ -5110,7 +5126,7 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
         medicao_4a14.valores_medicao.exclude(
             nome_campo__in=CAMPOS_EXCLUIDOS_SOMATORIO_RECREIO
         )
-        .filter(categoria_medicao__nome="ALIMENTAÇÃO")
+        .filter(categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO)
         .values_list("nome_campo", flat=True)
         .distinct()
     )
@@ -5125,7 +5141,7 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
             int(v)
             for v in medicao_4a14.valores_medicao.filter(
                 nome_campo=campo,
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
                 faixa_etaria=None,
             ).values_list("valor", flat=True)
             if v and v.isdigit()
@@ -5167,7 +5183,9 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
     ).first()
 
     categorias_dieta = list(
-        medicao_recreio.valores_medicao.exclude(categoria_medicao__nome="ALIMENTAÇÃO")
+        medicao_recreio.valores_medicao.exclude(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        )
         .values_list("categoria_medicao__nome", flat=True)
         .distinct()
     )
@@ -5189,7 +5207,7 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
             for v in medicao_recreio.valores_medicao.filter(
                 faixa_etaria=fe,
                 nome_campo="frequencia",
-                categoria_medicao__nome="ALIMENTAÇÃO",
+                categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
             ).values_list("valor", flat=True)
             if v.isdigit()
         )
@@ -5868,12 +5886,15 @@ def build_row_solicitacao(solicitacao, id_tabela):
         {
             "categoria": "DIETA TIPO A",
             "campos": ["lanche_4h", "lanche_5h", "refeicao"],
-            "classificacao": ["Tipo A RESTRIÇÃO DE AMINOÁCIDOS", "Tipo A ENTERAL"],
+            "classificacao": [
+                ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+                ClassificacaoDieta.TIPO_A_ENTERAL,
+            ],
         },
         {
             "categoria": "DIETA TIPO B",
             "campos": ["lanche_4h", "lanche_5h"],
-            "classificacao": ["TIPO B"],
+            "classificacao": [ClassificacaoDieta.TIPO_B.upper()],
         },
     ]
 
@@ -6642,7 +6663,9 @@ def _processa_periodo_tipo_alimentacao(medicao, resultado):
                     "numero_de_alunos",
                 ]
             )
-            | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+            | Q(
+                categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+            )
         )
         .values("nome_campo")
         .annotate(total=Sum(Cast("valor", FloatField())))
@@ -6677,7 +6700,11 @@ def _processa_dietas_tipo_alimentacao(medicao, nome_periodo, resultado):
     )
 
     for dieta in dietas:
-        dieta_base = DIETA_ESPECIAL_TIPO_A if "TIPO A" in dieta.upper() else dieta
+        dieta_base = (
+            DIETA_ESPECIAL_TIPO_A
+            if ClassificacaoDieta.TIPO_A.upper() in dieta.upper()
+            else dieta
+        )
 
         valores = (
             medicao.valores_medicao.filter(categoria_medicao__nome=dieta)
@@ -6939,17 +6966,6 @@ def calcula_totais_consumo_por_grupo(
     return gerar_totais_consolidado(solicitacoes, tipo_calculo)
 
 
-def calcula_totais_consumo_por_escolas(escolas_uuids, relatorio, tipo_calculo):
-    solicitacoes = SolicitacaoMedicaoInicial.objects.filter(
-        mes=str(relatorio.mes),
-        ano=str(relatorio.ano),
-        status="MEDICAO_APROVADA_PELA_CODAE",
-        escola__uuid__in=escolas_uuids,
-    )
-
-    return gerar_totais_consolidado(solicitacoes, tipo_calculo)
-
-
 def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
     """
     Retorna os dias em que todas as frequências estão zeradas
@@ -7126,7 +7142,7 @@ def _alimentacao_zerada(
     eh_emebs: bool = False,
 ) -> None:
     """
-    Verifica se a categoria "ALIMENTAÇÃO" está zerada no dia.
+    Verifica se a categoria CategoriaMedicao.ALIMENTACAO está zerada no dia.
 
     Args:
         dia (str):  Dia sendo analisado
@@ -7143,7 +7159,10 @@ def _alimentacao_zerada(
         todos_periodos_zerados = True
         for periodo_escolar in periodos_escolares:
             periodo_existe = periodo_escolar in periodos_lancados
-            esta_zerado = periodos.get(periodo_escolar, {}).get("ALIMENTAÇÃO", 1) == 0
+            esta_zerado = (
+                periodos.get(periodo_escolar, {}).get(CategoriaMedicao.ALIMENTACAO, 1)
+                == 0
+            )
             if not (periodo_existe and esta_zerado):
                 todos_periodos_zerados = False
                 break
@@ -7201,7 +7220,7 @@ def _alimentacao_zerada_emebs(
     periodos_escolares: list[str],
 ) -> None:
     """
-    Verifica se "ALIMENTAÇÃO" está zerada por modalidade no dia.
+    Verifica se CategoriaMedicao.ALIMENTACAO está zerada por modalidade no dia.
 
     Args:
         dia (str):  Dia sendo analisado
@@ -7211,7 +7230,11 @@ def _alimentacao_zerada_emebs(
     """
     for tipo in (ValorMedicao.INFANTIL, ValorMedicao.FUNDAMENTAL):
         if _modalidade_zerada(
-            "ALIMENTAÇÃO", tipo, periodos, periodos_lancados, periodos_escolares
+            CategoriaMedicao.ALIMENTACAO,
+            tipo,
+            periodos,
+            periodos_lancados,
+            periodos_escolares,
         ):
             resultado["alimentacoes"][tipo].append(dia)
 
@@ -7260,7 +7283,7 @@ def _modalidade_zerada(
     Determina se uma categoria está zerada para uma modalidade.
 
     Args:
-        nome_categoria (str): Nome da categoria (ex: "ALIMENTAÇÃO").
+        nome_categoria (str): Nome da categoria (ex: CategoriaMedicao.ALIMENTACAO).
         tipo (str): Modalidade analisada (INFANTIL ou FUNDAMENTAL).
         periodos (dict): estrutura acumulada do dia.
         periodos_lancados (list[str]): Lista de períodos escolares lançados.
@@ -7308,7 +7331,7 @@ def _verifica_dietas_consumidas(
             data__month=int(solicitacao.mes),
             periodo_escolar__isnull=False,
         )
-        .exclude(classificacao__nome__icontains="Tipo C")
+        .exclude(classificacao__nome__icontains=ClassificacaoDieta.TIPO_C)
         .values(
             "classificacao__nome",
             "periodo_escolar__nome",
@@ -7323,10 +7346,10 @@ def _verifica_dietas_consumidas(
         defaultdict(lambda: defaultdict(set)) if escola_emebs else defaultdict(set)
     )
     dicionario_dieta = {
-        "Tipo A ENTERAL": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "Tipo A RESTRIÇÃO DE AMINOÁCIDOS": "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
-        "Tipo A": DIETA_ESPECIAL_TIPO_A,
-        "Tipo B": DIETA_ESPECIAL_TIPO_B,
+        ClassificacaoDieta.TIPO_A_ENTERAL: CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+        ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS: CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+        ClassificacaoDieta.TIPO_A: DIETA_ESPECIAL_TIPO_A,
+        ClassificacaoDieta.TIPO_B: DIETA_ESPECIAL_TIPO_B,
     }
 
     for item in dados_agregados:
@@ -7453,69 +7476,6 @@ def to_decimal_safe(valor):
         return Decimal("0")
 
 
-def _total_parametrizacao(valores):
-    """
-    Calcula o valor total de uma parametrização com base nos tipos de valores.
-
-    Regras:
-    - UNITARIO + REAJUSTE → soma direta
-    - UNITARIO + ACRESCIMO (%) → aplica percentual
-
-    Args:
-        valores (Iterable): Lista/QuerySet de objetos com atributos:
-            - tipo_valor.nome (str)
-            - valor (Any)
-
-    Returns:
-        Decimal: Valor total calculado da parametrização.
-    """
-    total = 0
-
-    mapa = {v.tipo_valor.nome: to_decimal_safe(v.valor) for v in valores}
-
-    valor_unitario = mapa.get("UNITARIO")
-    valor_unitario_reajuste = mapa.get("REAJUSTE")
-    percentual_acrescimo = mapa.get("ACRESCIMO", Decimal("0"))
-
-    if valor_unitario is not None and valor_unitario_reajuste is not None:
-        total = valor_unitario + valor_unitario_reajuste
-
-    elif valor_unitario is not None and percentual_acrescimo is not None:
-        total = valor_unitario * (1 + percentual_acrescimo / 100)
-
-    return total
-
-
-def _mapear_valores_tabela(valores):
-    """
-    Cria um mapa em memória dos valores da tabela, normalizando os nomes dos campos.
-
-    Remove acentos e substitui espaços por underscore, permitindo
-    comparação eficiente sem necessidade de queries no banco.
-
-    Args:
-        valores (Iterable): Lista/QuerySet de objetos com atributo `nome_campo`.
-
-    Returns:
-        dict[str, list]: Dicionário no formato:
-            {
-                "nome_normalizado": [valores...]
-            }
-    """
-    mapa = {}
-
-    for v in valores:
-        chave = unidecode(v.nome_campo)
-        chave = re.sub(r"\s+", "_", chave)
-
-        if chave not in mapa:
-            mapa[chave] = []
-
-        mapa[chave].append(v)
-
-    return mapa
-
-
 def _formata_refeicao_emef(chave, dieta=False):
     """
     Formata o nome do campo de refeição para o padrão utilizado no grupo EMEF.
@@ -7570,239 +7530,9 @@ def normalizar_nome_campo(nome_campo, grupo_nome="", dieta=False):
     return nome_campo
 
 
-def _calcula_total_alimentacao(
-    consumo,
-    periodo,
-    valores,
-    grupo_nome,
-    tipo,
+def processa_reabrir_lancamentos(
+    relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario
 ):
-    """
-    Calcula o total financeiro para alimentações com base no consumo e parametrização.
-
-    Considera o período escolar quando o tipo de cálculo é por faixa etária.
-    Para cada item de consumo:
-    - Normaliza o nome do campo
-    - Busca os valores correspondentes na parametrização
-    - Aplica a regra de cálculo da parametrização
-    - Multiplica pelo consumo informado
-
-    Args:
-        consumo (dict): Estrutura contendo os dados de consumo.
-        periodo (Any): Período escolar, utilizado via atributo `nome`.
-        valores (Iterable): Valores da tabela de parametrização já filtrados.
-        grupo_nome (str): Nome do grupo da unidade escolar.
-        tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
-
-    Returns:
-        Decimal: Valor total calculado para alimentação.
-    """
-    chave_consumo = (
-        f"ALIMENTAÇÃO - {periodo.nome}"
-        if periodo and (tipo == "FAIXA" or not tipo)
-        else "ALIMENTAÇÃO"
-    )
-
-    total = Decimal("0")
-    dados_consumo = consumo.get(chave_consumo, {})
-
-    mapa_valores = _mapear_valores_tabela(valores)
-    for chave, valor in dados_consumo.items():
-        nome_campo = normalizar_nome_campo(
-            chave.removeprefix("total_").strip(),
-            grupo_nome,
-        )
-
-        valores_campo = mapa_valores.get(nome_campo)
-
-        if not valores_campo:
-            continue
-
-        total_parametrizacao = _total_parametrizacao(valores_campo)
-        total_unitario = to_decimal_safe(total_parametrizacao)
-        valor_total = total_unitario * to_decimal_safe(valor)
-
-        total += valor_total
-
-    return total
-
-
-def _calcula_total_dietas(
-    consumo,
-    tabela,
-    valores,
-    grupo_nome,
-    tipo,
-):
-    """
-    Calcula o total financeiro para dietas especiais (Tipo A ou Tipo B).
-
-    A chave de consumo é definida dinamicamente com base:
-    - No tipo da dieta (A ou B)
-    - No período escolar (quando aplicável)
-
-    Para cada item:
-    - Normaliza o nome do campo (com suporte a dieta)
-    - Busca na parametrização
-    - Aplica cálculo
-    - Multiplica pelo consumo
-
-    Args:
-        consumo (dict): Estrutura contendo os dados de consumo.
-        tabela (Any): Objeto com atributos `nome` e `periodo_escolar`.
-        valores (Iterable): Valores da tabela de parametrização já filtrados.
-        grupo_nome (str): Nome do grupo da unidade escolar.
-        tipo (str): Tipo de cálculo ("FAIXA", "TIPO", etc.).
-
-    Returns:
-        Decimal: Valor total calculado para dietas especiais.
-    """
-    if "Dietas Tipo A" in tabela.nome:
-        chave_base = DIETA_ESPECIAL_TIPO_A
-    else:
-        chave_base = DIETA_ESPECIAL_TIPO_B
-
-    if tabela.periodo_escolar and (tipo == "FAIXA" or not tipo):
-        chave_consumo = f"{chave_base} - {tabela.periodo_escolar.nome}"
-    else:
-        chave_consumo = chave_base
-
-    total = Decimal("0")
-    dados_consumo = consumo.get(chave_consumo, {})
-
-    mapa_valores = _mapear_valores_tabela(valores)
-    for chave, valor in dados_consumo.items():
-        nome_campo = normalizar_nome_campo(chave, grupo_nome, dieta=True)
-
-        valores_campo = mapa_valores.get(nome_campo)
-
-        if not valores_campo:
-            continue
-
-        total_parametrizacao = _total_parametrizacao(valores_campo)
-        total_unitario = to_decimal_safe(total_parametrizacao)
-        valor_total = total_unitario * to_decimal_safe(valor)
-
-        total += valor_total
-
-    return total
-
-
-def _calcula_total_tabelas(
-    consumo,
-    tabelas,
-    grupo_nome,
-    tipo_ou_turma=None,
-):
-    """
-    Calcula o total consolidado de todas as tabelas de parametrização.
-
-    Para cada tabela:
-    - Filtra os valores conforme o tipo de cálculo
-    - Separa entre alimentações e dietas
-    - Delega o cálculo para funções específicas
-
-    Tipos de filtro:
-    - FAIXA: valores com faixa etária
-    - TIPO: valores por tipo de alimentação ou kit lanche
-    - None: todos os valores
-
-    Args:
-        consumo (dict): Estrutura contendo os dados de consumo.
-        tabelas (Iterable): Lista/QuerySet de tabelas de parametrização.
-        grupo_nome (str): Nome do grupo da unidade escolar.
-        tipo_ou_turma (str, optional): Tipo de cálculo ("FAIXA", "TIPO", "INFANTIL", "FUNDAMENTAL" ou None).
-
-    Returns:
-        Decimal: Valor total consolidado das tabelas.
-    """
-    total_alimentacao = 0
-    total_dietas = 0
-
-    _tabelas = tabelas
-
-    if tipo_ou_turma in ["INFANTIL", "FUNDAMENTAL"]:
-        _tabelas = tabelas.filter(nome__icontains=f"EMEBS {tipo_ou_turma}")
-
-    for tabela in _tabelas:
-        tem_faixa = tabela.valores.filter(faixa_etaria__isnull=False).exists()
-
-        if tipo_ou_turma == "TIPO" and tem_faixa:
-            continue
-
-        if tipo_ou_turma == "FAIXA" and not tem_faixa:
-            continue
-
-        valores_tabela = tabela.valores.all()
-
-        if "Preço das Alimentações" in tabela.nome:
-            total_alimentacao += _calcula_total_alimentacao(
-                consumo,
-                tabela.periodo_escolar,
-                valores_tabela,
-                grupo_nome,
-                tipo_ou_turma,
-            )
-        else:
-            total_dietas += _calcula_total_dietas(
-                consumo,
-                tabela,
-                valores_tabela,
-                grupo_nome,
-                tipo_ou_turma,
-            )
-
-    return total_alimentacao + total_dietas
-
-
-def calcular_total_pagamento(consumo, parametrizacao, tipo_calculo):
-    """
-    Calcula o valor total de pagamento com base no consumo e parametrização financeira.
-
-    Pode executar o cálculo por:
-    - Tipo de alimentação
-    - Faixa etária
-    - Ambos (quando não especificado)
-
-    Args:
-        consumo (dict): Estrutura contendo os dados do total de consumo e atendimento.
-        parametrizacao (Any): Parametrização Financeira utilizada pela relação das `tabelas`.
-        tipo_calculo (str): Tipo de cálculo ("tipo_alimentacao", "faixa_etaria" ou outro).
-
-    Returns:
-        Decimal: Valor total do pagamento calculado.
-    """
-    total_pagamento = 0
-    tabelas = parametrizacao.tabelas.all()
-    grupo_nome = parametrizacao.grupo_unidade_escolar.nome
-
-    if tipo_calculo not in ["tipo_alimentacao", "faixa_etaria"]:
-        for tipo in ["TIPO", "FAIXA"]:
-            total_pagamento += _calcula_total_tabelas(
-                consumo[tipo],
-                tabelas,
-                grupo_nome,
-                tipo,
-            )
-    elif grupo_nome.lower() == "grupo 5":
-        for turma in ["INFANTIL", "FUNDAMENTAL"]:
-            total_pagamento += _calcula_total_tabelas(
-                consumo[turma],
-                tabelas,
-                grupo_nome,
-                turma,
-            )
-    else:
-        total_pagamento += _calcula_total_tabelas(
-            consumo,
-            tabelas,
-            grupo_nome,
-        )
-
-    return total_pagamento.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-
-
-def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, solicitacoes_periodo, usuario):
     """Reabre os lançamentos de um relatório financeiro.
 
     Filtra as solicitações do período de acordo com os tipos de unidade
@@ -7837,10 +7567,9 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
 
     """
     tipos_unidades = set(
-        relatorio_financeiro
-        .grupo_unidade_escolar
-        .tipos_unidades
-        .values_list("uuid", flat=True)
+        relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.values_list(
+            "uuid", flat=True
+        )
     )
 
     solicitacoes_grupo = [
@@ -7868,29 +7597,21 @@ def processa_reabrir_lancamentos(relatorio_financeiro, unidades_educacionais, so
 
         for solicitacao in solicitacoes:
             solicitacao.status = (
-                SolicitacaoMedicaoInicial
-                .workflow_class
-                .MEDICAO_APROVADA_PELA_DRE
+                SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
             )
             solicitacao.salvar_log_transicao(
-                status_evento=(
-                    LogSolicitacoesUsuario
-                    .MEDICAO_CODAE_REABRIU_LANCAMENTO
-                ),
+                status_evento=(LogSolicitacoesUsuario.MEDICAO_CODAE_REABRIU_LANCAMENTO),
                 usuario=usuario,
             )
             solicitacao.save()
 
             for medicao in solicitacao.medicoes.all():
                 medicao.status = (
-                    SolicitacaoMedicaoInicial
-                    .workflow_class
-                    .MEDICAO_APROVADA_PELA_DRE
+                    SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
                 )
                 medicao.salvar_log_transicao(
                     status_evento=(
-                        LogSolicitacoesUsuario
-                        .MEDICAO_CODAE_REABRIU_LANCAMENTO
+                        LogSolicitacoesUsuario.MEDICAO_CODAE_REABRIU_LANCAMENTO
                     ),
                     usuario=usuario,
                 )

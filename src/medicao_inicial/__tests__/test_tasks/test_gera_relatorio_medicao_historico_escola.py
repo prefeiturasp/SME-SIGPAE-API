@@ -6,7 +6,11 @@ from unittest.mock import Mock, patch
 import pytest
 from freezegun import freeze_time
 
-from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
+)
 from src.escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
@@ -50,7 +54,7 @@ class TestGeraRelatorioMedicaoComHistoricoEscola:
 
         terceirizada = EmpresaFactory.create()
         diretoria_regional = DiretoriaRegionalFactory.create(
-            nome="DIRETORIA REGIONAL TESTE"
+            nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value
         )
         lote = LoteFactory.create(
             terceirizada=terceirizada,

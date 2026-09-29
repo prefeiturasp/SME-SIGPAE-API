@@ -3,6 +3,8 @@ from django.db.models import QuerySet
 from django.http import HttpRequest
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import StringsSearchHelpText
+
 from .models import DiaLetivoSIGPAE
 
 DIAS_SEMANA = [
@@ -59,7 +61,9 @@ class DiaLetivoSIGPAEAdmin(admin.ModelAdmin):
         "get_escolas",
     )
     search_fields = ("escolas__nome", "escolas__codigo_eol")
-    search_help_text = "Pesquise por: nome da escola ou código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = (
         ("data", DateRangeFilter),
         "periodos_escolares",

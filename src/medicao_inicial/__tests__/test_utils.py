@@ -13,11 +13,18 @@ from src.dados_comuns.constants import (
     GRUPO_INFANTIL_MANHA,
     GRUPO_INFANTIL_TARDE,
     TIPOS_ALIMENTACAO,
+    FaixasEtarias,
+    NomesParaTesteEscola,
 )
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.medicao_inicial.models import DescontoFinanceiro, SolicitacaoMedicaoInicial
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    DescontoFinanceiro,
+    SolicitacaoMedicaoInicial,
+)
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
@@ -49,9 +56,9 @@ from src.medicao_inicial.utils import (
     get_somatorio_total_tabela,
     mapear_dados_existentes,
     obter_instancia_dados,
+    processa_reabrir_lancamentos,
     substitui_criador_system_por_usuario_real,
     tratar_valores,
-    processa_reabrir_lancamentos,
 )
 
 from .data import (
@@ -72,7 +79,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             periodo_escolar__nome="MANHA"
         )
     ) == {
-        "ALIMENTAÇÃO": [
+        CategoriaMedicao.ALIMENTACAO: [
             "matriculados",
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -81,7 +88,7 @@ def test_utils_build_dict_relacao_categorias_e_campos(
             "refeicao",
             "sobremesa",
         ],
-        "DIETA ESPECIAL - TIPO A ENTERAL": [
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS: [
             "aprovadas",
             "lanche",
             "lanche_emergencial",
@@ -102,7 +109,10 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
     assert build_headers_tabelas(solicitacao_medicao_inicial_varios_valores) == [
         {
             "periodos": ["MANHA"],
-            "categorias": ["ALIMENTAÇÃO", "DIETA ESPECIAL - TIPO A ENTERAL"],
+            "categorias": [
+                CategoriaMedicao.ALIMENTACAO,
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+            ],
             "nomes_campos": [
                 "matriculados",
                 "lanche",
@@ -124,9 +134,9 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "dias_letivos": [],
             "categorias_dos_periodos": {
                 "MANHA": [
-                    {"categoria": "ALIMENTAÇÃO", "numero_campos": 7},
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7},
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                 ]
@@ -134,7 +144,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, CategoriaMedicao.ALIMENTACAO],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -156,13 +166,15 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "dias_letivos": [],
             "categorias_dos_periodos": {
                 "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
-                "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
+                "TARDE": [
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7}
+                ],
             },
         },
         {
             "periodos": ["TARDE"],
             "categorias": [
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                 DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
@@ -185,7 +197,7 @@ def test_utils_build_headers_tabelas(solicitacao_medicao_inicial_varios_valores)
             "categorias_dos_periodos": {
                 "TARDE": [
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                     {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
@@ -203,13 +215,19 @@ def test_build_headers_tabelas_cei(
             "periodos": ["INTEGRAL", "MANHA"],
             "categorias": [
                 {
-                    "categoria": "ALIMENTAÇÃO",
-                    "faixas_etarias": ["01 a 09 meses", "total"],
+                    "categoria": CategoriaMedicao.ALIMENTACAO,
+                    "faixas_etarias": [
+                        FaixasEtarias.UM_A_NOVE_MESES.value,
+                        "total",
+                    ],
                     "periodo": "INTEGRAL",
                 },
                 {
-                    "categoria": "ALIMENTAÇÃO",
-                    "faixas_etarias": ["01 a 09 meses", "total"],
+                    "categoria": CategoriaMedicao.ALIMENTACAO,
+                    "faixas_etarias": [
+                        FaixasEtarias.UM_A_NOVE_MESES.value,
+                        "total",
+                    ],
                     "periodo": "MANHA",
                 },
             ],
@@ -218,7 +236,7 @@ def test_build_headers_tabelas_cei(
             "valores_campos": [],
             "ordem_periodos_grupos": [1, 3],
             "periodo_values": defaultdict(int, {"INTEGRAL": 3, "MANHA": 3}),
-            "categoria_values": defaultdict(int, {"ALIMENTAÇÃO": 6}),
+            "categoria_values": defaultdict(int, {CategoriaMedicao.ALIMENTACAO: 6}),
         }
     ]
 
@@ -244,7 +262,10 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
     ) == [
         {
             "periodos": ["MANHA"],
-            "categorias": ["ALIMENTAÇÃO", "DIETA ESPECIAL - TIPO A ENTERAL"],
+            "categorias": [
+                CategoriaMedicao.ALIMENTACAO,
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
+            ],
             "nomes_campos": [
                 "matriculados",
                 "lanche",
@@ -332,9 +353,9 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             ],
             "categorias_dos_periodos": {
                 "MANHA": [
-                    {"categoria": "ALIMENTAÇÃO", "numero_campos": 7},
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7},
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                 ]
@@ -342,7 +363,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
         },
         {
             "periodos": ["MANHA", "TARDE"],
-            "categorias": [DIETA_ESPECIAL_TIPO_B, "ALIMENTAÇÃO"],
+            "categorias": [DIETA_ESPECIAL_TIPO_B, CategoriaMedicao.ALIMENTACAO],
             "nomes_campos": [
                 "aprovadas",
                 "lanche",
@@ -430,13 +451,15 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             ],
             "categorias_dos_periodos": {
                 "MANHA": [{"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5}],
-                "TARDE": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 7}],
+                "TARDE": [
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 7}
+                ],
             },
         },
         {
             "periodos": ["TARDE"],
             "categorias": [
-                "DIETA ESPECIAL - TIPO A ENTERAL",
+                CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                 DIETA_ESPECIAL_TIPO_B,
             ],
             "nomes_campos": [
@@ -525,7 +548,7 @@ def test_build_tabelas_relatorio_medicao(solicitacao_medicao_inicial_varios_valo
             "categorias_dos_periodos": {
                 "TARDE": [
                     {
-                        "categoria": "DIETA ESPECIAL - TIPO A ENTERAL",
+                        "categoria": CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
                         "numero_campos": 5,
                     },
                     {"categoria": DIETA_ESPECIAL_TIPO_B, "numero_campos": 5},
@@ -571,7 +594,7 @@ def test_utils_get_lista_categorias_campos(medicao_solicitacoes_alimentacao):
 
 def test_utils_get_lista_categorias_campos_cei(medicao_solicitacoes_alimentacao_cei):
     assert get_lista_categorias_campos_cei(medicao_solicitacoes_alimentacao_cei) == [
-        ("ALIMENTAÇÃO", "01 a 02 meses")
+        (CategoriaMedicao.ALIMENTACAO, FaixasEtarias.UM_A_DOIS_MESES.value)
     ]
 
 
@@ -580,7 +603,7 @@ def test_build_dict_relacao_categorias_e_campos_cei(
 ):
     assert build_dict_relacao_categorias_e_campos_cei(
         medicao_solicitacoes_alimentacao_cei
-    ) == {"ALIMENTAÇÃO": ["01 a 02 meses"]}
+    ) == {CategoriaMedicao.ALIMENTACAO: [FaixasEtarias.UM_A_DOIS_MESES.value]}
 
 
 def test_utils_tratar_valores(solicitacao_medicao_inicial, escola, escola_emei):
@@ -696,7 +719,7 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
     assert build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei) == [
         {
             "periodos": ["INTEGRAL"],
-            "categorias": ["ALIMENTAÇÃO"],
+            "categorias": [CategoriaMedicao.ALIMENTACAO],
             "periodo_por_categoria": ["INTEGRAL"],
             "nomes_campos": [],
             "faixas_etarias": ["01 mês", "total"],
@@ -770,7 +793,9 @@ def test_build_tabelas_relatorio_medicao_cemei(solicitacao_medicao_inicial_cemei
                 False,
             ],
             "categorias_dos_periodos": {
-                "INTEGRAL": [{"categoria": "ALIMENTAÇÃO", "numero_campos": 1}]
+                "INTEGRAL": [
+                    {"categoria": CategoriaMedicao.ALIMENTACAO, "numero_campos": 1}
+                ]
             },
             "recreio": False,
         }
@@ -907,7 +932,7 @@ def test_utils_build_tabela_somatorio_dietas_body(
     solicitacao_medicao_inicial_dietas,
 ):
     primeira_tabela_tipo_a, segunda_tabela_tipo_a = build_tabela_somatorio_dietas_body(
-        solicitacao_medicao_inicial_dietas, "TIPO A"
+        solicitacao_medicao_inicial_dietas, ClassificacaoDieta.TIPO_A.upper()
     )
 
     assert primeira_tabela_tipo_a["body"] == [
@@ -923,7 +948,7 @@ def test_utils_build_tabela_somatorio_dietas_body(
     ]
 
     primeira_tabela_tipo_b, segunda_tabela_tipo_b = build_tabela_somatorio_dietas_body(
-        solicitacao_medicao_inicial_dietas, "TIPO B"
+        solicitacao_medicao_inicial_dietas, ClassificacaoDieta.TIPO_B.upper()
     )
 
     assert primeira_tabela_tipo_b["body"] == [
@@ -957,7 +982,7 @@ def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repet
     ) == [
         solicitacao_medicao_inicial_com_valores_repeticao.escola.tipo_unidade,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         50,
         50,
         50,
@@ -979,14 +1004,14 @@ def test_build_row_primeira_tabela(solicitacao_medicao_inicial_com_valores_repet
 def test_avalia_soma_total_com_dados_tabela_anterior():
     valores_para_soma = ["-", "123", "-", "35"]
     todas_faixas_anterior = [
-        "01 a 03 meses",
-        "04 a 05 meses",
-        "07 a 11 meses",
-        "01 ano a 03 anos e 11 meses",
-        "04 anos a 06 anos",
+        FaixasEtarias.UM_A_TRES_MESES.value,
+        FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+        FaixasEtarias.SETE_A_ONZE_MESES.value,
+        FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+        FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
         "total",
-        "04 a 05 meses",
-        "06 meses",
+        FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+        FaixasEtarias.SEIS_MESES.value,
     ]
     index = 2
     index_primeira_coluna_total = 2
@@ -994,20 +1019,23 @@ def test_avalia_soma_total_com_dados_tabela_anterior():
         "periodos": ["INTEGRAL"],
         "categorias": [
             {
-                "categoria": "ALIMENTAÇÃO",
+                "categoria": CategoriaMedicao.ALIMENTACAO,
                 "faixas_etarias": [
-                    "01 a 03 meses",
-                    "04 a 05 meses",
-                    "07 a 11 meses",
-                    "01 ano a 03 anos e 11 meses",
-                    "04 anos a 06 anos",
+                    FaixasEtarias.UM_A_TRES_MESES.value,
+                    FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+                    FaixasEtarias.SETE_A_ONZE_MESES.value,
+                    FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                    FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
                     "total",
                 ],
                 "periodo": "INTEGRAL",
             },
             {
                 "categoria": DIETA_ESPECIAL_TIPO_B,
-                "faixas_etarias": ["04 a 05 meses", "06 meses"],
+                "faixas_etarias": [
+                    FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+                    FaixasEtarias.SEIS_MESES.value,
+                ],
                 "periodo": "INTEGRAL",
             },
         ],
@@ -2027,9 +2055,11 @@ class TestProcessaReabrirLancamentos:
             == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
         )
 
-        assert not type(relatorio_financeiro_cei).objects.filter(
-            pk=relatorio_financeiro_cei.pk
-        ).exists()
+        assert (
+            not type(relatorio_financeiro_cei)
+            .objects.filter(pk=relatorio_financeiro_cei.pk)
+            .exists()
+        )
 
     def test_nao_deve_reabrir_solicitacao_de_tipo_de_unidade_fora_do_grupo(
         self,
@@ -2092,6 +2122,8 @@ class TestProcessaReabrirLancamentos:
             usuario=usuario,
         )
 
-        assert not type(relatorio_financeiro_cei).objects.filter(
-            pk=relatorio_financeiro_cei.pk
-        ).exists()
+        assert (
+            not type(relatorio_financeiro_cei)
+            .objects.filter(pk=relatorio_financeiro_cei.pk)
+            .exists()
+        )

@@ -11,7 +11,9 @@ from src.dados_comuns.constants import (
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body,
     build_tabelas_relatorio_medicao,
@@ -40,24 +42,24 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
 
     def _setup_classificacoes_dieta_especial(self, classificacao_dieta_factory):
         self.classificacao_tipo_a_enteral = classificacao_dieta_factory.create(
-            nome="Tipo A ENTERAL"
+            nome=ClassificacaoDieta.TIPO_A_ENTERAL
         )
-        self.classificacao_tipo_b = classificacao_dieta_factory.create(nome="Tipo B")
+        self.classificacao_tipo_b = classificacao_dieta_factory.create(
+            nome=ClassificacaoDieta.TIPO_B
+        )
 
     def _setup_categorias_medicao(self, categoria_medicao_factory):
-        self.categoria_medicao_dieta_tipo_a_enteral_aminoacidos = (
-            categoria_medicao_factory.create(
-                nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
-            )
+        self.categoria_medicao_dieta_tipo_a_enteral_aminoacidos = categoria_medicao_factory.create(
+            nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         )
         self.categoria_medicao_dieta_tipo_b = categoria_medicao_factory.create(
             nome=DIETA_ESPECIAL_TIPO_B
         )
         self.categoria_solicitacoes_alimentacao = categoria_medicao_factory.create(
-            nome="SOLICITAÇÕES DE ALIMENTAÇÃO"
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
         self.categoria_alimentacao = categoria_medicao_factory.create(
-            nome="ALIMENTAÇÃO"
+            nome=CategoriaMedicao.ALIMENTACAO
         )
 
     def _setup_core(

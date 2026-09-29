@@ -573,6 +573,445 @@ ORDEM_HEADERS_RECREIO_CEMEI = {
 }
 
 
+class FaixasEtarias(Enum):
+    ZERO_A_UM_MES = "0 a 1 mes"
+    UM_A_TRES_MESES = "01 a 03 meses"
+    QUATRO_A_CINCO_MESES = "04 a 05 meses"
+    SEIS_MESES = "06 meses"
+    SEIS_A_SETE_MESES = "06 a 07 meses"
+    SETE_A_ONZE_MESES = "07 a 11 meses"
+    OITO_A_ONZE_MESES = "08 a 11 meses"
+    UM_ANO_A_UM_ANO_E_ONZE_MESES = "01 ano a 01 ano e 11 meses"
+    UM_ANO_A_TRES_ANOS_E_ONZE_MESES = "01 ano a 03 anos e 11 meses"
+    DOIS_ANOS_A_TRES_ANOS_E_ONZE_MESES = "02 anos a 03 anos e 11 meses"
+    QUATRO_ANOS_A_SEIS_ANOS = "04 anos a 06 anos"
+    ZERO_MESES_A_CINCO_MESES = "0 meses a 05 meses"
+    ZERO_MESES_A_ONZE_MESES = "0 meses a 11 meses"
+    UM_A_NOVE_MESES = "01 a 09 meses"
+    UM_A_DOIS_MESES = "01 a 02 meses"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class ClassificacoesDietasDeprecadas(Enum):
+    TIPO_B_LANCHE = "Tipo B - LANCHE"
+    TIPO_B_LANCHE_REFEICAO = "Tipo B - LANCHE e REFEIÇÃO"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class NomesParaTesteDiretoriaRegional(Enum):
+    DIRETORIA_REGIONAL_TESTE = "DIRETORIA REGIONAL TESTE"
+    DIRETORIA_REGIONAL_GUAIANASES = "DIRETORIA REGIONAL GUAIANASES"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class NomesParaTesteEscola(Enum):
+    EMEI_ALUISIO_DE_ALMEIDA = "EMEI ALUISIO DE ALMEIDA"
+    EMEF_TESTE = "EMEF TESTE"
+    EMEI_TESTE = "EMEI TESTE"
+    CEI_DIRET_TESTE = "CEI DIRET TESTE"
+    CEMEI_TESTE = "CEMEI TESTE"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsCabecalhoXLSXGuiaDaRemessa(Enum):
+    AGRUP = "Agrup"
+    AGRUPAMENTO = "Agrupamento"
+    ALIMENTO = "Alimento"
+    BAIRRO_UE = "Bairro UE"
+    BAIRRO_DA_UE = "Bairro da UE"
+    CEP_UE = "CEP UE"
+    CEP_DA_UE = "CEP da UE"
+    CAPACIDADE_EMBALAGEM_FECHADA = "Capacidade (Embalagem Fechada)"
+    CAPACIDADE_EMBALAGEM_FRACIONADA = "Capacidade (Embalagem Fracionada)"
+    CAPACIDADE_DA_EMBALAGEM_FECHADA = "Capacidade da Embalagem Fechada"
+    CAPACIDADE_DA_EMBALAGEM_FRACIONADA = "Capacidade da Embalagem Fracionada"
+    CEP_DA_UE_2 = "Cep da UE"
+    CIDADE_UE = "Cidade UE"
+    CONTATO_DA_ENTREGA = "Contato da Entrega"
+    CONTATO_DE_ENTREGA = "Contato de Entrega"
+    CODIGO_CODAE = "Código CODAE"
+    CODIGO_CODAE_DA_UE = "Código CODAE da UE"
+    CODIGO_EOL = "Código EOL"
+    CODIGO_EOL_DA_UE = "Código EOL da UE"
+    CODIGO_PAPA = "Código PAPA"
+    CODIGO_SUPRI = "Código SUPRI"
+    CODIGO_SUPRI_2 = "Código Supri"
+    DATA_DE_ENTREGA = "Data de Entrega"
+    DATA_DE_REGISTRO_DO_INSUCESSO = "Data de Registro do Insucesso"
+    DATA_DE_REGISTRO_DA_REPOSICAO_COM_HORA = "Data de registro da reposição (com hora)"
+    DATA_E_HORA_DE_REGISTRO_REPOSICAO = "Data e Hora de Registro (Reposição)"
+    DATA_E_HORA_DO_RECEBIMENTO_1A_CONFERENCIA = (
+        "Data e Hora do Recebimento (1ª Conferência)"
+    )
+    DATA_E_HORA_DO_RECEBIMENTO_1A_CONFERENCIA_2 = (
+        "Data e Hora do Recebimento (1ª Conferência) "
+    )
+    DATA_E_HORA_DO_RECEBIMENTO_REPOSICAO = "Data e Hora do Recebimento (Reposição)"
+    DATA_E_HORA_DO_REGISTRO_1A_CONFERENCIA = "Data e Hora do Registro (1ª Conferência)"
+    DATA_E_HORA_DO_REGISTRO_REPOSICAO = "Data e Hora do Registro (Reposição)"
+    DATA_E_HORA_DO_RECEBIMENTO_1A_CONFERENCIA_3 = (
+        "Data e Hora do recebimento (1ª Conferência)"
+    )
+    DATA_E_HORA_DO_REGISTRO_1A_CONFERENCIA_2 = (
+        "Data e hora do Registro (1ª Conferência) "
+    )
+    DESCRICAO_EMBALAGEM_FECHADA = "Descrição Embalagem Fechada"
+    DESCRICAO_EMBALAGEM_FRACIONADA = "Descrição Embalagem Fracionada"
+    DOCUMENTO_DO_CONFERENTE = "Documento do Conferente"
+    ENDERECO_UE = "Endereço UE"
+    ENDERECO_DA_UE = "Endereço da UE"
+    ENDERECO_DA_UE_2 = "Endereço da UE "
+    ESTADO_UE = "Estado UE"
+    HORA_DA_TENTATIVA_DE_ENTREGA = "Hora da tentativa de entrega"
+    HORA_DE_REGISTRO_DO_INSUCESSO = "Hora de Registro do Insucesso"
+    JUSTIFICATIVA = "Justificativa"
+    MOTIVO = "Motivo"
+    NOME_COMPLETO_DO_CONFERENTE = "Nome Completo do Conferente"
+    NOME_COMPLETO_DO_CONFERENTE_1A_CONFERENCIA = (
+        "Nome Completo do Conferente (1ª Conferência)"
+    )
+    NOME_COMPLETO_DO_CONFERENTE_REPOSICAO = "Nome Completo do Conferente (Reposição)"
+    NOME_UE = "Nome UE"
+    NOME_COMPLETO_DO_CONFERENTE_1A_CONFERENCIA_2 = (
+        "Nome completo do conferente (1ª Conferência)"
+    )
+    NOME_COMPLETO_DO_CONFERENTE_REPOSICAO_2 = "Nome completo do conferente (Reposição)"
+    NOME_DA_UE = "Nome da UE"
+    NOME_DO_ALIMENTO = "Nome do Alimento"
+    NOME_DO_DISTRIBUIDOR = "Nome do Distribuidor"
+    NOME_DO_MOTORISTA = "Nome do Motorista"
+    NOME_DO_MOTORISTA_1A_CONFERENCIA = "Nome do Motorista (1ª Conferência)"
+    NOME_DO_MOTORISTA_REPOSICAO = "Nome do Motorista (Reposição)"
+    NOME_DO_MOTORISTA_1A_CONFERENCIA_2 = "Nome do motorista (1ª Conferência)"
+    NOME_DO_MOTORISTA_REPOSICAO_2 = "Nome do motorista (Reposição)"
+    NO_DA_REQUISICAO = "Nº da Requisição"
+    NUMERO_UE = "Número UE"
+    NUMERO_DA_GUIA = "Número da Guia"
+    NUMERO_DA_GUIA_DE_REMESSA = "Número da Guia de Remessa"
+    NUMERO_DA_REQUISICAO = "Número da Requisição"
+    OBSERVACAO_1A_CONFERENCIA = "Observação (1ª Conferência)"
+    OBSERVACOES_1A_CONFERENCIA = "Observações (1ª Conferência)"
+    OBSERVACOES_REPOSICAO = "Observações (Reposição)"
+    OCORRENCIAS_1A_CONFERENCIA = "Ocorrências (1ª Conferência)"
+    OCORRENCIAS_REPOSICAO = "Ocorrências (Reposição)"
+    PLACA_DO_VEICULO = "Placa do Veículo"
+    PLACA_DO_VEICULO_1A_CONFERENCIA = "Placa do Veículo (1ª Conferência)"
+    PLACA_DO_VEICULO_REPOSICAO = "Placa do Veículo (Reposição)"
+    PLACA_DO_VEICULO_1A_CONFERENCIA_2 = "Placa do veículo (1ª Conferência)"
+    PLACA_DO_VEICULO_REPOSICAO_2 = "Placa do veículo (Reposição)"
+    QUANTIDADE = "Quantidade"
+    QUANTIDADE_FRACIONADA = "Quantidade (Fracionada)"
+    QUANTIDADE_PREVISTA_EMBALAGEM_FECHADA = "Quantidade Prevista (Embalagem Fechada)"
+    QUANTIDADE_PREVISTA_EMBALAGEM_FECHADA_2 = "Quantidade Prevista (Embalagem Fechada) "
+    QUANTIDADE_PREVISTA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Prevista (Embalagem Fracionada)"
+    )
+    QUANTIDADE_PREVISTA_EMBALAGEM_FRACIONADA_2 = (
+        "Quantidade Prevista (Embalagem Fracionada) "
+    )
+    QUANTIDADE_PREVISTA_VOLUMES_DA_EMBALAGEM_FECHADA = (
+        "Quantidade Prevista (Volumes da Embalagem Fechada)"
+    )
+    QUANTIDADE_PREVISTA_VOLUMES_DA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Prevista (Volumes da Embalagem Fracionada)"
+    )
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FECHADA = "Quantidade Recebida (Embalagem Fechada)"
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Recebida (Embalagem Fracionada)"
+    )
+    QUANTIDADE_REPOSTA_EMBALAGEM_FECHADA = "Quantidade Reposta (Embalagem Fechada)"
+    QUANTIDADE_REPOSTA_EMBALAGEM_FRACIONADA = (
+        "Quantidade Reposta (Embalagem Fracionada)"
+    )
+    QUANTIDADE_TOTAL_DE_GUIAS = "Quantidade Total de Guias"
+    QUANTIDADE_A_REPOR_EMBALAGEM_FECHADA = "Quantidade a Repor (Embalagem Fechada)"
+    QUANTIDADE_A_REPOR_EMBALAGEM_FRACIONADA = (
+        "Quantidade a Repor (Embalagem Fracionada)"
+    )
+    QUANTIDADE_A_RECEBER_EMBALAGEM_FECHADA = (
+        "Quantidade a \u200bReceber (Embalagem Fechada)"
+    )
+    QUANTIDADE_A_RECEBER_EMBALAGEM_FRACIONADA = (
+        "Quantidade a \u200bReceber (Embalagem Fracionada)"
+    )
+    QUANTIDADE_A_REPOR_REFERENTE_A_QUANTIDADE_A_RECEBER_EMBALAGEM_FRACIONADA = "Quantidade a \u200brepor, referente a quantidade a receber (Embalagem Fracionada)"
+    QUANTIDADE_A_REPOR_REFERENTE_A_QUANTIDADE_A_RECEBER_EMBALAGEM_FECHADA = (
+        "Quantidade a \u200brepor, referente a quantidade a receber(Embalagem Fechada)"
+    )
+    QUANTIDADE_DE_VOLUMES_DA_EMBALAGEM_FECHADA = (
+        "Quantidade de Volumes da Embalagem Fechada"
+    )
+    QUANTIDADE_DE_VOLUMES_DA_EMBALAGEM_FRACIONADA = (
+        "Quantidade de Volumes da Embalagem Fracionada"
+    )
+    QUANTIDADE_PREVISTA_EMBALAGEM_FECHADA_3 = "Quantidade prevista (Embalagem Fechada)"
+    QUANTIDADE_PREVISTA_EMBALAGEM_FRACIONADA_3 = (
+        "Quantidade prevista (Embalagem Fracionada)"
+    )
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FECHADA_2 = "Quantidade recebida (Embalagem Fechada)"
+    QUANTIDADE_RECEBIDA_EMBALAGEM_FRACIONADA_2 = (
+        "Quantidade recebida (Embalagem Fracionada)"
+    )
+    QUANTIDADE_REPOSTA_EMBALAGEM_FECHADA_2 = "Quantidade reposta (Embalagem Fechada)"
+    QUANTIDADE_REPOSTA_EMBALAGEM_FRACIONADA_2 = (
+        "Quantidade reposta (Embalagem Fracionada)"
+    )
+    REPOSICAO_DATA_E_HORA_DO_RECEBIMENTO = "Reposição (Data e Hora do recebimento)"
+    STATUS_DA_GUIA = "Status da Guia"
+    STATUS_DA_GUIA_DE_REMESSA = "Status da Guia de Remessa"
+    STATUS_DA_REQUISICAO = "Status da Requisição"
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_1A_CONFERENCIA = (
+        "Status de Recebimento do Alimento (1ª Conferência)"
+    )
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_REPOSICAO = (
+        "Status de Recebimento do Alimento (Reposição)"
+    )
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_1A_CONFERENCIA_2 = (
+        "Status de Recebimento do alimento (1ª Conferência)"
+    )
+    STATUS_DE_RECEBIMENTO_DO_ALIMENTO_REPOSICAO_2 = (
+        "Status de recebimento do alimento (Reposição)"
+    )
+    TELEFONE_UE = "Telefone UE"
+    TELEFONE_DA_UE = "Telefone da UE"
+    UNIDADE_DE_MEDIDA_DA_EMBALAGEM_FECHADA = "Unidade de Medida da Embalagem Fechada"
+    UNIDADE_DE_MEDIDA_DA_EMBALAGEM_FRACIONADA = (
+        "Unidade de Medida da Embalagem Fracionada"
+    )
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsPatterns(Enum):
+    CNPJ = "########0001##"
+    CODIGO_UNIDADE = "UNI####"
+    CODIGO_PAPA = "PAPA####"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsNomesAbasXLSX(Enum):
+    RELATORIO_DE_CONFERENCIA = "Relatório de Conferência"
+    VISAO_ANALITICA_ABASTECIMENTO = "Visão Analítica Abastecimento"
+    RELATORIO_DE_INSUCESSO = "Relatório de Insucesso"
+    DIETAS_NAO_RELACIONADAS = "Dietas não relacionadas"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsSourceSerializers(Enum):
+    ESCOLA_UUID = "escola.uuid"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsHeadersTabelasSolicitacaoMedicaoPDF(Enum):
+    MANHA_INFANTIL = "MANHA - INFANTIL"
+    MANHA_FUNDAMENTAL = "MANHA - FUNDAMENTAL"
+    TARDE_INFANTIL = "TARDE - INFANTIL"
+    TARDE_FUNDAMENTAL = "TARDE - FUNDAMENTAL"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class EmailsParaTeste(Enum):
+    ADMIN = "admin@admin.com"
+    ADMIN_COM_BR = "admin@admin.com.br"
+    TERCEIRIZADA_ADMIN = "terceirizada@admin.com"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsValidationSchema(Enum):
+    NOME_DO_USUARIO = "Nome do usuário"
+    CARGO_DO_USUARIO = "Cargo do usuário"
+    EMAIL_DO_USUARIO = "Email do usuário"
+    CPF_DO_USUARIO = "CPF do usuário"
+    CPF_DEVE_CONTER_11_DIGITOS = "CPF deve conter 11 dígitos."
+    TELEFONE_DO_USUARIO = "Telefone do usuário"
+    RF_DO_USUARIO = "RF do usuário"
+    RF_DEVE_TER_7_DIGITOS = "RF deve ter 7 dígitos."
+    PERFIL_DO_USUARIO = "Perfil do usuário"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsObservacaoValorMedicao(Enum):
+    OBSERVACAO_FUNDAMENTAL_DIA_01 = "observação FUNDAMENTAL dia 01"
+    OBSERVACAO_FUNDAMENTAL_DIA_02 = "observação FUNDAMENTAL dia 02"
+    OBSERVACAO_FUNDAMENTAL_DIA_03 = "observação FUNDAMENTAL dia 03"
+    OBSERVACAO_FUNDAMENTAL_DIA_04 = "observação FUNDAMENTAL dia 04"
+    OBSERVACAO_FUNDAMENTAL_DIA_05 = "observação FUNDAMENTAL dia 05"
+    OBSERVACAO_INFANTIL_DIA_01 = "observação INFANTIL dia 01"
+    OBSERVACAO_INFANTIL_DIA_02 = "observação INFANTIL dia 02"
+    OBSERVACAO_INFANTIL_DIA_03 = "observação INFANTIL dia 03"
+    OBSERVACAO_INFANTIL_DIA_04 = "observação INFANTIL dia 04"
+    OBSERVACAO_INFANTIL_DIA_05 = "observação INFANTIL dia 05"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsNomesArquivos(Enum):
+    ARQUIVO_TESTE_PDF = "arquivo_teste.pdf"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsModelosGestaoAlimentacao(Enum):
+    INCLUSAO_DE_ALIMENTACAO = "Inclusão de Alimentação"
+    KIT_LANCHE_PASSEIO = "Kit Lanche Passeio"
+    KIT_LANCHE_UNIFICADO = "Kit Lanche Unificado"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsInformacoesPessoais(Enum):
+    NOME_ALUNO_PADRAO = "Roberto Alves da Silva"
+    CODIGO_ALUNO = "1234567"
+    NOME_ALUNO = "MARIA CLARA DOS SANTOS"
+    NOME_RESPONSAVEL = "JOSE CARLOS DOS SANTOS"
+    CODIGO_ALUNO_SHEILA = "7654321"
+    NOME_ALUNO_SHEILA = "ANA PAULA MENEZES"
+    NOME_RESPONSAVEL_SHEILA = "ANA PAULA MENEZES"
+    CELULAR_RESPONSAVEL_SHEILA = "11999998888"
+    ENDERECO_UNIDADE = "Rua Alvaro de Azevedo Antunes"
+    BAIRRO_UNIDADE = "VILA CAMPESINA"
+    NOME_MOTORISTA = "José da Silva"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsDatasISO(Enum):
+    DATA_NASCIMENTO_2017_11_17 = "2017-11-17T00:00:00"
+    DATA_SITUACAO_2022_02_09 = "2022-02-09T08:27:35.887"
+    DATA_SITUACAO_2022_10_31 = "2022-10-31T12:46:58.16"
+    DATA_SITUACAO_2022_12_13 = "2022-12-13T13:44:02.94"
+    DATA_SITUACAO_2023_04_24_09053 = "2023-04-24T12:42:09.053"
+    DATA_SITUACAO_2023_04_24_0841 = "2023-04-24T12:42:08.41"
+    DATA_SITUACAO_2023_04_24_0891 = "2023-04-24T12:42:08.91"
+    DATA_SITUACAO_2023_05_11 = "2023-05-11T06:50:17.84"
+    DATA_SITUACAO_2023_06_14 = "2023-06-14T08:25:08.59"
+    DATA_SITUACAO_2023_07_07 = "2023-07-07T12:29:21.54"
+    DATA_SITUACAO_2023_11_06 = "2023-11-06T14:58:22.7"
+    DATA_SITUACAO_2023_12_29_38720 = "2023-12-29T07:38:40.72"
+    DATA_SITUACAO_2023_12_29_38720623 = "2023-12-29T07:38:40.623"
+    DATA_NASCIMENTO_1983_12_25 = "1983-12-25T00:00:00"
+    DATA_SITUACAO_2022_09_02 = "2022-09-02T15:14:52.56"
+    DATA_SITUACAO_2022_11_03 = "2022-11-03T19:49:01.807"
+    DATA_SITUACAO_2022_12_14_1615 = "2022-12-14T16:15:54.233"
+    DATA_SITUACAO_2022_12_14_1456 = "2022-12-14T14:56:58.12"
+    DATA_SITUACAO_2023_01_27_1218 = "2023-01-27T12:18:04.147"
+    DATA_SITUACAO_2023_01_27_1221 = "2023-01-27T12:21:02.407"
+    DATA_SITUACAO_2023_08_07 = "2023-08-07T11:37:06.47"
+    DATA_SITUACAO_2023_08_11 = "2023-08-11T10:43:15.697"
+    DATA_SITUACAO_2023_08_16_1031 = "2023-08-16T10:31:30.36"
+    DATA_SITUACAO_2023_08_16_1031423 = "2023-08-16T10:31:30.423"
+    DATA_SITUACAO_2023_08_16_1031578 = "2023-08-16T10:31:57.8"
+    DATA_SITUACAO_2023_08_17_1319 = "2023-08-17T13:19:36.69"
+    DATA_SITUACAO_2023_08_17_1319563 = "2023-08-17T13:19:36.563"
+    DATA_SITUACAO_2023_08_17_1320 = "2023-08-17T13:20:55.113"
+    DATA_SITUACAO_2023_08_17_1325 = "2023-08-17T13:25:18.753"
+    DATA_SITUACAO_2023_08_17_1325707 = "2023-08-17T13:25:18.707"
+    DATA_SITUACAO_2023_11_09 = "2023-11-09T19:47:32.76"
+    DATA_SITUACAO_2023_12_01_1029 = "2023-12-01T10:29:04.48"
+    DATA_SITUACAO_2023_12_01_1029387 = "2023-12-01T10:29:04.387"
+    DATA_SITUACAO_2023_12_01_1031 = "2023-12-01T10:31:47.18"
+    DATA_NASCIMENTO_2010_01_01 = "2010-01-01T00:00:00"
+    DATA_PADRAO_0001_01_01 = "0001-01-01T00:00:00"
+    DATA_PADRAO_2025_01_01 = "2025-01-01T00:00:00"
+    FORMATO_ISO_MEIA_NOITE = "%Y-%m-%dT00:00:00"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsValidationErrors(Enum):
+    CODIGO_EOL_ESCOLA_OBRIGATORIO = "`codigo_eol_escola` como query_param é obrigatório"
+    PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
+    ESCOLHA_UMA_PLANILHA = "Escolha somente uma planilha."
+    DIETA_ESPECIAL_PENDENTE = "Aluno já possui Solicitação de Dieta Especial pendente"
+    CAMPO_OBRIGATORIO_EXCLAMACAO = "Este campo é obrigatório!"
+    CAMPO_OBRIGATORIO_PONTO_FINAL = "Este campo é obrigatório."
+    EXCLUSAO_SOMENTE_RASCUNHO = "Você só pode excluir quando o status for RASCUNHO."
+    GUIA_DE_REMESSA_NAO_EXISTE = "Guia de remessa não existe."
+    INFORMAR_NUMERO_REQUISICAO = (
+        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
+    )
+    CAMPO_OBRIGATORIO_PARA_O_GRUPO = "Campo obrigatório para o grupo."
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class PayloadVariaveis(Enum):
+    LOTES = "lotes[]"
+    EDITAIS = "editais[]"
+    ESCOLA_UUID = "escola__uuid[]"
+    TIPO_CONTAGEM_ALIMENTACOES = "tipo_contagem_alimentacoes[]"
+    LOTES_SELECIONADOS = "lotes_selecionados[]"
+    TIPOS_UNIDADES = "tipos_unidades[]"
+    DIRETORIAS_REGIONAIS = "diretorias_regionais[]"
+    CLASSIFICACOES_SELECIONADAS = "classificacoes_selecionadas[]"
+    TIPO_UNIDADE_UUID = "tipo_unidade__uuid[]"
+    TIPOS_CONTAGEM_ALIMENTACAO = "tipos_contagem_alimentacao[]"
+    PROTOCOLOS_PADRAO_SELECIONADOS = "protocolos_padrao_selecionados[]"
+    PERIODOS_ESCOLARES_SELECIONADAS = "periodos_escolares_selecionadas[]"
+    UNIDADES_EDUCACIONAIS_SELECIONADAS = "unidades_educacionais_selecionadas[]"
+    UNIDADES_EDUCACIONAIS = "unidades_educacionais[]"
+    TIPOS_UNIDADES_SELECIONADAS = "tipos_unidades_selecionadas[]"
+    TIPOS_TURMAS = "tipos_turmas[]"
+    TERCEIRIZADAS = "terceirizadas[]"
+    STATUS_RECLAMACAO = "status_reclamacao[]"
+    PERIODOS_ESCOLARES = "periodos_escolares[]"
+    LOTE_UUID = "lote__uuid[]"
+    EXCLUIR_TIPO_UNIDADE_UUID = "excluir_tipo_unidade__uuid[]"
+    ALERGIAS_INTOLERANCIAS_SELECIONADAS = "alergias_intolerancias_selecionadas[]"
+    TIPOS_ALIMENTACAO = "tipos_alimentacao[]"
+    TIPO_CALENDARIO = "tipo_calendario[]"
+    SOLICITACOES = "solicitacoes[]"
+    MOTIVO = "motivo[]"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class StatusProcessamentoArquivo(Enum):
     PENDENTE = "PENDENTE"
     SUCESSO = "SUCESSO"
@@ -614,6 +1053,477 @@ class TIPOS_GESTAO(Enum):
         return [(key.value, key.name) for key in cls]
 
 
+class StringsSearchHelpText(Enum):
+    PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquisa por: nome da escola, codigo eol da escola"
+    )
+    PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2 = (
+        "Pesquisa por: nome da escola, código eol da escola"
+    )
+    PESQUISA_POR_NOME_DO_USUARIO_USERNAME_EMAIL_CPF_OU_RF = (
+        "Pesquisa por: nome do usuário, username, email, CPF ou RF"
+    )
+    PESQUISA_POR_TITULO_DO_RECREIO_NAS_FERIAS = (
+        "Pesquisa por: título do recreio nas férias"
+    )
+    PESQUISA_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquisa por: uuid, nome da escola, código eol da escola"
+    )
+    PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquisar por: UUID, nome da escola, codigo eol da escola"
+    )
+    PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2 = (
+        "Pesquisar por: UUID, nome da escola, código EOL da escola"
+    )
+    PESQUISE_POR_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquise por: nome da escola ou código eol da escola"
+    )
+    PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA = (
+        "Pesquise por: nome da escola, código eol da escola"
+    )
+    PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_OU_PERIODO_ESCOLAR = (
+        "Pesquise por: nome da escola, código eol da escola ou período escolar"
+    )
+    PESQUISE_POR_NOME_DO_ALUNO_CODIGO_EOL_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DA_ESCOLA = "Pesquise por: nome do aluno, código eol do aluno, nome da escola ou código eol da escola"
+    PESQUISE_POR_NOME_DO_ALUNO_NOME_DA_ESCOLA_OU_CODIGO_EOL_DO_ALUNO = (
+        "Pesquise por: nome do aluno, nome da escola ou código eol do aluno"
+    )
+    PESQUISE_POR_NOME_DO_EQUIPAMENTO = "Pesquise por: nome do equipamento"
+    PESQUISE_POR_NOME_DO_INSUMO = "Pesquise por: nome do insumo"
+    PESQUISE_POR_NOME_DO_MOBILIARIO = "Pesquise por: nome do mobiliário"
+    PESQUISE_POR_NOME_DO_PRODUTO = "Pesquise por: nome do produto"
+    PESQUISE_POR_NOME_DO_PRODUTO_NUMERO_CATEGORIA_NOME_DA_EMPRESA_NOME_DO_FABRICANTE = "Pesquise por: nome do produto, número, categoria, nome da empresa, nome do fabricante"
+    PESQUISE_POR_NOME_DO_REPARO_E_ADAPTACAO = "Pesquise por: nome do reparo e adaptação"
+    PESQUISE_POR_NOME_DO_UTENSILIO_DE_COZINHA = (
+        "Pesquise por: nome do utensílio de cozinha"
+    )
+    PESQUISE_POR_NOME_DO_UTENSILIO_DE_MESA = "Pesquise por: nome do utensílio de mesa"
+    PESQUISE_POR_NUMERO_DA_CLAUSULA = "Pesquise por: número da cláusula"
+    PESQUISE_POR_NUMERO_DO_EDITAL = "Pesquise por: número do edital"
+    PESQUISE_POR_NUMERO_DO_EDITAL_TITULO = "Pesquise por: número do edital, título"
+    PESQUISE_POR_NUMERO_DO_EDITAL_EMAIL_NOME_DO_USUARIO_DO_FORMULARIO = (
+        "Pesquise por: número do edital; (email, nome) do usuário do formulário."
+    )
+    PESQUISE_POR_TITULO = "Pesquise por: título"
+    PESQUISE_POR_INICIAIS_OU_NOME_DO_TIPO_DE_UNIDADE_NUMERO_DO_EDITAL_TIPO_DE_SOBREMESA = "Pesquise por: iniciais ou nome do tipo de unidade, número do edital, tipo de sobremesa"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsCaminhoModelos(Enum):
+    MODEL_PERFIL = "perfil.Perfil"
+    MODEL_VINCULO = "perfil.Vinculo"
+    MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
+    MODEL_ESCOLA = "escola.Escola"
+    MODEL_DIRETORIA_REGIONAL = "escola.DiretoriaRegional"
+    MODEL_LOTE = "escola.Lote"
+    MODEL_USUARIO = "perfil.Usuario"
+    MODEL_EDITAL = "terceirizada.Edital"
+    MODEL_PERIODOESCOLAR = "escola.PeriodoEscolar"
+    MODEL_CONTATO = "dados_comuns.Contato"
+    MODEL_TIPOUNIDADEESCOLAR = "escola.TipoUnidadeEscolar"
+    MODEL_ALIMENTO = "dieta_especial.Alimento"
+    MODEL_TIPOALIMENTACAO = "cardapio.TipoAlimentacao"
+    MODEL_FAIXAETARIA = "escola.FaixaEtaria"
+    MODEL_VINCULOTIPOALIMENTACAOCOMPERIODOESCOLARETIPOUNIDADEESCOLAR = (
+        "cardapio.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar"
+    )
+    MODEL_ALUNO = "escola.Aluno"
+    MODEL_ESCOLAPERIODOESCOLAR = "escola.EscolaPeriodoEscolar"
+    MODEL_DIACALENDARIO = "escola.DiaCalendario"
+    MODEL_CONTRATO = "terceirizada.Contrato"
+    MODEL_ALUNOSMATRICULADOSPERIODOESCOLA = "escola.AlunosMatriculadosPeriodoEscola"
+    MODEL_TIPOCONTAGEMALIMENTACAO = "medicao_inicial.TipoContagemAlimentacao"
+    MODEL_PRODUTO = "produto.Produto"
+    MODEL_ETAPASDOCRONOGRAMA = "pre_recebimento.EtapasDoCronograma"
+    MODEL_QUANTIDADEPORPERIODO = "inclusao_alimentacao.QuantidadePorPeriodo"
+    MODEL_UNIDADEMEDIDA = "pre_recebimento.UnidadeMedida"
+    MODEL_MOTIVOSUSPENSAO = "cardapio.MotivoSuspensao"
+    MODEL_MARCA = "produto.Marca"
+    MODEL_FICHATECNICADOPRODUTO = "pre_recebimento.FichaTecnicaDoProduto"
+    MODEL_CRONOGRAMA = "pre_recebimento.Cronograma"
+    MODEL_DIALETIVOSIGPAE = "escola.DiaLetivoSIGPAE"
+    MODEL_SOLICITACAOMEDICAOINICIAL = "medicao_inicial.SolicitacaoMedicaoInicial"
+    MODEL_SOLICITACAOKITLANCHECEIAVULSA = "kit_lanche.SolicitacaoKitLancheCEIAvulsa"
+    MODEL_KITLANCHE = "kit_lanche.KitLanche"
+    MODEL_RESPONSAVEL = "medicao_inicial.Responsavel"
+    MODEL_LOGALUNOSMATRICULADOSPERIODOESCOLA = (
+        "escola.LogAlunosMatriculadosPeriodoEscola"
+    )
+    MODEL_MOTIVOINCLUSAOCONTINUA = "inclusao_alimentacao.MotivoInclusaoContinua"
+    MODEL_INCLUSAOALIMENTACAOCONTINUA = (
+        "inclusao_alimentacao.InclusaoAlimentacaoContinua"
+    )
+    MODEL_GRUPOUNIDADEESCOLAR = "escola.GrupoUnidadeEscolar"
+    MODEL_PROGRAMACAOENTREGASEMANAL = "pre_recebimento.ProgramacaoEntregaSemanal"
+    MODEL_HOMOLOGACAOPRODUTO = "produto.HomologacaoProduto"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
+class StringsVerboseNameModels(Enum):
+    ABREVIACAO = "Abreviação"
+    ACAO = "ação"
+    ACEITA_MULTIPLAS_RESPOSTAS = "Aceita múltiplas respostas?"
+    ACESSO_MODULO_MEDICAO_DESDE = "Acesso módulo medição desde"
+    ACOMPANHOU_A_VISITA = "Acompanhou a visita?"
+    ADITIVOS = "Aditivos"
+    ALTERADO_EM = "Alterado em"
+    ALTERADO_POR = "Alterado por"
+    ALTERAR_DIA = "Alterar dia"
+    ALUNOS_DA_CEMEI = "Alunos da CEMEI"
+    ALUNO_NO_PERIODO_PARCIAL_A_PARTIR_DE = "Aluno no período parcial a partir de"
+    ANEXO = "Anexo"
+    APROVADO = "Aprovado"
+    ARQUIVO = "Arquivo"
+    ATIVO = "Ativo?"
+    BAIRRO = "Bairro"
+    BAIRRO_DA_UNIDADE = "Bairro da unidade"
+    CAPACIDADE_DA_EMBALAGEM = "Capacidade da Embalagem"
+    CARACTERISTICAS_DOS_ALIMENTOS = "Características dos alimentos"
+    CARGO = "Cargo"
+    CATEGORIA = "Categoria"
+    CATEGORIA_DA_OCORRENCIA = "Categoria da Ocorrência"
+    CEP = "CEP"
+    CEP_DA_UNIDADE = "CEP da unidade"
+    CIDADE = "Cidade"
+    CIDADE_DA_UNIDADE = "Cidade da unidade"
+    CNPJ = "CNPJ"
+    CODIGO = "Código"
+    CODIGOS_CODAE_VINCULADOS = "Códigos Codae Vinculados?"
+    CODIGO_CODAE = "Código CODAE"
+    CODIGO_DA_UNIDADE = "Código da unidade"
+    CODIGO_EOL = "Código EOL"
+    CODIGO_EOL_ALUNO = "Código EOL aluno"
+    CODIGO_EOL_DA_ESCOLA = "Codigo EOL da escola"
+    CODIGO_EOL_ESCOLA_DESTINO = "Código EOL escola destino"
+    CODIGO_EOL_ESCOLA_ORIGEM = "Código EOL escola origem"
+    CODIGO_PAPA = "Código papa"
+    CODIGO_SUPRIMENTO = "Código suprimento"
+    COMPLEMENTO = "Complemento"
+    COMPLEMENTO_DO_STATUS = "Complemento do status"
+    COMPONENTES_DO_PRODUTO = "Componentes do Produto"
+    COM_OCORRENCIAS = "Com ocorrências?"
+    CONDICOES_DE_CONSERVACAO = "Condições de conservação"
+    CONDICOES_DE_TRANSPORTE = "Condições de Transporte"
+    CONTATO_NA_UNIDADE = "Contato na unidade"
+    CONTEM_GLUTEN = "Contém glúten?"
+    CONTEM_LACTOSE = "Contém lactose?"
+    CONTRATO = "Contrato"
+    CORRECAO_SOLICITADA = "Correção Solicitada"
+    CRIADO_EM = "criado em"
+    CRONOGRAMA = "Cronograma"
+    CRONOGRAMAS = "Cronogramas"
+    CRONOGRAMA_MENSAL = "Cronograma Mensal"
+    CRONOGRAMA_SEMANAL = "Cronograma Semanal"
+    CUSTO_UNITARIO_DO_PRODUTO = "Custo Unitário do Produto"
+    DATA = "Data"
+    DATA_DA_ENTREGA = "Data da entrega"
+    DATA_DA_INTERRUPCAO = "Data da Interrupção"
+    DATA_DA_PROPOSTA = "Data da proposta"
+    DATA_DE_ENTREGA = "Data de Entrega"
+    DATA_DE_INVERSAO = "Data de inversão"
+    DATA_DE_RECEBIMENTO = "Data de recebimento"
+    DATA_E_HORA_DO_ENCERRAMENTO = "Data e hora do encerramento"
+    DATA_FABRICACAO = "Data Fabricação"
+    DATA_FIM = "Data Fim"
+    DATA_FINAL = "Data final"
+    DATA_FINAL_DO_LOTE = "Data Final do Lote"
+    DATA_INICIAL = "Data inicial"
+    DATA_INICIO = "Data Início"
+    DATA_MAXIMA_DE_RECEBIMENTO = "Data Máxima de Recebimento"
+    DATA_PARA_INVERSAO = "Data para inversão"
+    DATA_PROGRAMADA = "Data Programada"
+    DATA_S_DE_FABRICACAO_OBSERVADA_S_ESTAO_DE_ACORDO = (
+        "Data(s) de Fabricação Observada(s) estão de acordo?"
+    )
+    DATA_S_DE_VALIDADES_OBSERVADA_S_ESTAO_DE_ACORDO = (
+        "Data(s) de Validades Observada(s) estão de acordo?"
+    )
+    DATA_VALIDADE = "Data Validade"
+    DESCRICAO = "Descricao"
+    DESCRICAO_2 = "Descrição"
+    DESCRICAO_CICLO = "Descrição ciclo"
+    DESCRICAO_DA_CLAUSULA_ITEM = "Descrição da Cláusula/Item"
+    DESCRICAO_DA_DIVERGENCIA_NAS_DATA_S_DE_FABRICACAO = (
+        "Descrição da divergência nas Data(s) de Fabricação"
+    )
+    DESCRICAO_DA_DIVERGENCIA_NAS_DATA_S_DE_VALIDADES = (
+        "Descrição da divergência nas Data(s) de Validades"
+    )
+    DESCRICAO_DA_DIVERGENCIA_NOS_LOTE_S_DO_FABRICANTE = (
+        "Descrição da divergência nos Lote(s) do Fabricante"
+    )
+    DESCRICAO_DA_EMBALAGEM = "Descrição da Embalagem"
+    DESCRICAO_DO_DOCUMENTO = "Descrição do Documento"
+    DESCRICAO_DO_EVENTO = "Descrição do Evento"
+    DESCRICAO_DO_METODO_DE_CONTAGEM = "Descrição do método de contagem"
+    DESCRICAO_DO_MOTIVO = "Descrição do Motivo"
+    DESCRICAO_ETAPA = "Descrição etapa"
+    DETALHAR_LACTOSE = "Detalhar Lactose"
+    DE_DESCONTO = "% de Desconto"
+    DE_DESCONTO_2 = "% de desconto"
+    DIETA_PARA_RECREIO_NAS_FERIAS = "Dieta para Recreio nas Férias"
+    DOCUMENTO_DE_RECEBIMENTO = "Documento de Recebimento"
+    EDITAL_NO = "Edital No"
+    EMBALAGEM_PRIMARIA = "Embalagem Primária"
+    EMBALAGEM_SECUNDARIA = "Embalagem Secundária"
+    EMBALAGENS_DE_ACORDO_COM_ANEXO = "Embalagens de Acordo com Anexo?"
+    EMPRESA = "Empresa"
+    ENCERRADO = "Encerrado?"
+    ENDERECO = "Endereco"
+    ENDERECO_2 = "Endereço"
+    ENDERECO_DA_UNIDADE = "Endereço da unidade"
+    ENVASADOR_DISTRIBUIDOR = "Envasador/Distribuidor"
+    EQUIPAMENTOS = "Equipamentos"
+    ESPECIE_OU_VARIEDADE_CULTIVADA = "Espécie ou Variedade Cultivada"
+    ESTADO = "Estado"
+    ESTADO_DA_UNIDADE = "Estado da unidade"
+    ESTADO_HIGIENICO_SANITARIO_ADEQUADO = "Estado Higiênico-Sanitário adequado?"
+    ESTA_CREDENCIADO = "Está credenciado?"
+    ESTA_SUSPENSO = "Esta suspenso?"
+    ETAPA = "Etapa"
+    ETAPA_DO_CRONOGRAMA = "Etapa do Cronograma"
+    E_ADMINISTRADOR_POR_PARTE_DAS_TERCEIRIZADAS = (
+        "É Administrador por parte das Terceirizadas?"
+    )
+    E_DIA_LETIVO = "É dia Letivo?"
+    E_IMR = "É IMR?"
+    E_MAIL = "E-mail"
+    E_NUTRICIONISTA = "É nutricionista?"
+    E_ORGANICO = "É orgânico?"
+    E_PARA_ALUNOS_COM_DIETA_ESPECIAL = "É para alunos com dieta especial"
+    FICHA_DE_RECEBIMENTO = "Ficha de Recebimento"
+    FISCAL_1 = "Fiscal 1"
+    FISCAL_2 = "Fiscal 2"
+    FISCAL_3 = "Fiscal 3"
+    FOI_LIDO = "Foi Lido?"
+    FOI_RESOLVIDO = "Foi resolvido?"
+    FOI_VISTO = "Foi visto?"
+    FORMULARIO_DE_OCORRENCIAS = "Formulário de Ocorrências"
+    GERA_NOTIFICACAO = "Gera Notificação?"
+    HABILITACAO = "Habilitação"
+    HORA = "Hora"
+    HORA_DA_TENTATIVA_DE_ENTREGA = "Hora da tentativa de entrega"
+    HORA_DO_RECEBIMENTO = "Hora do recebimento"
+    HOUVE_OCORRENCIA = "Houve Ocorrência?"
+    INFORMACAO_NUTRICIONAL_FIXA = "Informação Nutricional Fixa"
+    INFORMACOES_ADICIONAIS = "Informações Adicionais"
+    INFORMACOES_DE_ARMAZENAMENTO = "Informações de Armazenamento"
+    INGREDIENTES_ADITIVOS_ALERGENICOS = "Ingredientes/aditivos alergênicos"
+    INSUMOS = "Insumos"
+    ITEM_DA_CLAUSULA = "Item da Cláusula"
+    JUSTIFICATIVA = "Justificativa"
+    JUSTIFICATIVA_DA_ALTERACAO = "Justificativa da Alteração"
+    JUSTIFICATIVA_DE_ACEITE_PELA_DILOG = "Justificativa de aceite pela dilog"
+    JUSTIFICATIVA_DE_NEGACAO_PELA_DILOG = "Justificativa de negacao pela dilog"
+    JUSTIFICATIVA_DE_SOLICITACAO_PELO_DISTRIBUIDOR = (
+        "Justificativa de solicitação pelo distribuidor"
+    )
+    JUSTIFICATIVA_DE_SOLICITACAO_PELO_FORNECEDOR = (
+        "Justificativa de solicitação pelo fornecedor"
+    )
+    LINK = "Link"
+    LOGRADOURO = "Logradouro"
+    LOGS_DE_MATRICULADOS_DIETAS_AUTORIZADAS_ETC_FORAM_SALVOS = (
+        "Logs de matriculados, dietas autorizadas, etc foram salvos?"
+    )
+    LOTE_S_DO_FABRICANTE_OBSERVADO_S_ESTAO_DE_ACORDO = (
+        "Lote(s) do Fabricante Observado(s) estão de acordo?"
+    )
+    MAIOR_NO_DE_FREQUENTES_NO_PERIODO = "Maior Nº de Frequentes no Período"
+    MARCAR_COMO_CONFERIDO = "Marcar como conferido?"
+    MATERIAL_DA_EMBALAGEM_PRIMARIA = "Material da Embalagem Primária"
+    MENSAGEM_ERRO = "Mensagem erro"
+    MES_PROGRAMADO = "Mês Programado"
+    MOBILIARIOS = "Mobiliários"
+    MODO_DE_PREPARO_DO_PRODUTO = "Modo de Preparo do Produto"
+    MOTIVO_DA_INTERRUPCAO = "Motivo da Interrupção"
+    MOTIVO_DO_INSUCESSO = "Motivo do insucesso"
+    NOME = "Nome"
+    NOME_COMPLETO_DO_ALUNO = "Nome Completo do Aluno"
+    NOME_COMPLETO_DO_PESCRITOR_DA_RECEITA = "Nome completo do pescritor da receita"
+    NOME_COMPLETO_DO_RESPONSAVEL_TECNICO = "Nome completo do Responsável Técnico"
+    NOME_DA_ESCOLA_DESTINO = "Nome da Escola destino"
+    NOME_DA_ESCOLA_ORIGEM = "Nome da Escola origem"
+    NOME_DA_NUTRICIONISTA_RT_DA_EMPRESA = "Nome da Nutricionista RT da Empresa"
+    NOME_DA_UNIDADE = "Nome da unidade"
+    NOME_DO_ALIMENTO_PRODUTO = "Nome do alimento/produto"
+    NOME_DO_ALUNO = "Nome do Aluno"
+    NOME_DO_ARQUIVO = "Nome do arquivo"
+    NOME_DO_MOTORISTA = "Nome do motorista"
+    NOME_DO_PROTOCOLO = "Nome do Protocolo"
+    NOME_FANTASIA = "Nome fantasia"
+    NOTIFICACAO_ASSINADA = "Notificação Assinada"
+    NO_DA_ATA = "No da Ata"
+    NO_DA_CHAMADA_PUBLICA = "Nº da Chamada Pública"
+    NO_DE_PALETES = "Nº de Paletes"
+    NO_DO_CONTRATO = "No do contrato"
+    NO_DO_LOTE_ARMAZENAGEM = "Nº do Lote Armazenagem"
+    NO_DO_PREGAO_ELETRONICO = "Nº do Pregão Eletrônico"
+    NO_DO_PROCESSO_SEI = "Nº do Processo SEI"
+    NO_DO_REGISTRO_DO_ROTULO = "Nº do Registro do Rótulo"
+    NO_DO_REGISTRO_EM_ORGAO_COMPETENTE = "Nº do Registro em Órgão Competente"
+    NO_DO_VEICULO = "Nº do Veículo"
+    NO_SIF_SISBI_OU_SISP = "Nº SIF, SISBI ou SISP"
+    NUMERO = "Número"
+    NUMERO_DA_CLAUSULA = "Número da Cláusula"
+    NUMERO_DA_CLAUSULA_ITEM = "Número da Cláusula/Item"
+    NUMERO_DA_FICHA_TECNICA = "Número da Ficha Técnica"
+    NUMERO_DA_GUIA = "Número da guia"
+    NUMERO_DA_NOTA = "Número da Nota"
+    NUMERO_DA_NOTIFICACAO = "Número da Notificação"
+    NUMERO_DA_SOLICITACAO = "Número da solicitação"
+    NUMERO_DA_UNIDADE = "Número da unidade"
+    NUMERO_DO_CRONOGRAMA = "Número do Cronograma"
+    NUMERO_DO_CRONOGRAMA_SEMANAL = "Número do Cronograma Semanal"
+    NUMERO_DO_EMPENHO = "Número do Empenho"
+    NUMERO_DO_LAUDO = "Número do Laudo"
+    NUTRICIONISTA_CRN = "Nutricionista crn"
+    OBJETO_RESUMIDO = "objeto resumido"
+    OBSERVACAO = "Observação"
+    OBSERVACOES = "Observações"
+    OBSERVACOES_ALTERACAO = "Observações Alteração"
+    OPCAO = "Opção"
+    ORIENTACOES_GERAIS = "Orientações Gerais"
+    OUTRAS_INFORMACOES = "Outras Informações"
+    OUTRO_MOTIVO = "Outro Motivo"
+    OUTRO_MOTIVO_2 = "Outro motivo"
+    O_PRODUTO_E_LIQUIDO = "O produto é líquido?"
+    PARTE = "Parte"
+    PENALIDADE_DO_ITEM = "Penalidade do Item"
+    PERGUNTA = "Pergunta"
+    PERGUNTA_OBRIGATORIA = "Pergunta Obrigatória?"
+    PERIODO_DA_VISITA = "Período da Visita"
+    PESO_DA_EMBALAGEM_PRIMARIA_1 = "Peso da Embalagem Primária (1)"
+    PESO_DA_EMBALAGEM_PRIMARIA_2 = "Peso da Embalagem Primária (2)"
+    PESO_DA_EMBALAGEM_PRIMARIA_3 = "Peso da Embalagem Primária (3)"
+    PESO_DA_EMBALAGEM_PRIMARIA_4 = "Peso da Embalagem Primária (4)"
+    PLACA_DO_VEICULO = "Placa do veículo"
+    PODE_CONTER_ALERGENICOS = "Pode conter alergênicos?"
+    PONTUACAO_IMR = "Pontuação (IMR)"
+    PONTUACAO_MAXIMA = "Pontuação Máxima"
+    PONTUACAO_MINIMA = "Pontuação Mínima"
+    PORCAO = "Porção"
+    PORCAO_NUTRICIONAL = "Porção nutricional"
+    PORQUE_FOI_SUSPENSO_INDIVIDUALMENTE = "Porque foi suspenso individualmente"
+    POSICAO = "Posição"
+    POSSUI_ALUNOS_PERIODO_PARCIAL = "Possui alunos periodo parcial?"
+    PRAZO_DE_VALIDADE = "Prazo de Validade"
+    PRAZO_DE_VALIDADE_2 = "Prazo de validade"
+    PRAZO_DE_VALIDADE_DESCONGELAMENTO = "Prazo de Validade Descongelamento"
+    PRAZO_MAXIMO_PARA_RECEBIMENTO = "Prazo Máximo para Recebimento"
+    PREVISAO_CONTRATUAL = "Previsão Contratual"
+    PROCESSO_ADMINISTRATIVO = "Processo Administrativo"
+    PROGRAMA = "Programa"
+    PROVENIENTE_DE_IMPORTACAO = "Proveniente de importacao?"
+    QTDE_TOTAL_DO_EMPENHO = "Qtde. Total do Empenho"
+    QTD_TOTAL_DE_GUIAS_NA_REQUISICAO = "Qtd total de guias na requisição"
+    QTD_TOTAL_PROGRAMADA = "Qtd Total Programada"
+    QUANTIDADE = "Quantidade"
+    QUANTIDADE_A_RECEBER_FALTANTE = "Quantidade a receber faltante"
+    QUANTIDADE_DA_ENTREGA = "Quantidade da Entrega"
+    QUANTIDADE_DE_ALUNOS = "Quantidade de alunos"
+    QUANTIDADE_DE_ALUNOS_ALTERADA = "Quantidade de alunos alterada"
+    QUANTIDADE_DE_ALUNOS_ANTERIOR = "Quantidade de alunos anterior"
+    QUANTIDADE_DE_ALUNOS_ANTES = "Quantidade de alunos antes"
+    QUANTIDADE_DE_ALUNOS_ATUAL = "Quantidade de alunos atual"
+    QUANTIDADE_DE_EMBALAGENS_DA_NOTA_FISCAL = "Quantidade de Embalagens da Nota Fiscal"
+    QUANTIDADE_DE_EMBALAGENS_RECEBIDAS = "Quantidade de Embalagens Recebidas"
+    QUANTIDADE_RECEBIDA = "Quantidade Recebida"
+    QUANTIDADE_RECEBIDO = "Quantidade recebido"
+    QUANTIDADE_TOTAL_RECEBIDA = "Quantidade Total Recebida"
+    QUANTIDADE_VOLUME = "Quantidade/Volume"
+    QUESTAO = "Questão"
+    QUESTAO_DE_CONFERENCIA = "Questão de Conferência"
+    QUESTOES_REFERENTES_A_EMBALAGEM_PRIMARIA = (
+        "Questões referentes à Embalagem Primária"
+    )
+    QUESTOES_REFERENTES_A_EMBALAGEM_SECUNDARIA = (
+        "Questões referentes à Embalagem Secundária"
+    )
+    RAZAO_SOCIAL = "Razao social"
+    RECLAMACAO = "Reclamação"
+    REGISTRO_DO_ORGAO_COMPETENTE = "Registro do órgão competente"
+    REGISTRO_FUNCIONAL_DO_NUTRICIONISTA = "Registro funcional do nutricionista"
+    REGISTRO_FUNCIONAL_DO_PESCRITOR_DA_RECEITA = (
+        "Registro funcional do pescritor da receita"
+    )
+    RELACAO = "Relação"
+    REPAROS_E_ADAPTACOES = "Reparos e Adaptações"
+    REPRESENTANTE_CONTATO_EMAIL = "Representante contato (email)"
+    REPRESENTANTE_CONTATO_TELEFONE = "Representante contato (telefone)"
+    REPRESENTANTE_LEGAL = "Representante legal"
+    RESPONSAVEL = "Responsável"
+    RESPONSAVEL_CARGO = "Responsável cargo"
+    RESPONSAVEL_CONTATO_EMAIL = "Responsável contato (email)"
+    RESPONSAVEL_CONTATO_TELEFONE = "Responsável contato (telefone)"
+    RESPOSTA = "Resposta"
+    RESPOSTA_SIM_NAO = "Resposta (Sim/Não)"
+    RESPOSTA_SIM_OU_NAO = "Resposta - Sim ou Não"
+    RF_CRN_CRF = "RF/CRN/CRF"
+    ROTULO_LEGIVEL = "Rotulo Legível?"
+    SEQUENCIA_DE_ENVIO_ATRIBUIDA_PELO_PAPA = "Sequência de envio atribuída pelo papa"
+    SEQUENCIA_DE_ENVIO_ATRIBUIDO_PELO_PAPA = "Sequência de envio atribuído pelo papa"
+    SISTEMA_DE_VEDACAO_DA_EMBALAGEM_SECUNDARIA = (
+        "Sistema de Vedação da Embalagem Secundária"
+    )
+    SOLICITACAO_MEDICAO_INICIAL = "Solicitação Medição Inicial"
+    STATUS = "Status"
+    STATUS_2 = "status"
+    STATUS_DA_ANALISE = "Status da análise"
+    STATUS_DA_GUIA = "Status da guia"
+    STATUS_DA_REQUISICAO = "Status da requisição"
+    SUPER_USUARIO_NA_INSTIUICAO = "Super usuario na instiuição?"
+    SUSPENSO_EM = "Suspenso em"
+    TELEFONE = "Telefone"
+    TELEFONE_DA_UNIDADE = "Telefone da unidade"
+    TEMPERATURA_DA_AREA_DE_RECEBIMENTO_C = "Temperatura da Área de Recebimento (°C)"
+    TEMPERATURA_DE_CONGELAMENTO_DO_PRODUTO = "Temperatura de Congelamento do Produto"
+    TEMPERATURA_DO_PRODUTO_C = "Temperatura do Produto (°C)"
+    TEMPERATURA_INTERNA_DO_VEICULO_PARA_TRANSPORTE = (
+        "Temperatura Interna do Veículo para Transporte"
+    )
+    TEM_ADITIVOS_ALERGENICOS = "Tem aditivos alergênicos"
+    TEM_GLUTEN = "Tem Glúten?"
+    TERMO_DE_RECEBIMENTO_DEFINITIVO = "Termo de Recebimento Definitivo"
+    TEXTO_DO_TERMO = "Texto do Termo"
+    TIPO = "Tipo"
+    TIPO_DE_CALENDARIO = "Tipo de Calendário"
+    TIPO_DE_CONTRATACAO = "Tipo de contratação"
+    TIPO_DE_ENTREGA = "Tipo de Entrega"
+    TIPO_DE_GRAVIDADE = "Tipo de Gravidade"
+    TIPO_DE_LANCAMENTO = "Tipo de lançamento"
+    TIPO_DE_OCORRENCIA = "Tipo de Ocorrência"
+    TIPO_DE_PENALIDADE = "Tipo de Penalidade"
+    TIPO_DE_PRODUTO = "tipo de produto"
+    TIPO_DE_RESPOSTA = "Tipo de resposta"
+    TIPO_DO_PRODUTO = "Tipo do Produto"
+    TITULO = "Titulo"
+    TITULO_2 = "Título"
+    TOLERANCIA = "Tolerância"
+    TOTAL_DE_EMBALAGENS = "Total de Embalagens"
+    UNIDADE_CASEIRA = "Unidade Caseira"
+    UNIDADE_DE_MEDIDA = "Unidade de Medida"
+    UNIDADE_DE_MEDIDA_CASEIRA = "Unidade de Medida Caseira"
+    UNIDADE_NUTRICIONAL = "Unidade nutricional"
+    USUARIO = "Usuário"
+    UTENSILIOS_DE_COZINHA = "Utensílios de Cozinha"
+    UTENSILIOS_DE_MESA = "Utensílios de Mesa"
+    VALOR_DO_CAMPO = "Valor do Campo"
+    VALOR_DO_CONTRATO = "Valor do Contrato"
+    VISAO = "Visão"
+    VOLUME = "Volume"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 class TIPOS_UNIDADE_ESCOLAR(Enum):
     EMEF = "EMEF"
     CEU_EMEF = "CEU EMEF"
@@ -634,6 +1544,7 @@ class TIPOS_UNIDADE_ESCOLAR(Enum):
     EMEBS = "EMEBS"
     CIEJA = "CIEJA"
     CMCT = "CMCT"
+    ESC_PART = "ESC.PART."
 
     @classmethod
     def choices(cls):
@@ -641,9 +1552,6 @@ class TIPOS_UNIDADE_ESCOLAR(Enum):
 
 
 TIPO_UNIDADE_CEI_DIRET = TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value
-NOME_ALUNO_PADRAO = "Roberto Alves da Silva"
-MODEL_PERFIL = "perfil.Perfil"
-MODEL_VINCULO = "perfil.Vinculo"
 EMAIL_TESTE = "test@test.com"
 NOME_ESCOLA_EMEBS = "Escola EMEBS"
 NOME_LOTE_EMEBS = "Lote EMEBS"
@@ -691,27 +1599,22 @@ TRADUCOES_FERIADOS = {
 # LITERAIS REUTILIZÁVEIS (evitam duplicação de strings)
 #
 
-TIPO_ALIMENTACAO = "cardapio.TipoAlimentacao"
-PERIODO_ESCOLAR = "escola.PeriodoEscolar"
-MODEL_TERCEIRIZADA = "terceirizada.Terceirizada"
-MODEL_ESCOLA = "escola.Escola"
-MODEL_DIRETORIA_REGIONAL = "escola.DiretoriaRegional"
-MODEL_LOTE = "escola.Lote"
 DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI = "Suspensão de Alimentação de CEI"
 FORMATO_DATA_BRASILEIRO = "%d/%m/%Y"
 FORMATO_DATA_HORA_BRASILEIRO = "%d/%m/%Y - %H:%M"
-EMAIL_ADMIN = "admin@admin.com"
 TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR = "fluxo_autorizar_negar_cancelar.html"
 TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA = "fluxo_codae_autoriza_ou_nega.html"
 MODULO_GESTAO_PRODUTO = "Gestão de Produto"
 MODULO_GESTAO_ALIMENTACAO = "Gestão de Alimentação"
 MODULO_DIETA_ESPECIAL = "Dieta Especial"
-MENSAGEM_PERMISSAO_NEGADA = "Você não tem permissão para executar essa ação."
 CRIADO_EM = "Criado em"
-MODEL_USUARIO = "perfil.Usuario"
 STATUS_ENVIADO_PARA_ANALISE = "Enviado para Análise"
 EMAIL_ASSUNTO_STATUS_SOLICITACAO = "[SIGPAE] Status de solicitação - "
 RELATED_NAME_RASTRO_TERCEIRIZADA = "%(app_label)s_%(class)s_rastro_terceirizada"
 RELATED_NAME_RASTRO_LOTE = "%(app_label)s_%(class)s_rastro_lote"
 RELATED_NAME_RASTRO_DRE = "%(app_label)s_%(class)s_rastro_dre"
 RELATED_NAME_RASTRO_ESCOLA = "%(app_label)s_%(class)s_rastro_escola"
+MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO = (
+    "Solicitação de geração de arquivo recebida com sucesso."
+)
+ESCREVENDO = "Escrevendo..."

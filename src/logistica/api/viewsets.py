@@ -95,7 +95,11 @@ from src.logistica.services import (
     envia_email_e_notificacao_confirmacao_guias,
 )
 
-from ...dados_comuns.constants import COGESTOR_DRE
+from ...dados_comuns.constants import (
+    COGESTOR_DRE,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    StringsValidationErrors,
+)
 from ...escola.models import DiretoriaRegional, Escola
 from ...relatorios.relatorios import relatorio_guia_de_remessa
 from ..models.guia import InsucessoEntregaGuia
@@ -313,7 +317,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
 
         if not numero_requisicao:
             return Response(
-                "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m).",
+                StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value,
                 status=HTTP_406_NOT_ACCEPTABLE,
             )
         if not guias:
@@ -340,7 +344,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
 
         if not numero_requisicao:
             return Response(
-                "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m).",
+                StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value,
                 status=HTTP_406_NOT_ACCEPTABLE,
             )
         if not guias:
@@ -365,7 +369,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
 
         if not numero_requisicao:
             return Response(
-                "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m).",
+                StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value,
                 status=HTTP_406_NOT_ACCEPTABLE,
             )
         if not guias:
@@ -671,7 +675,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
             list_guias=guias,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=HTTP_200_OK,
         )
 
@@ -697,7 +701,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
             list_guias=lista_id_guias,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=HTTP_200_OK,
         )
 
@@ -744,7 +748,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
             list_guias=list_guias,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=HTTP_200_OK,
         )
 
@@ -776,7 +780,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=HTTP_200_OK,
         )
 
@@ -806,7 +810,7 @@ class SolicitacaoModelViewSet(viewsets.ModelViewSet):
             status_guia=status_guia,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=HTTP_200_OK,
         )
 
@@ -987,7 +991,7 @@ class GuiaDaRequisicaoModelViewSet(viewsets.ModelViewSet):
             user=user, nome_arquivo="guias_da_requisicao.pdf", list_guias=[guia.id]
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=HTTP_200_OK,
         )
 

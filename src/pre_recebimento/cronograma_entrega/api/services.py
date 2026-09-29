@@ -28,6 +28,7 @@ class ServiceDashboardSolicitacaoAlteracaoCronogramaProfiles(BaseServiceDashboar
     no dashboard de solicitações de alteração para cada perfil
     (DILOG Abastecimento, DILOG Diretoria, DILOG Cronograma, etc.).
     """
+
     STATUS_POR_PERFIL = {
         DILOG_ABASTECIMENTO: [
             CronogramaAlteracaoWorkflow.CRONOGRAMA_CIENTE,
@@ -89,6 +90,7 @@ class ServiceQuerysetAlteracaoCronograma:
     e monta uma QuerySet ordenada: primeiro os registros com status
     prioritário, depois os demais, ambos ordenados por criado_em.
     """
+
     STATUS_PRIORITARIO = {
         ADMINISTRADOR_EMPRESA: [
             CronogramaAlteracaoWorkflow.ALTERACAO_ENVIADA_FORNECEDOR,
@@ -120,17 +122,17 @@ class ServiceQuerysetAlteracaoCronograma:
         self.request = request
 
     @classmethod
-    def get_status(self, user) -> list:
+    def get_status(cls, user) -> list:
         """Retorna a lista de status prioritários para o perfil do usuário.
 
         Levanta ValueError se o perfil do usuário não estiver mapeado.
         """
         perfil = user.vinculo_atual.perfil.nome
 
-        if perfil not in self.STATUS_PRIORITARIO:
+        if perfil not in cls.STATUS_PRIORITARIO:
             raise ValueError("Perfil não existe")
 
-        return self.STATUS_PRIORITARIO[perfil]
+        return cls.STATUS_PRIORITARIO[perfil]
 
     def get_queryset(self, filter=False):
         """Monta a QuerySet ordenada por prioridade de status.

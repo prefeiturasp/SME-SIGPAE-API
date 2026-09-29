@@ -2,10 +2,10 @@ import re
 
 import pandas as pd
 import pdfplumber
-import requests
 from django.core.management.base import BaseCommand
 
 from src.dados_comuns.constants import DJANGO_EOL_SGP_API_TOKEN
+from src.dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 
 HEADERS = {"x-api-eol-key": DJANGO_EOL_SGP_API_TOKEN}
 
@@ -48,7 +48,7 @@ def extrair_cpf_de_linha(row: list[str]) -> str | None:
 def consultar_api(cpf: str) -> dict:
     """Consulta a API da SME para o CPF"""
     url = API_URL.format(cpf)
-    resp = requests.get(url, headers=HEADERS, timeout=20)
+    resp = executar_chamada(EOL_SGP_CLIENT, "get", url, headers=HEADERS, timeout=20)
     if resp.status_code == 200:
         return resp.json()
     else:

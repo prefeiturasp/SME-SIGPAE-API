@@ -1,4 +1,5 @@
 import datetime
+from types import SimpleNamespace
 
 import pytest
 from django.utils import timezone
@@ -14,6 +15,10 @@ from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factor
     CronogramaFactory,
     EtapasDoCronogramaFactory,
 )
+from src.pre_recebimento.ficha_tecnica.fixtures.factories.ficha_tecnica_do_produto_factory import (
+    FichaTecnicaFactory,
+)
+from src.produto.models import NomeDeProdutoEdital
 from src.recebimento.fixtures.factories.ficha_de_recebimento_factory import (
     FichaDeRecebimentoFactory,
 )
@@ -185,3 +190,95 @@ def termos_listagem_ordenados(empresa, contrato, tres_fiscais):
         )
         for ano in (2024, 2025, 2026)
     ]
+
+
+@pytest.fixture
+def client_fiscal(client, usuario_fiscal):
+    """Client autenticado como o fiscal (perfil DILOG_QUALIDADE)."""
+    client.login(
+        username=usuario_fiscal.username,
+        password=constants.DJANGO_ADMIN_PASSWORD,
+    )
+    return client, usuario_fiscal
+
+
+def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
+    """Termo para o painel de assinaturas."""
+
+    termo = TermoRecebimentoDefinitivo.objects.create(
+        empresa=empresa,
+        contrato=contrato,
+        fiscal_1=fiscais[0],
+        fiscal_2=fiscais[1],
+        fiscal_3=fiscais[2],
+        status=status,
+    )
+    for numero, nome_produto in cronogramas:
+        produto, _ = NomeDeProdutoEdital.objects.get_or_create(
+            nome=nome_produto,
+            tipo_produto=NomeDeProdutoEdital.LOGISTICA,
+        )
+        ficha_tecnica = FichaTecnicaFactory(produto=produto)
+        CronogramaTermoRecebimentoDefinitivo.objects.create(
+            termo=termo,
+            cronograma=CronogramaFactory(
+                contrato=contrato,
+                empresa=empresa,
+                numero=numero,
+                ficha_tecnica=ficha_tecnica,
+            ),
+            quantidade_total_recebida="1234.56",
+        )
+    TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
+        criado_em=timezone.make_aware(DATA_CADASTRO_TERMO)
+    )
+    termo.refresh_from_db()
+    return termo
+
+
+@pytest.fixture
+def termos_painel_assinatura(usuario_fiscal, tres_fiscais):
+    """Quatro termos cobrindo as combinações de status e de fiscal.
+
+    - ``pendente_do_fiscal``: ENVIADO_FISCAIS, usuário é o fiscal_1;
+    - ``pendente_de_outro_fiscal``: ENVIADO_FISCAIS, usuário não é fiscal;
+    - ``de_outro_status``: ENVIADO_DILOG, usuário é o fiscal_1;
+    - ``assinado_do_fiscal``: ASSINADO_FORNECEDOR, usuário é o fiscal_2.
+    """
+    fiscais_com_usuario = [usuario_fiscal, tres_fiscais[1], tres_fiscais[2]]
+
+    empresa_alfa = EmpresaFactory(nome_fantasia="ALFA ALIMENTOS")
+    contrato_alfa = ContratoFactory(terceirizada=empresa_alfa, numero="111/2026")
+    outra_empresa = EmpresaFactory()
+
+    return SimpleNamespace(
+        pendente_do_fiscal=_cria_termo_do_painel(
+            empresa_alfa,
+            contrato_alfa,
+            fiscais_com_usuario,
+            TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+            (("001/2026", "MAMAO PAPAYA"), ("002/2026", "ABACATE")),
+        ),
+        pendente_de_outro_fiscal=_cria_termo_do_painel(
+            outra_empresa,
+            ContratoFactory(terceirizada=outra_empresa),
+            list(tres_fiscais),
+            TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+            (("003/2026", "BANANA PRATA"),),
+        ),
+        de_outro_status=_cria_termo_do_painel(
+            empresa_alfa,
+            contrato_alfa,
+            fiscais_com_usuario,
+            TermoRecebimentoDefinitivo.ENVIADO_DILOG,
+        ),
+        assinado_do_fiscal=_cria_termo_do_painel(
+            empresa_alfa,
+            contrato_alfa,
+            [tres_fiscais[0], usuario_fiscal, tres_fiscais[2]],
+            TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+            # Dois cronogramas do mesmo produto: o painel deve exibir o
+            # nome uma única vez.
+            (("005/2026", "MAMAO PAPAYA"), ("006/2026", "MAMAO PAPAYA")),
+        ),
+    )

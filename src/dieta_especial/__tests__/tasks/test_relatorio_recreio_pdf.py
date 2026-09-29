@@ -4,6 +4,7 @@ from pypdf import PdfReader
 
 from src.dados_comuns.models import CentralDeDownload
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.dieta_especial.tasks import (
@@ -39,7 +40,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "escola_destino": "EMEF PERICLES",
                 "data_inicio": "01/08/2025",
                 "data_fim": "31/08/2025",
-                "classificacao": "Tipo A",
+                "classificacao": ClassificacaoDieta.TIPO_A,
                 "alergias_intolerancias": "-",
             },
             {
@@ -49,7 +50,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "escola_destino": "EMEBS HELEN KELLER",
                 "data_inicio": "01/09/2025",
                 "data_fim": "29/09/2025",
-                "classificacao": "Tipo B",
+                "classificacao": ClassificacaoDieta.TIPO_B,
                 "alergias_intolerancias": "-",
             },
             {
@@ -59,7 +60,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                 "escola_destino": "EMEF PERICLES",
                 "data_inicio": "01/08/2025",
                 "data_fim": "31/08/2025",
-                "classificacao": "Tipo A",
+                "classificacao": ClassificacaoDieta.TIPO_A,
                 "alergias_intolerancias": "-",
             },
         ]
@@ -91,7 +92,7 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
         esperados_tabela = [
             "EMEF PERICLES",
             "MARIA SILVA",
-            "Tipo A",
+            ClassificacaoDieta.TIPO_A,
             "01/08/2025",
             "31/08/2025",
         ]
@@ -115,5 +116,5 @@ class TestGeraPDFRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
         conteudo_pdf = resgata_conteudo_pdf()
         assert "LOTE 01" in conteudo_pdf
         assert "MARIA SILVA" not in conteudo_pdf
-        assert "Tipo A" not in conteudo_pdf
+        assert ClassificacaoDieta.TIPO_A not in conteudo_pdf
         assert "31/08/2025" not in conteudo_pdf

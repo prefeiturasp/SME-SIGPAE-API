@@ -71,7 +71,7 @@ def valida_campo_participantes(
             onde a chave representa o nome do grupo e o valor a quantidade de participantes
     """
     recreio = instance.recreio_nas_ferias
-    categoria = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
     grupos = list(informacoes_participantes.keys())
     grupos_medicao_existentes = {
         medicao.grupo.nome: medicao
@@ -279,7 +279,7 @@ def get_classificacoes_dietas_recreio(
         nome = categoria.nome.upper()
 
         tem_enteral = "ENTERAL" in nome
-        tem_dieta_especial = "DIETA ESPECIAL" in nome
+        tem_dieta_especial = CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in nome
 
         if not tem_lanche and not tem_refeicao and tem_enteral:
             continue

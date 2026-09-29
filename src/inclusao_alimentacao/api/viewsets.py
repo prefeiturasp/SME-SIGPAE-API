@@ -18,7 +18,6 @@ from src.dados_comuns.permissions import (
     UsuarioEmpresaGenerico,
     UsuarioEscolaTercTotal,
 )
-from src.eol_servico.utils import EOLException
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,
@@ -306,7 +305,9 @@ class InclusaoAlimentacaoViewSetBase(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -334,63 +335,6 @@ class InclusaoAlimentacaoDaCEIViewSet(InclusaoAlimentacaoViewSetBase):
         page = self.paginate_queryset(alimentacoes_normais)
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(
-        self, request, filtro_aplicado=constants.SEM_FILTRO
-    ):
-        try:
-            usuario = request.user
-            diretoria_regional = usuario.vinculo_atual.instituicao
-            inclusoes_alimentacao_cei = (
-                diretoria_regional.inclusoes_alimentacao_de_cei_das_minhas_escolas(
-                    filtro_aplicado
-                )
-            )
-            if request.query_params.get("lote"):
-                lote_uuid = request.query_params.get("lote")
-                inclusoes_alimentacao_cei = inclusoes_alimentacao_cei.filter(
-                    rastro_lote__uuid=lote_uuid
-                )
-            serializer = self.get_serializer(inclusoes_alimentacao_cei, many=True)
-            return Response({"results": serializer.data})
-        except EOLException as error:
-            return Response(
-                data={"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST
-            )
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        try:
-            usuario = request.user
-            codae = usuario.vinculo_atual.instituicao
-            inclusoes_alimentacao_cei = (
-                codae.inclusoes_alimentacao_de_cei_das_minhas_escolas(filtro_aplicado)
-            )
-            if request.query_params.get("diretoria_regional"):
-                dre_uuid = request.query_params.get("diretoria_regional")
-                inclusoes_alimentacao_cei = inclusoes_alimentacao_cei.filter(
-                    rastro_dre__uuid=dre_uuid
-                )
-            if request.query_params.get("lote"):
-                lote_uuid = request.query_params.get("lote")
-                inclusoes_alimentacao_cei = inclusoes_alimentacao_cei.filter(
-                    rastro_lote__uuid=lote_uuid
-                )
-            serializer = self.get_serializer(inclusoes_alimentacao_cei, many=True)
-            return Response({"results": serializer.data})
-        except EOLException as error:
-            return Response(
-                data={"detail": str(error)}, status=status.HTTP_400_BAD_REQUEST
-            )
 
     @action(
         detail=True,
@@ -450,55 +394,6 @@ class GrupoInclusaoAlimentacaoNormalViewSet(InclusaoAlimentacaoViewSetBase):
             page, many=True
         )
         return self.get_paginated_response(serializer.data)
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        usuario = request.user
-        codae = usuario.vinculo_atual.instituicao
-        inclusoes_continuas = (
-            codae.grupos_inclusoes_alimentacao_normal_das_minhas_escolas(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("diretoria_regional"):
-            dre_uuid = request.query_params.get("diretoria_regional")
-            inclusoes_continuas = inclusoes_continuas.filter(rastro_dre__uuid=dre_uuid)
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            inclusoes_continuas = inclusoes_continuas.filter(
-                rastro_lote__uuid=lote_uuid
-            )
-        serializer = self.get_serializer(inclusoes_continuas, many=True)
-        return Response({"results": serializer.data})
-
-    # TODO rever os demais endpoints. Essa action consolida em uma única
-    # pesquisa as pesquisas por prioridade.
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(
-        self, request, filtro_aplicado=constants.SEM_FILTRO
-    ):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        inclusoes_alimentacao_normal = (
-            diretoria_regional.grupos_inclusoes_alimentacao_normal_das_minhas_escolas(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            inclusoes_alimentacao_normal = inclusoes_alimentacao_normal.filter(
-                rastro_lote__uuid=lote_uuid
-            )
-        serializer = self.get_serializer(inclusoes_alimentacao_normal, many=True)
-        return Response({"results": serializer.data})
 
     @action(
         detail=True,
@@ -631,51 +526,6 @@ class InclusaoAlimentacaoContinuaViewSet(
         return self.get_paginated_response(serializer.data)
 
     @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        usuario = request.user
-        codae = usuario.vinculo_atual.instituicao
-        inclusoes_continuas = codae.inclusoes_alimentacao_continua_das_minhas_escolas(
-            filtro_aplicado
-        )
-        if request.query_params.get("diretoria_regional"):
-            dre_uuid = request.query_params.get("diretoria_regional")
-            inclusoes_continuas = inclusoes_continuas.filter(rastro_dre__uuid=dre_uuid)
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            inclusoes_continuas = inclusoes_continuas.filter(
-                rastro_lote__uuid=lote_uuid
-            )
-        serializer = self.get_serializer(inclusoes_continuas, many=True)
-        return Response({"results": serializer.data})
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(
-        self, request, filtro_aplicado=constants.SEM_FILTRO
-    ):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        inclusoes_alimentacao_continua = (
-            diretoria_regional.inclusoes_alimentacao_continua_das_minhas_escolas(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            inclusoes_alimentacao_continua = inclusoes_alimentacao_continua.filter(
-                rastro_lote__uuid=lote_uuid
-            )
-        serializer = self.get_serializer(inclusoes_alimentacao_continua, many=True)
-        return Response({"results": serializer.data})
-
-    @action(
         detail=True,
         methods=["GET"],
         url_path=f"{constants.RELATORIO}",
@@ -692,7 +542,9 @@ class InclusaoAlimentacaoContinuaViewSet(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -748,56 +600,11 @@ class InclusaoAlimentacaoCEMEIViewSet(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                dict(detail="Você só pode excluir quando o status for RASCUNHO."),
+                dict(
+                    detail=constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                ),
                 status=status.HTTP_403_FORBIDDEN,
             )
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_DRE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioDiretoriaRegional,),
-    )
-    def solicitacoes_diretoria_regional(
-        self, request, filtro_aplicado=constants.SEM_FILTRO
-    ):
-        usuario = request.user
-        diretoria_regional = usuario.vinculo_atual.instituicao
-        inclusoes_alimentacao = (
-            diretoria_regional.inclusoes_alimentacao_cemei_das_minhas_escolas(
-                filtro_aplicado
-            )
-        )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            inclusoes_alimentacao = inclusoes_alimentacao.filter(
-                rastro_lote__uuid=lote_uuid
-            )
-        serializer = self.get_serializer(inclusoes_alimentacao, many=True)
-        return Response({"results": serializer.data})
-
-    @action(
-        detail=False,
-        url_path=f"{constants.PEDIDOS_CODAE}/{constants.FILTRO_PADRAO_PEDIDOS}",
-        permission_classes=(UsuarioCODAEGestaoAlimentacao,),
-    )
-    def solicitacoes_codae(self, request, filtro_aplicado=constants.SEM_FILTRO):
-        usuario = request.user
-        codae = usuario.vinculo_atual.instituicao
-        inclusoes_alimentacao = codae.inclusoes_alimentacao_cemei_das_minhas_escolas(
-            filtro_aplicado
-        )
-        if request.query_params.get("diretoria_regional"):
-            dre_uuid = request.query_params.get("diretoria_regional")
-            inclusoes_alimentacao = inclusoes_alimentacao.filter(
-                rastro_dre__uuid=dre_uuid
-            )
-        if request.query_params.get("lote"):
-            lote_uuid = request.query_params.get("lote")
-            inclusoes_alimentacao = inclusoes_alimentacao.filter(
-                rastro_lote__uuid=lote_uuid
-            )
-        serializer = self.get_serializer(inclusoes_alimentacao, many=True)
-        return Response({"results": serializer.data})
 
     @action(
         detail=True,

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.pre_recebimento.ficha_tecnica.models import (
     AnaliseFichaTecnica,
@@ -251,7 +252,9 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             for campo in campos_obrigatorios_collapse:
                 if campo not in self._attrs:
                     raise serializers.ValidationError(
-                        {campo: "Este campo é obrigatório."}
+                        {
+                            campo: StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                        }
                     )
 
     def valida_campos_nao_permitidos_por_collapse(self):

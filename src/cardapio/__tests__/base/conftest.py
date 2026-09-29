@@ -5,10 +5,10 @@ from freezegun import freeze_time
 from model_bakery import baker
 
 from src.dados_comuns.constants import (
-    TIPO_ALIMENTACAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
 )
 from src.escola.models import (
     Escola,
@@ -80,10 +80,18 @@ def horarios_combos_tipo_alimentacao_invalidos(request):
 
 @pytest.fixture()
 def alterar_tipos_alimentacao_data():
-    alimentacao1 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao1")
-    alimentacao2 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao2")
-    alimentacao3 = baker.make(TIPO_ALIMENTACAO, nome="tp_alimentacao3")
-    periodo_escolar = baker.make("escola.PeriodoEscolar", nome="MANHA")
+    alimentacao1 = baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="tp_alimentacao1"
+    )
+    alimentacao2 = baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="tp_alimentacao2"
+    )
+    alimentacao3 = baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value, nome="tp_alimentacao3"
+    )
+    periodo_escolar = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, nome="MANHA"
+    )
     tipo_unidade_escolar = baker.make(
         "escola.TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
     )

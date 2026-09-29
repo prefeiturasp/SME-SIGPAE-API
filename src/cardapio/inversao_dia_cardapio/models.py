@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.inversao_dia_cardapio.managers.inversao_dia_cardapio_managers import (
     InversaoCardapioDestaSemanaManager,
@@ -18,7 +17,11 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    StringsCaminhoModelos,
+    StringsVerboseNameModels,
+)
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
@@ -27,7 +30,6 @@ FORMATO_DATA_BR = FORMATO_DATA_BRASILEIRO
 
 
 class InversaoCardapio(
-    ExportModelOperationsMixin("inversao_cardapio"),
     CriadoEm,
     CriadoPor,
     TemObservacao,
@@ -60,18 +62,35 @@ class InversaoCardapio(
     desta_semana = InversaoCardapioDestaSemanaManager()
     deste_mes = InversaoCardapioDesteMesManager()
     vencidos = InversaoCardapioVencidaManager()
-    data_de_inversao = models.DateField("Data de inversão", blank=True, null=True)
-    data_para_inversao = models.DateField("Data para inversão", blank=True, null=True)
-    data_de_inversao_2 = models.DateField("Data de inversão", blank=True, null=True)
-    data_para_inversao_2 = models.DateField("Data para inversão", blank=True, null=True)
+    data_de_inversao = models.DateField(
+        StringsVerboseNameModels.DATA_DE_INVERSAO.value, blank=True, null=True
+    )
+    data_para_inversao = models.DateField(
+        StringsVerboseNameModels.DATA_PARA_INVERSAO.value, blank=True, null=True
+    )
+    data_de_inversao_2 = models.DateField(
+        StringsVerboseNameModels.DATA_DE_INVERSAO.value, blank=True, null=True
+    )
+    data_para_inversao_2 = models.DateField(
+        StringsVerboseNameModels.DATA_PARA_INVERSAO.value, blank=True, null=True
+    )
     alunos_da_cemei = models.CharField(
-        "Alunos da CEMEI", blank=True, default="", max_length=50
+        StringsVerboseNameModels.ALUNOS_DA_CEMEI.value,
+        blank=True,
+        default="",
+        max_length=50,
     )
     alunos_da_cemei_2 = models.CharField(
-        "Alunos da CEMEI", blank=True, default="", max_length=50
+        StringsVerboseNameModels.ALUNOS_DA_CEMEI.value,
+        blank=True,
+        default="",
+        max_length=50,
     )
     escola = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
 
     tipos_alimentacao = models.ManyToManyField(

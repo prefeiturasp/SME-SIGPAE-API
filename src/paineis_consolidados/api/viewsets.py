@@ -8,12 +8,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK
 
+from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
+
 from ...dados_comuns.constants import (
     FILTRO_PADRAO_PEDIDOS,
     FORMATO_DATA_BRASILEIRO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     MODULO_DIETA_ESPECIAL,
     SEM_FILTRO,
     TIPOS_ALIMENTACAO,
+    PayloadVariaveis,
 )
 from ...dados_comuns.permissions import (
     PermissaoParaRecuperarDietaEspecial,
@@ -210,7 +214,9 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         descricao_prioridade = self._agrupar_solicitacoes(tipo_visao, query_set)
         for nome_objeto, prioridade in descricao_prioridade:
             if nome_objeto == "Inclusão de Alimentação Contínua":
-                nome_objeto = "Inclusão de Alimentação"
+                nome_objeto = (
+                    StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
+                )
             if nome_objeto not in sumario:
                 sumario[nome_objeto] = {
                     "TOTAL": 0,
@@ -226,7 +232,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         # TODO: melhorar performance
         sumario = {
             "total": 0,
-            "Inclusão de Alimentação": {
+            StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
@@ -242,11 +248,11 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Kit Lanche Passeio": {
+            StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
-            "Kit Lanche Unificado": {
+            StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value: {
                 "quantidades": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 "total": 0,
             },
@@ -257,7 +263,9 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
         }  # type: dict
         for solicitacao in query_set:
             if solicitacao["desc_doc"] == "Inclusão de Alimentação Contínua":
-                solicitacao["desc_doc"] = "Inclusão de Alimentação"
+                solicitacao["desc_doc"] = (
+                    StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
+                )
             sumario[solicitacao["desc_doc"]]["quantidades"][
                 solicitacao["criado_em__month"] - 1
             ] += 1
@@ -267,7 +275,9 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
 
     @action(detail=False, methods=["GET"], url_path="solicitacoes-detalhadas")
     def solicitacoes_detalhadas(self, request):
-        solicitacoes = request.query_params.getlist("solicitacoes[]", None)
+        solicitacoes = request.query_params.getlist(
+            PayloadVariaveis.SOLICITACOES.value, None
+        )
         solicitacoes = MoldeConsolidado.solicitacoes_detalhadas(solicitacoes, request)
         return Response(dict(data=solicitacoes, status=HTTP_200_OK))
 
@@ -550,7 +560,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             unidades_educacionais=unidades_educacionais,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -570,7 +580,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
             status=request.data.get("status", None),
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 

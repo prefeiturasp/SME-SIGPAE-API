@@ -11,6 +11,7 @@ from src.dados_comuns.behaviors import (
     ModeloBase,
     TemIdentificadorExternoAmigavel,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoCronogramaSemanal
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 
@@ -24,7 +25,7 @@ class CronogramaSemanal(
     """
 
     numero = models.CharField(
-        "Número do Cronograma Semanal",
+        StringsVerboseNameModels.NUMERO_DO_CRONOGRAMA_SEMANAL.value,
         blank=True,
         null=True,
         max_length=250,
@@ -34,9 +35,11 @@ class CronogramaSemanal(
         Cronograma,
         on_delete=models.PROTECT,
         related_name="cronogramas_semanais",
-        verbose_name="Cronograma Mensal",
+        verbose_name=StringsVerboseNameModels.CRONOGRAMA_MENSAL.value,
     )
-    observacoes = models.TextField("Observações", blank=True)
+    observacoes = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES.value, blank=True
+    )
 
     def __str__(self):
         """Retorna a representação textual do cronograma semanal."""
@@ -60,16 +63,16 @@ class ProgramacaoEntregaSemanal(ModeloBase):
         CronogramaSemanal,
         on_delete=models.CASCADE,
         related_name="programacoes",
-        verbose_name="Cronograma Semanal",
+        verbose_name=StringsVerboseNameModels.CRONOGRAMA_SEMANAL.value,
     )
     mes_programado = models.CharField(
-        "Mês Programado",
+        StringsVerboseNameModels.MES_PROGRAMADO.value,
         max_length=7,
         help_text="Formato MM/YYYY",
     )
-    data_inicio = models.DateField("Data Início")
-    data_fim = models.DateField("Data Fim")
-    quantidade = models.FloatField("Quantidade da Entrega")
+    data_inicio = models.DateField(StringsVerboseNameModels.DATA_INICIO.value)
+    data_fim = models.DateField(StringsVerboseNameModels.DATA_FIM.value)
+    quantidade = models.FloatField(StringsVerboseNameModels.QUANTIDADE_DA_ENTREGA.value)
 
     def __str__(self):
         """Retorna a representação textual da programação de entrega."""

@@ -8,6 +8,7 @@ fichas técnicas e documentos de recebimento.
 from django.db import models
 
 from src.dados_comuns.behaviors import CriadoEm, Nomeavel, TemChaveExterna
+from src.dados_comuns.constants import StringsVerboseNameModels
 
 
 class UnidadeMedida(TemChaveExterna, Nomeavel, CriadoEm):
@@ -19,7 +20,10 @@ class UnidadeMedida(TemChaveExterna, Nomeavel, CriadoEm):
     abreviação sempre em letras minúsculas, normalização aplicada no
     ``save``.
     """
-    abreviacao = models.CharField("Abreviação", max_length=25)
+
+    abreviacao = models.CharField(
+        StringsVerboseNameModels.ABREVIACAO.value, max_length=25
+    )
 
     def __str__(self):
         """Retorna o nome da unidade de medida."""

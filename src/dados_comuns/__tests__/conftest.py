@@ -37,8 +37,8 @@ from ...escola import models
 from ..constants import (
     COORDENADOR_LOGISTICA,
     DJANGO_ADMIN_PASSWORD,
-    TIPO_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
 )
 from ..models import (
     CentralDeDownload,
@@ -549,7 +549,8 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade_escolar = baker.make(
@@ -557,7 +558,7 @@ def escola_cei():
     )
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=constants.NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -604,7 +605,7 @@ def logs_quantidade_dietas_autorizadas_escola_comum(escola, periodo_escolar):
     ontem = hoje - datetime.timedelta(days=1)
     tres_dias_atras = hoje - datetime.timedelta(days=3)
     quantidades = [10, 10]
-    classificacao = baker.make(ClassificacaoDieta, nome="Tipo A")
+    classificacao = baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_A)
     for quantidade in quantidades:
         baker.make(
             LogQuantidadeDietasAutorizadas,
@@ -630,7 +631,8 @@ def escola_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TERC_TOTAL)
     tipo_unidade_escolar = baker.make(
@@ -639,7 +641,7 @@ def escola_cemei():
     )
     return baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=constants.NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -673,7 +675,7 @@ def logs_quantidade_dietas_autorizadas_escola_cei(
     ontem = hoje - datetime.timedelta(days=1)
     quatro_dias_atras = hoje - datetime.timedelta(days=4)
     quantidades = [15, 15]
-    classificacao = baker.make(ClassificacaoDieta, nome="Tipo B")
+    classificacao = baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_B)
     for quantidade in quantidades:
         baker.make(
             LogQuantidadeDietasAutorizadasCEI,
@@ -704,7 +706,7 @@ def logs_quantidade_dietas_autorizadas_escola_cemei(
     dois_dias_atras = hoje - datetime.timedelta(days=2)
     quatro_dias_atras = hoje - datetime.timedelta(days=5)
     quantidades = [25, 25]
-    classificacao = baker.make(ClassificacaoDieta, nome="Tipo C")
+    classificacao = baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_C)
     for quantidade in quantidades:
         baker.make(
             LogQuantidadeDietasAutorizadasCEI,
@@ -1021,18 +1023,24 @@ def escola_cemei_1():
 
 @pytest.fixture
 def tipo_alimentacao_refeicao():
-    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche():
-    return baker.make(TIPO_ALIMENTACAO, nome=TIPOS_ALIMENTACAO.LANCHE.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.LANCHE.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        TIPO_ALIMENTACAO,
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value,
     )
 
@@ -1040,7 +1048,7 @@ def tipo_alimentacao_lanche_emergencial():
 @pytest.fixture
 def periodo_manha():
     return baker.make(
-        "escola.PeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="MANHA",
         uuid="42325516-aebd-4a3d-97c0-2a77c317c6be",
     )
@@ -1049,7 +1057,7 @@ def periodo_manha():
 @pytest.fixture
 def periodo_tarde():
     return baker.make(
-        "escola.PeriodoEscolar",
+        constants.StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         nome="TARDE",
         uuid="88966d6a-f9d5-4986-9ffb-25b6f41b0795",
     )
@@ -1234,9 +1242,10 @@ def usuario_nutrimanifestacao(client, django_user_model):
 
 @pytest.fixture
 def ocorrencia_medicao_inicial_status_aprovado_dre():
-    nome = "arquivo_teste.pdf"
+    nome = constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value
     arquivo = SimpleUploadedFile(
-        "arquivo_teste.pdf", bytes("CONTENT", encoding="utf-8")
+        constants.StringsNomesArquivos.ARQUIVO_TESTE_PDF.value,
+        bytes("CONTENT", encoding="utf-8"),
     )
     return baker.make(
         "OcorrenciaMedicaoInicial",

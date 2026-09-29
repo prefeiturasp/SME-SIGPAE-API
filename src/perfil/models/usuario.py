@@ -12,9 +12,10 @@ from django.db.models import Q
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework.status import HTTP_200_OK
 from simple_email_confirmation.models import SimpleEmailConfirmationUserMixin
+
+from src.dados_comuns.constants import StringsVerboseNameModels
 
 from ...dados_comuns.behaviors import (
     ArquivoCargaBase,
@@ -163,7 +164,6 @@ class CustomAbstractUser(AbstractBaseUser, PermissionsMixin):
 # TODO: Refatorar classe Usuário para comportar classes Pessoa, Usuário,
 # Nutricionista
 class Usuario(
-    ExportModelOperationsMixin("usuario"),
     SimpleEmailConfirmationUserMixin,
     CustomAbstractUser,
     TemChaveExterna,
@@ -207,10 +207,14 @@ class Usuario(
 
     # TODO: esses atributos devem pertencer somente a um model Nutricionista
     super_admin_terceirizadas = models.BooleanField(
-        "É Administrador por parte das Terceirizadas?", default=False
+        StringsVerboseNameModels.E_ADMINISTRADOR_POR_PARTE_DAS_TERCEIRIZADAS.value,
+        default=False,
     )  # noqa
     crn_numero = models.CharField(
-        "Nutricionista crn", max_length=160, blank=True, null=True
+        StringsVerboseNameModels.NUTRICIONISTA_CRN.value,
+        max_length=160,
+        blank=True,
+        null=True,
     )  # noqa DJ01
 
     aceitou_termos = models.BooleanField(default=False)
@@ -539,8 +543,12 @@ class Usuario(
 
 
 class Cargo(TemChaveExterna, Nomeavel, Ativavel):
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
     usuario = models.ForeignKey(
         Usuario, related_name="cargos", on_delete=models.CASCADE
     )
@@ -570,7 +578,9 @@ class PlanilhaDiretorCogestor(models.Model):  # noqa D204
     """
 
     arquivo = models.FileField(blank=True, null=True)  # noqa DJ01
-    criado_em = models.DateTimeField("criado em", auto_now_add=True, auto_now=False)
+    criado_em = models.DateTimeField(
+        StringsVerboseNameModels.CRIADO_EM.value, auto_now_add=True, auto_now=False
+    )
 
     def __str__(self):
         return str(self.arquivo)

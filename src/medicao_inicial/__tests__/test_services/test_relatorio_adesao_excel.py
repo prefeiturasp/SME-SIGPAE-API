@@ -11,6 +11,7 @@ from src.medicao_inicial.services.relatorio_adesao_excel import (
     _formata_filtros,
     _formata_numeros_linha_total,
     _insere_tabela_periodo_na_planilha,
+    _nome_aba_por_data_e_tipo,
     _preenche_data_do_relatorio,
     _preenche_linha_do_periodo,
     _preenche_linha_dos_filtros_selecionados,
@@ -339,3 +340,102 @@ def test_gera_relatorio_adesao_xlsx_por_escola_nome_aba_truncado(
     workbook = load_workbook(filename=BytesIO(excel))
     assert workbook.sheetnames == [nome_escola[:31]]
     assert all(len(aba) <= 31 for aba in workbook.sheetnames)
+
+
+def test_nome_aba_por_data_e_tipo():
+    assert _nome_aba_por_data_e_tipo("EMEI", "04/08/2025") == "EMEI - 04082025"
+    assert _nome_aba_por_data_e_tipo("CEU EMEI", "04/08/2025") == "CEU EMEI - 04082025"
+
+
+@freeze_time("2025-07-20")
+def test_gera_relatorio_adesao_xlsx_por_data_uma_aba_por_combinacao(
+    mock_exportacao_relatorio_adesao,
+):
+    resultados_agregados, query_params = mock_exportacao_relatorio_adesao
+    resultados_por_data = [
+        {
+            "data": "04/08/2025",
+            "tipo_unidade": "EMEI",
+            "resultados": resultados_agregados,
+        },
+        {
+            "data": "04/08/2025",
+            "tipo_unidade": "CEU EMEI",
+            "resultados": {
+                "MANHA": {
+                    "LANCHE": {
+                        "total_servido": 24,
+                        "total_frequencia": 723,
+                        "total_adesao": 0.0332,
+                    }
+                }
+            },
+        },
+        {
+            "data": "05/08/2025",
+            "tipo_unidade": "EMEI",
+            "resultados": resultados_agregados,
+        },
+    ]
+
+    excel = gera_relatorio_adesao_xlsx(resultados_por_data, query_params)
+    workbook = load_workbook(filename=BytesIO(excel))
+
+    assert workbook.sheetnames == [
+        "EMEI - 04082025",
+        "CEU EMEI - 04082025",
+        "EMEI - 05082025",
+    ]
+    assert all(len(aba) <= 31 for aba in workbook.sheetnames)
+
+    aba_emei = workbook["EMEI - 04082025"]
+    rows_emei = list(aba_emei.iter_rows(values_only=True))
+    assert rows_emei[0][0] == "Relatório de Adesão das Alimentações Servidas"
+    assert "EMEI" in rows_emei[1][0]
+    assert "04/08/2025" in rows_emei[1][0]
+    assert "DATA DO LANÇAMENTO" not in rows_emei[1][0]
+    assert "MARÇO - 2025" in rows_emei[1][0]
+    assert rows_emei[2] == ("Data: 20/07/2025", None, None, None)
+    assert rows_emei[3] == ("MANHA", None, None, None)
+    assert rows_emei[5] == ("LANCHE", 140, 755, 0.1854)
+
+    aba_ceu = workbook["CEU EMEI - 04082025"]
+    rows_ceu = list(aba_ceu.iter_rows(values_only=True))
+    assert "CEU EMEI" in rows_ceu[1][0]
+    assert "04/08/2025" in rows_ceu[1][0]
+    assert "DATA DO LANÇAMENTO" not in rows_ceu[1][0]
+    assert rows_ceu[3] == ("MANHA", None, None, None)
+    assert rows_ceu[5] == ("LANCHE", 24, 723, 0.0332)
+
+
+def test_formata_filtros_com_tipo_unidade_e_data_lancamento(
+    mock_exportacao_relatorio_adesao,
+    diretoria_regional,
+):
+    _, query_params = mock_exportacao_relatorio_adesao
+    diretoria_regional.iniciais = "IP"
+    diretoria_regional.save(update_fields=["iniciais"])
+    filtros = _formata_filtros(
+        query_params, tipo_unidade="EMEI", data_lancamento="04/08/2025"
+    )
+    assert filtros == (
+        "Março - 2025 | IP - Lote 01, IP - Lote 02, IP - Lote 03 | EMEI | 04/08/2025"
+    )
+
+
+@freeze_time("2025-07-20")
+def test_gera_relatorio_adesao_xlsx_por_data_substitui_caractere_invalido_na_aba(
+    mock_exportacao_relatorio_adesao,
+):
+    resultados_agregados, query_params = mock_exportacao_relatorio_adesao
+    resultados_por_data = [
+        {
+            "data": "04/08/2025",
+            "tipo_unidade": "CCI/CIPS",
+            "resultados": resultados_agregados,
+        }
+    ]
+
+    excel = gera_relatorio_adesao_xlsx(resultados_por_data, query_params)
+    workbook = load_workbook(filename=BytesIO(excel))
+    assert workbook.sheetnames == ["CCI-CIPS - 04082025"]

@@ -27,3 +27,14 @@ Cypress.Commands.add('gerar_documentos_de_recebimento', () => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('executar_documentos_recebimento', ({ metodo = 'GET', caminho = '', body, qs = {}, autenticado = true } = {}) => {
+	return cy.request({
+		method: metodo,
+		url: `${Cypress.config('baseUrl')}api/documentos-de-recebimento/${caminho ? `${caminho}/` : ''}`,
+		body, qs,
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		failOnStatusCode: false,
+		timeout: 60000,
+	})
+})

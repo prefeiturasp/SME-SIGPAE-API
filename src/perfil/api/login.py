@@ -2,8 +2,8 @@ import datetime
 import logging
 import re
 
+import httpx
 from django.contrib.auth import get_user_model
-from requests.exceptions import Timeout
 from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -38,7 +38,7 @@ class LoginView(TokenObtainPairView):
         novo_sgp = NovoSGPServicoLogado(login, senha)
         response_login = novo_sgp.pegar_token_acesso(login, senha)
         if response_login.status_code != status.HTTP_200_OK or len(login) != 7:
-            raise NovoSGPServicoLogadoException("Usuário não encontrado")
+            raise NovoSGPServicoLogadoException("Usuário ou senha inválidos.")
 
     def update_user(self, user_dict, senha):
         user = User.objects.get(username=user_dict["login"])
@@ -277,7 +277,7 @@ class LoginView(TokenObtainPairView):
             return self.handle_unauthorized_error(e, login)
         except EOLException as e:
             return self.handle_bad_request_error(e, login)
-        except Timeout as e:
+        except httpx.TimeoutException as e:
             return self.handle_timeout_error(e, login)
 
     def autenticar_usuario(self, login, senha):

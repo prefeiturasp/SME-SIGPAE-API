@@ -2,7 +2,7 @@ from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSearchHelpText
 
 
 @admin.register(InversaoCardapio)
@@ -43,7 +43,9 @@ class InversaoCardapioModelAdmin(admin.ModelAdmin):
         "escola__nome",
         "escola__codigo_eol",
     )
-    search_help_text = "Pesquisa por: nome da escola, codigo eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = (
         ("data_de_inversao", DateRangeFilter),
         ("data_para_inversao", DateRangeFilter),

@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
 )
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
@@ -71,7 +72,7 @@ def test_get_valores_tabela_unidade_emei(solicitacao_sem_lancamento):
     assert linhas[0] == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "SL",
         "SL",
     ]
@@ -82,7 +83,15 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(solicitacao_sem_lancame
         ("MANHA", "total_refeicoes_pagamento"),
         ("MANHA", "total_sobremesas_pagamento"),
     ]
-    linhas = [[TIPOS_UNIDADE_ESCOLAR.EMEF.value, "123456", "EMEF TESTE", "SL", "SL"]]
+    linhas = [
+        [
+            TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+            "123456",
+            NomesParaTesteEscola.EMEF_TESTE.value,
+            "SL",
+            "SL",
+        ]
+    ]
     arquivo = BytesIO()
     aba = f"Relatório Consolidado {solicitacao_sem_lancamento.mes}-{ solicitacao_sem_lancamento.ano}"
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
@@ -133,7 +142,7 @@ def test_insere_tabela_periodos_na_planilha_unidade_emei(solicitacao_sem_lancame
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "SL",
         "SL",
     ]
@@ -184,7 +193,7 @@ def test_get_lista_alimentacoes_dietas(solicitacao_sem_lancamento):
     medicao_manha = medicoes[0]
     dieta_a = DIETA_ESPECIAL_TIPO_A
     dieta_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
     dieta_b = DIETA_ESPECIAL_TIPO_B
 
@@ -235,7 +244,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
     ]
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha_refeicao = _processa_periodo_campo(
@@ -252,7 +261,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
     assert manha_refeicao == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "SL",
     ]
 
@@ -270,7 +279,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
     assert solicitacao_kit_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "SL",
         "SL",
     ]
@@ -289,7 +298,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
     assert dieta_a_lanche == [
         TIPOS_UNIDADE_ESCOLAR.EMEF.value,
         "123456",
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "SL",
         "SL",
         "SL",
@@ -299,7 +308,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
 def test_define_filtro(solicitacao_sem_lancamento):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     dietas_especiais = CategoriaMedicao.objects.filter(
-        nome__icontains="DIETA ESPECIAL"
+        nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
     ).values_list("nome", flat=True)
 
     manha = _define_filtro("MANHA", dietas_especiais, periodos_escolares)
@@ -380,14 +389,14 @@ def test_calcula_soma_medicao(solicitacao_sem_lancamento):
     medicao_manha = medicoes[0]
 
     campo = "refeicao"
-    categoria = ["ALIMENTAÇÃO"]
+    categoria = [CategoriaMedicao.ALIMENTACAO]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
     assert total is None
 
     campo = "lanche_4h"
     categoria = [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     ]
     total = _calcula_soma_medicao(medicao_manha, campo, categoria)
     assert total is None

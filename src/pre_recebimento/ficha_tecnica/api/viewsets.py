@@ -6,6 +6,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 
+from src.dados_comuns.constants import MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 from src.dados_comuns.helpers_autenticidade import (
     verificar_autenticidade_usuario,
 )
@@ -348,9 +349,7 @@ class FichaTecnicaModelViewSet(
     def _calcular_totalizadores(self, qs):
         workflow = FichaTecnicaDoProduto.workflow_class
         return {
-            "Total de Fichas Aprovadas": qs.filter(
-                status=workflow.APROVADA
-            ).count(),
+            "Total de Fichas Aprovadas": qs.filter(status=workflow.APROVADA).count(),
             "Total de Fichas Enviadas para Correção": qs.filter(
                 status=workflow.ENVIADA_PARA_CORRECAO
             ).count(),
@@ -416,7 +415,7 @@ class FichaTecnicaModelViewSet(
         )
 
         return Response(
-            {"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=HTTP_200_OK,
         )
 

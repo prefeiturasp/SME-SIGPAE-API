@@ -1,6 +1,7 @@
 import pytest
 from rest_framework import status
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.fluxo_status import (
     InformativoPartindoDaEscolaWorkflow,
     PedidoAPartirDaEscolaWorkflow,
@@ -27,7 +28,7 @@ def test_permissoes_suspensao_alimentacao_cei_viewset(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }
 
     suspensao_alimentacao_de_cei.status = PedidoAPartirDaEscolaWorkflow.RASCUNHO

@@ -5,7 +5,7 @@ from pathlib import Path
 
 import openpyxl
 
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import ESCREVENDO, FORMATO_DATA_BRASILEIRO
 from src.escola.models import Escola
 from src.produto.models import ProtocoloDeDietaEspecial
 from utility.carga_dados.helper import excel_to_list_with_openpyxl, progressbar
@@ -65,7 +65,7 @@ def escreve_xlsx(codigo_eol_escola_nao_existentes):
     ws["A1"] = "codigo_eol_escola"
 
     for i, item in enumerate(
-        progressbar(list(codigo_eol_escola_nao_existentes), "Escrevendo...")
+        progressbar(list(codigo_eol_escola_nao_existentes), ESCREVENDO)
     ):
         ws[f"A{i + 2}"] = str(item)
 
@@ -101,7 +101,7 @@ def escreve_xlsx_alunos_nao_matriculados_na_escola(
     ws["B1"] = "nome_aluno"
     ws["C1"] = "codigo_eol_escola"
     for i, item in enumerate(
-        progressbar(list(alunos_nao_matriculados_na_escola_lista), "Escrevendo...")
+        progressbar(list(alunos_nao_matriculados_na_escola_lista), ESCREVENDO)
     ):
         ws[f"A{i + 2}"] = str(item[0])
         ws[f"B{i + 2}"] = str(item[1])
@@ -114,9 +114,7 @@ def escreve_xlsx_codescola_nao_existentes(codescola_nao_existentes, arquivo_said
     wb = openpyxl.load_workbook(arquivo_saida)
     ws = wb.create_sheet("CodEscola não existentes em unidades_da_rede...")
     ws["A1"] = "CodEscola"
-    for i, item in enumerate(
-        progressbar(list(codescola_nao_existentes), "Escrevendo...")
-    ):
+    for i, item in enumerate(progressbar(list(codescola_nao_existentes), ESCREVENDO)):
         ws[f"A{i + 2}"] = str(item)
     wb.save(arquivo_saida)
 
@@ -193,7 +191,7 @@ def escreve_xlsx_dados_sigpae(items, arquivo_saida):  # noqa C901
     ws["H1"] = "contato_telefone2"
     ws["I1"] = "contato_celular"
     i = 0  # indice criado manualmente pra não inserir linhas em branco na planilha.
-    for item in progressbar(items, "Escrevendo..."):
+    for item in progressbar(items, ESCREVENDO):
         escola = Escola.objects.filter(codigo_eol=item).first()
         if escola:
             ws[f"A{i + 2}"] = escola.codigo_eol
@@ -232,7 +230,7 @@ def escreve_xlsx_cod_diagnostico_inexistentes(
     ws = wb.create_sheet("CodDiagnostico inexistentes")
     ws["A1"] = "cod_diagnostico"
     for i, item in enumerate(
-        progressbar(list(cod_diagnostico_inexistentes), "Escrevendo...")
+        progressbar(list(cod_diagnostico_inexistentes), ESCREVENDO)
     ):
         ws[f"A{i + 2}"] = str(item)
     wb.save(arquivo_saida)
@@ -245,7 +243,7 @@ def escreve_xlsx_protocolo_dieta_inexistentes(
     ws = wb.create_sheet("ProtocoloDieta inexistentes")
     ws["A1"] = "protocolo_dieta"
     for i, item in enumerate(
-        progressbar(list(protocolo_dieta_inexistentes), "Escrevendo...")
+        progressbar(list(protocolo_dieta_inexistentes), ESCREVENDO)
     ):
         ws[f"A{i + 2}"] = str(item)
     wb.save(arquivo_saida)
@@ -289,7 +287,7 @@ def escreve_xlsx_alunos_com_nome_diferente(lista, arquivo_saida):
     ws = wb.create_sheet("Alunos com nome diferente do EOL")
     ws["A1"] = "nome_aluno_planilha"
     ws["B1"] = "nome_aluno_eol"
-    for i, item in enumerate(progressbar(lista, "Escrevendo...")):
+    for i, item in enumerate(progressbar(lista, ESCREVENDO)):
         ws[f"A{i + 2}"] = str(item[0])
         ws[f"B{i + 2}"] = str(item[1])
     wb.save(arquivo_saida)
@@ -300,7 +298,7 @@ def escreve_xlsx_alunos_com_nascimento_diferente(lista, arquivo_saida):
     ws = wb.create_sheet("Alunos com nascimento diferente do EOL")
     ws["A1"] = "nascimento_planilha"
     ws["B1"] = "nascimento_eol"
-    for i, item in enumerate(progressbar(lista, "Escrevendo...")):
+    for i, item in enumerate(progressbar(lista, ESCREVENDO)):
         ws[f"A{i + 2}"] = str(item[0])
         ws[f"B{i + 2}"] = str(item[1])
     wb.save(arquivo_saida)

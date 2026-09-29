@@ -39,3 +39,13 @@ Cypress.Commands.add('consultar_lista_completa_dre_simplissima', (uuid) => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('consultar_dre_simplissima_opcoes', ({ caminho = '', qs = {}, autenticado = true } = {}) => {
+	return cy.request({
+		method: 'GET',
+		url: `${Cypress.config('baseUrl')}api/diretorias-regionais-simplissima/${caminho ? `${encodeURIComponent(caminho)}/` : ''}`,
+		qs,
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		failOnStatusCode: false,
+	})
+})

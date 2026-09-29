@@ -9,6 +9,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.dieta_especial.tasks import gera_logs_dietas_especiais_diariamente
@@ -82,8 +83,12 @@ class TestUseCaseCriacaoLogsUltimoDiaLetivo:
         aluno_factory,
         log_solicitacoes_usuario_factory,
     ):
-        classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
-        classificacao_tipo_b = classificacao_dieta_factory.create(nome="Tipo B")
+        classificacao_tipo_a = classificacao_dieta_factory.create(
+            nome=ClassificacaoDieta.TIPO_A
+        )
+        classificacao_tipo_b = classificacao_dieta_factory.create(
+            nome=ClassificacaoDieta.TIPO_B
+        )
 
         self.aluno_1 = aluno_factory.create(
             escola=self.escola_emef,

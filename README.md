@@ -128,13 +128,13 @@ Link do roadmap: [https://miro.com/app/board/uXjVJYCIt1M=/?share_link_id=7690824
 | -------------------- | -------------------------------------------------------------------------------------------------- | ------------------------ |
 | Product Manager      | Carina Jakitas                                                                                     |                          |
 | Product Owner        | Daniela Chichon e Carolina Dias                                                                    |                          |
-| Agente de Governança | Juliana Demay                                                                                      | Vitor Augusto Ferragini  |
-| Gerente de Projeto   | Ricardo Coda                                                                                       |                          |
-| Scrum Master         | Cristiane Tuji                                                                                     |                          |
-| Designer de Serviços | Rayanne Felicio                                                                                    |                          |
-| Analista UX/UI       | Caroline Casassola                                                                                 |                          |
-| Analista Programador | Calvin Rossinhole<br>Luis Zimmerman<br>Guilherme Massini<br>Murilo Schirmer<br>Priscyla dos Santos |                          |
-| Analista de teste    | Leandro Sesconetti                                                                                 |                          |
+| Agente de Governança | Vitor Augusto Ferragini                                                                            | Gabriel Juvêncio da Silva|
+| Gerente de Projeto   | Thiago Bastos                                                                                      |                          |
+| Scrum Master         | Juliana Gati                                                                                       |                          |
+| Designer de Serviços | Tatiane Pinheiro                                                                                   |                          |
+| Analista UX/UI       | Thais Mantovani                                                                                    |                          |
+| Analista Programador | Calvin Rossinhole<br>Luis Zimmerman<br>Guilherme Massini<br>Murilo Schirmer<br>Claudinei Moreira   |                          |
+| Analista de teste    | Evelyn Brocardo                                                                                    |                          |
 
 ## Protótipos
 

@@ -3,6 +3,7 @@ from django.db import models
 from src.dados_comuns.behaviors import (
     ArquivoCargaBase,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 
 
 class PlanilhaDietasAtivas(models.Model):
@@ -23,7 +24,9 @@ class PlanilhaDietasAtivas(models.Model):
     tempfile = models.CharField(
         max_length=100, null=True, blank=True, help_text="JSON temporario"
     )  # noqa DJ01
-    criado_em = models.DateTimeField("criado em", auto_now_add=True, auto_now=False)
+    criado_em = models.DateTimeField(
+        StringsVerboseNameModels.CRIADO_EM.value, auto_now_add=True, auto_now=False
+    )
 
     class Meta:
         ordering = ("-criado_em",)

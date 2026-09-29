@@ -17,15 +17,19 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MENSAGEM_PERMISSAO_NEGADA,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteEscola,
+    PayloadVariaveis,
+    StringsValidationErrors,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
-    Empenho,
     LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
@@ -33,6 +37,7 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_resultados_para_dia,
     obtem_resultados_para_escola,
 )
 
@@ -397,7 +402,9 @@ def test_url_endpoint_solicitacao_medicao_inicial(
     assert response.json()["logs"][0]["usuario"]["email"] != usuario_admin.email
     data_update = {
         "escola": str(escola.uuid),
-        "tipo_contagem_alimentacoes[]": [tipo_contagem_alimentacao.uuid],
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: [
+            tipo_contagem_alimentacao.uuid
+        ],
         "com_ocorrencias": True,
     }
     response = client_autenticado_da_escola.patch(
@@ -431,7 +438,7 @@ def test_url_endpoint_nao_tem_permissao_para_encerrar_medicao(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     json = response.json()
-    assert json == {"detail": MENSAGEM_PERMISSAO_NEGADA}
+    assert json == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
 
 
 def test_url_endpoint_valores_medicao_com_grupo(
@@ -723,9 +730,7 @@ def test_url_endpoint_historico_ocorrencias_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_relatorio_pdf(
@@ -738,9 +743,7 @@ def test_url_endpoint_relatorio_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_relatorio_unificado_pdf_sem_mes_referencia(
@@ -782,6 +785,101 @@ def test_url_endpoint_medicao_dashboard_totalizadores_dre(
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 9
+
+
+def cria_solicitacao_dashboard_pendencia_dre(
+    escola,
+    mes,
+    status_medicao,
+):
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        escola=escola,
+        mes=mes,
+        ano="2025",
+        status="MEDICAO_CORRIGIDA_PARA_CODAE",
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        status=status_medicao,
+    )
+    baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=solicitacao.uuid,
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
+        solicitacao_tipo=LogSolicitacoesUsuario.MEDICAO_INICIAL,
+    )
+    return solicitacao
+
+
+def test_dashboard_totalizadores_informa_pendencias_acao_dre(
+    client_autenticado_diretoria_regional,
+    escola,
+):
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="08",
+        status_medicao=Medicao.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="09",
+        status_medicao=Medicao.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+    )
+
+    response = client_autenticado_diretoria_regional.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard-totalizadores/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    totalizador = next(
+        item
+        for item in response.json()["results"]
+        if item["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    assert totalizador["total"] == 2
+    assert totalizador["total_pendentes_acao_dre"] == 1
+    assert totalizador["possui_pendencias_acao_dre"] is True
+
+
+def test_dashboard_resultados_filtra_pendencias_acao_dre(
+    client_autenticado_diretoria_regional,
+    escola,
+):
+    solicitacao_pendente = cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="08",
+        status_medicao=Medicao.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
+    )
+    cria_solicitacao_dashboard_pendencia_dre(
+        escola,
+        mes="09",
+        status_medicao=Medicao.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+    )
+    url_base = (
+        "/medicao-inicial/solicitacao-medicao-inicial/dashboard-resultados/"
+        "?status=MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    response_sem_filtro = client_autenticado_diretoria_regional.get(
+        f"{url_base}&somente_pendentes_acao_dre=false",
+        content_type="application/json",
+    )
+
+    assert response_sem_filtro.status_code == status.HTTP_200_OK
+    assert response_sem_filtro.json()["results"]["total"] == 2
+
+    response = client_autenticado_diretoria_regional.get(
+        f"{url_base}&somente_pendentes_acao_dre=true",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resultados = response.json()["results"]
+    assert resultados["total"] == 1
+    assert resultados["dados"][0]["uuid"] == str(solicitacao_pendente.uuid)
+    assert resultados["dados"][0]["pendente_acao_dre"] is True
 
 
 def test_url_endpoint_medicao_dashboard_resultados_dre(
@@ -1624,7 +1722,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_teste_salvar_logs.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1647,7 +1745,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_manha.valores_medicao.filter(
-            nome_campo="matriculados", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="matriculados",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1661,7 +1760,7 @@ def test_finaliza_medicao_inicial_salva_logs(
     assert (
         medicao_manha.valores_medicao.filter(
             nome_campo="dietas_autorizadas",
-            categoria_medicao__nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+            categoria_medicao__nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         ).count()
         == 30
     )
@@ -1671,7 +1770,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_tarde.valores_medicao.filter(
-            nome_campo="matriculados", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="matriculados",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1681,7 +1781,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_noite.valores_medicao.filter(
-            nome_campo="matriculados", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="matriculados",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1693,7 +1794,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_programas_projetos.valores_medicao.filter(
-            nome_campo="numero_de_alunos", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="numero_de_alunos",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1703,7 +1805,8 @@ def test_finaliza_medicao_inicial_salva_logs(
     )
     assert (
         medicao_etec.valores_medicao.filter(
-            nome_campo="numero_de_alunos", categoria_medicao__nome="ALIMENTAÇÃO"
+            nome_campo="numero_de_alunos",
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO,
         ).count()
         == 30
     )
@@ -1716,14 +1819,14 @@ def test_finaliza_medicao_inicial_salva_logs(
     assert (
         medicao_solicitacoes_alimentacao.valores_medicao.filter(
             nome_campo="kit_lanche",
-            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
         ).count()
         == 1
     )
     assert (
         medicao_solicitacoes_alimentacao.valores_medicao.get(
             nome_campo="kit_lanche",
-            categoria_medicao__nome="SOLICITAÇÕES DE ALIMENTAÇÃO",
+            categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
         ).valor
         == "200"
     )
@@ -1741,7 +1844,7 @@ def test_finaliza_medicao_inicial_salva_logs_cei(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_teste_salvar_logs_cei.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1809,7 +1912,7 @@ def test_finaliza_medicao_inicial_salva_logs_ceu_gestao(
         "escola": str(
             solicitacao_medicao_inicial_varios_valores_ceu_gestao.escola.uuid
         ),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1839,7 +1942,7 @@ def test_finaliza_medicao_inicial_salva_logs_emebs(
     tipos_contagem_uuids = [str(uuid) for uuid in tipos_contagem_uuids]
     data_update = {
         "escola": str(solicitacao_medicao_inicial_varios_valores_emebs.escola.uuid),
-        "tipo_contagem_alimentacoes[]": tipos_contagem_uuids,
+        PayloadVariaveis.TIPO_CONTAGEM_ALIMENTACOES.value: tipos_contagem_uuids,
         "com_ocorrencias": False,
         "finaliza_medicao": True,
     }
@@ -1988,38 +2091,6 @@ def test_periodos_permissoes_lancamentos_especiais_mes_ano(
             "2ª Refeição 1ª oferta",
         ]
     )
-
-
-def test_url_endpoint_empenho(client_autenticado_coordenador_codae, edital, contrato):
-    data = {
-        "numero": "1234599",
-        "contrato": contrato.uuid,
-        "edital": edital.uuid,
-        "tipo_empenho": "PRINCIPAL",
-        "status": "ATIVO",
-        "valor_total": 1050.99,
-        "uuid": "c1203fab-b189-4cac-8930-6e2f315bbe2e",
-    }
-
-    response = client_autenticado_coordenador_codae.post(
-        "/medicao-inicial/empenhos/",
-        content_type="application/json",
-        data=data,
-    )
-    assert response.status_code == status.HTTP_201_CREATED
-    assert Empenho.objects.count() == 1
-
-    response = client_autenticado_coordenador_codae.get(
-        "/medicao-inicial/empenhos/",
-        content_type="application/json",
-    )
-    assert response.status_code == status.HTTP_200_OK
-    assert response.json()["results"][0]["contrato"] == "Contrato 78/SME/2024"
-    assert response.json()["results"][0]["edital"] == "Edital de Pregão nº 78/SME/2024"
-    assert response.json()["results"][0]["numero"] == "1234599"
-    assert response.json()["results"][0]["tipo_empenho"] == "PRINCIPAL"
-    assert response.json()["results"][0]["status"] == "ATIVO"
-    assert response.json()["results"][0]["valor_total"] == "1050.99"
 
 
 def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
@@ -2225,7 +2296,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_paginado(
 
     url_params = {
         "mes_ano": f"{mes}_{ano}",
-        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+        PayloadVariaveis.ESCOLA_UUID.value: [str(escola.uuid), str(escola2.uuid)],
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
@@ -2444,7 +2515,7 @@ def test_url_endpoint_relatorio_adesao_com_escolas_calcula_apenas_pagina_solicit
 
     url_params = {
         "mes_ano": f"{mes}_{ano}",
-        "escola__uuid[]": [str(escola.uuid), str(escola2.uuid)],
+        PayloadVariaveis.ESCOLA_UUID.value: [str(escola.uuid), str(escola2.uuid)],
     }
     url = "/medicao-inicial/relatorios/relatorio-adesao/"
 
@@ -2463,6 +2534,301 @@ def test_url_endpoint_relatorio_adesao_com_escolas_calcula_apenas_pagina_solicit
     data = response.json()
     assert data["count"] == 2
     assert len(data["results"]) == 1
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_paginado(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    valores = [1, 2, 3, 4, 5]
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 4")
+    grupo.tipos_unidades.add(escola.tipo_unidade)
+
+    dias = [str(dia).rjust(2, "0") for dia in range(1, 6)]
+    for dia, valor in zip(dias, valores):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor).rjust(2, "0"),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    url = "/medicao-inicial/relatorios/relatorio-adesao/"
+    payload = {
+        "mes_ano": f"{mes}_{ano}",
+        "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+        "periodo_lancamento_de": f"01/{mes}/{ano}",
+        "periodo_lancamento_ate": f"05/{mes}/{ano}",
+        "resultado_individual_por_data": True,
+    }
+
+    primeira_pagina = client_autenticado_coordenador_codae.post(
+        url,
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    segunda_pagina = client_autenticado_coordenador_codae.post(
+        url,
+        data=json.dumps({**payload, "page": 2}),
+        content_type="application/json",
+    )
+
+    assert primeira_pagina.status_code == status.HTTP_200_OK
+    assert segunda_pagina.status_code == status.HTTP_200_OK
+
+    data_primeira = primeira_pagina.json()
+    assert data_primeira["count"] == 5
+    assert data_primeira["page_size"] == 1
+    assert len(data_primeira["results"]) == 1
+    assert data_primeira["next"]
+    assert data_primeira["previous"] is None
+    assert data_primeira["results"][0]["data"] == f"01/{mes}/{ano}"
+    assert (
+        data_primeira["results"][0]["tipo_unidade"]
+        == f"Grupo 4 - {escola.tipo_unidade.iniciais}"
+    )
+    assert data_primeira["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 1,
+                "total_frequencia": 1,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+    data_segunda = segunda_pagina.json()
+    assert data_segunda["results"][0]["data"] == f"02/{mes}/{ano}"
+    assert data_segunda["previous"]
+    assert data_segunda["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 2,
+                "total_frequencia": 2,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_ignora_escola_uuid(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        valor="10",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        valor="10",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    escola2 = baker.make(
+        "Escola",
+        nome="EMEF DOIS",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=escola.tipo_unidade,
+        codigo_eol="654321",
+    )
+    solicitacao2 = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola2,
+        rastro_lote=escola2.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao2 = make_medicao(solicitacao2, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao2,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao2,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": f"{mes}_{ano}",
+                "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+                "escola__uuid": [str(escola.uuid)],
+                "periodo_lancamento_de": f"01/{mes}/{ano}",
+                "periodo_lancamento_ate": f"01/{mes}/{ano}",
+                "resultado_individual_por_data": True,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    data = response.json()
+    assert "escola" not in data["results"][0]
+    assert data["results"][0]["data"] == f"01/{mes}/{ano}"
+    assert data["results"][0]["resultados"] == {
+        medicao.nome_periodo_grupo: {
+            tipo_alimentacao_refeicao.nome.upper(): {
+                "total_servido": 24,
+                "total_frequencia": 24,
+                "total_adesao": 1.0,
+            }
+        }
+    }
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_calcula_apenas_pagina_solicitada(
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    make_solicitacao_medicao_inicial,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    solicitacao = make_solicitacao_medicao_inicial(
+        mes, ano, "MEDICAO_APROVADA_PELA_CODAE"
+    )
+    periodo_escolar = make_periodo_escolar("MANHA")
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    for dia, valor in zip(["01", "02", "03"], [1, 2, 3]):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    with patch(
+        "src.medicao_inicial.api.viewsets.obtem_resultados_para_dia",
+        wraps=obtem_resultados_para_dia,
+    ) as mock_obtem_resultados:
+        response = client_autenticado_coordenador_codae.post(
+            "/medicao-inicial/relatorios/relatorio-adesao/",
+            data=json.dumps(
+                {
+                    "mes_ano": f"{mes}_{ano}",
+                    "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+                    "periodo_lancamento_de": f"01/{mes}/{ano}",
+                    "periodo_lancamento_ate": f"03/{mes}/{ano}",
+                    "resultado_individual_por_data": True,
+                    "page": 2,
+                }
+            ),
+            content_type="application/json",
+        )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert mock_obtem_resultados.call_count == 1
+    data = response.json()
+    assert data["count"] == 3
+    assert data["results"][0]["data"] == f"02/{mes}/{ano}"
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_sem_periodo(
+    client_autenticado_coordenador_codae,
+    escola,
+):
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": "08_2026",
+                "tipos_unidades": [str(escola.tipo_unidade.uuid)],
+                "resultado_individual_por_data": True,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Para resultado individual por data, 'periodo_lancamento_de' e "
+        "'periodo_lancamento_ate' são obrigatórios"
+    }
+
+
+def test_url_endpoint_relatorio_adesao_individual_por_data_sem_tipos_unidades(
+    client_autenticado_coordenador_codae,
+):
+    response = client_autenticado_coordenador_codae.post(
+        "/medicao-inicial/relatorios/relatorio-adesao/",
+        data=json.dumps(
+            {
+                "mes_ano": "08_2026",
+                "periodo_lancamento_de": "01/08/2026",
+                "periodo_lancamento_ate": "05/08/2026",
+                "resultado_individual_por_data": True,
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Para resultado individual por data, 'tipos_unidades' é obrigatório"
+    }
 
 
 def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento_ate(
@@ -2720,7 +3086,7 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     _, kwargs = mock_exporta_pdf.call_args
     assert len(kwargs["resultados"]) == 2
     assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "EMEF DOIS",
     }
     assert any(r["resultados"] for r in kwargs["resultados"])
@@ -2785,10 +3151,236 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     _, kwargs = mock_exporta_xlsx.call_args
     assert len(kwargs["resultados"]) == 2
     assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
-        "EMEF TESTE",
+        NomesParaTesteEscola.EMEF_TESTE.value,
         "EMEF DOIS",
     }
     assert any(r["resultados"] for r in kwargs["resultados"])
+
+
+@patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_xlsx.delay")
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_individual_por_data(
+    mock_exporta_xlsx,
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    tipo_unidade_escolar_emei,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+    escola.tipo_unidade = tipo_unidade_escolar_emei
+    escola.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola,
+        rastro_lote=escola.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    for dia, valor in zip(["01", "02"], [10, 20]):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    tipo_ceu_emei = baker.make("TipoUnidadeEscolar", iniciais="CEU EMEI")
+    escola_ceu = baker.make(
+        "Escola",
+        nome="CEU EMEI TESTE",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=tipo_ceu_emei,
+        codigo_eol="400002",
+    )
+    solicitacao_ceu = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola_ceu,
+        rastro_lote=escola_ceu.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao_ceu = make_medicao(solicitacao_ceu, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/"
+        f"?mes_ano={mes}_{ano}"
+        f"&periodo_lancamento_de=01/{mes}/{ano}"
+        f"&periodo_lancamento_ate=02/{mes}/{ano}"
+        "&resultado_individual_por_data=true"
+        f"&tipos_unidades[]={tipo_unidade_escolar_emei.uuid}"
+        f"&tipos_unidades[]={tipo_ceu_emei.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data == {
+        "detail": "Solicitação de geração de arquivo recebida com sucesso."
+    }
+    mock_exporta_xlsx.assert_called_once()
+    _, kwargs = mock_exporta_xlsx.call_args
+    assert kwargs["nome_arquivo"] == (
+        "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.xlsx"
+    )
+    assert [
+        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
+    ] == [
+        ("01/08/2026", "EMEI"),
+        ("01/08/2026", "CEU EMEI"),
+        ("02/08/2026", "EMEI"),
+    ]
+    assert "escola" not in kwargs["resultados"][0]
+
+
+def test_url_endpoint_relatorio_adesao_exportar_xlsx_individual_sem_periodo(
+    client_autenticado_coordenador_codae,
+    tipo_unidade_escolar_emei,
+):
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/relatorios/relatorio-adesao/exportar-xlsx/"
+        "?mes_ano=08_2026"
+        "&resultado_individual_por_data=true"
+        f"&tipos_unidades[]={tipo_unidade_escolar_emei.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.data == {
+        "detail": "Para resultado individual por data, 'periodo_lancamento_de' e "
+        "'periodo_lancamento_ate' são obrigatórios"
+    }
+
+
+@patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_pdf.delay")
+def test_url_endpoint_relatorio_adesao_exportar_pdf_individual_por_data(
+    mock_exporta_pdf,
+    client_autenticado_coordenador_codae,
+    categoria_medicao,
+    tipo_alimentacao_refeicao,
+    escola,
+    tipo_unidade_escolar_emei,
+    tipo_unidade_escolar_ceu_emei,
+    grupo_unidade_escolar_emei,
+    make_medicao,
+    make_valores_medicao,
+    make_periodo_escolar,
+):
+    mes = "08"
+    ano = "2026"
+    periodo_escolar = make_periodo_escolar("MANHA")
+    escola.tipo_unidade = tipo_unidade_escolar_emei
+    escola.save()
+
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola,
+        rastro_lote=escola.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao = make_medicao(solicitacao, periodo_escolar)
+    for dia, valor in zip(["01", "02"], [10, 20]):
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            dia=dia,
+        )
+        make_valores_medicao(
+            medicao=medicao,
+            categoria_medicao=categoria_medicao,
+            valor=str(valor),
+            nome_campo="frequencia",
+            dia=dia,
+        )
+
+    escola_ceu = baker.make(
+        "Escola",
+        nome="CEU EMEI TESTE",
+        lote=escola.lote,
+        diretoria_regional=escola.diretoria_regional,
+        tipo_gestao=escola.tipo_gestao,
+        tipo_unidade=tipo_unidade_escolar_ceu_emei,
+        codigo_eol="400002",
+    )
+    solicitacao_ceu = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=mes,
+        ano=ano,
+        escola=escola_ceu,
+        rastro_lote=escola_ceu.lote,
+        status="MEDICAO_APROVADA_PELA_CODAE",
+    )
+    medicao_ceu = make_medicao(solicitacao_ceu, periodo_escolar)
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        tipo_alimentacao=tipo_alimentacao_refeicao,
+        dia="01",
+    )
+    make_valores_medicao(
+        medicao=medicao_ceu,
+        categoria_medicao=categoria_medicao,
+        valor="14",
+        nome_campo="frequencia",
+        dia="01",
+    )
+
+    response = client_autenticado_coordenador_codae.get(
+        "/medicao-inicial/relatorios/relatorio-adesao/exportar-pdf/"
+        f"?mes_ano={mes}_{ano}"
+        f"&periodo_lancamento_de=01/{mes}/{ano}"
+        f"&periodo_lancamento_ate=02/{mes}/{ano}"
+        "&resultado_individual_por_data=true"
+        f"&tipos_unidades[]={tipo_unidade_escolar_emei.uuid}"
+        f"&tipos_unidades[]={tipo_unidade_escolar_ceu_emei.uuid}"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    mock_exporta_pdf.assert_called_once()
+    _, kwargs = mock_exporta_pdf.call_args
+    assert kwargs["nome_arquivo"] == (
+        "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.pdf"
+    )
+    assert [
+        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
+    ] == [
+        ("01/08/2026", "Grupo 3 - EMEI, CEU EMEI"),
+        ("02/08/2026", "Grupo 3 - EMEI, CEU EMEI"),
+    ]
 
 
 @freeze_time("2025-09-30")
@@ -2926,7 +3518,7 @@ def test_codae_solicita_correcao_sem_lancamento_usuario_sem_permissao(
         data=json.dumps(solicita_correcao),
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
 
 
 def test_codae_solicita_correcao_sem_lancamento_solicitacao_nao_existe(
@@ -2975,7 +3567,9 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_nao_existe(
             {"nome": "Responsável 1", "rf": "123456"},
             {"nome": "Responsável 2", "rf": "789012"},
         ],
-        "tipos_contagem_alimentacao[]": str(tipo_contagem_alimentacao.uuid),
+        PayloadVariaveis.TIPOS_CONTAGEM_ALIMENTACAO.value: str(
+            tipo_contagem_alimentacao.uuid
+        ),
     }
     response = client_autenticado_da_escola.patch(
         f"/medicao-inicial/solicitacao-medicao-inicial/5555/informacoes-basicas/",
@@ -3027,7 +3621,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_usuario_nao_autrizado
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
 
 
 def test_url_endpoint_atualiza_informacoes_basicas(
@@ -3216,32 +3810,32 @@ def test_url_endpoint_atualiza_informacoes_basicas_aluno_parcial_sincroniza_logs
         (
             "client_autenticado_da_escola",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_cei",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_cemei",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_ceu_gestao",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_da_escola_emebs",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_adm_da_escola",
             status.HTTP_403_FORBIDDEN,
-            MENSAGEM_PERMISSAO_NEGADA,
+            StringsValidationErrors.PERMISSAO_NEGADA.value,
         ),
         (
             "client_autenticado_codae_medicao",
@@ -3549,10 +4143,10 @@ def test_url_endpoint_totais_atendimento_consumo(
 
     data = response.data
 
-    assert "ALIMENTAÇÃO" in data
+    assert CategoriaMedicao.ALIMENTACAO in data
     assert DIETA_ESPECIAL_TIPO_A in data
 
-    alimentacao = data["ALIMENTAÇÃO"]
+    alimentacao = data[CategoriaMedicao.ALIMENTACAO]
     dieta_a = data[DIETA_ESPECIAL_TIPO_A]
 
     assert "total_refeicao" in alimentacao
@@ -3604,47 +4198,6 @@ def test_url_dias_frequencia_zerada_uuid_nao_enviado(client_autenticado_codae_me
     assert response.json() == {"detail": "Parâmetro 'uuid_solicitacao' é obrigatório."}
 
 
-def test_registrar_empenhos_relatorio_financeiro(
-    client_autenticado_codae_medicao,
-    relatorio_financeiro,
-    dados_liquidacao_cmct,
-    escola_cei,
-    escola_cmct,
-):
-    payload = [
-        {
-            "uuid": str(dados_liquidacao_cmct.uuid),
-            "numero_empenho": "888/7987",
-            "tipo_empenho": "PRINCIPAL",
-            "unidades_educacionais": [
-                str(escola_cei.uuid),
-                str(escola_cmct.uuid),
-            ],
-        }
-    ]
-
-    url = f"/medicao-inicial/dados-liquidacao/registrar-empenhos/{relatorio_financeiro.uuid}/"
-
-    response = client_autenticado_codae_medicao.put(
-        url,
-        data=json.dumps(payload),
-        content_type="application/json",
-    )
-
-    result = json.loads(response.content)
-
-    assert response.status_code == status.HTTP_200_OK
-
-    dados_liquidacao_cmct.refresh_from_db()
-
-    assert dados_liquidacao_cmct.numero_empenho == "888/7987"
-    assert dados_liquidacao_cmct.unidades_educacionais.count() == 2
-
-    assert isinstance(result, list)
-    assert result[0]["numero_empenho"] == "888/7987"
-    assert len(result[0]["unidades_educacionais"]) == 2
-
-
 def test_url_endpoint_historico_correcoes_medicao_pdf(
     client_autenticado_da_escola, solicitacao_com_historico_correcao
 ):
@@ -3654,9 +4207,7 @@ def test_url_endpoint_historico_correcoes_medicao_pdf(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 def test_url_endpoint_historico_correcoes_medicao_pdf_sem_historico(
@@ -3695,9 +4246,7 @@ def test_endpoint_exportar_pdf_relatorio_financeiro_com_sucesso(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert response.data == {
-        "detail": "Solicitação de geração de arquivo recebida com sucesso."
-    }
+    assert response.data == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
 
 
 @pytest.mark.django_db

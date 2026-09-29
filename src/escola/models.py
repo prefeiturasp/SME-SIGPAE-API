@@ -20,8 +20,9 @@ from django.core.validators import (
 )
 from django.db import models, transaction
 from django.db.models import F, Q, Sum
-from django_prometheus.models import ExportModelOperationsMixin
 from rest_framework import status
+
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
 from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
@@ -55,8 +56,6 @@ from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_TERCEIRIZADA,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
@@ -141,7 +140,6 @@ LISTA_TIPOS_UNIDADES = [
 
 
 class DiretoriaRegional(
-    ExportModelOperationsMixin("diretoria_regional"),
     Nomeavel,
     Iniciais,
     TemChaveExterna,
@@ -407,9 +405,7 @@ class DiretoriaRegional(
         ordering = ("nome",)
 
 
-class FaixaIdadeEscolar(
-    ExportModelOperationsMixin("faixa_idade"), Nomeavel, Ativavel, TemChaveExterna
-):
+class FaixaIdadeEscolar(Nomeavel, Ativavel, TemChaveExterna):
     """de 1 a 2 anos, de 2 a 5 anos, de 7 a 18 anos, etc."""
 
     def __str__(self):
@@ -421,13 +417,13 @@ class FaixaIdadeEscolar(
         ordering = ("nome",)
 
 
-class TipoUnidadeEscolar(
-    ExportModelOperationsMixin("tipo_ue"), Iniciais, Ativavel, TemChaveExterna
-):
+class TipoUnidadeEscolar(Iniciais, Ativavel, TemChaveExterna):
     """EMEF, CIEJA, EMEI, EMEBS, CEI, CEMEI..."""
 
     periodos_escolares = models.ManyToManyField(
-        "escola.PeriodoEscolar", blank=True, related_name="tipos_unidade_escolar"
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        blank=True,
+        related_name="tipos_unidade_escolar",
     )
     tem_somente_integral_e_parcial = models.BooleanField(
         help_text="Variável de controle para setar os períodos escolares na mão, válido para CEI CEU, CEI e CCI",
@@ -452,9 +448,7 @@ class TipoUnidadeEscolar(
         ordering = ("iniciais",)
 
 
-class TipoGestao(
-    ExportModelOperationsMixin("tipo_gestao"), Nomeavel, Ativavel, TemChaveExterna
-):
+class TipoGestao(Nomeavel, Ativavel, TemChaveExterna):
     """Terceirizada completa, tec mista."""
 
     def __str__(self):
@@ -465,13 +459,12 @@ class TipoGestao(
         verbose_name_plural = "Tipos de gestão"
 
 
-class PeriodoEscolar(
-    ExportModelOperationsMixin("periodo_escolar"), Nomeavel, TemChaveExterna, Posicao
-):
+class PeriodoEscolar(Nomeavel, TemChaveExterna, Posicao):
     """manhã, intermediário, tarde, vespertino, noturno, integral."""
 
     tipos_alimentacao = models.ManyToManyField(
-        "cardapio.TipoAlimentacao", related_name="periodos_escolares"
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        related_name="periodos_escolares",
     )
     tipo_turno = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)], blank=True, null=True
@@ -502,7 +495,6 @@ class PeriodoEscolar(
 
 
 class Escola(
-    ExportModelOperationsMixin("escola"),
     Ativavel,
     TemChaveExterna,
     TemCodigoEOL,
@@ -510,17 +502,22 @@ class Escola(
     AcessoModuloMedicaoInicial,
 ):
     acesso_desde = models.DateField(
-        "Acesso módulo medição desde",
+        StringsVerboseNameModels.ACESSO_MODULO_MEDICAO_DESDE.value,
         null=True,
         blank=True,
         help_text="Define o mês a partir do qual a escola poderá realizar o lançamento da medição inicial.",
     )
-    nome = models.CharField("Nome", max_length=160, blank=True)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=160, blank=True
+    )
     codigo_eol = models.CharField(
-        "Código EOL", max_length=6, unique=True, validators=[MinLengthValidator(6)]
+        StringsVerboseNameModels.CODIGO_EOL.value,
+        max_length=6,
+        unique=True,
+        validators=[MinLengthValidator(6)],
     )
     codigo_codae = models.CharField(  # noqa: DJ01
-        "Código CODAE",
+        StringsVerboseNameModels.CODIGO_CODAE.value,
         max_length=10,
         blank=True,
         null=True,
@@ -1698,9 +1695,7 @@ class Escola(
         ordering = ("codigo_eol",)
 
 
-class EscolaPeriodoEscolar(
-    ExportModelOperationsMixin("escola_periodo"), Ativavel, TemChaveExterna
-):
+class EscolaPeriodoEscolar(Ativavel, TemChaveExterna):
     """Serve para guardar a quantidade de alunos da escola em um dado periodo escolar.
 
     Ex: EMEI BLABLA pela manhã tem 55 alunos
@@ -1713,7 +1708,7 @@ class EscolaPeriodoEscolar(
         PeriodoEscolar, related_name="escolas_periodos", on_delete=models.DO_NOTHING
     )
     quantidade_alunos = models.PositiveSmallIntegerField(
-        "Quantidade de alunos", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS.value, default=0
     )
     horas_atendimento = models.IntegerField(null=True)
 
@@ -1782,10 +1777,10 @@ class LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar(
         on_delete=models.DO_NOTHING,
     )
     quantidade_alunos_de = models.PositiveSmallIntegerField(
-        "Quantidade de alunos anterior", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ANTERIOR.value, default=0
     )
     quantidade_alunos_para = models.PositiveSmallIntegerField(
-        "Quantidade de alunos alterada", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ALTERADA.value, default=0
     )
 
     def __str__(self):
@@ -1802,10 +1797,10 @@ class LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar(
 
 class LogRotinaDiariaAlunos(TemChaveExterna, CriadoEm):
     quantidade_alunos_antes = models.PositiveIntegerField(
-        "Quantidade de alunos antes", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ANTES.value, default=0
     )
     quantidade_alunos_atual = models.PositiveIntegerField(
-        "Quantidade de alunos atual", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS_ATUAL.value, default=0
     )
 
     def __str__(self):
@@ -1820,7 +1815,7 @@ class LogRotinaDiariaAlunos(TemChaveExterna, CriadoEm):
         ordering = ("-criado_em",)
 
 
-class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Iniciais):
+class Lote(TemChaveExterna, Nomeavel, Iniciais):
     """Lote de escolas."""
 
     tipo_gestao = models.ForeignKey(
@@ -1831,14 +1826,14 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         blank=True,
     )
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
         blank=True,
     )
     terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         related_name="lotes",
         null=True,
@@ -2381,9 +2376,7 @@ class Lote(ExportModelOperationsMixin("lote"), TemChaveExterna, Nomeavel, Inicia
         ordering = ("nome",)
 
 
-class Subprefeitura(
-    ExportModelOperationsMixin("subprefeitura"), Nomeavel, TemChaveExterna
-):
+class Subprefeitura(Nomeavel, TemChaveExterna):
     OPCOES_AGRUPAMENTO = (
         (1, 1),
         (2, 2),
@@ -2392,7 +2385,11 @@ class Subprefeitura(
     )
 
     codigo_eol = models.CharField(  # noqa DJ01
-        "Código EOL", max_length=6, unique=True, null=True, blank=True
+        StringsVerboseNameModels.CODIGO_EOL.value,
+        max_length=6,
+        unique=True,
+        null=True,
+        blank=True,
     )
     diretoria_regional = models.ManyToManyField(
         DiretoriaRegional, related_name="subprefeituras", blank=True
@@ -2418,7 +2415,6 @@ class Subprefeitura(
 
 
 class Codae(
-    ExportModelOperationsMixin("codae"),
     Nomeavel,
     TemChaveExterna,
     TemVinculos,
@@ -2676,6 +2672,8 @@ class Codae(
         )
 
     def delete(self, *args, **kwargs):
+        # CODAE é uma entidade única do sistema: o registro não pode ser
+        # excluído, por isso a exclusão é propositalmente ignorada.
         pass
 
     def __str__(self):
@@ -2725,9 +2723,11 @@ class Aluno(TemChaveExterna):
     CICLO_ALUNO_CEI = 1
     CICLO_ALUNO_EMEI = 2
 
-    nome = models.CharField("Nome Completo do Aluno", max_length=100)
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME_COMPLETO_DO_ALUNO.value, max_length=100
+    )
     codigo_eol = models.CharField(  # noqa DJ01
-        "Código EOL",
+        StringsVerboseNameModels.CODIGO_EOL.value,
         max_length=7,
         unique=True,
         validators=[MinLengthValidator(7)],
@@ -2755,8 +2755,12 @@ class Aluno(TemChaveExterna):
 
     etapa = models.PositiveSmallIntegerField(blank=True, null=True)
     ciclo = models.PositiveSmallIntegerField(blank=True, null=True)
-    desc_etapa = models.CharField("Descrição etapa", max_length=50, blank=True)
-    desc_ciclo = models.CharField("Descrição ciclo", max_length=50, blank=True)
+    desc_etapa = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_ETAPA.value, max_length=50, blank=True
+    )
+    desc_ciclo = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_CICLO.value, max_length=50, blank=True
+    )
 
     def __str__(self):
         if self.nao_matriculado:
@@ -2882,7 +2886,9 @@ class PlanilhaEscolaDeParaCodigoEolCodigoCoade(CriadoEm, TemAlteradoEm):
         "<b>codigo_eol</b> e <b>codigo_unidade</b>"
     )
     codigos_codae_vinculados = models.BooleanField(
-        "Códigos Codae Vinculados?", default=False, editable=False
+        StringsVerboseNameModels.CODIGOS_CODAE_VINCULADOS.value,
+        default=False,
+        editable=False,
     )
 
     class Meta:
@@ -2926,7 +2932,7 @@ class AlunosMatriculadosPeriodoEscola(CriadoEm, TemAlteradoEm, TemChaveExterna):
         PeriodoEscolar, related_name="alunos_matriculados", on_delete=models.DO_NOTHING
     )
     quantidade_alunos = models.PositiveSmallIntegerField(
-        "Quantidade de alunos", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS.value, default=0
     )
 
     tipo_turma = models.CharField(
@@ -2996,7 +3002,7 @@ class LogAlunosMatriculadosPeriodoEscola(TemChaveExterna, CriadoEm, TemObservaca
         on_delete=models.DO_NOTHING,
     )
     quantidade_alunos = models.PositiveSmallIntegerField(
-        "Quantidade de alunos", default=0
+        StringsVerboseNameModels.QUANTIDADE_DE_ALUNOS.value, default=0
     )
 
     tipo_turma = models.CharField(
@@ -3152,11 +3158,13 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
         null=True,
         blank=True,
     )
-    dia_letivo = models.BooleanField("É dia Letivo?", default=True)
+    dia_letivo = models.BooleanField(
+        StringsVerboseNameModels.E_DIA_LETIVO.value, default=True
+    )
 
     @classmethod
     def existe_inclusao_continua(
-        self, escola, datas_nao_letivas, periodos_escolares_alteracao
+        cls, escola, datas_nao_letivas, periodos_escolares_alteracao
     ):
         dias_fim_de_semana = [
             data for data in datas_nao_letivas if eh_fim_de_semana(data)
@@ -3171,8 +3179,8 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
                     quantidades_por_periodo__cancelado=False,
                 )
                 .filter(
-                    Q(quantidades_por_periodo__dias_semana__icontains=self.SABADO)
-                    | Q(quantidades_por_periodo__dias_semana__icontains=self.DOMINGO)
+                    Q(quantidades_por_periodo__dias_semana__icontains=cls.SABADO)
+                    | Q(quantidades_por_periodo__dias_semana__icontains=cls.DOMINGO)
                 )
                 .exists()
             ):
@@ -3221,9 +3229,15 @@ class DiaCalendario(CriadoEm, TemAlteradoEm, TemData, TemChaveExterna):
 
 class LogAtualizaDadosAluno(models.Model):
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
-    codigo_eol = models.CharField("Codigo EOL da escola", max_length=50)
-    status = models.PositiveSmallIntegerField("Status da requisição", default=0)
-    msg_erro = models.TextField("Mensagem erro", blank=True)
+    codigo_eol = models.CharField(
+        StringsVerboseNameModels.CODIGO_EOL_DA_ESCOLA.value, max_length=50
+    )
+    status = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.STATUS_DA_REQUISICAO.value, default=0
+    )
+    msg_erro = models.TextField(
+        StringsVerboseNameModels.MENSAGEM_ERRO.value, blank=True
+    )
 
     def __str__(self):
         retorno = f'Requisicao para Escola: "#{str(self.codigo_eol)}"'
@@ -3293,8 +3307,12 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
         related_name="alunos_periodo_parcial",
         on_delete=models.CASCADE,
     )
-    data = models.DateField("Aluno no período parcial a partir de", null=True)
-    data_removido = models.DateField("Aluno no período parcial a partir de", null=True)
+    data = models.DateField(
+        StringsVerboseNameModels.ALUNO_NO_PERIODO_PARCIAL_A_PARTIR_DE.value, null=True
+    )
+    data_removido = models.DateField(
+        StringsVerboseNameModels.ALUNO_NO_PERIODO_PARCIAL_A_PARTIR_DE.value, null=True
+    )
 
     def __str__(self):
         retorno = f"{self.aluno.nome} para SMI {self.solicitacao_medicao_inicial.mes}/"
@@ -3313,7 +3331,10 @@ class AlunoPeriodoParcial(TemChaveExterna, CriadoEm):
 class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
     tipo_unidade = models.ForeignKey(TipoUnidadeEscolar, on_delete=models.CASCADE)
     edital = models.ForeignKey(
-        "terceirizada.Edital", on_delete=models.CASCADE, blank=True, null=True
+        StringsCaminhoModelos.MODEL_EDITAL.value,
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
     )
 
     @property
@@ -3367,6 +3388,13 @@ class DiaSuspensaoAtividades(TemData, TemChaveExterna, CriadoEm, CriadoPor):
 
 
 class GrupoUnidadeEscolar(TemChaveExterna, Nomeavel):
+    GRUPO_1 = "Grupo 1"
+    GRUPO_2 = "Grupo 2"
+    GRUPO_3 = "Grupo 3"
+    GRUPO_4 = "Grupo 4"
+    GRUPO_5 = "Grupo 5"
+    GRUPO_6 = "Grupo 6"
+
     tipos_unidades = models.ManyToManyField(TipoUnidadeEscolar, blank=True)
 
     def todas_solicitacoes_medicao_do_grupo_aprovadas_codae(self, data, lote_uuid):

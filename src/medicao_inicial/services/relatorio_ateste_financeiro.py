@@ -9,38 +9,40 @@ from src.cardapio.base.api.serializers import (
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import converte_numero_em_mes
-from src.escola.models import FaixaEtaria
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
     normalizar_nome_campo,
     to_decimal_safe,
 )
 
 ORDEM_PRIORIDADE = {
-    "REFEIÇÃO": 0,
+    TIPOS_ALIMENTACAO.REFEICAO.value.upper(): 0,
     "REFEIÇÃO CIEJA E CMCT": 0,
     "REFEIÇÃO - CEU EMEF, CEU GESTÃO, EMEF, EMEFM": 0,
     "REFEIÇÃO - EJA": 1,
     "LANCHE": 2,
-    "LANCHE 4H": 3,
+    TIPOS_ALIMENTACAO.LANCHE_4H.value.upper(): 3,
     "KIT LANCHE": 99,
 }
 
 
 def obter_config_grupo(grupo_nome):
     grupos_relatorio = {
-        "GRUPO 1": {
+        GrupoUnidadeEscolar.GRUPO_1.upper(): {
             "builder": build_relatorio_financeiro_grupo_cei,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html",
             "tipo_calculo": "faixa_etaria",
         },
-        "GRUPO 2": {
+        GrupoUnidadeEscolar.GRUPO_2.upper(): {
             "builder": build_relatorio_financeiro_grupo_cemei,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cemei.html",
             "tipo_calculo": None,
         },
-        "GRUPO 5": {
+        GrupoUnidadeEscolar.GRUPO_5.upper(): {
             "builder": build_relatorio_financeiro_grupo_emebs,
             "template": "relatorio_financeiro/relatorio_ateste_financeiro_grupo_emebs.html",
             "tipo_calculo": "tipo_alimentacao",
@@ -356,9 +358,13 @@ def build_relatorio_financeiro_grupo_cei(
 
     alimentacao = _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo)
 
-    dieta_a = _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, "TIPO A")
+    dieta_a = _build_tabela_dieta_cei(
+        tabelas, faixas_etarias, totais_consumo, ClassificacaoDieta.TIPO_A.upper()
+    )
 
-    dieta_b = _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, "TIPO B")
+    dieta_b = _build_tabela_dieta_cei(
+        tabelas, faixas_etarias, totais_consumo, ClassificacaoDieta.TIPO_B.upper()
+    )
 
     consolidado = _build_consolidado_total(alimentacao, dieta_a, dieta_b)
 
@@ -470,11 +476,11 @@ def _build_tabela_alimentacao_emei(
         else:
             nome_consumo = normalizar_nome_campo(
                 tipo["nome"],
-                "GRUPO 3",
+                GrupoUnidadeEscolar.GRUPO_3.upper(),
             ).lower()
 
         numero_atendimentos = totais_consumo.get(
-            "ALIMENTAÇÃO",
+            CategoriaMedicao.ALIMENTACAO,
             {},
         ).get(
             f"total_{nome_consumo}",
@@ -491,7 +497,8 @@ def _build_tabela_alimentacao_emei(
             {
                 "tipo": (
                     f"{alimentacao_nome} CIEJA E CMCT"
-                    if grupo_nome == "GRUPO 6" and alimentacao_nome == "REFEIÇÃO"
+                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
+                    and alimentacao_nome == TIPOS_ALIMENTACAO.REFEICAO.value.upper()
                     else alimentacao_nome
                 ),
                 "valor_unitario": valor_unitario,
@@ -583,7 +590,8 @@ def _build_tabela_dieta_emei(
             {
                 "tipo": (
                     f"{dieta_nome} CIEJA E CMCT"
-                    if grupo_nome == "GRUPO 6" and dieta_nome == "REFEIÇÃO"
+                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
+                    and dieta_nome == TIPOS_ALIMENTACAO.REFEICAO.value.upper()
                     else dieta_nome
                 ),
                 "valor_unitario": valor_unitario,
@@ -622,8 +630,8 @@ def build_relatorio_financeiro_grupo_emei(
     tipos_unidades = grupo_unidade.tipos_unidades.all()
     grupo_nome = grupo_unidade.nome.upper()
 
-    eh_cieja = "GRUPO 6" in grupo_nome
-    eh_emef = "GRUPO 4" in grupo_nome
+    eh_cieja = GrupoUnidadeEscolar.GRUPO_6.upper() in grupo_nome
+    eh_emef = GrupoUnidadeEscolar.GRUPO_4.upper() in grupo_nome
 
     tipos_alimentacao = _obter_tipos_alimentacao_por_unidades(
         tipos_unidades.values_list("uuid", flat=True)
@@ -633,12 +641,12 @@ def build_relatorio_financeiro_grupo_emei(
         novos_tipos = []
 
         for tipo in tipos_alimentacao:
-            if tipo["nome"].upper() == "REFEIÇÃO":
+            if tipo["nome"].upper() == TIPOS_ALIMENTACAO.REFEICAO.value.upper():
                 novos_tipos.extend(
                     [
                         {
                             "uuid": tipo["uuid"],
-                            "nome": "REFEIÇÃO",
+                            "nome": TIPOS_ALIMENTACAO.REFEICAO.value.upper(),
                         },
                         {
                             "uuid": tipo["uuid"],
@@ -667,26 +675,38 @@ def build_relatorio_financeiro_grupo_emei(
     )
 
     lista_dietas_a = (
-        ["LANCHE", "LANCHE 4H", "REFEIÇÃO"]
+        [
+            "LANCHE",
+            TIPOS_ALIMENTACAO.LANCHE_4H.value.upper(),
+            TIPOS_ALIMENTACAO.REFEICAO.value.upper(),
+        ]
         if not eh_cieja
-        else ["LANCHE 4H", "REFEIÇÃO"]
+        else [
+            TIPOS_ALIMENTACAO.LANCHE_4H.value.upper(),
+            TIPOS_ALIMENTACAO.REFEICAO.value.upper(),
+        ]
     )
 
     tipos_dieta_a = [
         tipo
         for tipo in tipos_alimentacao
-        if "REFEIÇÃO" in tipo["nome"].upper() or tipo["nome"].upper() in lista_dietas_a
+        if TIPOS_ALIMENTACAO.REFEICAO.value.upper() in tipo["nome"].upper()
+        or tipo["nome"].upper() in lista_dietas_a
     ]
 
     dieta_a = _build_tabela_dieta_emei(
         tabelas,
         tipos_dieta_a,
         totais_consumo,
-        "TIPO A",
+        ClassificacaoDieta.TIPO_A.upper(),
         grupo_nome,
     )
 
-    lista_dietas_b = ["LANCHE", "LANCHE 4H"] if not eh_cieja else ["LANCHE 4H"]
+    lista_dietas_b = (
+        ["LANCHE", TIPOS_ALIMENTACAO.LANCHE_4H.value.upper()]
+        if not eh_cieja
+        else [TIPOS_ALIMENTACAO.LANCHE_4H.value.upper()]
+    )
 
     tipos_dieta_b = [
         tipo for tipo in tipos_alimentacao if tipo["nome"].upper() in lista_dietas_b
@@ -696,7 +716,7 @@ def build_relatorio_financeiro_grupo_emei(
         tabelas,
         tipos_dieta_b,
         totais_consumo,
-        "TIPO B",
+        ClassificacaoDieta.TIPO_B.upper(),
         grupo_nome,
     )
 

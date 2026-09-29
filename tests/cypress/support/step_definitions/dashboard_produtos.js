@@ -61,3 +61,45 @@ Then('a fila do dashboard retorna status permitido e dados validos', function ()
 	]) expect(produto[campo]).to.exist.and.not.be.empty
 	expect(produto.produto_editais).to.be.an('array')
 })
+
+When('consulto um produto existente pelo UUID no dashboard', function () {
+	cy.autenticar_login(Cypress.env('usuario_coordenador_logistica'), Cypress.env('senha'))
+	cy.consultar_dashboard_produtos({ pageSize: 1, usuario: Cypress.env('usuario_coordenador_logistica'), senha: Cypress.env('senha') }).then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array').and.not.be.empty
+		this.uuidDashboard = response.body.results[0].uuid
+		cy.executar_dashboard_produtos('GET', this.uuidDashboard).then((resposta) => { this.response = resposta })
+	})
+})
+
+Then('o detalhe do dashboard corresponde ao produto consultado', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body).to.include.all.keys(...camposProduto)
+	expect(this.response.body.uuid).to.eq(this.uuidDashboard)
+	expect(this.response.body.nome_produto).to.be.a('string').and.not.be.empty
+	expect(this.response.body.produto_editais).to.be.an('array')
+})
+
+When('executo {string} no dashboard com UUID inexistente', function (metodo) {
+	cy.autenticar_login(Cypress.env('usuario_coordenador_logistica'), Cypress.env('senha'))
+	cy.executar_dashboard_produtos(metodo, '00000000-0000-0000-0000-000000000000', ['PUT', 'PATCH'].includes(metodo) ? {} : undefined).then((response) => { this.response = response })
+})
+
+When('executo {string} no dashboard sem autenticacao', function (metodo) {
+	cy.clearCookies()
+	cy.executar_dashboard_produtos(metodo, metodo === 'POST' ? '' : '00000000-0000-0000-0000-000000000000', ['POST', 'PUT', 'PATCH'].includes(metodo) ? {} : undefined, false).then((response) => { this.response = response })
+})
+
+When('cadastro no dashboard um status invalido', function () {
+	cy.autenticar_login(Cypress.env('usuario_coordenador_logistica'), Cypress.env('senha'))
+	cy.executar_dashboard_produtos('POST', '', { status: 'STATUS_INEXISTENTE', tem_vinculo_produto_edital_suspenso: false }).then((response) => { this.response = response })
+})
+
+Then('a operacao do dashboard retorna {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if (status === 401) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
+
+Then('o dashboard informa erro no campo status', function () {
+	expect(this.response.body.status).to.be.an('array').and.not.be.empty
+})

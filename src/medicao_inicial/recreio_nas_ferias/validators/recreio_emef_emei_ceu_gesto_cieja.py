@@ -29,9 +29,9 @@ from src.medicao_inicial.validators import (
     lista_erros_com_periodo,
 )
 
-CATEGORIA_ALIMENTACAO_NOME = "ALIMENTAÇÃO"
+CATEGORIA_ALIMENTACAO_NOME = CategoriaMedicao.ALIMENTACAO
 CATEGORIA_DIETA_TIPO_A_ENTERAL_RESTRICAO_NOME = (
-    "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
 )
 
 
@@ -151,7 +151,9 @@ def _categoria_tem_logs_dieta_autorizada(
     termo = categoria.nome.split(" - ")[1].lower()
     return any(
         any(
-            termo in nome and "enteral" not in nome and "aminoácidos" not in nome
+            termo in nome
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL.lower() not in nome
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS.lower() not in nome
             for nome in logs_por_dia_do_dia
         )
         for logs_por_dia_do_dia in logs_por_dia.values()
@@ -189,7 +191,9 @@ def retorna_valor_para_log_dieta_autorizada(
         (
             quantidade
             for nome, quantidade in logs_do_dia.items()
-            if termo in nome and "enteral" not in nome and "aminoácidos" not in nome
+            if termo in nome
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL.lower() not in nome
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS.lower() not in nome
         ),
         0,
     )

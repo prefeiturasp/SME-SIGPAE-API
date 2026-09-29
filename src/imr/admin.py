@@ -4,6 +4,7 @@ from django.urls import path
 from rangefilter.filters import DateRangeFilter
 
 from src.dados_comuns.behaviors import PerfilDiretorSupervisao
+from src.dados_comuns.constants import StringsSearchHelpText, StringsValidationErrors
 from src.dados_comuns.utils import custom_titled_filter
 from src.imr.api.services import (
     exportar_planilha_importacao_tipos_ocorrencia,
@@ -79,7 +80,7 @@ class TipoPenalidadeAdmin(admin.ModelAdmin):
     )
     ordering = ("criado_em",)
     search_fields = ("numero_clausula",)
-    search_help_text = "Pesquise por: número da cláusula"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DA_CLAUSULA.value
     list_filter = (
         "edital",
         "gravidade",
@@ -120,7 +121,11 @@ class ImportacaoPlanilhaTipoPenalidadeAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -165,7 +170,7 @@ class TipoOcorrenciaAdmin(admin.ModelAdmin):
     )
     ordering = ("criado_em",)
     search_fields = ("titulo",)
-    search_help_text = "Pesquise por: título"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_TITULO.value
     list_filter = (
         "edital",
         ("categoria__nome", custom_titled_filter("Categoria")),
@@ -215,7 +220,11 @@ class ImportacaoPlanilhaTipoOcorrenciaAdmin(admin.ModelAdmin):
         arquivo = queryset.first()
 
         if len(queryset) > 1:
-            self.message_user(request, "Escolha somente uma planilha.", messages.ERROR)
+            self.message_user(
+                request,
+                StringsValidationErrors.ESCOLHA_UMA_PLANILHA.value,
+                messages.ERROR,
+            )
             return
         if not valida_arquivo_importacao_usuarios(arquivo=arquivo):
             self.message_user(request, "Arquivo não suportado.", messages.ERROR)
@@ -266,7 +275,7 @@ class ParametrizacaoOcorrenciaAdmin(admin.ModelAdmin):
     )
     ordering = ("criado_em",)
     search_fields = ("edital__numero", "titulo")
-    search_help_text = "Pesquise por: número do edital, título"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL_TITULO.value
     list_filter = ("tipo_ocorrencia", "tipo_ocorrencia__edital", PerfisFilter)
     autocomplete_fields = ("tipo_ocorrencia",)
     readonly_fields = ("uuid",)
@@ -477,7 +486,9 @@ class UtensilioMesaAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     search_fields = ("nome",)
-    search_help_text = "Pesquise por: nome do utensílio de mesa"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_UTENSILIO_DE_MESA.value
+    )
     list_filter = ("status",)
 
     def nome_label(self, obj):
@@ -492,7 +503,7 @@ class EditalUtensilioMesaAdmin(admin.ModelAdmin):
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     autocomplete_fields = ("edital",)
     search_fields = ("edital__numero",)
-    search_help_text = "Pesquise por: número do edital"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL.value
 
 
 class UtensilioCozinhaAdminForm(forms.ModelForm):
@@ -512,7 +523,9 @@ class UtensilioCozinhaAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     search_fields = ("nome",)
-    search_help_text = "Pesquise por: nome do utensílio de cozinha"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_UTENSILIO_DE_COZINHA.value
+    )
     list_filter = ("status",)
 
     def nome_label(self, obj):
@@ -527,7 +540,7 @@ class EditalUtensilioCozinhaAdmin(admin.ModelAdmin):
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     autocomplete_fields = ("edital",)
     search_fields = ("edital__numero",)
-    search_help_text = "Pesquise por: número do edital"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL.value
 
 
 class EquipamentoAdminForm(forms.ModelForm):
@@ -547,7 +560,7 @@ class EquipamentoAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     search_fields = ("nome",)
-    search_help_text = "Pesquise por: nome do equipamento"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NOME_DO_EQUIPAMENTO.value
     list_filter = ("status",)
 
     def nome_label(self, obj):
@@ -562,7 +575,7 @@ class EditalEquipamentoAdmin(admin.ModelAdmin):
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     autocomplete_fields = ("edital",)
     search_fields = ("edital__numero",)
-    search_help_text = "Pesquise por: número do edital"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL.value
 
 
 class MobiliarioAdminForm(forms.ModelForm):
@@ -582,7 +595,7 @@ class MobiliarioAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     search_fields = ("nome",)
-    search_help_text = "Pesquise por: nome do mobiliário"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NOME_DO_MOBILIARIO.value
     list_filter = ("status",)
 
     def nome_label(self, obj):
@@ -597,7 +610,7 @@ class EditalMobiliarioAdmin(admin.ModelAdmin):
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     autocomplete_fields = ("edital",)
     search_fields = ("edital__numero",)
-    search_help_text = "Pesquise por: número do edital"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL.value
 
 
 class ReparoEAdaptacaoAdminForm(forms.ModelForm):
@@ -617,7 +630,9 @@ class ReparoEAdaptacaoAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     search_fields = ("nome",)
-    search_help_text = "Pesquise por: nome do reparo e adaptação"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_NOME_DO_REPARO_E_ADAPTACAO.value
+    )
     list_filter = ("status",)
 
     def nome_label(self, obj):
@@ -632,7 +647,7 @@ class EditalReparoEAdaptacaoAdmin(admin.ModelAdmin):
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     autocomplete_fields = ("edital",)
     search_fields = ("edital__numero",)
-    search_help_text = "Pesquise por: número do edital"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL.value
 
 
 class InsumoAdminForm(forms.ModelForm):
@@ -652,7 +667,7 @@ class InsumoAdmin(admin.ModelAdmin):
     )
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     search_fields = ("nome",)
-    search_help_text = "Pesquise por: nome do insumo"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NOME_DO_INSUMO.value
     list_filter = ("status",)
 
     def nome_label(self, obj):
@@ -667,7 +682,7 @@ class EditalInsumoAdmin(admin.ModelAdmin):
     readonly_fields = ("uuid", "criado_em", "alterado_em")
     autocomplete_fields = ("edital",)
     search_fields = ("edital__numero",)
-    search_help_text = "Pesquise por: número do edital"
+    search_help_text = StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL.value
 
 
 @admin.register(OcorrenciaNaoSeAplica)
@@ -680,7 +695,7 @@ class OcorrenciaNaoSeAplicaAdmin(admin.ModelAdmin):
         "formulario_base__usuario__nome",
     )
     search_help_text = (
-        "Pesquise por: número do edital; (email, nome) do usuário do formulário."
+        StringsSearchHelpText.PESQUISE_POR_NUMERO_DO_EDITAL_EMAIL_NOME_DO_USUARIO_DO_FORMULARIO.value
     )
     list_display = ("tipo_ocorrencia", "formulario_base", "descricao", "criado_em")
     list_filter = ("tipo_ocorrencia",)

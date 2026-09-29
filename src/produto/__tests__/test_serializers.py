@@ -1,8 +1,13 @@
 import pytest
+from model_bakery import baker
 
 from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.produto.api.serializers.serializers import (
+    DadosHistoricosProdutoSerializer,
     HomologacaoProdutoPainelGerencialSerializer,
+    LogProdutoComAnexosSerializer,
+    LogProdutoComVinculoSerializer,
     ReclamacaoDeProdutoExcelSerializer,
 )
 from src.produto.models import AnaliseSensorial
@@ -175,3 +180,71 @@ def test_alteracao_produto_homologado(alteracao_produto_homologado):
     )
     data = serializer.data
     assert data["produto_eh_copia"] == True
+
+
+def test_dados_historicos_produto_serializer(homologacao_produto, user):
+    log = homologacao_produto.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=user,
+    )
+
+    dados = DadosHistoricosProdutoSerializer(log.dados_produto).data
+
+    assert dados["produto_uuid"] == str(homologacao_produto.produto.uuid)
+    assert dados["empresa"] == (
+        homologacao_produto.rastro_terceirizada.nome_fantasia
+    )
+    assert dados["produto"] == homologacao_produto.produto.nome
+    assert dados["marca"] == homologacao_produto.produto.marca.nome
+    assert dados["fabricante"] == homologacao_produto.produto.fabricante.nome
+    assert dados["eh_para_alunos_com_dieta"] is True
+    assert dados["componentes"] == homologacao_produto.produto.componentes
+    assert "criado_em" in dados
+
+
+def test_log_produto_com_vinculo_serializer_exibe_dados_historicos(
+    homologacao_produto,
+    user,
+):
+    log = homologacao_produto.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=user,
+    )
+
+    dados = LogProdutoComVinculoSerializer(log).data
+
+    assert dados["uuid"] == str(log.uuid)
+    assert dados["dados_produto"]["produto_uuid"] == str(
+        homologacao_produto.produto.uuid
+    )
+    assert dados["dados_produto"]["produto"] == homologacao_produto.produto.nome
+
+
+def test_log_produto_sem_snapshot_retorna_dados_historicos_nulos(
+    homologacao_produto,
+    user,
+):
+    log = baker.make(
+        "LogSolicitacoesUsuario",
+        uuid_original=homologacao_produto.uuid,
+        solicitacao_tipo=LogSolicitacoesUsuario.HOMOLOGACAO_PRODUTO,
+        status_evento=LogSolicitacoesUsuario.INICIO_FLUXO,
+        usuario=user,
+    )
+
+    dados = LogProdutoComAnexosSerializer(log).data
+
+    assert dados["uuid"] == str(log.uuid)
+    assert dados["dados_produto"] is None
+
+
+def test_acao_inicial_legada_retorna_dados_historicos_nulos(reclamacao):
+    from src.produto.api.serializers.serializers import (
+        ReclamacaoDeProdutoSerializer,
+    )
+
+    dados = ReclamacaoDeProdutoSerializer(reclamacao).data
+
+    assert len(dados["logs"]) == 1
+    assert dados["logs"][0]["uuid"] == str(reclamacao.uuid)
+    assert dados["logs"][0]["dados_produto"] is None

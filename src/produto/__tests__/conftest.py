@@ -8,7 +8,7 @@ from django.http import QueryDict
 from faker import Faker
 from model_bakery import baker
 
-from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA, MODEL_USUARIO
+from src.dados_comuns.constants import ADMINISTRADOR_EMPRESA, StringsCaminhoModelos
 from src.produto.api.serializers.serializers import (
     HomologacaoProdutoPainelGerencialSerializer,
     ProdutoReclamacaoSerializer,
@@ -1052,7 +1052,7 @@ def item_cadastrado_4(embalagem_produto):
 
 @pytest.fixture
 def usuario():
-    return baker.make(MODEL_USUARIO)
+    return baker.make(StringsCaminhoModelos.MODEL_USUARIO.value)
 
 
 @pytest.fixture
@@ -1187,7 +1187,7 @@ def homologacao_e_copia(terceirizada):
 def numero_editais():
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "editais[]",
+        constants.PayloadVariaveis.EDITAIS.value,
         [
             "Edital de Pregão nº 78/sme/2022",
             "Edital de Pregão nº 78/sme/2016",

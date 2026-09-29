@@ -2,6 +2,7 @@ from datetime import date, timedelta
 from unittest.mock import patch
 
 import pytest
+from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import serializers
 
@@ -22,11 +23,10 @@ from src.escola.fixtures.factories.escola_factory import (
     PeriodoEscolarFactory,
 )
 from src.medicao_inicial.api.serializers import (
-    DadosLiquidacaoSerializer,
+    ParametrizacaoFinanceiraSerializer,
     RelatorioFinanceiroSerializer,
 )
 from src.medicao_inicial.api.serializers_create import (
-    DadosLiquidacaoUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
 )
 from src.medicao_inicial.fixtures.factories.base_factory import (
@@ -112,7 +112,7 @@ def test_nao_cria_valores_medicao_cei_sem_faixa_etaria(
     baker.make("Aluno", escola=escola, periodo_escolar=periodo_escolar)
     baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
 
     medicao = Medicao.objects.create(
@@ -158,7 +158,7 @@ def test_cria_valores_medicao_cei_com_faixa_etaria(
     baker.make("Aluno", escola=escola, periodo_escolar=periodo_escolar)
     baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
 
     medicao = Medicao.objects.create(
@@ -206,35 +206,6 @@ def test_cria_valores_medicao_cei_com_faixa_etaria(
     assert valores.count() == 1
     assert valores.first().valor == "7"
     assert valores.first().faixa_etaria == faixa_etaria
-
-
-def test_cria_dados_liquidacao(relatorio_financeiro, escola_cei):
-    payload = {
-        "relatorio_financeiro_id": str(relatorio_financeiro.uuid),
-        "numero_empenho": "888/6598",
-        "tipo_empenho": "PRINCIPAL",
-        "unidades_educacionais": [escola_cei.uuid],
-    }
-
-    serializer = DadosLiquidacaoUpdateSerializer(data=payload)
-
-    assert serializer.is_valid(), serializer.errors
-    instance = serializer.save()
-
-    assert instance.relatorio_financeiro == relatorio_financeiro
-    assert instance.numero_empenho == "888/6598"
-    assert instance.unidades_educacionais.count() == 1
-
-
-def test_retorna_dados_liquidacao(dados_liquidacao_cmct):
-    serializer = DadosLiquidacaoSerializer(dados_liquidacao_cmct)
-
-    data = serializer.data
-
-    assert "relatorio_financeiro" in data
-    assert isinstance(data["unidades_educacionais"], list)
-    assert len(data["unidades_educacionais"]) == 1
-    assert "uuid" in data["unidades_educacionais"][0]
 
 
 def test_finaliza_recreio_nas_ferias_retorna_erro_quando_ainda_nao_pode_finalizar():
@@ -360,7 +331,7 @@ def test_cria_valores_medicao_logs_matriculados_emef_emei_nao_duplica(
     escola, periodo_escolar
 ):
     """Verifica que método EMEF/EMEI não duplica Medicao ao ser chamado 2x."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     AlunosMatriculadosPeriodoEscolaFactory(
         escola=escola,
@@ -400,7 +371,7 @@ def test_cria_valores_medicao_logs_matriculados_cei_nao_duplica(
     escola_cei, periodo_escolar
 ):
     """Verifica que método CEI não duplica Medicao ao ser chamado 2x."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     AlunosMatriculadosPeriodoEscolaFactory(
         escola=escola_cei,
@@ -443,7 +414,7 @@ def test_cria_valores_medicao_logs_matriculados_emef_emei_periodo_vigente(
     periodo_escolar_noite,
 ):
     """Verifica que método EMEF/EMEI não cria valores para período não vigente."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     for periodo in [periodo_escolar_manha, periodo_escolar_tarde]:
         AlunosMatriculadosPeriodoEscolaFactory(
@@ -498,7 +469,7 @@ def test_cria_valores_medicao_logs_matriculados_cei_periodo_vigente(
     periodo_escolar_tarde,
 ):
     """Verifica que método CEI não cria valores para período não vigente."""
-    CategoriaMedicao.objects.get_or_create(nome="ALIMENTAÇÃO")
+    CategoriaMedicao.objects.get_or_create(nome=CategoriaMedicao.ALIMENTACAO)
 
     for periodo in [
         (periodo_escolar_manha, date(2026, 4, 1)),
@@ -573,7 +544,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         )
 
     def _setup_categoria(self):
-        return CategoriaMedicaoFactory.create(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        return CategoriaMedicaoFactory.create(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
 
     def _setup_grupo_solicitacoes_alimentacao(self):
         grupo, _ = GrupoMedicao.objects.get_or_create(
@@ -639,7 +612,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         )
 
         medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         valor = ValorMedicao.objects.filter(
             medicao=medicao,
             categoria_medicao=categoria,
@@ -673,7 +648,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         valor = ValorMedicao.objects.filter(
             categoria_medicao=categoria,
             dia="15",
@@ -700,7 +677,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
         )
 
         medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
-        categoria = CategoriaMedicao.objects.get(nome="SOLICITAÇÕES DE ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.get(
+            nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         valor = ValorMedicao.objects.filter(
             medicao=medicao,
             categoria_medicao=categoria,
@@ -710,3 +689,33 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
 
         assert valor is not None
         assert int(valor.valor) > 0
+
+
+def _parametrizacao_vigente(parametrizacao):
+    return ParametrizacaoFinanceiraSerializer(parametrizacao).data["vigente"]
+
+
+def test_parametrizacao_financeira_serializer_vigente(parametrizacao_financeira_emef):
+    parametrizacao_financeira_emef.refresh_from_db()
+
+    with freeze_time("2025-10-15"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+    with freeze_time("2025-10-01"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+    with freeze_time("2025-10-30"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+    with freeze_time("2025-09-30"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is False
+
+    with freeze_time("2025-10-31"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is False
+
+    parametrizacao_financeira_emef.data_final = None
+    parametrizacao_financeira_emef.save(update_fields=["data_final"])
+    parametrizacao_financeira_emef.refresh_from_db()
+
+    with freeze_time("2025-11-01"):
+        assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True

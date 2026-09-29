@@ -56,7 +56,7 @@ def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia, escola=No
         periodo_escolar=periodo,
     )
     if dia is not None:
-        categoria = CategoriaMedicao.objects.create(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.create(nome=CategoriaMedicao.ALIMENTACAO)
         ValorMedicao.objects.create(
             medicao=medicao,
             categoria_medicao=categoria,
@@ -460,7 +460,7 @@ class TestValidateUltimoDiaMesLetivo:
         periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
         _tornar_escola_com_alunos_regulares(escola, periodo_manha)
         _tornar_escola_com_alunos_regulares(escola, periodo_tarde)
-        categoria = CategoriaMedicao.objects.create(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.create(nome=CategoriaMedicao.ALIMENTACAO)
         for periodo in [periodo_manha, periodo_tarde]:
             medicao = Medicao.objects.create(
                 solicitacao_medicao_inicial=solicitacao,
@@ -532,7 +532,7 @@ class TestValidateUltimoDiaMesLetivo:
             solicitacao_medicao_inicial=solicitacao,
             periodo_escolar=periodo,
         )
-        categoria = CategoriaMedicao.objects.create(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.create(nome=CategoriaMedicao.ALIMENTACAO)
         ValorMedicao.objects.create(
             medicao=medicao,
             categoria_medicao=categoria,
@@ -566,7 +566,7 @@ class TestValidateUltimoDiaMesLetivo:
             ano,
             ultimo_dia_eh_letivo=True,
         )
-        categoria = CategoriaMedicao.objects.create(nome="ALIMENTAÇÃO")
+        categoria = CategoriaMedicao.objects.create(nome=CategoriaMedicao.ALIMENTACAO)
         periodo = periodo_escolar_factory.create(nome="MANHA")
         medicao_manha = Medicao.objects.create(
             solicitacao_medicao_inicial=solicitacao,

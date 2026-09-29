@@ -34,7 +34,6 @@ router.register(
     "permissao-lancamentos-especiais", viewsets.PermissaoLancamentoEspecialViewSet
 )
 router.register("dias-para-corrigir", viewsets.DiasParaCorrigirViewSet)
-router.register("empenhos", viewsets.EmpenhoViewSet)
 router.register("clausulas-de-descontos", viewsets.ClausulaDeDescontoViewSet)
 
 router.register("relatorios", viewsets.RelatoriosViewSet, basename="relatorios")
@@ -57,9 +56,6 @@ router.register(
     "historico-acesso-ue",
     historico_acesso_ue_viewsets.HistoricoAcessoUEViewSet,
     basename="historico-acesso-ue",
-)
-router.register(
-    "dados-liquidacao", viewsets.DadosLiquidacaoViewSet, basename="dados-liquidacao"
 )
 router.register(
     "desconto-financeiro",

@@ -11,6 +11,7 @@ from django.core.validators import FileExtensionValidator
 from django.db import models
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import StringsVerboseNameModels
 from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 
 from ...dados_comuns.behaviors import (
@@ -116,7 +117,9 @@ class TipoDeEmbalagemDeLayout(TemChaveExterna):
     status = models.CharField(
         choices=STATUS_CHOICES, max_length=10, default=STATUS_EM_ANALISE
     )
-    complemento_do_status = models.TextField("Complemento do status", blank=True)
+    complemento_do_status = models.TextField(
+        StringsVerboseNameModels.COMPLEMENTO_DO_STATUS.value, blank=True
+    )
 
     def __str__(self):
         """Retorna a representação textual do tipo de embalagem."""
@@ -153,7 +156,9 @@ class LayoutDeEmbalagem(
         null=True,
         related_name="layout_embalagem",
     )
-    observacoes = models.TextField("Observações", blank=True)
+    observacoes = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES.value, blank=True
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         """Registra o log de transição de status do layout.

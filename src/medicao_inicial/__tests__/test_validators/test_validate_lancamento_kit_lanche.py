@@ -5,6 +5,7 @@ import pytest
 from model_bakery import baker
 
 from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.validators import validate_lancamento_kit_lanche
 
 pytestmark = pytest.mark.django_db
@@ -32,7 +33,9 @@ class TestValidateLancamentoKitLanche:
         baker.make(
             "ValorMedicao",
             medicao=medicao,
-            categoria_medicao=baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO"),
+            categoria_medicao=baker.make(
+                "CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO
+            ),
             nome_campo="kit_lanche",
             dia=dia,
             valor="1",

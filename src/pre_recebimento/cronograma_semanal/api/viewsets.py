@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     USUARIO_EMPRESA,
 )
 from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
@@ -44,6 +45,9 @@ from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
     CronogramaSemanalRelatorioSerializer,
 )
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+from src.pre_recebimento.tasks import (
+    gerar_relatorio_cronogramas_semanais_xlsx_async,
+)
 from src.relatorios.relatorios import (
     get_pdf_cronograma_semanal,
 )
@@ -86,15 +90,22 @@ class CronogramaSemanalViewSet(
         "alterar_cronograma": [PermissaoParaCriarCronogramaSemanal],
         "calendario": [PermissaoParaVisualizarCalendarioCronograma],
         "lista_relatorio": [PermissaoParaVisualizarRelatorioCronograma],
+        "gerar_relatorio_xlsx_async": [PermissaoParaVisualizarRelatorioCronograma],
     }
     lookup_field = "uuid"
     filter_backends = (filters.DjangoFilterBackend,)
     pagination_class = PreRecebimentoPagination
 
+    ACTIONS_DO_RELATORIO = ("lista_relatorio", "gerar_relatorio_xlsx_async")
+
     @property
     def filterset_class(self):
-        """O relatório tem seus próprios filtros, independentes da listagem."""
-        if getattr(self, "action", None) == "lista_relatorio":
+        """O relatório tem seus próprios filtros, independentes da listagem.
+
+        A exportação usa o mesmo filterset da tela do relatório para que o
+        arquivo gerado reflita exatamente o que o usuário está vendo.
+        """
+        if getattr(self, "action", None) in self.ACTIONS_DO_RELATORIO:
             return CronogramaSemanalRelatorioFilter
 
         return CronogramaSemanalFilter
@@ -194,6 +205,40 @@ class CronogramaSemanalViewSet(
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    @action(
+        detail=False,
+        methods=["GET"],
+        url_path="gerar-relatorio-xlsx-async",
+        url_name="gerar_relatorio_xlsx_async",
+    )
+    def gerar_relatorio_xlsx_async(self, request):
+        """Solicita a geração assíncrona do relatório em XLSX.
+
+        Endpoint: ``GET /cronogramas-semanais/gerar-relatorio-xlsx-async/``
+        """
+        ids_cronogramas = list(
+            self.filter_queryset(self.get_queryset())
+            .order_by("-alterado_em")
+            .distinct()
+            .values_list("id", flat=True)
+        )
+
+        filtros = {
+            "mes_inicial": request.query_params.get("mes_inicial"),
+            "mes_final": request.query_params.get("mes_final"),
+        }
+
+        gerar_relatorio_cronogramas_semanais_xlsx_async.delay(
+            request.user.username,
+            ids_cronogramas,
+            filtros,
+        )
+
+        return Response(
+            {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
+            status=status.HTTP_200_OK,
+        )
 
     def get_serializer_context(self):
         """Repassa o mês de entrega ao serializer do relatório, que recorta

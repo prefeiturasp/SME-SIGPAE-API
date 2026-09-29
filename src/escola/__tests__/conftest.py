@@ -17,13 +17,19 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
+    NomesParaTesteDiretoriaRegional,
+    NomesParaTesteEscola,
     StatusProcessamentoArquivo,
+    StringsCaminhoModelos,
+    StringsDatasISO,
 )
 from src.dados_comuns.fluxo_status import (
     HomologacaoProdutoWorkflow,
     PedidoAPartirDaEscolaWorkflow,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.utils import cria_arquivo_excel
 from src.escola.utils_analise_dietas_ativas import (
     dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
@@ -115,7 +121,8 @@ def escola_cei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -123,7 +130,7 @@ def escola_cei():
     )
     return baker.make(
         "Escola",
-        nome="CEI DIRET TESTE",
+        nome=NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -159,7 +166,8 @@ def escola_cemei(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -167,7 +175,7 @@ def escola_cemei(periodo_escolar):
     )
     escola = baker.make(
         "Escola",
-        nome="CEMEI TESTE",
+        nome=NomesParaTesteEscola.CEMEI_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         tipo_gestao=tipo_gestao,
@@ -195,7 +203,8 @@ def escola_cemei_sem_alunos(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -217,7 +226,8 @@ def escola_emebs(periodo_escolar):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     tipo_unidade_escolar = baker.make(
@@ -733,7 +743,9 @@ def dia_suspensao_atividades(tipo_unidade_escolar):
 
 @pytest.fixture
 def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regular):
-    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    faixas_etarias = [
+        {"nome": FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value, "uuid": uuid.uuid4()}
+    ]
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
@@ -765,7 +777,9 @@ def dados_planilha_alunos_matriculados(alunos_matriculados_periodo_escola_regula
 def dados_planilha_alunos_matriculados_cei_cemei(
     alunos_matriculados_periodo_escola_regular,
 ):
-    faixas_etarias = [{"nome": "04 anos a 06 anos", "uuid": uuid.uuid4()}]
+    faixas_etarias = [
+        {"nome": FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value, "uuid": uuid.uuid4()}
+    ]
     queryset = [
         {
             "dre": alunos_matriculados_periodo_escola_regular.escola.diretoria_regional.nome,
@@ -993,15 +1007,21 @@ def dicionario_de_alunos_matriculados():
 def lista_dias_letivos(escola, dia_calendario_letivo, dia_calendario_nao_letivo):
     dias_letivos = [
         {
-            "data": dia_calendario_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "data": dia_calendario_letivo.data.strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": dia_calendario_letivo.dia_letivo,
         },
         {
-            "data": dia_calendario_nao_letivo.data.strftime("%Y-%m-%dT00:00:00"),
+            "data": dia_calendario_nao_letivo.data.strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": dia_calendario_nao_letivo.dia_letivo,
         },
         {
-            "data": datetime.datetime(2021, 9, 26).strftime("%Y-%m-%dT00:00:00"),
+            "data": datetime.datetime(2021, 9, 26).strftime(
+                StringsDatasISO.FORMATO_ISO_MEIA_NOITE.value
+            ),
             "ehLetivo": False,
         },
     ]
@@ -1072,7 +1092,7 @@ def dieta_codae_autorizou(aluno, escola):
     with freeze_time("2025-01-01"):
         aluno.nome = "Antônio"
         aluno.save()
-        classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+        classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_A)
         solicitacao_dieta = baker.make(
             "SolicitacaoDietaEspecial",
             rastro_escola=escola,
@@ -1099,7 +1119,7 @@ def dieta_codae_autorizou(aluno, escola):
 def dieta_cancelada(aluno, escola):
     aluno.nome = "Lucas"
     aluno.save()
-    classificacao = baker.make("ClassificacaoDieta", nome="Tipo B")
+    classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_B)
 
     solicitacao_dieta = baker.make(
         "SolicitacaoDietaEspecial",
@@ -1121,7 +1141,7 @@ def dieta_com_atualizacao_protocolo(aluno, escola):
     with freeze_time("2025-01-01"):
         aluno.nome = "Beatriz"
         aluno.save()
-        classificacao = baker.make("ClassificacaoDieta", nome="Tipo C")
+        classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_C)
         solicitacao_dieta = baker.make(
             "SolicitacaoDietaEspecial",
             rastro_escola=escola,
@@ -1324,13 +1344,17 @@ def escola_edital_41(escola):
 
 @pytest.fixture
 def tipo_alimentacao():
-    return baker.make("cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.REFEICAO.value)
+    return baker.make(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.REFEICAO.value,
+    )
 
 
 @pytest.fixture
 def tipo_alimentacao_lanche_emergencial():
     return baker.make(
-        "cardapio.TipoAlimentacao", nome=TIPOS_ALIMENTACAO.SOBREMESA.value
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        nome=TIPOS_ALIMENTACAO.SOBREMESA.value,
     )
 
 
@@ -1357,7 +1381,8 @@ def escola_cmct(tipo_alimentacao, tipo_alimentacao_lanche_emergencial):
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     tipo_gestao = baker.make("TipoGestao", nome=TIPOS_GESTAO.TERC_TOTAL.value)
     escola = baker.make(
@@ -1426,17 +1451,17 @@ def log_alunos_matriculados_cei(escola_cei, log_alunos_matriculados_integral_cei
 def grupos_da_dre(tipo_unidade_escolar):
     dre = baker.make("DiretoriaRegional", nome="DRE ADMIN")
     baker.make("Escola", diretoria_regional=dre, tipo_unidade=tipo_unidade_escolar)
-    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 1")
+    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_1)
     grupo.tipos_unidades.add(tipo_unidade_escolar)
-    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 2")
-    grupo = baker.make("GrupoUnidadeEscolar", nome="Grupo 3")
+    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_2)
+    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_3)
     return dre
 
 
 @pytest.fixture
 def dias_letivos_mock():
     return [
-        {"data": "2025-01-01T00:00:00", "ehLetivo": True},
+        {"data": StringsDatasISO.DATA_PADRAO_2025_01_01.value, "ehLetivo": True},
         {"data": "2025-01-02T00:00:00", "ehLetivo": False},
         {"data": "2025-01-03T00:00:00", "ehLetivo": True},
         {"data": "2025-01-04T00:00:00", "ehLetivo": True},

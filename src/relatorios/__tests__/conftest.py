@@ -19,12 +19,11 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
-    MODEL_PERFIL,
-    MODEL_TERCEIRIZADA,
-    MODEL_VINCULO,
-    NOME_ALUNO_PADRAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    EmailsParaTeste,
+    StringsCaminhoModelos,
+    StringsInformacoesPessoais,
 )
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -32,6 +31,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import Aluno, Lote
+from src.medicao_inicial.models import CategoriaMedicao
 from src.perfil.models.usuario import Usuario
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
@@ -190,9 +190,11 @@ def usuario_escola(escola):
     user = Usuario.objects.create_user(
         username=email, password=password, email=email, registro_funcional=rf
     )
-    perfil_professor = baker.make(MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False)
+    perfil_professor = baker.make(
+        StringsCaminhoModelos.MODEL_PERFIL.value, nome="ADMINISTRADOR_UE", ativo=False
+    )
     baker.make(
-        MODEL_VINCULO,
+        StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -206,7 +208,7 @@ def usuario_escola(escola):
 def aluno():
     return baker.make(
         Aluno,
-        nome=NOME_ALUNO_PADRAO,
+        nome=StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -243,7 +245,7 @@ def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
 ):
     with freeze_time("2025-12-20"):
-        email = "terceirizada@admin.com"
+        email = EmailsParaTeste.TERCEIRIZADA_ADMIN.value
         password = DJANGO_ADMIN_PASSWORD
         rf = "4545454"
         user = Usuario.objects.create_user(
@@ -251,9 +253,11 @@ def solicitacao_dieta_especial_autorizada(
         )
         client.login(username=email, password=password)
 
-        perfil = baker.make(MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+        perfil = baker.make(
+            StringsCaminhoModelos.MODEL_PERFIL.value, nome="TERCEIRIZADA", ativo=False
+        )
         baker.make(
-            MODEL_VINCULO,
+            StringsCaminhoModelos.MODEL_VINCULO.value,
             usuario=user,
             instituicao=escola.lote.terceirizada,
             perfil=perfil,
@@ -310,7 +314,7 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     solicitacao_dieta_especial_a_autorizar,
     escola_destino,
 ):
-    email = "terceirizada@admin.com"
+    email = EmailsParaTeste.TERCEIRIZADA_ADMIN.value
     password = DJANGO_ADMIN_PASSWORD
     rf = "4545454"
     user = Usuario.objects.create_user(
@@ -318,9 +322,11 @@ def solicitacao_dieta_especial_autorizada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        StringsCaminhoModelos.MODEL_PERFIL.value, nome="TERCEIRIZADA", ativo=False
+    )
     baker.make(
-        MODEL_VINCULO,
+        StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -599,14 +605,14 @@ def cronograma(
     )
 
     empresa = baker.make(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         nome_fantasia="Alimentos LTDA",
         cnpj="12345678000190",
         endereco="Rua das Flores, 123 - São Paulo/SP",
     )
 
     armazem = baker.make(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         nome_fantasia="Armazém Central",
         cnpj="98765432000110",
         endereco="Avenida Industrial, 456 - São Paulo/SP",
@@ -780,11 +786,13 @@ def solicitacao_medicao_inicial_recreio_nas_ferias(escola, recreio_nas_ferias):
     grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
-    categoria_alimentacao = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria_alimentacao = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO
+    )
     categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
     categoria_dieta_enteral = baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
@@ -1091,11 +1099,13 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cei(
     grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
-    categoria_alimentacao = baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    categoria_alimentacao = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO
+    )
     categoria_dieta_a = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_A)
     categoria_dieta_enteral = baker.make(
         "CategoriaMedicao",
-        nome="DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
     )
     categoria_dieta_b = baker.make("CategoriaMedicao", nome=DIETA_ESPECIAL_TIPO_B)
 
@@ -1246,7 +1256,7 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cemei(
 
     categoria_alimentacao = baker.make(
         "CategoriaMedicao",
-        nome="ALIMENTAÇÃO",
+        nome=CategoriaMedicao.ALIMENTACAO,
     )
     categoria_dieta_a = baker.make(
         "CategoriaMedicao",

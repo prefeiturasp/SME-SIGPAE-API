@@ -85,7 +85,7 @@ class TestEOLServicoSGP(TestCase):
 
     @freeze_time("2024-12-27")
     @pytest.mark.django_db(transaction=True)
-    @patch("requests.get")
+    @patch("src.eol_servico.utils.EOL_SGP_CLIENT.get")
     def test_matricula_por_escola(self, mock_response_matricula_por_escola):
         mock_response_matricula_por_escola.return_value = (
             self.mocked_response_matricula_por_escola
@@ -98,8 +98,8 @@ class TestEOLServicoSGP(TestCase):
 
     @freeze_time("2024-12-27")
     @pytest.mark.django_db(transaction=True)
-    @patch("requests.get")
-    def test_matricula_por_escola(self, mock_response_matricula_por_escola):
+    @patch("src.eol_servico.utils.EOL_SGP_CLIENT.get")
+    def test_matricula_por_escola_erro(self, mock_response_matricula_por_escola):
         mock_response_matricula_por_escola.return_value = self.mocked_api_eol_erro_503
         with self.assertRaises(EOLException) as context:
             EOLServicoSGP.matricula_por_escola("400020", "2024-12-01")

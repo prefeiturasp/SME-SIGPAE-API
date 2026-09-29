@@ -58,46 +58,31 @@ def retira_espacos_entre_strings(palavra):
     return sem_espaco
 
 
-def busca_caso_sigla(sigla):  # noqa: C901
-    if sigla == " CS":
-        return 1
-    elif sigla == " FO":
-        return 2
-    elif sigla == " G":
-        return 3
-    elif sigla == " IP I":
-        return 4
-    elif sigla == " IP II":
-        return 5
-    elif sigla == " IQ":
-        return 6
-    elif sigla == " JT":
-        return 7
-    elif sigla == " MP I" or sigla == " MP":
-        return 8
-    elif sigla == " MP II":
-        return 9
-    elif sigla == " PE I":
-        return 10
-    elif sigla == " PE II":
-        return 11
-    elif sigla == " SM I":
-        return 12
-    elif sigla == " SM II":
-        return 13
-    elif sigla == " SAM":
-        # Santo Amaro > Não tem escola associada a esse lote OBS: "SAM" eh nao existe
-        return 14
-    elif sigla == " PIR":
-        # Pirituba > Não tem escola associada a esse lote OBS: "PIR" eh nao existe
-        return 15
-    elif sigla == " BTT":
-        # Butanta > Não tem escola associada a esse lote OBS: "BTT" eh nao existe
-        return 16
-    elif sigla == " CL I":
-        return 17
-    elif sigla == " CL II":
-        return 18
+MAPA_SIGLA_CASO = {
+    " CS": 1,
+    " FO": 2,
+    " G": 3,
+    " IP I": 4,
+    " IP II": 5,
+    " IQ": 6,
+    " JT": 7,
+    " MP I": 8,
+    " MP": 8,
+    " MP II": 9,
+    " PE I": 10,
+    " PE II": 11,
+    " SM I": 12,
+    " SM II": 13,
+    " SAM": 14,
+    " PIR": 15,
+    " BTT": 16,
+    " CL I": 17,
+    " CL II": 18,
+}
+
+
+def busca_caso_sigla(sigla):
+    return MAPA_SIGLA_CASO.get(sigla)
 
 
 def obtem_objetos(planilha):

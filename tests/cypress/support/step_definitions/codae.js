@@ -30,3 +30,54 @@ Then('a consulta da CODAE deve retornar status 200 e registros validos', functio
 		expect(codae.acesso_modulo_medicao_inicial).to.be.a('boolean')
 	})
 })
+
+When('consulto uma CODAE existente por UUID', function () {
+	cy.consultar_codae('limit=1&offset=0').then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array').and.not.be.empty
+		this.codae = response.body.results[0]
+		cy.requisitar_codae('GET', { uuid: this.codae.uuid }).then((resposta) => { this.response = resposta })
+	})
+})
+Then('o detalhe da CODAE corresponde ao registro solicitado', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body).to.include({ uuid: this.codae.uuid, id: this.codae.id, nome: this.codae.nome })
+	expect(this.response.body.quantidade_alunos).to.be.a('number')
+})
+When('consulto CODAE com pagina de um registro', function () {
+	cy.consultar_codae('limit=1&offset=0').then((response) => { this.response = response })
+})
+Then('a paginacao CODAE respeita o limite solicitado', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body.results).to.be.an('array').and.have.length(1)
+})
+When('acesso CODAE inexistente usando {string}', function (metodo) {
+	cy.requisitar_codae(metodo, { uuid: '00000000-0000-0000-0000-000000000000', dados: ['PUT', 'PATCH'].includes(metodo) ? {} : undefined }).then((response) => { this.response = response })
+})
+When('acesso {string} da CODAE sem autenticacao no caminho {string}', function (metodo, caminho) {
+	cy.clearCookies()
+	cy.requisitar_codae(metodo, { uuid: caminho === 'detalhe' ? '00000000-0000-0000-0000-000000000000' : undefined, autenticado: false }).then((response) => { this.response = response })
+})
+Then('a operacao CODAE retorna status {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if (status === 401) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
+When('envio cadastro CODAE com {string} invalido', function (campo) {
+	const dados = campo === 'quantidade_alunos' ? { quantidade_alunos: 'invalido' } : { quantidade_alunos: 0, nome: 'A'.repeat(101) }
+	cy.requisitar_codae('POST', { dados }).then((response) => { this.response = response })
+})
+When('envio cadastro CODAE sem quantidade de alunos', function () {
+	cy.requisitar_codae('POST', { dados: {} }).then((response) => { this.response = response })
+})
+When('envio atualizacao CODAE invalida usando {string}', function (metodo) {
+	cy.consultar_codae('limit=1&offset=0').then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array').and.not.be.empty
+		// Nome acima do limite impede a gravacao no registro existente.
+		cy.requisitar_codae(metodo, { uuid: response.body.results[0].uuid, dados: { quantidade_alunos: 0, nome: 'A'.repeat(101) } }).then((resposta) => { this.response = resposta })
+	})
+})
+Then('a CODAE retorna erro no campo {string}', function (campo) {
+	expect(this.response.status).to.eq(400)
+	expect(this.response.body[campo]).to.be.an('array').and.not.be.empty
+})

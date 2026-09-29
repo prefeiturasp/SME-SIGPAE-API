@@ -16,3 +16,15 @@ Funcionalidade: Validar diretorias regionais simplissimas
   Cenario: Consultar lista completa de diretorias simplissimas
     Quando consulto a lista completa de diretorias simplissimas
     Entao a lista completa de diretorias simplissimas retorna dados validos
+
+  Cenario: Validar limite e deslocamento da paginacao
+    Quando consulto duas paginas consecutivas de diretorias simplissimas
+    Entao a paginacao de diretorias simplissimas respeita limite e deslocamento
+
+  Cenario: Consultar pagina alem do total de diretorias
+    Quando consulto diretorias simplissimas alem da ultima pagina
+    Entao a pagina de diretorias simplissimas esta vazia
+
+  Cenario: Rejeitar UUID malformado
+    Quando consulto a diretoria simplissima pelo UUID "uuid-invalido"
+    Entao a consulta da diretoria simplissima retorna status 404

@@ -19,7 +19,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.db import models
 from django.db.models import Q, QuerySet
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -34,8 +33,9 @@ from src.dados_comuns.behaviors import (
 )
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
     MODULO_DIETA_ESPECIAL,
+    StringsCaminhoModelos,
+    StringsVerboseNameModels,
 )
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
@@ -163,13 +163,22 @@ class ClassificacaoDieta(Descritivel, Nomeavel):
       adicional. Ex.: troca peixe por carne.
     """
 
+    TIPO_A = "Tipo A"
+    TIPO_A_ENTERAL = "Tipo A ENTERAL"
+    TIPO_A_RESTRICAO_AMINOACIDOS = "Tipo A RESTRIÇÃO DE AMINOÁCIDOS"
+    TIPO_B = "Tipo B"
+    TIPO_C = "Tipo C"
+
+    CLASSIFICACAO_CONTEM_ENTERAL = "Enteral"
+    CLASSIFICACAO_CONTEM_AMINOACIDOS = "Aminoácidos"
+    CLASSIFICACAO_CONTEM_TIPO_A = "Tipo A"
+
     def __str__(self) -> str:
         """Retorna o nome da classificação de dieta."""
         return self.nome
 
 
 class SolicitacaoDietaEspecial(
-    ExportModelOperationsMixin("dieta_especial"),
     TemChaveExterna,
     CriadoEm,
     CriadoPor,
@@ -210,36 +219,40 @@ class SolicitacaoDietaEspecial(
     ]
 
     aluno = models.ForeignKey(
-        "escola.Aluno",
+        StringsCaminhoModelos.MODEL_ALUNO.value,
         null=True,
         on_delete=models.PROTECT,
         related_name="dietas_especiais",
     )
     nome_completo_pescritor = models.CharField(
-        "Nome completo do pescritor da receita",
+        StringsVerboseNameModels.NOME_COMPLETO_DO_PESCRITOR_DA_RECEITA.value,
         max_length=200,
         validators=[MinLengthValidator(6)],
         blank=True,
     )
     registro_funcional_pescritor = models.CharField(
-        "Registro funcional do pescritor da receita",
+        StringsVerboseNameModels.REGISTRO_FUNCIONAL_DO_PESCRITOR_DA_RECEITA.value,
         help_text="CRN/CRM/CRFa...",
         max_length=200,
         validators=[MinLengthValidator(4), MaxLengthValidator(6)],
         blank=True,
     )
     registro_funcional_nutricionista = models.CharField(
-        "Registro funcional do nutricionista",
+        StringsVerboseNameModels.REGISTRO_FUNCIONAL_DO_NUTRICIONISTA.value,
         help_text="CRN/CRM/CRFa...",
         max_length=200,
         validators=[MinLengthValidator(6)],
         blank=True,
     )
     # Preenchido pela Escola
-    observacoes = models.TextField("Observações", blank=True)
+    observacoes = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES.value, blank=True
+    )
 
     # Preenchido pela_ CODAE ao autorizar a dieta
-    informacoes_adicionais = models.TextField("Informações Adicionais", blank=True)
+    informacoes_adicionais = models.TextField(
+        StringsVerboseNameModels.INFORMACOES_ADICIONAIS.value, blank=True
+    )
 
     protocolo_padrao = models.ForeignKey(
         "ProtocoloPadraoDietaEspecial",
@@ -249,10 +262,14 @@ class SolicitacaoDietaEspecial(
         null=True,
     )
 
-    nome_protocolo = models.TextField("Nome do Protocolo", blank=True)
+    nome_protocolo = models.TextField(
+        StringsVerboseNameModels.NOME_DO_PROTOCOLO.value, blank=True
+    )
 
     # Preenchido pela NutriCODAE ao autorizar a dieta
-    orientacoes_gerais = models.TextField("Orientações Gerais", blank=True)
+    orientacoes_gerais = models.TextField(
+        StringsVerboseNameModels.ORIENTACOES_GERAIS.value, blank=True
+    )
 
     # TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo
     classificacao = models.ForeignKey(
@@ -275,7 +292,10 @@ class SolicitacaoDietaEspecial(
     )
 
     escola_destino = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.CASCADE
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     dieta_alterada = models.ForeignKey(
@@ -290,18 +310,24 @@ class SolicitacaoDietaEspecial(
         default="COMUM",
     )
 
-    observacoes_alteracao = models.TextField("Observações Alteração", blank=True)
-
-    caracteristicas_do_alimento = models.TextField(
-        "Características dos alimentos", blank=True
+    observacoes_alteracao = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES_ALTERACAO.value, blank=True
     )
 
-    conferido = models.BooleanField("Marcar como conferido?", default=False)
+    caracteristicas_do_alimento = models.TextField(
+        StringsVerboseNameModels.CARACTERISTICAS_DOS_ALIMENTOS.value, blank=True
+    )
 
-    eh_importado = models.BooleanField("Proveniente de importacao?", default=False)
+    conferido = models.BooleanField(
+        StringsVerboseNameModels.MARCAR_COMO_CONFERIDO.value, default=False
+    )
+
+    eh_importado = models.BooleanField(
+        StringsVerboseNameModels.PROVENIENTE_DE_IMPORTACAO.value, default=False
+    )
 
     dieta_para_recreio_ferias = models.BooleanField(
-        "Dieta para Recreio nas Férias", default=False
+        StringsVerboseNameModels.DIETA_PARA_RECREIO_NAS_FERIAS.value, default=False
     )
 
     @classmethod
@@ -703,7 +729,7 @@ class SolicitacaoDietaEspecial(
         return f"Solicitação #{self.id_externo}"
 
 
-class Anexo(ExportModelOperationsMixin("anexo"), models.Model):
+class Anexo(models.Model):
     """Anexo (arquivo) vinculado a uma solicitação de dieta especial.
 
     Attributes:

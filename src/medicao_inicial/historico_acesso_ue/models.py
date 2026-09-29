@@ -10,7 +10,10 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA, MODEL_LOTE
+from src.dados_comuns.constants import (
+    StringsCaminhoModelos,
+    StringsVerboseNameModels,
+)
 
 
 class HistoricoAcessoMedicaoInicialUEQuerySet(models.QuerySet):
@@ -39,17 +42,19 @@ class HistoricoAcessoMedicaoInicialUE(
     objects = HistoricoAcessoMedicaoInicialUEQuerySet.as_manager()
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.CASCADE,
         related_name="historicos_acesso_medicao_inicial_ue",
     )
-    data_inicial = models.DateField("Data inicial")
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(StringsVerboseNameModels.DATA_INICIAL.value)
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
 
     class Meta:
         verbose_name = "Histórico de acesso à medição inicial da UE"

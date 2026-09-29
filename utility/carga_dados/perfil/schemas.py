@@ -3,19 +3,21 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator, model_validator
 
+from src.dados_comuns.constants import StringsValidationSchema
+
 TAMANHO_CPF = 11
 TAMANHO_RF = 7
 
 
 class ImportacaoPlanilhaUsuarioPerfilEscolaSchema(BaseModel):
-    codigo_eol_escola: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    telefone: Optional[str]
-    rf: Optional[str]
-    perfil: Optional[str]
+    codigo_eol_escola: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    telefone: Optional[str] = None
+    rf: Optional[str] = None
+    perfil: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -37,61 +39,61 @@ class ImportacaoPlanilhaUsuarioPerfilEscolaSchema(BaseModel):
     @field_validator("nome")
     @classmethod
     def formata_nome(cls, value: str) -> str:
-        cls.checa_vazio(value, "Nome do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.NOME_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("cargo")
     @classmethod
     def formata_cargo(cls, value: str) -> str:
-        cls.checa_vazio(value, "Cargo do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CARGO_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("email")
     @classmethod
     def formata_email(cls, value: str) -> str:
-        cls.checa_vazio(value, "Email do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.EMAIL_DO_USUARIO.value)
         return value.strip()
 
     @field_validator("cpf")
     @classmethod
     def validate_cpf(cls, value: str) -> str:
-        cls.checa_vazio(value, "CPF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CPF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_CPF:
-            raise ValueError("CPF deve conter 11 dígitos.")
+            raise ValueError(StringsValidationSchema.CPF_DEVE_CONTER_11_DIGITOS.value)
         return value
 
     @field_validator("telefone")
     @classmethod
     def formata_telefone(cls, value: str) -> str:
-        cls.checa_vazio(value, "Telefone do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.TELEFONE_DO_USUARIO.value)
         return cls.formata_documentos(value)
 
     @field_validator("rf")
     @classmethod
     def formata_rf(cls, value: str) -> str:
-        cls.checa_vazio(value, "RF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.RF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_RF:
-            raise ValueError("RF deve ter 7 dígitos.")
+            raise ValueError(StringsValidationSchema.RF_DEVE_TER_7_DIGITOS.value)
         return value
 
     @field_validator("perfil")
     @classmethod
     def formata_perfil(cls, value: str) -> str:
-        cls.checa_vazio(value, "Perfil do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.PERFIL_DO_USUARIO.value)
         return value.upper().strip()
 
 
 class ImportacaoPlanilhaUsuarioPerfilCodaeSchema(BaseModel):
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    telefone: Optional[str]
-    rf: Optional[str]
-    perfil: Optional[str]
-    crn_numero: Optional[str]
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    telefone: Optional[str] = None
+    rf: Optional[str] = None
+    perfil: Optional[str] = None
+    crn_numero: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -105,49 +107,49 @@ class ImportacaoPlanilhaUsuarioPerfilCodaeSchema(BaseModel):
     @field_validator("nome")
     @classmethod
     def formata_nome(cls, value: str) -> str:
-        cls.checa_vazio(value, "Nome do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.NOME_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("cargo")
     @classmethod
     def formata_cargo(cls, value: str) -> str:
-        cls.checa_vazio(value, "Cargo do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CARGO_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("email")
     @classmethod
     def formata_email(cls, value: str) -> str:
-        cls.checa_vazio(value, "Email do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.EMAIL_DO_USUARIO.value)
         return value.strip()
 
     @field_validator("cpf")
     @classmethod
     def validate_cpf(cls, value: str) -> str:
-        cls.checa_vazio(value, "CPF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CPF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_CPF:
-            raise ValueError("CPF deve conter 11 dígitos.")
+            raise ValueError(StringsValidationSchema.CPF_DEVE_CONTER_11_DIGITOS.value)
         return value
 
     @field_validator("telefone")
     @classmethod
     def formata_telefone(cls, value: str) -> str:
-        cls.checa_vazio(value, "Telefone do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.TELEFONE_DO_USUARIO.value)
         return cls.formata_documentos(value)
 
     @field_validator("rf")
     @classmethod
     def formata_rf(cls, value: str) -> str:
-        cls.checa_vazio(value, "RF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.RF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_RF:
-            raise ValueError("RF deve ter 7 dígitos.")
+            raise ValueError(StringsValidationSchema.RF_DEVE_TER_7_DIGITOS.value)
         return value
 
     @field_validator("perfil")
     @classmethod
     def formata_perfil(cls, value: str) -> str:
-        cls.checa_vazio(value, "Perfil do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.PERFIL_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("crn_numero")
@@ -157,14 +159,14 @@ class ImportacaoPlanilhaUsuarioPerfilCodaeSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioPerfilDreSchema(BaseModel):
-    codigo_eol_dre: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    telefone: Optional[str]
-    rf: Optional[str]
-    perfil: Optional[str]
+    codigo_eol_dre: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    telefone: Optional[str] = None
+    rf: Optional[str] = None
+    perfil: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -186,62 +188,62 @@ class ImportacaoPlanilhaUsuarioPerfilDreSchema(BaseModel):
     @field_validator("nome")
     @classmethod
     def formata_nome(cls, value: str) -> str:
-        cls.checa_vazio(value, "Nome do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.NOME_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("cargo")
     @classmethod
     def formata_cargo(cls, value: str) -> str:
-        cls.checa_vazio(value, "Cargo do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CARGO_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("email")
     @classmethod
     def formata_email(cls, value: str) -> str:
-        cls.checa_vazio(value, "Email do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.EMAIL_DO_USUARIO.value)
         return value.strip()
 
     @field_validator("cpf")
     @classmethod
     def validate_cpf(cls, value: str) -> str:
-        cls.checa_vazio(value, "CPF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CPF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_CPF:
-            raise ValueError("CPF deve conter 11 dígitos.")
+            raise ValueError(StringsValidationSchema.CPF_DEVE_CONTER_11_DIGITOS.value)
         return value
 
     @field_validator("telefone")
     @classmethod
     def formata_telefone(cls, value: str) -> str:
-        cls.checa_vazio(value, "Telefone do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.TELEFONE_DO_USUARIO.value)
         return cls.formata_documentos(value)
 
     @field_validator("rf")
     @classmethod
     def formata_rf(cls, value: str) -> str:
-        cls.checa_vazio(value, "RF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.RF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_RF:
-            raise ValueError("RF deve ter 7 dígitos.")
+            raise ValueError(StringsValidationSchema.RF_DEVE_TER_7_DIGITOS.value)
         return value
 
     @field_validator("perfil")
     @classmethod
     def formata_perfil(cls, value: str) -> str:
-        cls.checa_vazio(value, "Perfil do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.PERFIL_DO_USUARIO.value)
         return value.upper().strip()
 
 
 class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
-    codigo_eol: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    rf: Optional[str]
-    tipo_perfil: Optional[str]
-    perfil: Optional[str]
-    codae: Optional[str]
+    codigo_eol: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    rf: Optional[str] = None
+    tipo_perfil: Optional[str] = None
+    perfil: Optional[str] = None
+    codae: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -264,34 +266,34 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
     @field_validator("nome")
     @classmethod
     def formata_nome(cls, value: str) -> str:
-        cls.checa_vazio(value, "Nome do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.NOME_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("cargo")
     @classmethod
     def formata_cargo(cls, value: str) -> str:
-        cls.checa_vazio(value, "Cargo do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CARGO_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("email")
     @classmethod
     def formata_email(cls, value: str) -> str:
-        cls.checa_vazio(value, "Email do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.EMAIL_DO_USUARIO.value)
         return value.strip()
 
     @field_validator("cpf")
     @classmethod
     def validate_cpf(cls, value: str) -> str:
-        cls.checa_vazio(value, "CPF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CPF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_CPF:
-            raise ValueError("CPF deve conter 11 dígitos.")
+            raise ValueError(StringsValidationSchema.CPF_DEVE_CONTER_11_DIGITOS.value)
         return value
 
     @field_validator("rf")
     @classmethod
     def formata_rf(cls, value: str) -> str:
-        cls.checa_vazio(value, "RF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.RF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) not in (TAMANHO_RF, TAMANHO_CPF):
             raise ValueError("RF deve ter 7 ou 11 dígitos (PARCEIRA).")
@@ -300,7 +302,7 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
     @field_validator("perfil")
     @classmethod
     def formata_perfil(cls, value: str) -> str:
-        cls.checa_vazio(value, "Perfil do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.PERFIL_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("tipo_perfil")
@@ -321,11 +323,11 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOSchema(BaseModel):
 
 
 class ImportacaoPlanilhaUsuarioExternoCoreSSOSchema(BaseModel):
-    nome: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    perfil: Optional[str]
-    cnpj_terceirizada: Optional[str]
+    nome: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    perfil: Optional[str] = None
+    cnpj_terceirizada: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -339,38 +341,38 @@ class ImportacaoPlanilhaUsuarioExternoCoreSSOSchema(BaseModel):
     @field_validator("nome")
     @classmethod
     def formata_nome(cls, value: str) -> str:
-        cls.checa_vazio(value, "Nome do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.NOME_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("email")
     @classmethod
     def formata_email(cls, value: str) -> str:
-        cls.checa_vazio(value, "Email do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.EMAIL_DO_USUARIO.value)
         return value.strip()
 
     @field_validator("cpf")
     @classmethod
     def validate_cpf(cls, value: str) -> str:
-        cls.checa_vazio(value, "CPF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CPF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_CPF:
-            raise ValueError("CPF deve conter 11 dígitos.")
+            raise ValueError(StringsValidationSchema.CPF_DEVE_CONTER_11_DIGITOS.value)
         return value
 
     @field_validator("perfil")
     @classmethod
     def formata_perfil(cls, value: str) -> str:
-        cls.checa_vazio(value, "Perfil do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.PERFIL_DO_USUARIO.value)
         return value.upper().strip()
 
 
 class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOSchema(BaseModel):
-    codigo_eol: Optional[str]
-    nome: Optional[str]
-    cargo: Optional[str]
-    email: Optional[str]
-    cpf: Optional[str]
-    perfil: Optional[str]
+    codigo_eol: Optional[str] = None
+    nome: Optional[str] = None
+    cargo: Optional[str] = None
+    email: Optional[str] = None
+    cpf: Optional[str] = None
+    perfil: Optional[str] = None
 
     @classmethod
     def formata_documentos(cls, value: str) -> str:
@@ -393,34 +395,34 @@ class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOSchema(BaseModel):
     @field_validator("nome")
     @classmethod
     def formata_nome(cls, value: str) -> str:
-        cls.checa_vazio(value, "Nome do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.NOME_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("cargo")
     @classmethod
     def formata_cargo(cls, value: str) -> str:
-        cls.checa_vazio(value, "Cargo do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CARGO_DO_USUARIO.value)
         return value.upper().strip()
 
     @field_validator("email")
     @classmethod
     def formata_email(cls, value: str) -> str:
-        cls.checa_vazio(value, "Email do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.EMAIL_DO_USUARIO.value)
         return value.strip()
 
     @field_validator("cpf")
     @classmethod
     def validate_cpf(cls, value: str) -> str:
-        cls.checa_vazio(value, "CPF do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.CPF_DO_USUARIO.value)
         value = cls.formata_documentos(value)
         if len(value) != TAMANHO_CPF:
-            raise ValueError("CPF deve conter 11 dígitos.")
+            raise ValueError(StringsValidationSchema.CPF_DEVE_CONTER_11_DIGITOS.value)
         return value
 
     @field_validator("perfil")
     @classmethod
     def formata_perfil(cls, value: str) -> str:
-        cls.checa_vazio(value, "Perfil do usuário")
+        cls.checa_vazio(value, StringsValidationSchema.PERFIL_DO_USUARIO.value)
         return value.upper().strip()
 
     @model_validator(mode="after")

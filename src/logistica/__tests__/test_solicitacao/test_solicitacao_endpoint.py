@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import pytest
 from rest_framework import status
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.logistica.models import (
     SolicitacaoDeAlteracaoRequisicao,
     SolicitacaoRemessa,
@@ -140,9 +141,7 @@ def test_arquivar_guias_da_requisicao_sem_numero_requisicao(
     )
 
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = (
-        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
-    )
+    mensagem = StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value
     assert mensagem in response.json()
 
 
@@ -232,9 +231,7 @@ def test_desarquivar_guias_da_requisicao_sem_numero_requisicao(
     )
 
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = (
-        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
-    )
+    mensagem = StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value
     assert mensagem in response.json()
 
 
@@ -314,9 +311,7 @@ def test_solicitacao_confirma_cancelamento_guias_sem_requisicao(
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
-    mensagem = (
-        "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
-    )
+    mensagem = StringsValidationErrors.INFORMAR_NUMERO_REQUISICAO.value
     assert mensagem in response.json()
 
 

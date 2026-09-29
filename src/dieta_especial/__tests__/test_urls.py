@@ -137,7 +137,9 @@ def test_url_criar_dieta(
         "/solicitacoes-dieta-especial/", content_type="application/json", data=payload
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == ["Aluno já possui Solicitação de Dieta Especial pendente"]
+    assert response.json() == [
+        constants.StringsValidationErrors.DIETA_ESPECIAL_PENDENTE.value
+    ]
 
 
 def test_url_criar_dieta_duplicada_alteracao_ue_recreio_ferias(
@@ -1077,19 +1079,27 @@ def test_relatorio_historico_dieta_especial(
             "lote": "",
             "unidade_educacional": "CEI DIRET JOAO MENDES",
             "tipo_unidade": constants.TIPO_UNIDADE_CEI_DIRET,
-            "classificacao": "Tipo B",
+            "classificacao": ClassificacaoDieta.TIPO_B,
             "total": 32,
             "data": "20/03/2024",
             "periodos": [
                 {
                     "periodo": "INTEGRAL",
                     "faixa_etaria": [
-                        {"faixa": "0 meses a 05 meses", "autorizadas": 10}
+                        {
+                            "faixa": constants.FaixasEtarias.ZERO_MESES_A_CINCO_MESES.value,
+                            "autorizadas": 10,
+                        }
                     ],
                 },
                 {
                     "periodo": "MANHA",
-                    "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 11}],
+                    "faixa_etaria": [
+                        {
+                            "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                            "autorizadas": 11,
+                        }
+                    ],
                 },
             ],
         },
@@ -1097,7 +1107,7 @@ def test_relatorio_historico_dieta_especial(
             "lote": "",
             "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-            "classificacao": "Tipo A",
+            "classificacao": ClassificacaoDieta.TIPO_A,
             "total": 25,
             "data": "20/03/2024",
             "periodos": {
@@ -1105,12 +1115,20 @@ def test_relatorio_historico_dieta_especial(
                     {
                         "periodo": "INTEGRAL",
                         "faixa_etaria": [
-                            {"faixa": "0 meses a 05 meses", "autorizadas": 12}
+                            {
+                                "faixa": constants.FaixasEtarias.ZERO_MESES_A_CINCO_MESES.value,
+                                "autorizadas": 12,
+                            }
                         ],
                     },
                     {
                         "periodo": "MANHA",
-                        "faixa_etaria": [{"faixa": "07 a 11 meses", "autorizadas": 13}],
+                        "faixa_etaria": [
+                            {
+                                "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                                "autorizadas": 13,
+                            }
+                        ],
                     },
                 ]
             },
@@ -1119,7 +1137,7 @@ def test_relatorio_historico_dieta_especial(
             "lote": "",
             "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-            "classificacao": "Tipo B",
+            "classificacao": ClassificacaoDieta.TIPO_B,
             "total": 15,
             "data": "20/03/2024",
             "periodos": {
@@ -1133,7 +1151,7 @@ def test_relatorio_historico_dieta_especial(
             "lote": "",
             "unidade_educacional": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
             "tipo_unidade": constants.TIPOS_UNIDADE_ESCOLAR.EMEBS.value,
-            "classificacao": "Tipo A",
+            "classificacao": ClassificacaoDieta.TIPO_A,
             "total": 11,
             "data": "20/03/2024",
             "periodos": {
@@ -1175,7 +1193,9 @@ def test_relatorio_historico_dieta_especial_cliente_nao_autorizado(
         "/solicitacoes-dieta-especial/relatorio-historico-dieta-especial/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_relatorio_recreio_nas_ferias(
@@ -1200,7 +1220,7 @@ def test_relatorio_recreio_nas_ferias(
         resultado[0]["alergias_intolerancias"][0]["descricao"]
         == "Alergia a derivados do trigo"
     )
-    assert resultado[0]["classificacao"]["nome"] == "Tipo B"
+    assert resultado[0]["classificacao"]["nome"] == ClassificacaoDieta.TIPO_B
 
     assert resultado[1]["aluno"]["nome"] == "Carla"
     assert resultado[1]["escola"]["nome"] == "PARCEIRA"
@@ -1212,7 +1232,7 @@ def test_relatorio_recreio_nas_ferias(
         resultado[1]["alergias_intolerancias"][0]["descricao"]
         == "Alergia a derivados do trigo"
     )
-    assert resultado[1]["classificacao"]["nome"] == "Tipo B"
+    assert resultado[1]["classificacao"]["nome"] == ClassificacaoDieta.TIPO_B
 
     assert resultado[2]["aluno"]["nome"] == "Antonio"
     assert resultado[2]["escola"]["nome"] == "EMEF JOAO MENDES"
@@ -1220,7 +1240,7 @@ def test_relatorio_recreio_nas_ferias(
     assert (
         resultado[2]["alergias_intolerancias"][0]["descricao"] == "Alergia a chocolate"
     )
-    assert resultado[2]["classificacao"]["nome"] == "Tipo A"
+    assert resultado[2]["classificacao"]["nome"] == ClassificacaoDieta.TIPO_A
 
     assert resultado[3]["aluno"]["nome"] == "Carlos"
     assert resultado[3]["escola"]["nome"] == constants.TIPOS_UNIDADE_ESCOLAR.CEMEI.value
@@ -1228,7 +1248,7 @@ def test_relatorio_recreio_nas_ferias(
     assert (
         resultado[3]["alergias_intolerancias"][0]["descricao"] == "Alergia a chocolate"
     )
-    assert resultado[3]["classificacao"]["nome"] == "Tipo A"
+    assert resultado[3]["classificacao"]["nome"] == ClassificacaoDieta.TIPO_A
 
 
 def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_dilog):
@@ -1236,7 +1256,9 @@ def test_relatorio_recreio_nas_ferias_cliente_nao_autorizado(client_autenticado_
         "/solicitacoes-dieta-especial/relatorio-recreio-nas-ferias/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
 
 
 def test_codae_atualiza_protocolo(
@@ -1272,8 +1294,8 @@ def test_codae_atualiza_protocolo(
     assert "Alergia a derivados do trigo" in justificativa
 
     assert "Classificação da Dieta" in justificativa
-    assert "Tipo A" in justificativa
-    assert "Tipo B" in justificativa
+    assert ClassificacaoDieta.TIPO_A in justificativa
+    assert ClassificacaoDieta.TIPO_B in justificativa
 
     assert "Nome do Protocolo Padrão" in justificativa
     assert "ALERGIA A AVEIA" in justificativa
@@ -1357,10 +1379,7 @@ def test_relatorio_recreio_exportar_xlsx(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_relatorio_recreio_exportar_xlsx(
@@ -1372,10 +1391,7 @@ def test_relatorio_recreio_exportar_xlsx(
     )
 
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_logs_dieta_recreio_nas_ferias_escola_sem_log(
@@ -1551,18 +1567,28 @@ def test_logs_dieta_recreio_nas_ferias_cei(
     assert len(logs) == 4
 
     logs_faixa_0_5 = [
-        log for log in logs if log["faixa_etaria"]["__str__"] == "0 meses a 05 meses"
+        log
+        for log in logs
+        if log["faixa_etaria"]["__str__"]
+        == constants.FaixasEtarias.ZERO_MESES_A_CINCO_MESES.value
     ]
     assert len(logs_faixa_0_5) == 3
-    assert any(log["classificacao"] == "Tipo A" for log in logs_faixa_0_5)
+    assert any(
+        log["classificacao"] == ClassificacaoDieta.TIPO_A for log in logs_faixa_0_5
+    )
     assert any(log["classificacao"] == "Tipo A Enteral" for log in logs_faixa_0_5)
-    assert any(log["classificacao"] == "Tipo B" for log in logs_faixa_0_5)
+    assert any(
+        log["classificacao"] == ClassificacaoDieta.TIPO_B for log in logs_faixa_0_5
+    )
 
     logs_faixa_7_11 = [
-        log for log in logs if log["faixa_etaria"]["__str__"] == "07 a 11 meses"
+        log
+        for log in logs
+        if log["faixa_etaria"]["__str__"]
+        == constants.FaixasEtarias.SETE_A_ONZE_MESES.value
     ]
     assert len(logs_faixa_7_11) == 1
-    assert logs_faixa_7_11[0]["classificacao"] == "Tipo B"
+    assert logs_faixa_7_11[0]["classificacao"] == ClassificacaoDieta.TIPO_B
 
     for log in logs:
         assert log["dia"] == "22"

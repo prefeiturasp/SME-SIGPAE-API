@@ -8,6 +8,8 @@ import numpy
 from django.db import models
 from django.db.models import Q
 
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
+
 from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
@@ -33,10 +35,6 @@ from ..dados_comuns.constants import (
     GRUPO_PROGRAMAS_E_PROJETOS,
     GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_ESCOLA,
-    MODEL_LOTE,
-    MODEL_USUARIO,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -49,7 +47,7 @@ from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
-MODEL_PERIODO_ESCOLAR = "escola.PeriodoEscolar"
+MODEL_PERIODO_ESCOLAR = StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value
 GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
 
 
@@ -106,24 +104,27 @@ class SolicitacaoMedicaoInicial(
     """Solicitação de Medição Inicial."""
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="solicitacoes_medicao_inicial",
     )
     tipos_contagem_alimentacao = models.ManyToManyField(
         "TipoContagemAlimentacao", related_name="solicitacoes_medicao_inicial"
     )
-    com_ocorrencias = models.BooleanField("Com ocorrências?", default=False)
+    com_ocorrencias = models.BooleanField(
+        StringsVerboseNameModels.COM_OCORRENCIAS.value, default=False
+    )
     historico = models.JSONField(blank=True, null=True)
     ue_possui_alunos_periodo_parcial = models.BooleanField(
-        "Possui alunos periodo parcial?", default=False
+        StringsVerboseNameModels.POSSUI_ALUNOS_PERIODO_PARCIAL.value, default=False
     )
     logs_salvos = models.BooleanField(
-        "Logs de matriculados, dietas autorizadas, etc foram salvos?", default=False
+        StringsVerboseNameModels.LOGS_DE_MATRICULADOS_DIETAS_AUTORIZADAS_ETC_FORAM_SALVOS.value,
+        default=False,
     )
     dre_ciencia_correcao_data = models.DateTimeField(blank=True, null=True)
     dre_ciencia_correcao_usuario = models.ForeignKey(
-        MODEL_USUARIO,
+        StringsCaminhoModelos.MODEL_USUARIO.value,
         on_delete=models.SET_NULL,
         related_name="solicitacoes_medicao_ciencia_correcao",
         blank=True,
@@ -144,7 +145,7 @@ class SolicitacaoMedicaoInicial(
         null=True,
     )
     descricao_metodo = models.CharField(
-        "Descrição do método de contagem",
+        StringsVerboseNameModels.DESCRICAO_DO_METODO_DE_CONTAGEM.value,
         max_length=100,
         blank=True,
         null=True,
@@ -581,7 +582,7 @@ class OcorrenciaMedicaoInicial(TemChaveExterna, Logs, FluxoSolicitacaoMedicaoIni
 
 
 class Responsavel(models.Model):
-    nome = models.CharField("Nome", max_length=100)
+    nome = models.CharField(StringsVerboseNameModels.NOME.value, max_length=100)
     rf = models.CharField(max_length=11)
     solicitacao_medicao_inicial = models.ForeignKey(
         SolicitacaoMedicaoInicial, related_name="responsaveis", on_delete=models.CASCADE
@@ -626,7 +627,9 @@ class Medicao(
     grupo = models.ForeignKey(
         GrupoMedicao, blank=True, null=True, on_delete=models.PROTECT
     )
-    alterado_em = models.DateTimeField("Alterado em", null=True, blank=True)
+    alterado_em = models.DateTimeField(
+        StringsVerboseNameModels.ALTERADO_EM.value, null=True, blank=True
+    )
 
     @property
     def escola(self):
@@ -716,6 +719,16 @@ class Medicao(
 
 
 class CategoriaMedicao(Nomeavel, Ativavel, TemChaveExterna):
+    SOLICITACOES_DE_ALIMENTACAO = "SOLICITAÇÕES DE ALIMENTAÇÃO"
+    DIETA_ESPECIAL_TIPO_B = "DIETA ESPECIAL - TIPO B"
+    DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS = (
+        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+    )
+    DIETA_ESPECIAL_TIPO_A = "DIETA ESPECIAL - TIPO A"
+    ALIMENTACAO = "ALIMENTAÇÃO"
+
+    CATEGORIA_CONTEM_DIETA_ESPECIAL = "DIETA ESPECIAL"
+
     class Meta:
         verbose_name = "Categoria de medição"
         verbose_name_plural = "Categorias de medições"
@@ -731,7 +744,7 @@ class ValorMedicao(
     FUNDAMENTAL = "FUNDAMENTAL"
     NA = "N/A"
 
-    valor = models.TextField("Valor do Campo")
+    valor = models.TextField(StringsVerboseNameModels.VALOR_DO_CAMPO.value)
     nome_campo = models.CharField(max_length=100)
     medicao = models.ForeignKey(
         "Medicao", on_delete=models.CASCADE, related_name="valores_medicao"
@@ -740,10 +753,16 @@ class ValorMedicao(
         "CategoriaMedicao", on_delete=models.CASCADE, related_name="valores_medicao"
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     habilitado_correcao = models.BooleanField(default=False)
     infantil_ou_fundamental = models.CharField(
@@ -754,7 +773,7 @@ class ValorMedicao(
     def get_week_of_month(cls, year, month, day):
         setfirstweekday(0)
         x = numpy.array(monthcalendar(year, month))
-        week_of_month = numpy.where(x == day)[0][0] + 1
+        week_of_month = numpy.nonzero(x == day)[0][0] + 1
         return week_of_month
 
     def __str__(self):
@@ -792,7 +811,7 @@ class PermissaoLancamentoEspecial(
     CriadoPor, CriadoEm, TemAlteradoEm, TemChaveExterna, TemIdentificadorExternoAmigavel
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="permissoes_lancamento_especial",
     )
@@ -803,12 +822,16 @@ class PermissaoLancamentoEspecial(
         AlimentacaoLancamentoEspecial
     )
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         related_name="permissoes_lancamento_especial",
         on_delete=models.DO_NOTHING,
     )
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
 
     @property
     def ativo(self):
@@ -835,12 +858,14 @@ class LancheEmergencialDiario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, null=True)
     criado_em = models.DateTimeField(CRIADO_EM, auto_now_add=True, null=True)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="lanches_emergenciais_diarios",
     )
-    data_inicial = models.DateField("Data inicial")
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(StringsVerboseNameModels.DATA_INICIAL.value)
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
 
     def __str__(self):
         return f"{self.escola.codigo_eol}: {self.escola.nome} - {self.data_inicial} até {self.data_final or '--'}"
@@ -905,45 +930,20 @@ class DiaParaCorrigir(
         verbose_name_plural = "Dias da Medição para corrigir"
 
 
-class Empenho(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    # Tipo de empenho
-    TIPO_EMPENHO_CHOICES = (("PRINCIPAL", "Principal"), ("REAJUSTE", "Reajuste"))
-
-    # Status
-    STATUS_CHOICES = (("ATIVO", "Ativo"), ("INATIVO", "Inativo"))
-
-    numero = models.CharField("Número do empenho", max_length=100, unique=True)
-    contrato = models.ForeignKey(
-        "terceirizada.Contrato", on_delete=models.PROTECT, related_name="empenhos"
-    )
-    edital = models.ForeignKey(
-        "terceirizada.Edital", on_delete=models.PROTECT, related_name="empenhos"
-    )
-    tipo_empenho = models.CharField(
-        choices=TIPO_EMPENHO_CHOICES, max_length=20, default="PRINCIPAL"
-    )
-    status = models.CharField(choices=STATUS_CHOICES, max_length=10, default="ATIVO")
-    valor_total = models.DecimalField(max_digits=12, decimal_places=2)
-
-    def __str__(self):
-        return f"Empenho: {self.numero}"
-
-    class Meta:
-        verbose_name = "Empenho"
-        verbose_name_plural = "Empenhos"
-        ordering = ["-alterado_em"]
-
-
 class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.CASCADE,
         related_name="clausulas_desconto",
     )
-    numero_clausula = models.CharField("Número da Cláusula", max_length=100)
-    item_clausula = models.CharField("Item da Cláusula", max_length=100)
+    numero_clausula = models.CharField(
+        StringsVerboseNameModels.NUMERO_DA_CLAUSULA.value, max_length=100
+    )
+    item_clausula = models.CharField(
+        StringsVerboseNameModels.ITEM_DA_CLAUSULA.value, max_length=100
+    )
     porcentagem_desconto = models.DecimalField(max_digits=6, decimal_places=2)
-    descricao = models.TextField("Descrição")
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO_2.value)
 
     def __str__(self):
         return f"Edital: {self.edital.numero} - Cláusula {self.numero_clausula} - Item {self.item_clausula}"
@@ -957,12 +957,12 @@ class ClausulaDeDesconto(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
 class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         related_name="parametrizacoes_financeiras",
         on_delete=models.PROTECT,
     )
@@ -971,8 +971,12 @@ class ParametrizacaoFinanceira(TemChaveExterna, CriadoEm, TemAlteradoEm):
         on_delete=models.PROTECT,
         related_name="parametrizacao_financeira_grupo_unidade_escolar",
     )
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
     legenda = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -1017,14 +1021,14 @@ class ParametrizacaoFinanceiraTabelaValor(TemChaveExterna, CriadoEm, TemAlterado
     )
     nome_campo = models.CharField(max_length=255, null=True, blank=True)
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria",
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
         on_delete=models.PROTECT,
         related_name="parametrizacao_valor_faixa_etaria",
         null=True,
         blank=True,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao",
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         on_delete=models.PROTECT,
         related_name="parametrizacao_valor_tipo_alimentacao",
         null=True,
@@ -1065,7 +1069,7 @@ class RelatorioFinanceiro(
         related_name="relatorios_financeiros",
     )
     lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         related_name="relatorios_financeiros",
         on_delete=models.PROTECT,
     )
@@ -1083,66 +1087,6 @@ class RelatorioFinanceiro(
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
-
-
-class DadosLiquidacao(TemChaveExterna, CriadoEm, TemAlteradoEm):
-    """
-    Dados para liquidação vinculados a um relatório financeiro.
-
-    Essa entidade armazena informações relacionadas a empenhos, incluindo
-    número, tipo e as unidades educacionais associadas.
-
-    Attributes:
-        relatorio_financeiro (RelatorioFinanceiro): Relatório financeiro ao qual o dado pertence.
-        numero_empenho (str): Número identificador do empenho.
-        tipo_empenho (str): Tipo/classificação do empenho.
-        unidades_educacionais (ManyToMany[Escola]): Lista de unidades educacionais (escolas) associadas ao empenho.
-
-    Meta:
-        verbose_name (str): Nome singular da entidade.
-        verbose_name_plural (str): Nome plural da entidade.
-        ordering (list): Ordenação padrão por data de alteração decrescente.
-        constraints (list): Garante unicidade da combinação entre número do empenho,
-            tipo e relatório financeiro.
-    """
-
-    relatorio_financeiro = models.ForeignKey(
-        RelatorioFinanceiro,
-        to_field="uuid",
-        on_delete=models.CASCADE,
-        related_name="dados_liquidacao",
-    )
-    numero_empenho = models.CharField(
-        "Número do empenho",
-        max_length=40,
-    )
-    tipo_empenho = models.CharField(
-        "Tipo de empenho",
-        max_length=100,
-    )
-    unidades_educacionais = models.ManyToManyField(
-        Escola,
-        blank=True,
-        related_name="dados_liquidacao",
-    )
-
-    def __str__(self):
-        return f"Empenho: {self.numero_empenho} | Tipo: {self.tipo_empenho}"
-
-    class Meta:
-        verbose_name = "Dado Liquidação"
-        verbose_name_plural = "Dados Liquidações"
-        ordering = ["-alterado_em"]
-        constraints = [
-            models.UniqueConstraint(
-                fields=[
-                    "numero_empenho",
-                    "tipo_empenho",
-                    "relatorio_financeiro",
-                ],
-                name="unique_dados_liquidacao_empenho_por_relatorio",
-            )
-        ]
 
 
 class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
@@ -1163,19 +1107,19 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="descontos_financeiros",
     )
     tipo_lancamento = models.CharField(
-        "Tipo de lançamento",
+        StringsVerboseNameModels.TIPO_DE_LANCAMENTO.value,
         max_length=30,
         choices=TIPO_LANCAMENTO_CHOICES,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao",
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
         on_delete=models.PROTECT,
         related_name="descontos_financeiros",
         null=True,
         blank=True,
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria",
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
         on_delete=models.PROTECT,
         related_name="descontos_financeiros",
         null=True,
@@ -1198,7 +1142,7 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         related_name="descontos_financeiros",
     )
     quantidade = models.PositiveIntegerField(
-        "Quantidade",
+        StringsVerboseNameModels.QUANTIDADE.value,
     )
 
     def __str__(self):

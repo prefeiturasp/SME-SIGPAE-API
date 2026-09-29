@@ -162,3 +162,16 @@ Cypress.Commands.add(
 		})
 	},
 )
+
+Cypress.Commands.add('consultar_ultima_conferencia_ou_reposicao', (tipo, uuidGuia, autenticado = true) => {
+	const rotas = { conferencia: 'get-ultima-conferencia', reposicao: 'get-ultima-reposicao' }
+	if (!rotas[tipo]) throw new Error(`Tipo de consulta desconhecido: ${tipo}`)
+	return cy.request({
+		method: 'GET',
+		url: `${Cypress.config('baseUrl')}api/conferencia-da-guia-com-ocorrencia/${rotas[tipo]}/`,
+		qs: uuidGuia === undefined ? {} : { uuid: uuidGuia },
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		timeout: 60000,
+		failOnStatusCode: false,
+	})
+})

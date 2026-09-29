@@ -6,7 +6,11 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemData,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    StringsCaminhoModelos,
+    StringsVerboseNameModels,
+)
 from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
 from src.escola.models import Escola
 
@@ -18,34 +22,43 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
         related_name="dietas_especiais",
     )
     codigo_eol_aluno = models.CharField(  # noqa DJ01
-        "Código EOL aluno",
+        StringsVerboseNameModels.CODIGO_EOL_ALUNO.value,
         max_length=7,
         validators=[MinLengthValidator(7)],
         null=True,
         blank=True,
     )
     nome_aluno = models.CharField(
-        "Nome do Aluno", max_length=100, null=True, blank=True
+        StringsVerboseNameModels.NOME_DO_ALUNO.value,
+        max_length=100,
+        null=True,
+        blank=True,
     )
     codigo_eol_escola_origem = models.CharField(
-        "Código EOL escola origem",
+        StringsVerboseNameModels.CODIGO_EOL_ESCOLA_ORIGEM.value,
         max_length=6,
         validators=[MinLengthValidator(6)],
         null=True,
         blank=True,
     )
     nome_escola_origem = models.CharField(
-        "Nome da Escola origem", max_length=160, null=True, blank=True
+        StringsVerboseNameModels.NOME_DA_ESCOLA_ORIGEM.value,
+        max_length=160,
+        null=True,
+        blank=True,
     )
     codigo_eol_escola_destino = models.CharField(
-        "Código EOL escola destino",
+        StringsVerboseNameModels.CODIGO_EOL_ESCOLA_DESTINO.value,
         max_length=6,
         validators=[MinLengthValidator(6)],
         null=True,
         blank=True,
     )
     nome_escola_destino = models.CharField(
-        "Nome da Escola destino", max_length=160, null=True, blank=True
+        StringsVerboseNameModels.NOME_DA_ESCOLA_DESTINO.value,
+        max_length=160,
+        null=True,
+        blank=True,
     )
 
     class Meta:
@@ -68,7 +81,7 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
 
 class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas",
     )
@@ -79,7 +92,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
         related_name="logs_dietas_autorizadas",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         blank=True,
         null=True,
         on_delete=models.SET_NULL,
@@ -107,7 +120,7 @@ class LogQuantidadeDietasAutorizadas(TemChaveExterna, TemData, CriadoEm):
 
 class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_cei",
     )
@@ -118,12 +131,14 @@ class LogQuantidadeDietasAutorizadasCEI(TemChaveExterna, TemData, CriadoEm):
         related_name="logs_dietas_autorizadas_cei",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         related_name="logs_dietas_autorizadas_cei",
         on_delete=models.CASCADE,
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria", null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self) -> str:
@@ -144,7 +159,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFerias(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias",
     )
@@ -171,7 +186,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
     TemChaveExterna, TemData, CriadoEm
 ):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.CASCADE,
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
     )
@@ -182,7 +197,7 @@ class LogQuantidadeDietasAutorizadasRecreioNasFeriasCEI(
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",
     )
     faixa_etaria = models.ForeignKey(
-        "escola.FaixaEtaria",
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value,
         null=True,
         on_delete=models.DO_NOTHING,
         related_name="logs_dietas_autorizadas_recreio_ferias_cei",

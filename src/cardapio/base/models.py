@@ -1,5 +1,4 @@
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -7,12 +6,13 @@ from src.dados_comuns.behaviors import (
     Posicao,
     TemChaveExterna,
 )
-from src.dados_comuns.constants import MODEL_ESCOLA, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
+)
 
 
-class TipoAlimentacao(
-    ExportModelOperationsMixin("tipo_alimentacao"), Nomeavel, TemChaveExterna, Posicao
-):
+class TipoAlimentacao(Nomeavel, TemChaveExterna, Posicao):
     """Representa um tipo de alimentação que pode compor o cardápio escolar.
 
     Os registros deste modelo são reutilizados em vínculos com período escolar,
@@ -70,13 +70,22 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
     hora_inicial = models.TimeField(auto_now=False, auto_now_add=False)
     hora_final = models.TimeField(auto_now=False, auto_now_add=False)
     escola = models.ForeignKey(
-        MODEL_ESCOLA, blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     tipo_alimentacao = models.ForeignKey(
-        "cardapio.TipoAlimentacao", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", blank=True, null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        blank=True,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
 
     def __str__(self):
@@ -84,7 +93,6 @@ class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar(TemChaveExterna):
 
 
 class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
-    ExportModelOperationsMixin("vinculo_alimentacao_periodo_escolar_tipo_ue"),
     Ativavel,
     TemChaveExterna,
 ):
@@ -103,7 +111,9 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
         "escola.TipoUnidadeEscolar", null=True, on_delete=models.DO_NOTHING
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", null=True, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        null=True,
+        on_delete=models.DO_NOTHING,
     )
     tipos_alimentacao = models.ManyToManyField(
         "TipoAlimentacao", related_name="vinculos", blank=True
@@ -118,9 +128,7 @@ class VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar(
         verbose_name_plural = "Vínculos tipo alimentação"
 
 
-class MotivoDRENaoValida(
-    ExportModelOperationsMixin("motivo_dre_nao_valida"), Nomeavel, TemChaveExterna
-):
+class MotivoDRENaoValida(Nomeavel, TemChaveExterna):
     """Armazena motivos usados pela DRE para não validar uma solicitação no módulo de Gestão de Alimentação.
 
     Os registros deste modelo são exibidos quando uma solicitação que passa

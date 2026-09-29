@@ -8,7 +8,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 
 from src.dados_comuns.constants import (
     EMAIL_ASSUNTO_STATUS_SOLICITACAO,
-    MENSAGEM_PERMISSAO_NEGADA,
+    StringsValidationErrors,
 )
 from src.dados_comuns.fluxo_status import (
     ReclamacaoProdutoWorkflow,
@@ -74,7 +74,9 @@ def test_ue_envia_sem_lancamentos_usuario_sem_permissao(
         "user": user_codae_produto,
         "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
     }
-    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
+    with pytest.raises(
+        PermissionDenied, match=StringsValidationErrors.PERMISSAO_NEGADA.value
+    ):
         solicitacao_sem_lancamento.ue_envia_sem_lancamentos(**kwargs)
 
 
@@ -125,7 +127,9 @@ def test_medicao_sem_lancamentos_usuario_sem_permissao(
         "user": user_codae_produto,
         "justificativa_sem_lancamentos": "Não houve aulas no período devido a reformas na escola.",
     }
-    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
+    with pytest.raises(
+        PermissionDenied, match=StringsValidationErrors.PERMISSAO_NEGADA.value
+    ):
         medicao_sem_lancamento.medicao_sem_lancamentos(**kwargs)
 
 
@@ -181,7 +185,9 @@ def test_codae_pede_correcao_sem_lancamentos_solicitacao_usuario_sem_permissao(
         "user": usuario,
         "justificativa": justificativa,
     }
-    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
+    with pytest.raises(
+        PermissionDenied, match=StringsValidationErrors.PERMISSAO_NEGADA.value
+    ):
         solicitacao_para_corecao.codae_pede_correcao_sem_lancamentos(**kwargs)
 
 
@@ -228,7 +234,9 @@ def test_codae_pede_correcao_sem_lancamentos_medicao_usuario_sem_permissao(
     }
 
     medicao = solicitacao_para_corecao.medicoes.first()
-    with pytest.raises(PermissionDenied, match=MENSAGEM_PERMISSAO_NEGADA):
+    with pytest.raises(
+        PermissionDenied, match=StringsValidationErrors.PERMISSAO_NEGADA.value
+    ):
         medicao.codae_pede_correcao_sem_lancamentos(**kwargs)
 
 

@@ -15,7 +15,11 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEI,
 )
 from src.escola.models import FaixaEtaria
-from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+)
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
@@ -182,7 +186,7 @@ def _processa_periodo_campo(
     filtros = _define_filtro(periodo)
 
     try:
-        if "DIETA ESPECIAL" in periodo:
+        if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
             total = processa_dieta_especial(
                 solicitacao, filtros, faixa_etaria, periodo, query_params
             )
@@ -200,7 +204,7 @@ def _define_filtro(periodo: str) -> dict:
     filtros = {}
     if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         filtros["grupo__nome"] = periodo
-    elif "DIETA ESPECIAL" in periodo:
+    elif CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
         else:
@@ -243,7 +247,7 @@ def processa_periodo_regular(
     except ObjectDoesNotExist:
         return "-"
 
-    categoria = "ALIMENTAÇÃO"
+    categoria = CategoriaMedicao.ALIMENTACAO
     if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
         categoria = periodo.upper()
 

@@ -84,3 +84,48 @@ Then('a consulta filtrada por visao da CODAE retorna dados validos', function ()
 	expect(this.response.status).to.eq(200)
 	expect(this.response.body).to.have.property('results')
 })
+
+function filtrosRelatorioCodae() {
+	// Periodo curto para limitar o volume consultado e exportado em QA.
+	const hoje = new Date()
+	const data = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`
+	return { status: 'AUTORIZADOS', de: data, ate: data, limit: 2, offset: 0 }
+}
+
+When('consulto o relatorio CODAE pela operacao {string}', function (operacao) {
+	this.operacaoRelatorio = operacao
+	cy.consultar_relatorio_solicitacoes_codae(operacao, filtrosRelatorioCodae()).then((response) => {
+		this.response = response
+	})
+})
+
+Then('o relatorio CODAE retorna os dados esperados', function () {
+	expect(this.response.status).to.eq(200)
+	if (this.operacaoRelatorio === 'graficos') {
+		expect(this.response.body).to.be.an('array')
+	} else {
+		expect(this.response.body.results).to.be.an('array')
+		if (this.operacaoRelatorio === 'filtrar') {
+			expect(this.response.body.count).to.be.a('number').and.at.least(0)
+			expect(this.response.body.results.length).to.be.at.most(2)
+		}
+	}
+})
+
+Then('a exportacao CODAE confirma o recebimento da solicitacao', function () {
+	expect(this.response.status).to.eq(200)
+	const detalhe = this.response.body.detail.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	expect(detalhe).to.eq('Solicitacao de geracao de arquivo recebida com sucesso.')
+})
+
+When('consulto o relatorio CODAE pela operacao {string} sem autenticacao', function (operacao) {
+	cy.clearCookies()
+	cy.consultar_relatorio_solicitacoes_codae(operacao, filtrosRelatorioCodae(), false).then((response) => {
+		this.response = response
+	})
+})
+
+Then('o relatorio CODAE rejeita a consulta sem autenticacao', function () {
+	expect(this.response.status).to.eq(401)
+	expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
