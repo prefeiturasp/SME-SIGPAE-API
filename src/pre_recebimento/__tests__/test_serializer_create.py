@@ -7,8 +7,12 @@ from src.pre_recebimento.ficha_tecnica.api.serializers.serializer_create import 
     AnaliseFichaTecnicaCreateSerializer,
     FichaTecnicaCreateSerializer,
     FichaTecnicaFLVCreateSerializer,
+    FichaTecnicaRascunhoSerializer,
 )
-from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+from src.pre_recebimento.ficha_tecnica.models import (
+    FabricanteFichaTecnica,
+    FichaTecnicaDoProduto,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -124,6 +128,15 @@ def test_ficha_flv_valida(payload_base_flv):
     assert serializer.is_valid(), serializer.errors
 
 
+def test_serializadores_de_criacao_instanciados_sem_data():
+    for serializer_class in (
+        FichaTecnicaRascunhoSerializer,
+        FichaTecnicaCreateSerializer,
+        FichaTecnicaFLVCreateSerializer,
+    ):
+        serializer_class()
+
+
 def make_serializer(payload, ficha_tecnica, usuario):
     return AnaliseFichaTecnicaCreateSerializer(
         data=payload,
@@ -228,9 +241,39 @@ def test_analise_flv_campos_inexistentes_ignorados_mesmo_se_enviados(
     assert serializer.is_valid(), serializer.errors
 
 
-def test_analise_flv_campos_obrigatorios_continuam_sendo_validados(
+def test_analise_flv_sem_bloco_fabricante_dispensa_conferido(
     payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
 ):
+    payload_analise_flv_aprovada.pop("fabricante_envasador_conferido")
+    payload_analise_flv_aprovada.pop("fabricante_envasador_correcoes")
+    serializer = make_serializer(
+        payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
+    )
+    assert serializer.is_valid(), serializer.errors
+
+
+def test_analise_flv_sem_bloco_fabricante_ignora_campos_enviados(
+    payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
+):
+    payload_analise_flv_aprovada.update(
+        {
+            "fabricante_envasador_conferido": False,
+            "fabricante_envasador_correcoes": "",
+        }
+    )
+    serializer = make_serializer(
+        payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
+    )
+    assert serializer.is_valid(), serializer.errors
+
+
+def test_analise_flv_com_bloco_fabricante_continua_validando_conferido(
+    payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
+):
+    ficha_tecnica_flv.fabricante = FabricanteFichaTecnica.objects.create(
+        cnpj="11222333000181"
+    )
+    ficha_tecnica_flv.save()
     payload_analise_flv_aprovada.update(
         {
             "fabricante_envasador_conferido": False,
@@ -243,3 +286,19 @@ def test_analise_flv_campos_obrigatorios_continuam_sendo_validados(
     )
     assert not serializer.is_valid()
     assert "não pode ser vazio" in str(serializer.errors)
+
+
+def test_analise_flv_com_bloco_fabricante_exige_conferido(
+    payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
+):
+    ficha_tecnica_flv.fabricante = FabricanteFichaTecnica.objects.create(
+        cnpj="11222333000181"
+    )
+    ficha_tecnica_flv.save()
+    payload_analise_flv_aprovada.pop("fabricante_envasador_conferido")
+    payload_analise_flv_aprovada.pop("fabricante_envasador_correcoes")
+    serializer = make_serializer(
+        payload_analise_flv_aprovada, ficha_tecnica_flv, usuario
+    )
+    assert not serializer.is_valid()
+    assert "fabricante_envasador_conferido" in serializer.errors

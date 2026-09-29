@@ -34,6 +34,8 @@ from src.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     InterrupcaoProgramadaEntrega,
 )
+from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
+from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import CronogramaSemanalListagemSerializer
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
     DocumentoDeRecebimentoSerializer,
@@ -770,3 +772,20 @@ def test_ficha_tecnica_detalhar_serializer_retorna_logs_da_linha_do_tempo(
 
     assert logs[0]["usuario"]["nome"] == usuario.nome
     assert logs[1]["usuario"]["nome"] == usuario.nome
+
+
+def test_cronograma_semanal_listagem_serializer_retorna_numero_semanal(
+    cronograma_assinado_perfil_dilog,
+):
+    cronograma_mensal = cronograma_assinado_perfil_dilog
+    cronograma_semanal = baker.make(
+        CronogramaSemanal,
+        numero="SEM-TESTE-001",
+        cronograma_mensal=cronograma_mensal,
+    )
+
+    data = CronogramaSemanalListagemSerializer(cronograma_semanal).data
+
+    assert data["numero"] == cronograma_mensal.numero
+    assert data["numero_semanal"] == cronograma_semanal.numero
+    assert data["numero"] != data["numero_semanal"]

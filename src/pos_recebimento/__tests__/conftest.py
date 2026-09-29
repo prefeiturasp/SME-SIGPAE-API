@@ -247,7 +247,9 @@ def termos_painel_assinatura(usuario_fiscal, tres_fiscais):
     """
     fiscais_com_usuario = [usuario_fiscal, tres_fiscais[1], tres_fiscais[2]]
 
-    empresa_alfa = EmpresaFactory(nome_fantasia="ALFA ALIMENTOS")
+    empresa_alfa = EmpresaFactory(
+        nome_fantasia="ALFA ALIMENTOS", razao_social="ALFA ALIMENTOS LTDA"
+    )
     contrato_alfa = ContratoFactory(terceirizada=empresa_alfa, numero="111/2026")
     outra_empresa = EmpresaFactory()
 
