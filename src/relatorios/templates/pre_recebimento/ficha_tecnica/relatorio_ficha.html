@@ -29,6 +29,7 @@
       </div>
     </div>
 
+    {% if exibir_bloco_fabricante %}
     <div id="dados_fabricante_envasador">
       <h5 class="title titulo-secao separator">FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR </h5>
 
@@ -76,6 +77,7 @@
 
       </div>
     </div>
+    {% endif %}
 
     <div id="dados_produto">
       <h5 class="title titulo-secao separator">DETALHES DO PRODUTO</h5>
@@ -88,12 +90,14 @@
           </div>
         {% endif %}
 
+        {% if exibir_numero_registro %}
         <div class="row pb-3">
           <div class="col-12">
             Nº do Registro do Rótulo do Produto e Nome do Órgão Competente:
             <span class="font-weight-bold"> {{ficha.numero_registro}}</span>
           </div>
         </div>
+        {% endif %}
 
         <div class="row pb-3">
           <div class="col-4">

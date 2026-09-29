@@ -25,7 +25,11 @@ from ..documento_recebimento.models import (
     DocumentoDeRecebimento,
     TipoDeDocumentoDeRecebimento,
 )
-from ..ficha_tecnica.models import AnaliseFichaTecnica, FichaTecnicaDoProduto
+from ..ficha_tecnica.models import (
+    AnaliseFichaTecnica,
+    FabricanteFichaTecnica,
+    FichaTecnicaDoProduto,
+)
 from ..qualidade.models import Laboratorio, TipoEmbalagemQld
 
 pytestmark = pytest.mark.django_db
@@ -411,6 +415,96 @@ def test_analise_ficha_tecnica_aprovada_categoria_flv(
         outras_informacoes_conferido=True,
     )
     assert analise.aprovada is True
+
+
+@pytest.mark.django_db
+def test_analise_ficha_tecnica_flv_sem_bloco_fabricante_dispensa_conferido(
+    ficha_tecnica_flv,
+):
+    analise = AnaliseFichaTecnica.objects.create(
+        ficha_tecnica=ficha_tecnica_flv,
+        detalhes_produto_conferido=True,
+        detalhes_produto_correcoes="",
+        temperatura_e_transporte_conferido=True,
+        temperatura_e_transporte_correcoes="",
+        responsavel_tecnico_conferido=True,
+        responsavel_tecnico_correcoes="",
+        outras_informacoes_conferido=True,
+    )
+    assert analise.aprovada is True
+
+
+@pytest.mark.django_db
+def test_analise_ficha_tecnica_flv_com_bloco_exige_fabricante_conferido(
+    ficha_tecnica_flv,
+):
+    ficha_tecnica_flv.fabricante = FabricanteFichaTecnica.objects.create(
+        cnpj="11222333000181"
+    )
+    ficha_tecnica_flv.save()
+    analise = AnaliseFichaTecnica.objects.create(
+        ficha_tecnica=ficha_tecnica_flv,
+        detalhes_produto_conferido=True,
+        detalhes_produto_correcoes="",
+        temperatura_e_transporte_conferido=True,
+        temperatura_e_transporte_correcoes="",
+        responsavel_tecnico_conferido=True,
+        responsavel_tecnico_correcoes="",
+        outras_informacoes_conferido=True,
+    )
+    assert analise.aprovada is False
+
+
+def test_exibir_bloco_fabricante_derivado_do_conteudo():
+    ficha_sem_bloco = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    assert ficha_sem_bloco.eh_flv_ponto_a_ponto is True
+    assert ficha_sem_bloco.bloco_fabricante_preenchido is False
+    assert ficha_sem_bloco.exibir_bloco_fabricante is False
+
+    ficha_com_bloco = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        fabricante=FabricanteFichaTecnica(cnpj="11222333000181"),
+    )
+    assert ficha_com_bloco.bloco_fabricante_preenchido is True
+    assert ficha_com_bloco.exibir_bloco_fabricante is True
+
+    ficha_outra_combinacao = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+    )
+    assert ficha_outra_combinacao.eh_flv_ponto_a_ponto is False
+    assert ficha_outra_combinacao.exibir_bloco_fabricante is True
+
+
+def test_exibir_numero_registro_derivado_do_conteudo():
+    flv_ponto_a_ponto_sem_numero = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    assert flv_ponto_a_ponto_sem_numero.exibir_numero_registro is False
+
+    flv_ponto_a_ponto_com_numero = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+        numero_registro="987654",
+    )
+    assert flv_ponto_a_ponto_com_numero.exibir_numero_registro is True
+
+    flv_armazem = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+    )
+    assert flv_armazem.exibir_numero_registro is True
+
+    nao_perecivel_ponto_a_ponto = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    assert nao_perecivel_ponto_a_ponto.exibir_numero_registro is True
 
 
 def test_ficha_tecnica_ponto_a_ponto_independente_da_categoria():
