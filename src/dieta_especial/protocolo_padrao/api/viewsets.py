@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from src.dados_comuns.constants import PayloadVariaveis
 from src.dieta_especial.protocolo_padrao.api.serializers import (
     ProtocoloPadraoDietaEspecialSerializer,
     ProtocoloPadraoDietaEspecialSimplesSerializer,
@@ -40,9 +41,11 @@ class ProtocoloPadraoDietaEspecialViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = ProtocoloPadraoDietaEspecial.objects.filter(ativo=True)
-        if "editais[]" in self.request.query_params:
+        if PayloadVariaveis.EDITAIS.value in self.request.query_params:
             queryset = queryset.filter(
-                editais__uuid__in=self.request.query_params.getlist("editais[]")
+                editais__uuid__in=self.request.query_params.getlist(
+                    PayloadVariaveis.EDITAIS.value
+                )
             ).distinct()
         return queryset.order_by("nome_protocolo")
 

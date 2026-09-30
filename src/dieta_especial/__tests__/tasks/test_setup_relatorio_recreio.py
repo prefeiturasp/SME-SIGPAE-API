@@ -6,6 +6,7 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     SolicitacaoDietaEspecialFactory,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.escola.fixtures.factories.escola_factory import (
@@ -59,8 +60,12 @@ class BaseSetupRecreioNasFerias:
         )
 
     def setup_classificacao_dieta(self):
-        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(nome="Tipo A")
-        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
+        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(
+            nome=ClassificacaoDieta.TIPO_A
+        )
+        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(
+            nome=ClassificacaoDieta.TIPO_B
+        )
 
     def setup_alunos(self):
         self.aluno_1 = AlunoFactory.create(

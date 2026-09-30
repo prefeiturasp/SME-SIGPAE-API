@@ -42,7 +42,9 @@ def test_permissoes_suspensao_alimentacao_viewset(
         f"/{ENDPOINT_SUSPENSOES}/"
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert response.json() == {"detail": constants.MENSAGEM_PERMISSAO_NEGADA}
+    assert response.json() == {
+        "detail": constants.StringsValidationErrors.PERMISSAO_NEGADA.value
+    }
     grupo_suspensao_alimentacao.status = InformativoPartindoDaEscolaWorkflow.INFORMADO
     grupo_suspensao_alimentacao.save()
     response = client_autenticado_vinculo_escola_cardapio.delete(
@@ -50,7 +52,7 @@ def test_permissoes_suspensao_alimentacao_viewset(
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert response.json() == {
-        "detail": "Você só pode excluir quando o status for RASCUNHO."
+        "detail": constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
     }
     # pode deletar somente se for escola e se estiver como rascunho
     response = client_autenticado_vinculo_escola_cardapio.delete(

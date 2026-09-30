@@ -3,7 +3,12 @@ import datetime
 from freezegun import freeze_time
 from rest_framework import status
 
-from ...dados_comuns.constants import SEM_FILTRO
+from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
+
+from ...dados_comuns.constants import (
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    SEM_FILTRO,
+)
 from ...escola.models import TipoUnidadeEscolar
 from ...terceirizada.models import Terceirizada
 from ..api.constants import (
@@ -405,8 +410,8 @@ def test_filtrar_solicitacoes_ga_cards_totalizadores_tipo_solicitacao(
 
     assert "Rede Municipal de Educação" not in keys
     assert {"Total": 5} in results
-    assert {"Kit Lanche Passeio": 4} in results
-    assert {"Inclusão de Alimentação": 1} in results
+    assert {StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value: 4} in results
+    assert {StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value: 1} in results
 
 
 def test_filtrar_solicitacoes_ga_cards_totalizadores_tipos_unidade(
@@ -648,10 +653,7 @@ def test_exportar_xlsx(client_autenticado_vinculo_escola):
         data=data,
     )
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
 
 def test_exportar_pdf(client_autenticado_vinculo_escola):
@@ -667,7 +669,4 @@ def test_exportar_pdf(client_autenticado_vinculo_escola):
         data=data,
     )
     assert response.status_code == status.HTTP_200_OK
-    assert (
-        response.json()["detail"]
-        == "Solicitação de geração de arquivo recebida com sucesso."
-    )
+    assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO

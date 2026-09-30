@@ -21,6 +21,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import Aluno, FaixaEtaria, PeriodoEscolar
+from src.medicao_inicial.models import CategoriaMedicao
 from src.perfil.models import Usuario
 from src.produto.models import Produto
 from src.terceirizada.models import Edital
@@ -29,12 +30,14 @@ fake = Faker("pt_BR")
 Faker.seed(420)
 
 
-CLASSIFICACAO_DIETA_NOME_TIPO_A = "Tipo A"
+CLASSIFICACAO_DIETA_NOME_TIPO_A = ClassificacaoDieta.TIPO_A
 
 
 @pytest.fixture
 def usuario_admin():
-    return baker.make("Usuario", email=constants.EMAIL_ADMIN, is_superuser=True)
+    return baker.make(
+        "Usuario", email=constants.EmailsParaTeste.ADMIN.value, is_superuser=True
+    )
 
 
 @pytest.fixture
@@ -44,7 +47,10 @@ def codae():
 
 @pytest.fixture
 def dre_guaianases():
-    return baker.make("DiretoriaRegional", nome="DIRETORIA REGIONAL GUAIANASES")
+    return baker.make(
+        "DiretoriaRegional",
+        nome=constants.NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
+    )
 
 
 @pytest.fixture
@@ -69,7 +75,7 @@ def arquivo_docx_base64():
 def aluno():
     return baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -220,10 +226,12 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 
     baker.make("AlergiaIntolerancia", descricao="Alergia teste fixture")
     perfil_professor = baker.make(
-        constants.MODEL_PERFIL, nome="ADMINISTRADOR_UE", ativo=False
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="ADMINISTRADOR_UE",
+        ativo=False,
     )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola,
         perfil=perfil_professor,
@@ -233,7 +241,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2000-01-01",
     )
@@ -254,7 +262,7 @@ def solicitacao_dieta_especial_a_autorizar(client, escola):
 def solicitacao_dieta_especial_autorizada(
     client, escola, solicitacao_dieta_especial_a_autorizar
 ):
-    email = "terceirizada@admin.com"
+    email = constants.EmailsParaTeste.TERCEIRIZADA_ADMIN.value
     password = constants.DJANGO_ADMIN_PASSWORD
     rf = "4545454"
     user = Usuario.objects.create_user(
@@ -262,9 +270,13 @@ def solicitacao_dieta_especial_autorizada(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -295,9 +307,13 @@ def solicitacao_dieta_especial_aprovada_alteracao_ue(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="DIRETOR_UE", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="DIRETOR_UE",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola,
         perfil=perfil,
@@ -352,9 +368,13 @@ def solicitacao_dieta_especial_escola_solicitou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -379,9 +399,13 @@ def solicitacao_dieta_especial_codae_autorizou_inativacao(
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -722,9 +746,13 @@ def solicitacao_dieta_especial_cancelada_automaticamente(client, escola):
     )
     client.login(username=email, password=password)
 
-    perfil = baker.make(constants.MODEL_PERFIL, nome="TERCEIRIZADA", ativo=False)
+    perfil = baker.make(
+        constants.StringsCaminhoModelos.MODEL_PERFIL.value,
+        nome="TERCEIRIZADA",
+        ativo=False,
+    )
     baker.make(
-        constants.MODEL_VINCULO,
+        constants.StringsCaminhoModelos.MODEL_VINCULO.value,
         usuario=user,
         instituicao=escola.lote.terceirizada,
         perfil=perfil,
@@ -1017,7 +1045,7 @@ def classificacoes_dietas():
     return [
         baker.make(ClassificacaoDieta, nome=CLASSIFICACAO_DIETA_NOME_TIPO_A),
         baker.make(ClassificacaoDieta, nome="Tipo A Enteral"),
-        baker.make(ClassificacaoDieta, nome="Tipo B"),
+        baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_B),
     ]
 
 
@@ -1027,7 +1055,7 @@ def solicitacoes_dieta_especial_ativas(escola, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola,
@@ -1058,7 +1086,7 @@ def solicitacoes_dieta_especial_ativas_cei(escola_cei, classificacoes_dietas):
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1099,7 +1127,7 @@ def solicitacoes_dieta_especial_ativas_cemei(
     baker.make(FaixaEtaria, inicio=32, fim=88)
     aluno_a = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cemei,
@@ -1176,7 +1204,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
     baker.make(FaixaEtaria, inicio=1, fim=31)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_emebs,
@@ -1203,7 +1231,7 @@ def solicitacoes_dieta_especial_ativas_emebs(escola_emebs, classificacoes_dietas
 
 @pytest.fixture
 def categoria_medicao():
-    return baker.make("CategoriaMedicao", nome="ALIMENTAÇÃO")
+    return baker.make("CategoriaMedicao", nome=CategoriaMedicao.ALIMENTACAO)
 
 
 @pytest.fixture
@@ -1224,7 +1252,7 @@ def solicitacao_medicao_inicial(escola_cei, categoria_medicao):
                 "periodo_escolar": periodo_manha.nome,
                 "tabelas_lancamentos": [
                     {
-                        "categoria_medicao": "ALIMENTAÇÃO",
+                        "categoria_medicao": CategoriaMedicao.ALIMENTACAO,
                         "semanas": [{"semana": "1", "dias": ["01"]}],
                     }
                 ],
@@ -1268,10 +1296,10 @@ def solicitacoes_dieta_especial_ativas_cei_com_solicitacao_medicao(
     periodo_escolar_integral,
 ):
     baker.make(FaixaEtaria, inicio=1, fim=50)
-    baker.make(ClassificacaoDieta, nome="Tipo C")
+    baker.make(ClassificacaoDieta, nome=ClassificacaoDieta.TIPO_C)
     aluno = baker.make(
         Aluno,
-        nome=constants.NOME_ALUNO_PADRAO,
+        nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         codigo_eol="123456",
         data_nascimento="2022-01-01",
         escola=escola_cei,
@@ -1332,7 +1360,7 @@ def solicitacoes_processa_dieta_especial(escola_cei, periodo_escolar_integral):
     with freeze_time("2025-1-10"):
         aluno = baker.make(
             Aluno,
-            nome=constants.NOME_ALUNO_PADRAO,
+            nome=constants.StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
             codigo_eol="123456",
             data_nascimento="2022-01-01",
             escola=escola_cei,
@@ -1402,22 +1430,22 @@ def filtro_historico_relatorio_dietas(
 
     query_params = QueryDict(mutable=True)
     query_params.setlist(
-        "unidades_educacionais_selecionadas[]",
+        constants.PayloadVariaveis.UNIDADES_EDUCACIONAIS_SELECIONADAS.value,
         [
             str(escola.uuid),
             str(escola_emebs.uuid),
         ],
     )
     query_params.setlist(
-        "tipos_unidades_selecionadas[]",
+        constants.PayloadVariaveis.TIPOS_UNIDADES_SELECIONADAS.value,
         [str(escola_emebs.tipo_unidade.uuid)],
     )
     query_params.setlist(
-        "periodos_escolares_selecionadas[]",
+        constants.PayloadVariaveis.PERIODOS_ESCOLARES_SELECIONADAS.value,
         [str(periodo_escolar_integral.uuid)],
     )
     query_params.setlist(
-        "classificacoes_selecionadas[]",
+        constants.PayloadVariaveis.CLASSIFICACOES_SELECIONADAS.value,
         [classificacao.id for classificacao in classificacoes_dietas],
     )
     query_params["tipo_gestao"] = str(escola_emebs.tipo_gestao.uuid)
@@ -1592,7 +1620,10 @@ def escolas_tipo_cei():
                     "fundamental": {},
                     "periodos": {
                         "INTEGRAL": [
-                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                            {
+                                "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                                "autorizadas": 1,
+                            }
                         ]
                     },
                     "por_idade": {},
@@ -1647,7 +1678,10 @@ def escolas_tipo_cemei_por_faixa_etaria():
                     "periodos": {},
                     "por_idade": {
                         "INTEGRAL": [
-                            {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1}
+                            {
+                                "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                                "autorizadas": 1,
+                            }
                         ]
                     },
                     "turma_infantil": {},
@@ -1745,7 +1779,7 @@ def classificacao_tipo_a():
 
 @pytest.fixture
 def classificacao_tipo_b():
-    return baker.make("ClassificacaoDieta", nome="Tipo B")
+    return baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_B)
 
 
 @pytest.fixture
@@ -1909,19 +1943,43 @@ def unidade_educacional():
             {
                 "periodo": "TARDE",
                 "faixa_etaria": [
-                    {"faixa": "01 a 03 meses", "autorizadas": 5},
-                    {"faixa": "07 a 11 meses", "autorizadas": 2},
-                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 1},
-                    {"faixa": "04 anos a 06 anos", "autorizadas": 2},
+                    {
+                        "faixa": constants.FaixasEtarias.UM_A_TRES_MESES.value,
+                        "autorizadas": 5,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                        "autorizadas": 1,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
+                        "autorizadas": 2,
+                    },
                 ],
             },
             {
                 "periodo": "MANHA",
                 "faixa_etaria": [
-                    {"faixa": "01 a 03 meses", "autorizadas": 3},
-                    {"faixa": "07 a 11 meses", "autorizadas": 2},
-                    {"faixa": "01 ano a 03 anos e 11 meses", "autorizadas": 2},
-                    {"faixa": "04 anos a 06 anos", "autorizadas": 3},
+                    {
+                        "faixa": constants.FaixasEtarias.UM_A_TRES_MESES.value,
+                        "autorizadas": 3,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.SETE_A_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                        "autorizadas": 2,
+                    },
+                    {
+                        "faixa": constants.FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
+                        "autorizadas": 3,
+                    },
                 ],
             },
         ],

@@ -1,4 +1,4 @@
-import requests
+import httpx
 import sentry_sdk
 from django.core.cache import cache
 from django_redis import get_redis_connection
@@ -10,6 +10,7 @@ from ..dados_comuns.constants import (
     DJANGO_NOVO_SGP_API_TOKEN,
     DJANGO_NOVO_SGP_API_URL,
 )
+from ..dados_comuns.http_client import NOVO_SGP_CLIENT, executar_chamada
 
 
 class NovoSGPServico:
@@ -30,7 +31,9 @@ class NovoSGPServico:
             5 Noite
             6 Integral
         """
-        response = requests.get(
+        response = executar_chamada(
+            NOVO_SGP_CLIENT,
+            "get",
             f"{DJANGO_NOVO_SGP_API_URL}/v1/calendario/integracoes/ues/dias-letivos/",
             headers=cls.HEADER,
             timeout=cls.TIMEOUT,
@@ -75,7 +78,9 @@ class NovoSGPServicoLogado:
         }
 
         try:
-            return requests.post(
+            return executar_chamada(
+                NOVO_SGP_CLIENT,
+                "post",
                 f"{DJANGO_NOVO_SGP_API_URL}/v1/autenticacao",
                 json=data,
                 headers={"Content-Type": "application/json"},
@@ -156,13 +161,7 @@ class NovoSGPServicoLogado:
         headers = kwargs.pop("headers", {}).copy()
         headers["Authorization"] = self.access_token
 
-        response = requests.request(
-            method,
-            url,
-            headers=headers,
-            timeout=120,
-            **kwargs,
-        )
+        response = self._executa_request(method, url, headers, kwargs)
 
         if response.status_code != status.HTTP_401_UNAUTHORIZED:
             return response
@@ -174,13 +173,19 @@ class NovoSGPServicoLogado:
 
         headers["Authorization"] = self.access_token
 
-        return requests.request(
-            method,
-            url,
-            headers=headers,
-            timeout=120,
-            **kwargs,
-        )
+        return self._executa_request(method, url, headers, kwargs)
+
+    def _executa_request(self, method, url, headers, kwargs):
+        try:
+            return NOVO_SGP_CLIENT.request(
+                method,
+                url,
+                headers=headers,
+                timeout=120,
+                **kwargs,
+            )
+        except httpx.HTTPStatusError as exc:
+            return exc.response
 
     def pegar_foto_aluno(self, codigo_eol_aluno):
         """

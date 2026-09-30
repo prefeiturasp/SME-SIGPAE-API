@@ -10,6 +10,7 @@ from src.dieta_especial.logs_models.fixtures.factories.base import (
     LogQuantidadeDietasAutorizadasCEIFactory,
     LogQuantidadeDietasAutorizadasFactory,
 )
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
@@ -38,8 +39,12 @@ class BaseSetupHistoricoDietas:
         )
 
     def setup_classificacoes_dieta(self):
-        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(nome="Tipo A")
-        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(nome="Tipo B")
+        self.classificacao_tipo_a = ClassificacaoDietaFactory.create(
+            nome=ClassificacaoDieta.TIPO_A
+        )
+        self.classificacao_tipo_b = ClassificacaoDietaFactory.create(
+            nome=ClassificacaoDieta.TIPO_B
+        )
 
     def setup_escola_emef(self):
         self.tipo_unidade_emef = TipoUnidadeEscolarFactory.create(

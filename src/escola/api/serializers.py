@@ -7,7 +7,7 @@ from rest_framework.exceptions import ValidationError
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns.api.serializers import ContatoSerializer, EnderecoSerializer
-from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
 from ...dados_comuns.mixins.serializer_context import EscolaNomeHistoricoSerializerMixin
 from ...paineis_consolidados import models
 from ...perfil.api.serializers import PerfilSimplesSerializer
@@ -84,7 +84,7 @@ class AlunoPeriodoParcialSimplesSerializer(serializers.ModelSerializer):
     codigo_eol = serializers.CharField(source="aluno.codigo_eol")
     nome = serializers.CharField(source="aluno.nome")
     uuid = serializers.UUIDField(source="aluno.uuid")
-    escola = serializers.UUIDField(source="escola.uuid")
+    escola = serializers.UUIDField(source=StringsSourceSerializers.ESCOLA_UUID.value)
 
     class Meta:
         model = AlunoPeriodoParcial
@@ -838,6 +838,12 @@ class AlunoSimplesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aluno
         fields = ("uuid", "nome", "data_nascimento", "codigo_eol", "escola")
+
+
+class AlunoNomeUuidCodigoEolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Aluno
+        fields = ("uuid", "nome", "codigo_eol")
 
 
 class AlunoNaoMatriculadoSerializer(serializers.ModelSerializer):

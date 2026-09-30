@@ -196,3 +196,28 @@ Cypress.Commands.add('deletar_cronograma', (uuid) => {
 		failOnStatusCode: false,
 	})
 })
+
+export const rotasComplementaresCronogramas = {
+	atualizar: ['PUT', '{uuid}/'], parcial: ['PATCH', '{uuid}/'],
+	assinar_abastecimento: ['PATCH', '{uuid}/abastecimento-assina/'],
+	assinar_codae: ['PATCH', '{uuid}/codae-assina/'],
+	assinar_fornecedor: ['PATCH', '{uuid}/fornecedor-assina-cronograma/'],
+	dados_pos_recebimento: ['GET', '{uuid}/dados-cronograma-pos-recebimento/'],
+	pdf_cronograma: ['GET', '{uuid}/gerar-pdf-cronograma/'],
+	relatorio_pdf: ['GET', 'gerar-relatorio-pdf-async/'],
+	relatorio_xlsx: ['GET', 'gerar-relatorio-xlsx-async/'],
+	lista_pos_recebimento: ['GET', 'lista-cronogramas-pos-recebimento/'],
+}
+Cypress.Commands.add('requisitar_complemento_cronogramas', (operacao, opcoes = {}) => {
+	const rota = rotasComplementaresCronogramas[operacao]
+	if (!rota) throw new Error(`Operacao de cronograma desconhecida: ${operacao}`)
+	if (rota[1].includes('{uuid}') && !opcoes.uuid) throw new Error('Informe UUID do cronograma')
+	return cy.request({
+		method: rota[0],
+		url: `${Cypress.config('baseUrl')}api/cronogramas/${rota[1].replace('{uuid}', opcoes.uuid)}`,
+		qs: opcoes.query, body: opcoes.dados,
+		headers: opcoes.autenticado === false ? {} : { Authorization: `JWT ${globalThis.token}` },
+		encoding: operacao === 'pdf_cronograma' ? 'binary' : 'utf8',
+		timeout: 120000, failOnStatusCode: false,
+	})
+})

@@ -10,6 +10,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
 )
 from src.medicao_inicial.models import (
+    CategoriaMedicao,
     DescontoFinanceiro,
     SolicitacaoMedicaoInicial,
 )
@@ -56,7 +57,7 @@ def test_medicao_model(medicao):
 
 
 def test_categoria_medicao_model(categoria_medicao):
-    assert categoria_medicao.__str__() == "ALIMENTAÇÃO"
+    assert categoria_medicao.__str__() == CategoriaMedicao.ALIMENTACAO
 
 
 def test_valor_medicao_model(valor_medicao):
@@ -181,10 +182,6 @@ def test_solicitacao_medicao_dias_lanche_emergencial_diario_retorna_apenas_dias_
         is True
         for dia in dias_retornados
     )
-
-
-def test_empenho_model(empenho):
-    assert empenho.__str__() == "Empenho: 123456"
 
 
 def test_parametrizacao_financeira(parametrizacao_financeira_emef):

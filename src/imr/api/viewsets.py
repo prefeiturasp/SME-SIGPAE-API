@@ -18,6 +18,7 @@ from src.terceirizada.models import Edital, Terceirizada
 
 from ...dados_comuns.constants import (
     ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
 )
@@ -316,7 +317,7 @@ class FormularioSupervisaoModelViewSet(
                 uuid=uuid,
             )
             return Response(
-                dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+                dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                 status=status.HTTP_200_OK,
             )
         except Http404:
@@ -355,7 +356,7 @@ class FormularioSupervisaoModelViewSet(
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 

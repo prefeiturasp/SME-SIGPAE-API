@@ -4,6 +4,7 @@ from rangefilter.filters import DateRangeFilter
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
+from src.dados_comuns.constants import StringsSearchHelpText
 
 
 @admin.register(SuspensaoAlimentacaoDaCEI)
@@ -26,7 +27,9 @@ class SuspensaoAlimentacaoDaCEIModelAdmin(admin.ModelAdmin):
         "get_periodos_escolares",
     )
     search_fields = ("uuid", "escola__nome", "escola__codigo_eol")
-    search_help_text = "Pesquisar por: UUID, nome da escola, código EOL da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2.value
+    )
     list_filter = (
         ("data", DateRangeFilter),
         "escola__lote",

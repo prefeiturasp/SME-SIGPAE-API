@@ -1472,7 +1472,7 @@ def test_url_layout_de_embalagem_validate_ficha_tecnica(
         in response.data["ficha_tecnica"]
     )
     assert (
-        "Este campo é obrigatório."
+        constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
         in response.data["tipos_de_embalagens"][0]["imagens_do_tipo_de_embalagem"]
     )
 
@@ -2216,7 +2216,7 @@ def test_url_endpoint_documentos_recebimento_create(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Cronograma não existe" in response.data["cronograma"]
     assert (
-        "Este campo é obrigatório."
+        constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
         in response.data["tipos_de_documentos"][1]["arquivos_do_tipo_de_documento"]
     )
 
@@ -3041,6 +3041,32 @@ def test_ficha_tecnica_create_envasador_null(
     assert ficha.envasador_distribuidor is None
 
 
+@pytest.mark.django_db
+def test_ficha_tecnica_create_flv_ponto_a_ponto_sem_fabricante(
+    client_autenticado_fornecedor,
+    payload_base_flv,
+    arquivo_pdf_base64,
+):
+    payload_base_flv["fabricante"] = None
+    payload_base_flv["envasador_distribuidor"] = None
+    payload_base_flv["password"] = constants.DJANGO_ADMIN_PASSWORD
+    payload_base_flv["arquivo"] = arquivo_pdf_base64
+
+    response = client_autenticado_fornecedor.post(
+        "/ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_base_flv, default=str),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED, response.content
+
+    ficha = FichaTecnicaDoProduto.objects.last()
+    assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
+    assert ficha.fabricante is None
+    assert ficha.envasador_distribuidor is None
+    assert ficha.exibir_bloco_fabricante is False
+
+
 def test_ficha_tecnica_validate_pereciveis(
     client_autenticado_fornecedor,
     payload_ficha_tecnica_pereciveis,
@@ -3769,7 +3795,9 @@ def test_url_ficha_tecnica_correcao_fornecedor_validate_campos_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "prazo_validade_descongelamento": ["Este campo é obrigatório."]
+        "prazo_validade_descongelamento": [
+            constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+        ]
     }
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
 
@@ -3802,7 +3830,9 @@ def test_url_ficha_tecnica_correcao_fornecedor_validate_campos_nao_pereciveis(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "condicoes_de_conservacao": ["Este campo é obrigatório."]
+        "condicoes_de_conservacao": [
+            constants.StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+        ]
     }
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_CORRECAO
 
@@ -3968,6 +3998,7 @@ def test_url_pdf_ficha_tecnica_flv(client_autenticado_fornecedor, ficha_tecnica_
     assert "Informações Nutricionais" not in pdf_text_flv
     assert "Modo de Preparo" not in pdf_text_flv
     assert "Armazenamento" not in pdf_text_flv
+    assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" not in pdf_text_flv
 
 
 def test_url_interrupcao_programada_entrega_list_authorized(

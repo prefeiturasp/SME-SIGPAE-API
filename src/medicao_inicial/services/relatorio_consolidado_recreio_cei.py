@@ -16,7 +16,11 @@ from src.dados_comuns.constants import (
     ORDEM_HEADERS_RECREIO_CEI,
 )
 from src.escola.models import FaixaEtaria
-from src.medicao_inicial.models import Medicao, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    Medicao,
+    SolicitacaoMedicaoInicial,
+)
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
     filtra_queryset_pelo_intervalo_de_dias,
@@ -124,7 +128,9 @@ def _get_lista_alimentacoes(
                         "frequencia",
                     ]
                 )
-                | Q(categoria_medicao__nome__icontains="DIETA ESPECIAL")
+                | Q(
+                    categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL
+                )
             )
             .values_list("nome_campo", flat=True)
             .distinct()
@@ -319,7 +325,7 @@ def _processa_periodo_campo(
     """
     filtros = {}
     try:
-        if "DIETA ESPECIAL" in grupo:
+        if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in grupo:
             filtros["grupo__nome"] = GRUPO_RECREIO_NAS_FERIAS
             total = processa_dieta_especial(
                 solicitacao, filtros, campo, grupo, query_params
@@ -463,7 +469,11 @@ def processa_grupos_recreio(
         return total_pagamento_colaboradores(medicao, nome_campo, query_params)
     else:
         soma = _calcula_soma_medicao(
-            medicao, nome_campo, faixa_etaria_id, "ALIMENTAÇÃO", query_params
+            medicao,
+            nome_campo,
+            faixa_etaria_id,
+            CategoriaMedicao.ALIMENTACAO,
+            query_params,
         )
         return soma if soma is not None else "-"
 

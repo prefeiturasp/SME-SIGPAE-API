@@ -2,11 +2,12 @@ import logging
 import timeit
 from datetime import datetime
 
-import requests
+import httpx
 from django.core.management.base import BaseCommand, CommandParser
-from requests import ConnectionError
+from sme_sidecar_sdk import CircuitOpenError
 
 from ....dados_comuns.constants import DJANGO_EOL_SGP_API_TOKEN, DJANGO_EOL_SGP_API_URL
+from ....dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 from ...models import Aluno, Escola, HistoricoMatriculaAluno
 
 logger = logging.getLogger("sigpae.cmd_registra_historico_matriculas_alunos")
@@ -48,13 +49,15 @@ class Command(BaseCommand):
     def _obtem_matriculas_aluno(self, cod_eol_aluno, ano_letivo):
         try:
             url = f"{DJANGO_EOL_SGP_API_URL}/alunos/{cod_eol_aluno}/turmas/anosLetivos/{ano_letivo}/matriculaTurma/true/tipoTurma/true"
-            r = requests.get(url=url, headers=self.headers, timeout=120)
+            r = executar_chamada(
+                EOL_SGP_CLIENT, "get", url=url, headers=self.headers, timeout=120
+            )
             if r.status_code == 200:
                 json = r.json()
                 return json
             else:
                 return []
-        except ConnectionError as e:
+        except (httpx.TransportError, CircuitOpenError) as e:
             msg = f"Erro de conexão na api do EOL: {e}"
             logger.error(msg)
             self.stdout.write(self.style.ERROR(msg))

@@ -20,7 +20,7 @@ df = pd.read_csv(
 )
 
 # exclui registros duplicados no arquivo csv
-df.drop_duplicates(subset="cd_cpf_pessoa", keep=False, inplace=True)
+df = df.drop_duplicates(subset="cd_cpf_pessoa", keep=False)
 
 # tira os NAN e troca por espaco vazio ''
 df = df.replace(np.nan, "", regex=True)

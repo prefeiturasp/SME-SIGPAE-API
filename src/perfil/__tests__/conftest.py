@@ -10,13 +10,16 @@ from faker import Faker
 from model_bakery import baker
 from openpyxl import Workbook
 
+from src.dados_comuns.constants import NomesParaTesteEscola
+
 from ...dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     DILOG_ABASTECIMENTO,
     DJANGO_ADMIN_PASSWORD,
-    EMAIL_ADMIN,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    EmailsParaTeste,
+    NomesParaTesteDiretoriaRegional,
 )
 from .. import models
 from ..api.serializers import UsuarioSerializer, UsuarioUpdateSerializer
@@ -830,7 +833,7 @@ def email_list_invalidos(request):
 
 @pytest.fixture
 def fake_user(client):
-    email = EMAIL_ADMIN
+    email = EmailsParaTeste.ADMIN.value
     password = DJANGO_ADMIN_PASSWORD
     user = models.Usuario.objects.create_user(
         email=email,
@@ -844,7 +847,7 @@ def fake_user(client):
 
 @pytest.fixture
 def usuario_autenticado(client):
-    email = EMAIL_ADMIN
+    email = EmailsParaTeste.ADMIN.value
     password = DJANGO_ADMIN_PASSWORD
     client.login(username=email, password=password)
     return client
@@ -1437,11 +1440,12 @@ def client_tercerizada_com_acesso_medicao(client, django_user_model, terceirizad
 
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
-        "DiretoriaRegional", nome="DIRETORIA REGIONAL TESTE"
+        "DiretoriaRegional",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value,
     )
     baker.make(
         "Escola",
-        nome="EMEF TESTE",
+        nome=NomesParaTesteEscola.EMEF_TESTE.value,
         lote=lote,
         diretoria_regional=diretoria_regional,
         acesso_modulo_medicao_inicial=True,

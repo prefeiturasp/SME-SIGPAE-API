@@ -4,6 +4,7 @@ from unittest import TestCase
 import pytest
 from django.core.management import call_command
 
+from src.dados_comuns.constants import ClassificacoesDietasDeprecadas
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
     SolicitacaoDietaEspecialFactory,
@@ -17,6 +18,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 from src.escola.fixtures.factories.escola_factory import (
@@ -36,10 +38,10 @@ class UnificaDietasTipoBCommandTest(TestCase):
 
     def setup_dietas(self):
         self.classificacao_tipo_b_lanche = ClassificacaoDietaFactory.create(
-            nome="Tipo B - LANCHE"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE.value
         )
         self.classificacao_tipo_b_lanche_refeicao = ClassificacaoDietaFactory.create(
-            nome="Tipo B - LANCHE e REFEIÇÃO"
+            nome=ClassificacoesDietasDeprecadas.TIPO_B_LANCHE_REFEICAO.value
         )
 
         SolicitacaoDietaEspecialFactory.create(
@@ -120,31 +122,31 @@ class UnificaDietasTipoBCommandTest(TestCase):
 
         assert (
             SolicitacaoDietaEspecial.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).count()
             == 6
         )
 
         assert (
             LogQuantidadeDietasAutorizadas.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).count()
             == 5
         )
         assert list(
             LogQuantidadeDietasAutorizadas.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).values_list("quantidade", flat=True)
         ) == [30, 30, 30, 30, 30]
 
         assert (
             LogQuantidadeDietasAutorizadasCEI.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).count()
             == 5
         )
         assert list(
             LogQuantidadeDietasAutorizadasCEI.objects.filter(
-                classificacao__nome="Tipo B"
+                classificacao__nome=ClassificacaoDieta.TIPO_B
             ).values_list("quantidade", flat=True)
         ) == [30, 30, 30, 30, 30]

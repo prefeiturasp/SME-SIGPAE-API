@@ -31,4 +31,10 @@ router.register(
     basename="solicitacao-kit-lanche-cemei",
 )
 
+router.register(
+    "solicitacao-kit-lanche",
+    viewsets.SolicitacaoKitLanchePainelViewSet,
+    basename="solicitacao-kit-lanche",
+)
+
 urlpatterns = [path("", include(router.urls))]

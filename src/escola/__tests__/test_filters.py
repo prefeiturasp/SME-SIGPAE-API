@@ -4,7 +4,7 @@ import pytest
 from django.http import QueryDict
 from model_bakery import baker
 
-from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR, PayloadVariaveis
 from src.escola.api.filters import (
     AlunoFilter,
     DiretoriaRegionalFilter,
@@ -254,7 +254,7 @@ def test_log_aluno_filter_dia(log_alunos_matriculados_faixa_etaria_dia):
 def test_escola_para_filtros_tipo_unidade_lista(escolas_para_filtros):
     data = QueryDict(mutable=True)
     data.setlist(
-        "tipo_unidade__uuid[]",
+        PayloadVariaveis.TIPO_UNIDADE_UUID.value,
         [str(escolas_para_filtros["tipo_emef"].uuid)],
     )
 
@@ -271,7 +271,7 @@ def test_escola_para_filtros_tipo_unidade_lista(escolas_para_filtros):
 def test_escola_para_filtros_tipo_unidade_lista_multiplos(escolas_para_filtros):
     data = QueryDict(mutable=True)
     data.setlist(
-        "tipo_unidade__uuid[]",
+        PayloadVariaveis.TIPO_UNIDADE_UUID.value,
         [
             str(escolas_para_filtros["tipo_emef"].uuid),
             str(escolas_para_filtros["tipo_cei"].uuid),
@@ -287,7 +287,9 @@ def test_escola_para_filtros_tipo_unidade_lista_multiplos(escolas_para_filtros):
 
 def test_escola_para_filtros_lote_lista(escolas_para_filtros):
     data = QueryDict(mutable=True)
-    data.setlist("lote__uuid[]", [str(escolas_para_filtros["lote_a"].uuid)])
+    data.setlist(
+        PayloadVariaveis.LOTE_UUID.value, [str(escolas_para_filtros["lote_a"].uuid)]
+    )
 
     filtro = EscolaParaFiltrosFilter(
         data=data, queryset=Escola.objects.all().order_by("codigo_eol")
@@ -302,7 +304,7 @@ def test_escola_para_filtros_lote_lista(escolas_para_filtros):
 def test_escola_para_filtros_excluir_tipo_unidade(escolas_para_filtros):
     data = QueryDict(mutable=True)
     data.setlist(
-        "excluir_tipo_unidade__uuid[]",
+        PayloadVariaveis.EXCLUIR_TIPO_UNIDADE_UUID.value,
         [str(escolas_para_filtros["tipo_emef"].uuid)],
     )
 

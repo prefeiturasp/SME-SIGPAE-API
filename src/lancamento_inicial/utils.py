@@ -138,9 +138,11 @@ def matriculados_em_uma_data(escola_periodo, data):
     }
 
     classificacoes_a = ClassificacaoDieta.objects.filter(
-        nome__in=["Tipo A", "Tipo A Enteral"]
+        nome__in=[ClassificacaoDieta.TIPO_A, "Tipo A Enteral"]
     )
-    classificacoes_b = ClassificacaoDieta.objects.filter(nome__in=["Tipo B"])
+    classificacoes_b = ClassificacaoDieta.objects.filter(
+        nome__in=[ClassificacaoDieta.TIPO_B]
+    )
 
     quantidade_alunos_dieta_a = Aluno.objects.filter(
         dietas_especiais__classificacao__in=classificacoes_a,

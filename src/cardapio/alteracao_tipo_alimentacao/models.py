@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Sum
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.alteracao_tipo_alimentacao.behaviors import (
     EhAlteracaoCardapio,
@@ -21,14 +20,13 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsCaminhoModelos
 from src.dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
 
 class AlteracaoCardapio(
-    ExportModelOperationsMixin("alteracao_cardapio"),
     CriadoEm,
     CriadoPor,
     TemChaveExterna,
@@ -320,7 +318,6 @@ class AlteracaoCardapio(
 
 
 class SubstituicaoAlimentacaoNoPeriodoEscolar(
-    ExportModelOperationsMixin("substituicao_alimentacao_periodo_escolar"),
     TemChaveExterna,
 ):
     """Representa uma substituição de tipo de alimentação em um período escolar específico.
@@ -344,7 +341,7 @@ class SubstituicaoAlimentacaoNoPeriodoEscolar(
     )
     qtd_alunos = models.PositiveSmallIntegerField(default=0)
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.PROTECT,
         related_name="substituicoes_periodo_escolar",
     )
@@ -370,7 +367,6 @@ class SubstituicaoAlimentacaoNoPeriodoEscolar(
 
 
 class MotivoAlteracaoCardapio(
-    ExportModelOperationsMixin("motivo_alteracao_cardapio"),
     Nomeavel,
     TemChaveExterna,
     Ativavel,

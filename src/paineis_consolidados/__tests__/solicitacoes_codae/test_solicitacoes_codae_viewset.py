@@ -5,7 +5,10 @@ from django.utils import timezone
 from freezegun.api import freeze_time
 from rest_framework import status
 
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import (
+    TIPOS_ALIMENTACAO,
+    StringsModelosGestaoAlimentacao,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
@@ -88,7 +91,7 @@ class TestEndpointsPainelGerencialAlimentacao:
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {
             "results": {
-                "Inclusão de Alimentação": {
+                StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value: {
                     "LIMITE": 0,
                     "PRIORITARIO": 1,
                     "REGULAR": 0,

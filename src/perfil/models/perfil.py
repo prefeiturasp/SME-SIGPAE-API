@@ -6,7 +6,6 @@ from django.db import models
 from django.db.models.functions import Length
 from django.db.models.query import QuerySet
 from django.db.utils import IntegrityError
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.dados_comuns.behaviors import (
     Ativavel,
@@ -14,10 +13,10 @@ from src.dados_comuns.behaviors import (
     Nomeavel,
     TemChaveExterna,
 )
+from src.dados_comuns.constants import StringsVerboseNameModels
 
 
 class Perfil(
-    ExportModelOperationsMixin("perfil"),
     Nomeavel,
     Descritivel,
     Ativavel,
@@ -38,9 +37,11 @@ class Perfil(
         (EMPRESA, "Empresa"),
     )
 
-    super_usuario = models.BooleanField("Super usuario na instiuição?", default=False)
+    super_usuario = models.BooleanField(
+        StringsVerboseNameModels.SUPER_USUARIO_NA_INSTIUICAO.value, default=False
+    )
     visao = models.CharField(  # noqa
-        "Visão",
+        StringsVerboseNameModels.VISAO.value,
         choices=VISAO_CHOICES,
         max_length=25,
         blank=True,
@@ -93,7 +94,7 @@ class VinculoQueryset(QuerySet):
         return queryset
 
 
-class Vinculo(ExportModelOperationsMixin("vinculo_perfil"), Ativavel, TemChaveExterna):
+class Vinculo(Ativavel, TemChaveExterna):
     """Para informar que tipo de funcao uma pessoa teve em um dado intervalo de tempo em uma instituição.
 
     Ex.: de jan a dez de 2018 (Intervalo) Ciclano (Usuário) foi Diretor (Perfil) na instituição ESCOLA (instituicao)
@@ -101,8 +102,12 @@ class Vinculo(ExportModelOperationsMixin("vinculo_perfil"), Ativavel, TemChaveEx
 
     STATUS_AGUARDANDO_ATIVACAO, STATUS_ATIVO, STATUS_FINALIZADO = range(3)
 
-    data_inicial = models.DateField("Data inicial", null=True, blank=True)
-    data_final = models.DateField("Data final", null=True, blank=True)
+    data_inicial = models.DateField(
+        StringsVerboseNameModels.DATA_INICIAL.value, null=True, blank=True
+    )
+    data_final = models.DateField(
+        StringsVerboseNameModels.DATA_FINAL.value, null=True, blank=True
+    )
     perfil = models.ForeignKey("Perfil", on_delete=models.PROTECT)
     usuario = models.ForeignKey(
         "Usuario", on_delete=models.PROTECT, related_name="vinculos"

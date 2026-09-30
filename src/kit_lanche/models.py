@@ -5,7 +5,12 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
 from django.db.models.functions import Coalesce
-from django_prometheus.models import ExportModelOperationsMixin
+
+from src.dados_comuns.constants import (
+    StringsCaminhoModelos,
+    StringsModelosGestaoAlimentacao,
+    StringsVerboseNameModels,
+)
 
 from ..dados_comuns.behaviors import (  # noqa I101
     CanceladoIndividualmente,
@@ -26,7 +31,6 @@ from ..dados_comuns.behaviors import (  # noqa I101
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from ..dados_comuns.constants import MODEL_DIRETORIA_REGIONAL, MODEL_ESCOLA
 from ..dados_comuns.fluxo_status import (
     FluxoAprovacaoPartindoDaDiretoriaRegional,
     FluxoAprovacaoPartindoDaEscola,
@@ -44,9 +48,7 @@ from .managers import (
 )
 
 
-class ItemKitLanche(
-    ExportModelOperationsMixin("item_kit_lanche"), Nomeavel, TemChaveExterna
-):
+class ItemKitLanche(Nomeavel, TemChaveExterna):
     """Que compõe o KitLanche.
 
     - Barra de Cereal (20 a 25 g embalagem individual)
@@ -63,7 +65,7 @@ class ItemKitLanche(
         verbose_name_plural = "Item do kit lanche"
 
 
-class KitLanche(ExportModelOperationsMixin("kit_lanche"), Nomeavel, TemChaveExterna):
+class KitLanche(Nomeavel, TemChaveExterna):
     """kit1, kit2, kit3."""
 
     ATIVO = "ATIVO"
@@ -76,7 +78,7 @@ class KitLanche(ExportModelOperationsMixin("kit_lanche"), Nomeavel, TemChaveExte
 
     descricao = models.TextField(default="")
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.DO_NOTHING,
         related_name="edital_kit_lanche",
         default=None,
@@ -97,7 +99,6 @@ class KitLanche(ExportModelOperationsMixin("kit_lanche"), Nomeavel, TemChaveExte
 
 
 class SolicitacaoKitLanche(
-    ExportModelOperationsMixin("kit_lanche_base"),
     TemData,
     Motivo,
     Descritivel,
@@ -168,16 +169,16 @@ class SolicitacaoKitLancheAvulsaBase(
         abstract = True
 
 
-class SolicitacaoKitLancheAvulsa(
-    ExportModelOperationsMixin("kit_lanche_avulsa"), SolicitacaoKitLancheAvulsaBase
-):
+class SolicitacaoKitLancheAvulsa(SolicitacaoKitLancheAvulsaBase):
     quantidade_alunos = models.BigIntegerField(blank=True, null=True)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_avulsa",
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
 
     @property
     def solicitacoes_similares(self):
@@ -197,7 +198,7 @@ class SolicitacaoKitLancheAvulsa(
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -212,7 +213,7 @@ class SolicitacaoKitLancheAvulsa(
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada.nome,
-            "tipo_doc": "Kit Lanche Passeio",
+            "tipo_doc": StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "local_passeio": self.local,
@@ -241,15 +242,15 @@ class SolicitacaoKitLancheAvulsa(
         verbose_name_plural = "Solicitações de kit lanche avulsa"
 
 
-class SolicitacaoKitLancheCEIAvulsa(
-    ExportModelOperationsMixin("kit_lanche_cei_avulsa"), SolicitacaoKitLancheAvulsaBase
-):
+class SolicitacaoKitLancheCEIAvulsa(SolicitacaoKitLancheAvulsaBase):
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cei_avulsa",
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
 
     @property
     def observacao(self):
@@ -257,7 +258,7 @@ class SolicitacaoKitLancheCEIAvulsa(
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -363,7 +364,6 @@ class FaixaEtariaSolicitacaoKitLancheCEIAvulsa(
 
 
 class SolicitacaoKitLancheUnificada(
-    ExportModelOperationsMixin("kit_lanche_unificada"),
     CriadoPor,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
@@ -385,7 +385,7 @@ class SolicitacaoKitLancheUnificada(
 
     # TODO: ao deletar este, deletar solicitacao_kit_lanche também que é uma tabela acessória
     # TODO: passar `local` para solicitacao_kit_lanche
-    DESCRICAO = "Kit Lanche Unificado"
+    DESCRICAO = StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
 
     outro_motivo = models.TextField(blank=True)
     local = models.CharField(max_length=160)
@@ -393,7 +393,8 @@ class SolicitacaoKitLancheUnificada(
     lista_kit_lanche_igual = models.BooleanField(default=True)
 
     diretoria_regional = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL, on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
+        on_delete=models.DO_NOTHING,
     )
     solicitacao_kit_lanche = models.ForeignKey(
         SolicitacaoKitLanche, on_delete=models.DO_NOTHING
@@ -415,7 +416,7 @@ class SolicitacaoKitLancheUnificada(
 
     @property
     def tipo(self):
-        return "Kit Lanche Unificado"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
 
     @property
     def path(self):
@@ -577,7 +578,7 @@ class SolicitacaoKitLancheUnificada(
                 else self.escolas_quantidades.get().escola.nome_historico(self.data)
             ),
             "terceirizada": "Várias Terceirizadas",
-            "tipo_doc": "Kit Lanche Unificado",
+            "tipo_doc": StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "local_passeio": self.local,
@@ -627,7 +628,6 @@ class SolicitacaoKitLancheUnificada(
 
 
 class EscolaQuantidade(
-    ExportModelOperationsMixin("escola_quantidade"),
     TemChaveExterna,
     TempoPasseio,
     CanceladoIndividualmente,
@@ -641,7 +641,9 @@ class EscolaQuantidade(
         null=True,
     )
     kits = models.ManyToManyField(KitLanche, blank=True)
-    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, on_delete=models.DO_NOTHING
+    )
 
     @property
     def total_kit_lanche(self):
@@ -678,9 +680,9 @@ class SolicitacaoKitLancheCEMEI(
     DESCRICAO = "Kit Lanche CEMEI"
     local = models.CharField(max_length=160)
     evento = models.CharField(max_length=160, blank=True)
-    data = models.DateField("Data")
+    data = models.DateField(StringsVerboseNameModels.DATA.value)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="solicitacoes_kit_lanche_cemei",
     )
@@ -702,7 +704,7 @@ class SolicitacaoKitLancheCEMEI(
 
     @property
     def tipo(self):
-        return "Kit Lanche Passeio"
+        return StringsModelosGestaoAlimentacao.KIT_LANCHE_PASSEIO.value
 
     @property
     def path(self):
@@ -830,7 +832,9 @@ class SolicitacaoKitLancheCEMEI(
 
 class SolicitacaoKitLancheCEIdaCEMEI(TemChaveExterna, TempoPasseio):
     kits = models.ManyToManyField(KitLanche, blank=True)
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
     solicitacao_kit_lanche_cemei = models.OneToOneField(
         SolicitacaoKitLancheCEMEI,
         blank=True,
@@ -878,7 +882,9 @@ class FaixasQuantidadesKitLancheCEIdaCEMEI(TemChaveExterna, MatriculadosQuandoCr
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.PROTECT)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.PROTECT
+    )
 
     class Meta:
         ordering = ("faixa_etaria__inicio",)
@@ -897,7 +903,9 @@ class SolicitacaoKitLancheEMEIdaCEMEI(
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
-    alunos_com_dieta_especial_participantes = models.ManyToManyField("escola.Aluno")
+    alunos_com_dieta_especial_participantes = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_ALUNO.value
+    )
     solicitacao_kit_lanche_cemei = models.OneToOneField(
         SolicitacaoKitLancheCEMEI,
         blank=True,

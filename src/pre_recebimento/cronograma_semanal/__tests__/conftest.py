@@ -414,6 +414,96 @@ def cronogramas_semanais_relatorio(
 
 
 @pytest.fixture
+def cronograma_semanal_completo_para_excel(contrato_factory, empresa_factory):
+    """Cronograma semanal com todos os campos do Excel preenchidos.
+
+    Os valores reproduzem as duas primeiras linhas do protótipo do
+    relatório, para que as asserções do teste sejam legíveis. Tem duas
+    programações de entrega, ambas em junho/2026.
+    """
+    from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+    from src.pre_recebimento.base.models import UnidadeMedida
+    from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
+
+    empresa = empresa_factory(
+        nome_fantasia="BELA VISTA", tipo_servico=Terceirizada.FORNECEDOR
+    )
+    modalidade = baker.make("Modalidade", nome="Pregão Eletronico")
+    contrato = contrato_factory(
+        terceirizada=empresa,
+        numero="44/SME/CODAE/2026",
+        processo="444.2026/004444-4",
+        modalidade=modalidade,
+    )
+    unidade_medida = baker.make(UnidadeMedida, nome="Unidade", abreviacao="un")
+    produto = baker.make("NomeDeProdutoEdital", nome="CAQUI")
+    ficha = baker.make(
+        FichaTecnicaDoProduto,
+        produto=produto,
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
+    )
+    mensal = baker.make(
+        Cronograma,
+        numero="012/2026A",
+        empresa=empresa,
+        contrato=contrato,
+        ficha_tecnica=ficha,
+        unidade_medida=unidade_medida,
+        numero_empenho="44.444/2026",
+        qtd_total_empenho=25000.0,
+        custo_unitario_produto=1.35,
+        status=Cronograma.workflow_class.ASSINADO_CODAE,
+    )
+
+    semanal = baker.make(
+        CronogramaSemanal,
+        numero="012/2026P",
+        cronograma_mensal=mensal,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+    )
+    for data_inicio, data_fim in (
+        (datetime.date(2026, 6, 20), datetime.date(2026, 6, 23)),
+        (datetime.date(2026, 6, 25), datetime.date(2026, 6, 28)),
+    ):
+        baker.make(
+            ProgramacaoEntregaSemanal,
+            cronograma_semanal=semanal,
+            mes_programado="06/2026",
+            data_inicio=data_inicio,
+            data_fim=data_fim,
+            quantidade=8250.0,
+        )
+    return semanal
+
+
+@pytest.fixture
+def programacao_de_julho(cronograma_semanal_completo_para_excel):
+    """Terceira programação, em outro mês, para exercitar o filtro."""
+    return baker.make(
+        ProgramacaoEntregaSemanal,
+        cronograma_semanal=cronograma_semanal_completo_para_excel,
+        mes_programado="07/2026",
+        data_inicio=datetime.date(2026, 7, 1),
+        data_fim=datetime.date(2026, 7, 10),
+        quantidade=1000.0,
+    )
+
+
+@pytest.fixture
+def cronograma_semanal_sem_programacoes(cronograma_ponto_a_ponto_assinado_2):
+    """Cronograma semanal sem nenhuma programação de entrega."""
+    from src.dados_comuns.fluxo_status import CronogramaSemanalWorkflow
+
+    return baker.make(
+        CronogramaSemanal,
+        numero="099/2026",
+        cronograma_mensal=cronograma_ponto_a_ponto_assinado_2,
+        status=CronogramaSemanalWorkflow.ENVIADO_AO_FORNECEDOR,
+    )
+
+
+@pytest.fixture
 def empresa_fornecedor(cronograma_ponto_a_ponto_assinado):
     return cronograma_ponto_a_ponto_assinado.empresa
 

@@ -1,15 +1,16 @@
 import logging
 
 import environ
-import requests
+import httpx
 from django.core.management.base import BaseCommand
-from requests import ConnectionError
+from sme_sidecar_sdk import CircuitOpenError
 
 from ....dados_comuns.constants import (
     DJANGO_EOL_SGP_API_TOKEN,
     DJANGO_EOL_SGP_API_URL,
     TIPOS_UNIDADE_ESCOLAR,
 )
+from ....dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 from ....dados_comuns.models import Contato, Endereco
 from ...models import DiretoriaRegional, Escola, Subprefeitura, TipoUnidadeEscolar
 
@@ -30,12 +31,12 @@ class Command(BaseCommand):
         for dre in diretorias_regionais:
             try:
                 self._atualiza_dados_escola(dre)
-            except ConnectionError as e:
-                msg = f"Erro de conexão na api do  EOL: {e}"
+            except httpx.ReadTimeout as re:
+                msg = f"readTimeout: {re}"
                 logger.error(msg)
                 self.stdout.write(self.style.ERROR(msg))
-            except requests.exceptions.ReadTimeout as re:
-                msg = f"readTimeout: {re}"
+            except (httpx.TransportError, CircuitOpenError) as e:
+                msg = f"Erro de conexão na api do  EOL: {e}"
                 logger.error(msg)
                 self.stdout.write(self.style.ERROR(msg))
             except Exception as ex:
@@ -44,7 +45,9 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(msg))
 
     def _atualiza_dados_escola(self, dre):
-        response = requests.get(
+        response = executar_chamada(
+            EOL_SGP_CLIENT,
+            "get",
             f"{DJANGO_EOL_SGP_API_URL}/DREs/{dre.codigo_eol}/escola/Sigpae",
             headers=self.headers,
             timeout=self.timeout,
@@ -103,7 +106,9 @@ class Command(BaseCommand):
         return escola
 
     def _atualiza_dados_contato_e_endereco_da_escola(self, escola: Escola):  # noqa C901
-        response = requests.get(
+        response = executar_chamada(
+            EOL_SGP_CLIENT,
+            "get",
             f"{DJANGO_EOL_SGP_API_URL}/escolas/dados/{escola.codigo_eol}",
             headers=self.headers,
             timeout=self.timeout,

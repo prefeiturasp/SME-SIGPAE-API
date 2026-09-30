@@ -25,6 +25,8 @@ class AlergiaIntoleranciaAdmin(admin.ModelAdmin):
     ordering = ("descricao",)
 
     def message_user(self, *args):
+        # Suprime a mensagem padrão de sucesso do Django Admin para
+        # exibir apenas as mensagens customizadas de save_model.
         pass
 
     def save_model(self, request, obj, form, change):

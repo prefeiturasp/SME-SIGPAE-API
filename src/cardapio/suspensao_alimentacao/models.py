@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import Sum
-from django_prometheus.models import ExportModelOperationsMixin
 
 from src.cardapio.base.models import TipoAlimentacao
 from src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers import (
@@ -20,15 +19,17 @@ from src.dados_comuns.behaviors import (
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, MODEL_ESCOLA
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    StringsCaminhoModelos,
+    StringsVerboseNameModels,
+)
 from src.dados_comuns.fluxo_status import FluxoInformativoPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import patch_docs
 
 
-class MotivoSuspensao(
-    ExportModelOperationsMixin("motivo_suspensao"), Nomeavel, TemChaveExterna
-):
+class MotivoSuspensao(Nomeavel, TemChaveExterna):
     """Motivo de Suspensão de um dia letivo em uma unidade educacional.
 
     Exemplos:
@@ -51,7 +52,6 @@ class MotivoSuspensao(
 
 
 class SuspensaoAlimentacao(
-    ExportModelOperationsMixin("suspensao_alimentacao"),
     TemData,
     TemChaveExterna,
     CanceladoIndividualmente,
@@ -65,7 +65,9 @@ class SuspensaoAlimentacao(
 
     prioritario = models.BooleanField(default=False)
     motivo = models.ForeignKey(MotivoSuspensao, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
     grupo_suspensao = models.ForeignKey(
         "GrupoSuspensaoAlimentacao",
         on_delete=models.CASCADE,
@@ -87,9 +89,7 @@ class SuspensaoAlimentacao(
         verbose_name_plural = "Suspensões de alimentação"
 
 
-class QuantidadePorPeriodoSuspensaoAlimentacao(
-    ExportModelOperationsMixin("quantidade_periodo"), TemChaveExterna
-):
+class QuantidadePorPeriodoSuspensaoAlimentacao(TemChaveExterna):
     """Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.
 
     Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.
@@ -109,7 +109,7 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(
     ]
     numero_alunos = models.SmallIntegerField()
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
     grupo_suspensao = models.ForeignKey(
         "GrupoSuspensaoAlimentacao",
@@ -137,7 +137,6 @@ class QuantidadePorPeriodoSuspensaoAlimentacao(
 
 
 class GrupoSuspensaoAlimentacao(
-    ExportModelOperationsMixin("grupo_suspensao_alimentacao"),
     TemChaveExterna,
     CriadoPor,
     TemIdentificadorExternoAmigavel,
@@ -158,7 +157,9 @@ class GrupoSuspensaoAlimentacao(
     """
 
     DESCRICAO = "Suspensão de Alimentação"
-    escola = models.ForeignKey(MODEL_ESCOLA, on_delete=models.DO_NOTHING)
+    escola = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, on_delete=models.DO_NOTHING
+    )
     objects = models.Manager()  # Manager Padrão
     desta_semana = GrupoSuspensaoAlimentacaoDestaSemanaManager()
     deste_mes = GrupoSuspensaoAlimentacaoDesteMesManager()

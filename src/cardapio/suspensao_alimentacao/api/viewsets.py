@@ -384,7 +384,9 @@ class GrupoSuspensaoAlimentacaoSerializerViewSet(
             return super().destroy(request, *args, **kwargs)
         else:
             return Response(
-                {"detail": "Você só pode excluir quando o status for RASCUNHO."},
+                {
+                    "detail": constants.StringsValidationErrors.EXCLUSAO_SOMENTE_RASCUNHO.value
+                },
                 status=status.HTTP_403_FORBIDDEN,
             )
 

@@ -3,10 +3,11 @@ import datetime
 from rest_framework import serializers
 
 from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
 from ....dados_comuns.utils import update_instance_from_dict
 from ....eol_servico.utils import EOLServicoSGP
 from ....escola.api.serializers import (
+    AlunoNomeUuidCodigoEolSerializer,
     AlunoSerializer,
     AlunoSimplesSerializer,
     DiretoriaRegionalSimplissimaSerializer,
@@ -190,6 +191,12 @@ class SolicitacaoKitLancheAvulsaSerializer(serializers.ModelSerializer):
     class Meta:
         model = SolicitacaoKitLancheAvulsa
         exclude = ("id",)
+
+
+class SolicitacaoKitLancheAvulsaSerializerLeve(SolicitacaoKitLancheAvulsaSerializer):
+    alunos_com_dieta_especial_participantes = AlunoNomeUuidCodigoEolSerializer(
+        many=True
+    )
 
 
 class SolicitacaoKitLancheAvulsaSimplesSerializer(serializers.ModelSerializer):
@@ -396,6 +403,14 @@ class SolicitacaoKitLancheCEIAvulsaSerializer(serializers.ModelSerializer):
         exclude = ("id", "criado_por")
 
 
+class SolicitacaoKitLancheCEIAvulsaSerializerLeve(
+    SolicitacaoKitLancheCEIAvulsaSerializer
+):
+    alunos_com_dieta_especial_participantes = AlunoNomeUuidCodigoEolSerializer(
+        many=True
+    )
+
+
 class FaixasQuantidadesKitLancheCEIdaCEMEISerializer(serializers.ModelSerializer):
     faixa_etaria = FaixaEtariaSerializer()
 
@@ -433,7 +448,7 @@ class SolicitacaoKitLancheCEMEISerializer(serializers.ModelSerializer):
     solicitacao_cei = SolicitacaoKitLancheCEIdaCEMEISerializer()
     solicitacao_emei = SolicitacaoKitLancheEMEIdaCEMEISerializer()
     id_externo = serializers.CharField()
-    escola = serializers.UUIDField(source="escola.uuid")
+    escola = serializers.UUIDField(source=StringsSourceSerializers.ESCOLA_UUID.value)
 
     class Meta:
         model = SolicitacaoKitLancheCEMEI

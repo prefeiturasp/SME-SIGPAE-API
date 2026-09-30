@@ -24,19 +24,32 @@ from xworkflows import InvalidTransitionError
 
 from src.cardapio.utils import ordem_periodos
 from src.medicao_inicial.recreio_nas_ferias.models import RecreioNasFerias
+from src.medicao_inicial.services.pendencias_acao_dre import (
+    anotar_pendencia_acao_dre,
+)
 from src.medicao_inicial.services.relatorio_adesao import (
+    obtem_dias_com_dados,
     obtem_escolas_ordenadas,
+    obtem_nome_arquivo_relatorio_adesao,
     obtem_resultados,
+    obtem_resultados_para_dia,
     obtem_resultados_para_escola,
+    obtem_resultados_por_data,
+    obtem_resultados_por_data_e_tipo_unidade,
     obtem_resultados_por_escola,
     valida_parametros_periodo_lancamento,
+    valida_parametros_resultado_individual_por_data,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
 from ...dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ...dados_comuns.constants import TRADUCOES_FERIADOS
+from ...dados_comuns.constants import (
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    TRADUCOES_FERIADOS,
+    PayloadVariaveis,
+)
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.permissions import (
     UsuarioAdministradorEmpresaTerceirizada,
@@ -72,11 +85,9 @@ from ..models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
-    DadosLiquidacao,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
-    Empenho,
     LancheEmergencialDiario,
     Medicao,
     OcorrenciaMedicaoInicial,
@@ -126,7 +137,6 @@ from .constants import (
 from .filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
-    EmpenhoFilter,
     LancheEmergencialDiarioFilter,
     ParametrizacaoFinanceiraFilter,
     RelatorioFinanceiroFilter,
@@ -138,12 +148,10 @@ from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
-    DadosLiquidacaoSerializer,
     DadosParametrizacaoFinanceiraSerializer,
     DescontoFinanceiroSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
-    EmpenhoSerializer,
     LancheEmergencialDiarioSerializer,
     MedicaoSerializer,
     OcorrenciaMedicaoInicialSerializer,
@@ -159,10 +167,8 @@ from .serializers import (
 )
 from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
-    DadosLiquidacaoUpdateSerializer,
     DescontoFinanceiroUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
-    EmpenhoCreateUpdateSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
     MedicaoCreateUpdateSerializer,
     ParametrizacaoFinanceiraWriteModelSerializer,
@@ -172,10 +178,8 @@ from .serializers_create import (
 
 calendario = BrazilSaoPauloCity()
 
-
 DEFAULT_PAGE = 1
 DEFAULT_PAGE_SIZE = 10
-
 
 MSG_ERROR_VERIFIQUE_PARAMETROS = "Verifique os parâmetros e tente novamente"
 
@@ -427,6 +431,9 @@ class SolicitacaoMedicaoInicialViewSet(
 
     def _get_totalizadores(self, query_set: QuerySet, kwargs: dict) -> list:
         sumario = []
+        status_corrigido_para_codae = (
+            SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE
+        )
 
         for workflow in self._get_lista_status():
             todos_lancamentos = workflow == "TODOS_OS_LANCAMENTOS"
@@ -437,11 +444,20 @@ class SolicitacaoMedicaoInicialViewSet(
             )
             qs = self._condicao_por_usuario(qs)
             qs = qs.filter(**kwargs)
+            total_pendentes_acao_dre = 0
+            if workflow == status_corrigido_para_codae:
+                total_pendentes_acao_dre = anotar_pendencia_acao_dre(qs).filter(
+                    pendente_acao_dre=True
+                ).count()
             sumario.append(
                 {
                     "status": workflow,
                     "label": self._get_label(workflow),
                     "total": len(qs),
+                    "total_pendentes_acao_dre": total_pendentes_acao_dre,
+                    "possui_pendencias_acao_dre": (
+                        total_pendentes_acao_dre > 0
+                    ),
                 }
             )
         return sumario
@@ -454,6 +470,13 @@ class SolicitacaoMedicaoInicialViewSet(
         workflow = request.query_params.get("status")
         qs = self._condicao_por_usuario(query_set)
         qs = qs.filter(**kwargs)
+        qs = anotar_pendencia_acao_dre(qs)
+        somente_pendentes_acao_dre = (
+            request.query_params.get("somente_pendentes_acao_dre", "").lower()
+            == "true"
+        )
+        if somente_pendentes_acao_dre:
+            qs = qs.filter(pendente_acao_dre=True)
 
         logs_map = {}
         for log in LogSolicitacoesUsuario.objects.filter(
@@ -502,8 +525,10 @@ class SolicitacaoMedicaoInicialViewSet(
             "mes_ano": lambda params: dict(
                 zip(["mes", "ano"], params["mes_ano"].split("_"))
             ),
-            "lotes_selecionados[]": lambda params: {
-                "escola__lote__uuid__in": params.getlist("lotes_selecionados[]")
+            PayloadVariaveis.LOTES_SELECIONADOS.value: lambda params: {
+                "escola__lote__uuid__in": params.getlist(
+                    PayloadVariaveis.LOTES_SELECIONADOS.value
+                )
             },
             "escola": lambda params: {
                 "escola__codigo_eol": params.get("escola").split(" - ")[0]
@@ -674,7 +699,7 @@ class SolicitacaoMedicaoInicialViewSet(
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -691,7 +716,7 @@ class SolicitacaoMedicaoInicialViewSet(
             uuid_sol_medicao=uuid_sol_medicao,
         )
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -776,9 +801,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     contem_recreio=contem_recreio,
                 )
                 return Response(
-                    dict(
-                        detail="Solicitação de geração de arquivo recebida com sucesso."
-                    ),
+                    dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
                     status=status.HTTP_200_OK,
                 )
         return Response(
@@ -839,7 +862,7 @@ class SolicitacaoMedicaoInicialViewSet(
         uuid_grupo_escolar = request.query_params.get("grupo_escolar")
         status_solicitacao = request.query_params.get("status")
         uuid_dre = request.query_params.get("dre")
-        uuid_lotes = request.query_params.getlist("lotes[]", None)
+        uuid_lotes = request.query_params.getlist(PayloadVariaveis.LOTES.value, None)
         uuid_recreio = request.query_params.get("recreio_uuid", False)
         contem_recreio = False
 
@@ -849,7 +872,9 @@ class SolicitacaoMedicaoInicialViewSet(
         if uuid_lotes:
             lotes = Lote.objects.filter(uuid__in=uuid_lotes)
             filtros["escola__lote__in"] = lotes
-            query_params["lotes"] = request.query_params.getlist("lotes[]")
+            query_params["lotes"] = request.query_params.getlist(
+                PayloadVariaveis.LOTES.value
+            )
 
         diretoria_regional = DiretoriaRegional.objects.get(uuid=uuid_dre)
         filtros["escola__diretoria_regional"] = diretoria_regional
@@ -910,7 +935,7 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
         return Response(
-            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 
@@ -1393,7 +1418,7 @@ class SolicitacaoMedicaoInicialViewSet(
         solicitacao_medicao = self.get_object()
         valores_medicao = ValorMedicao.objects.filter(
             medicao__solicitacao_medicao_inicial=solicitacao_medicao,
-            categoria_medicao__nome__icontains="DIETA ESPECIAL",
+            categoria_medicao__nome__icontains=CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL,
             nome_campo="frequencia",
         )
         return Response(
@@ -1569,7 +1594,7 @@ class SolicitacaoMedicaoInicialViewSet(
         )
 
         return Response(
-            data={"detail": "Solicitação de geração de arquivo recebida com sucesso."},
+            data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
             status=status.HTTP_200_OK,
         )
 
@@ -2237,21 +2262,6 @@ class DiasParaCorrigirViewSet(mixins.ListModelMixin, GenericViewSet):
     pagination_class = None
 
 
-class EmpenhoViewSet(ModelViewSet):
-    lookup_field = "uuid"
-    permission_classes = [UsuarioCODAEGestaoAlimentacao]
-    queryset = Empenho.objects.all()
-    serializer_class = EmpenhoSerializer
-    filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = EmpenhoFilter
-    pagination_class = CustomPagination
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return EmpenhoCreateUpdateSerializer
-        return EmpenhoSerializer
-
-
 class RelatoriosViewSet(ViewSet):
     permission_classes = [
         UsuarioEscolaTercTotal
@@ -2278,11 +2288,7 @@ class RelatoriosViewSet(ViewSet):
                 else convert_dict_to_querydict(request.data)
             )
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
-                return self._relatorio_adesao_por_escola(request, query_params)
-            resultados = obtem_resultados(query_params)
-
-            return Response(data=resultados, status=status.HTTP_200_OK)
+            return self._resolver_relatorio_adesao(request, query_params)
         except ValidationError as e:
             return Response(
                 dict(detail=e.messages[0]), status=status.HTTP_400_BAD_REQUEST
@@ -2293,15 +2299,31 @@ class RelatoriosViewSet(ViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def _resolver_relatorio_adesao(self, request: Request, query_params) -> Response:
+        if query_params.get("resultado_individual_por_data"):
+            valida_parametros_resultado_individual_por_data(query_params)
+            return self._relatorio_adesao_por_data(request, query_params)
+        if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
+            return self._relatorio_adesao_por_escola(request, query_params)
+        return Response(data=obtem_resultados(query_params), status=status.HTTP_200_OK)
+
     def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
-        escolas_uuid = query_params.getlist("escola__uuid[]")
+        escolas_uuid = query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value)
         escolas = obtem_escolas_ordenadas(escolas_uuid)
-        return self._pagina_resultados(request, query_params, escolas)
+        return self._pagina_resultados(
+            request, query_params, escolas, obtem_resultados_para_escola
+        )
+
+    def _relatorio_adesao_por_data(self, request: Request, query_params) -> Response:
+        dias = obtem_dias_com_dados(query_params)
+        return self._pagina_resultados(
+            request, query_params, dias, obtem_resultados_para_dia
+        )
 
     def _pagina_resultados(
-        self, request: Request, query_params, escolas: list
+        self, request: Request, query_params, itens: list, obter_resultado
     ) -> Response:
-        paginator = Paginator(escolas, 1)
+        paginator = Paginator(itens, 1)
         page_number = query_params.get("page") or request.query_params.get("page", 1)
         try:
             page_number = int(page_number)
@@ -2312,9 +2334,7 @@ class RelatoriosViewSet(ViewSet):
         except EmptyPage:
             raise ValidationError("Página inválida")
 
-        resultados = [
-            obtem_resultados_para_escola(escola, query_params) for escola in page
-        ]
+        resultados = [obter_resultado(item, query_params) for item in page]
 
         url = request.build_absolute_uri()
         next_page = (
@@ -2338,6 +2358,34 @@ class RelatoriosViewSet(ViewSet):
             }
         )
 
+    def _obtem_resultados_exportacao_xlsx(self, query_params):
+        if query_params.get("resultado_individual_por_data"):
+            valida_parametros_resultado_individual_por_data(query_params)
+            return obtem_resultados_por_data_e_tipo_unidade(query_params)
+        if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
+            return obtem_resultados_por_escola(query_params)
+        return obtem_resultados(query_params)
+
+    def _query_params_dict_exportacao(self, query_params) -> dict:
+        query_params_dict = query_params.dict()
+        if query_params.get(PayloadVariaveis.LOTES.value):
+            query_params_dict["lotes"] = query_params.getlist(
+                PayloadVariaveis.LOTES.value
+            )
+        if query_params.get(PayloadVariaveis.TIPOS_UNIDADES.value):
+            query_params_dict["tipos_unidades"] = query_params.getlist(
+                PayloadVariaveis.TIPOS_UNIDADES.value
+            )
+        return query_params_dict
+
+    def _obtem_resultados_exportacao_pdf(self, query_params):
+        if query_params.get("resultado_individual_por_data"):
+            valida_parametros_resultado_individual_por_data(query_params)
+            return obtem_resultados_por_data(query_params)
+        if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
+            return obtem_resultados_por_escola(query_params)
+        return obtem_resultados(query_params)
+
     @action(
         detail=False,
         url_name="relatorio-adesao_exportar-xlsx",
@@ -2347,27 +2395,18 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
-                resultados = obtem_resultados_por_escola(query_params)
-            else:
-                resultados = obtem_resultados(query_params)
-
-            query_params_dict = query_params.dict()
-
-            if query_params.get("lotes[]"):
-                query_params_dict["lotes"] = query_params.getlist("lotes[]")
+            resultados = self._obtem_resultados_exportacao_xlsx(query_params)
+            query_params_dict = self._query_params_dict_exportacao(query_params)
 
             exporta_relatorio_adesao_para_xlsx.delay(
                 user=request.user.get_username(),
-                nome_arquivo="relatorio-adesao.xlsx",
+                nome_arquivo=obtem_nome_arquivo_relatorio_adesao(query_params, ".xlsx"),
                 resultados=resultados,
                 query_params=query_params_dict,
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -2389,26 +2428,18 @@ class RelatoriosViewSet(ViewSet):
         query_params = request.query_params
         try:
             valida_parametros_periodo_lancamento(query_params)
-            if query_params.getlist("escola__uuid[]"):
-                resultados = obtem_resultados_por_escola(query_params)
-            else:
-                resultados = obtem_resultados(query_params)
-            query_params_dict = query_params.dict()
-
-            if query_params.get("lotes[]"):
-                query_params_dict["lotes"] = query_params.getlist("lotes[]")
+            resultados = self._obtem_resultados_exportacao_pdf(query_params)
+            query_params_dict = self._query_params_dict_exportacao(query_params)
 
             exporta_relatorio_adesao_para_pdf.delay(
                 user=request.user.get_username(),
-                nome_arquivo="relatorio-adesao.pdf",
+                nome_arquivo=obtem_nome_arquivo_relatorio_adesao(query_params, ".pdf"),
                 resultados=resultados,
                 query_params=query_params_dict,
             )
 
             return Response(
-                data={
-                    "detail": "Solicitação de geração de arquivo recebida com sucesso."
-                },
+                data={"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
                 status=status.HTTP_200_OK,
             )
         except ValidationError as e:
@@ -2670,7 +2701,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         )
 
         return Response(
-            dict(detail="Solicitação de geração de arquivo recebida com sucesso."),
+            dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
 
@@ -2765,161 +2796,6 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 {"Erro": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-
-class DadosLiquidacaoViewSet(ModelViewSet):
-    """
-    ViewSet responsável pelo gerenciamento de DadosLiquidacao.
-
-    Endpoints padrão:
-        - GET /dados-liquidacao/
-        - POST /dados-liquidacao/
-        - PUT /dados-liquidacao/{id}/
-        - PATCH /dados-liquidacao/{id}/
-        - DELETE /dados-liquidacao/{id}/
-
-    Funcionalidades adicionais:
-        - Filtro por relatório financeiro via query param
-        - Registro em lote de empenhos
-
-    Query Params:
-        relatorio_financeiro (UUID, optional): Filtra os dados por UUID do relatório financeiro.
-
-    Serializers:
-        - DadosLiquidacaoSerializer: Usado para leitura
-        - DadosLiquidacaoUpdateSerializer: Usado para escrita
-    """
-
-    queryset = DadosLiquidacao.objects.all()
-
-    def get_permissions(self):
-        if self.request.method in SAFE_METHODS:
-            permission_classes = [
-                UsuarioMedicao
-                | UsuarioCODAEGestaoAlimentacao
-                | UsuarioCODAEGabinete
-                | UsuarioCODAENutriManifestacao
-                | UsuarioDinutreDiretoria
-            ]
-        else:
-            permission_classes = [UsuarioMedicao]
-
-        return [permission() for permission in permission_classes]
-
-    def get_serializer_class(self):
-        """
-        Retorna o serializer adequado com base na ação.
-
-        Returns:
-            Serializer: Classe de serializer apropriada.
-        """
-
-        if self.action in ["create", "update", "partial_update"]:
-            return DadosLiquidacaoUpdateSerializer
-
-        return DadosLiquidacaoSerializer
-
-    def get_queryset(self):
-        """
-        Filtra o queryset com base no UUID do relatório financeiro.
-
-        Returns:
-            QuerySet: Lista filtrada de DadosLiquidacao.
-        """
-
-        queryset = super().get_queryset()
-        relatorio_uuid = self.request.query_params.get("relatorio_financeiro")
-
-        if relatorio_uuid:
-            queryset = queryset.filter(relatorio_financeiro__uuid=relatorio_uuid)
-
-        return queryset
-
-    @action(
-        detail=False,
-        methods=["put"],
-        url_path=r"registrar-empenhos/(?P<uuid_relatorio_financeiro>[^/.]+)",
-        permission_classes=[UsuarioMedicao],
-    )
-    @transaction.atomic
-    def registrar_empenhos(self, request, uuid_relatorio_financeiro=None):
-        """
-        Registra ou atualiza múltiplos dados de liquidação em lote.
-
-        Esse endpoint realiza:
-            - Criação de novos registros
-            - Atualização de registros existentes
-            - Remoção de registros não enviados na requisição
-
-        Args:
-            request (Request): Requisição contendo uma lista de dados de liquidação.
-            uuid_relatorio_financeiro (UUID): UUID do relatório financeiro associado.
-
-        Request Body:
-            list[dict]: Lista de objetos contendo:
-                - uuid (optional)
-                - numero_empenho (str)
-                - tipo_empenho (str)
-                - unidades_educacionais (list[UUID])
-
-        Returns:
-            Response: Lista dos dados processados.
-
-        Raises:
-            ValidationError: Caso o payload não seja uma lista ou contenha dados inválidos.
-
-        Notes:
-            - A operação é atômica (rollback em caso de erro).
-            - Registros não incluídos na requisição serão removidos.
-            - A identificação dos registros existentes pode ocorrer por UUID ou chave composta.
-
-        Status Codes:
-            200 OK: Operação realizada com sucesso.
-            400 Bad Request: Erro de validação.
-        """
-
-        if not isinstance(request.data, list):
-            raise ValidationError("Envie uma lista de dados.")
-
-        queryset = DadosLiquidacao.objects.filter(
-            relatorio_financeiro__uuid=uuid_relatorio_financeiro
-        )
-
-        existentes_por_uuid, existentes_por_chave = mapear_dados_existentes(
-            queryset, chave_composta=["numero_empenho", "tipo_empenho"]
-        )
-
-        resultado = []
-        ids_processados = set()
-
-        for item_data in request.data:
-            instancia = obter_instancia_dados(
-                item_data,
-                existentes_por_uuid,
-                existentes_por_chave,
-                ["numero_empenho", "tipo_empenho"],
-            )
-
-            serializer = DadosLiquidacaoUpdateSerializer(
-                instance=instancia,
-                data={
-                    **item_data,
-                    "relatorio_financeiro_id": uuid_relatorio_financeiro,
-                },
-            )
-
-            serializer.is_valid(raise_exception=True)
-            obj = serializer.save()
-
-            ids_processados.add(obj.id)
-            resultado.append(obj)
-
-        queryset.exclude(id__in=ids_processados).delete()
-
-        return Response(
-            DadosLiquidacaoSerializer(resultado, many=True).data,
-            status=status.HTTP_200_OK,
-        )
 
 
 class DescontoFinanceiroViewSet(ModelViewSet):

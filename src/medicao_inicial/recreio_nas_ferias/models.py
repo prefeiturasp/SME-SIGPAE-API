@@ -7,7 +7,10 @@ from src.dados_comuns.behaviors import (
     TemAlteradoEm,
     TemChaveExterna,
 )
-from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.constants import (
+    GRUPO_RECREIO_NAS_FERIAS,
+    TIPOS_UNIDADE_ESCOLAR,
+)
 from src.escola.models import Escola, Lote
 
 

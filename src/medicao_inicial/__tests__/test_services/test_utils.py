@@ -14,7 +14,10 @@ from src.dados_comuns.constants import (
     NOMES_CAMPOS,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
+    NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -213,7 +216,7 @@ def test_get_categorias_dietas_emef(relatorio_consolidado_xlsx_emef):
     assert len(categoria_manha) == 3
     assert categoria_manha == [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         DIETA_ESPECIAL_TIPO_B,
     ]
 
@@ -240,7 +243,7 @@ def test_get_categorias_dietas_cemei(relatorio_consolidado_xlsx_cemei):
     assert len(categoria_integral_emei) == 3
     assert categoria_integral_emei == [
         DIETA_ESPECIAL_TIPO_A,
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS",
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS,
         DIETA_ESPECIAL_TIPO_B,
     ]
 
@@ -297,7 +300,7 @@ def test_update_dietas_alimentacoes_por_faixa(faixas_etarias_ativas):
 def test_update_dietas_alimentacoes():
     categoria_a = DIETA_ESPECIAL_TIPO_A
     categoria_a_enteral_restricao = (
-        "DIETA ESPECIAL - TIPO A - ENTERAL / RESTRIÇÃO DE AMINOÁCIDOS"
+        CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
     )
     categoria_b = DIETA_ESPECIAL_TIPO_B
 
@@ -481,19 +484,64 @@ def test_gera_colunas_alimentacao_cemei(
     assert sum(1 for tupla in colunas_df if tupla[1] == "Kit Lanche") == 1
     assert sum(1 for tupla in colunas_df if tupla[1] == "Lanche Emerg.") == 1
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "0 a 1 mes") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 6
-    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 6
     assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 6
-    )
-    assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        sum(1 for tupla in colunas_df if tupla[1] == FaixasEtarias.ZERO_A_UM_MES.value)
         == 6
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 6
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == FaixasEtarias.UM_A_TRES_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.QUATRO_A_CINCO_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.SEIS_A_SETE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.OITO_A_ONZE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.UM_ANO_A_UM_ANO_E_ONZE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.DOIS_ANOS_A_TRES_ANOS_E_ONZE_MESES.value
+        )
+        == 6
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value
+        )
+        == 6
+    )
 
     assert (
         sum(1 for tupla in colunas_df if tupla[1] == TIPOS_ALIMENTACAO.LANCHE.value)
@@ -529,7 +577,7 @@ def test_gera_colunas_alimentacao_cemei(
     assert df.iloc[0].tolist() == [
         TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         "543210",
-        "CEMEI TESTE",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
         5.0,
         5.0,
         100.0,

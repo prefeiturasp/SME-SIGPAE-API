@@ -12,6 +12,7 @@ from ...dados_comuns.constants import (
     SEM_FILTRO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
 )
 from ..admin import PlanilhaAtualizacaoTipoGestaoEscolaAdmin
 from ..models import (
@@ -240,7 +241,7 @@ def test_escola_periodo_escolar_alunos_por_faixa_etaria(
 
 def test_faixa_str():
     faixa = FaixaEtaria.objects.create(inicio=24, fim=48)
-    assert str(faixa) == "02 anos a 03 anos e 11 meses"
+    assert str(faixa) == FaixasEtarias.DOIS_ANOS_A_TRES_ANOS_E_ONZE_MESES.value
 
 
 def test_ordem(periodo_escolar):

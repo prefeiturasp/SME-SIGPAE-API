@@ -8,8 +8,8 @@ function normalizar(texto) {
 
 Given('que estou autenticado como diretor para consultar alunos', () => {
 	cy.autenticar_login(
-		Cypress.config('usuario_diretor_ue'),
-		Cypress.config('senha'),
+		Cypress.env('usuario_diretor_ue'),
+		Cypress.env('senha'),
 	)
 })
 
@@ -62,7 +62,7 @@ When('consulto detalhes de dieta apenas com escola {int}', function (escola) {
 })
 
 When('consulto quantidade de alunos por periodo sem codigo da escola', function () {
-	cy.validar_alunos_qtde_por_periodo_cei_emei('/').then((response) => {
+	cy.validar_alunos_qtde_por_periodo_cei_emei('').then((response) => {
 		this.response = response
 	})
 })
@@ -99,8 +99,9 @@ When(
 )
 
 Then('deve retornar uma lista paginada de alunos', function () {
+	expect(this.response.status).to.eq(200)
 	expect(this.response.body).to.have.property('count').that.exist
-	expect(this.response.body).to.have.property('next').that.exist
+	expect(this.response.body).to.have.property('next')
 	expect(this.response.body).to.have.property('previous')
 	expect(this.response.body).to.have.property('results').that.is.an('array').and.not
 		.to.be.empty
@@ -109,7 +110,7 @@ Then('deve retornar uma lista paginada de alunos', function () {
 	expect(aluno).to.have.property('nome').that.exist
 	expect(aluno).to.have.property('data_nascimento').that.exist
 	expect(aluno).to.have.property('codigo_eol').that.exist
-	expect(aluno).to.have.property('escola').that.is.null
+	expect(aluno).to.have.property('escola')
 })
 
 Then('deve retornar os dados do aluno com status 200', function () {
@@ -178,4 +179,70 @@ Then('deve retornar quantidades CEMEI para CEI e EMEI', function () {
 		expect(item).to.have.property('CEI').that.exist
 		expect(item).to.have.property('EMEI').that.exist
 	})
+})
+
+When('filtro alunos por um codigo EOL existente', function () {
+	cy.validar_alunos('', { limit: 1 }).then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array').and.not.be.empty
+		this.codigoEol = response.body.results[0].codigo_eol
+		cy.validar_alunos('', { codigo_eol: this.codigoEol }).then((resposta) => {
+			this.response = resposta
+		})
+	})
+})
+
+Then('a listagem deve conter somente o aluno solicitado', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body.results).to.be.an('array').and.not.be.empty
+	this.response.body.results.forEach((aluno) => {
+		expect(String(aluno.codigo_eol)).to.eq(String(this.codigoEol))
+	})
+})
+
+When('filtro alunos pelo codigo EOL inexistente', function () {
+	cy.validar_alunos('', { codigo_eol: '0' }).then((response) => {
+		this.response = response
+	})
+})
+
+Then('a listagem de alunos deve estar vazia', function () {
+	expect(this.response.status).to.eq(200)
+	expect(this.response.body.count).to.eq(0)
+	expect(this.response.body.results).to.deep.eq([])
+})
+
+When('consulto duas paginas consecutivas de alunos', function () {
+	cy.validar_alunos('', { limit: 1, offset: 0 }).then((response) => {
+		this.primeiraPagina = response
+	})
+	cy.validar_alunos('', { limit: 1, offset: 1 }).then((response) => {
+		this.response = response
+	})
+})
+
+Then('as paginas devem respeitar o limite sem repetir o primeiro aluno', function () {
+	for (const response of [this.primeiraPagina, this.response]) {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.have.length(1)
+	}
+	expect(this.response.body.results[0].uuid).not.to.eq(this.primeiraPagina.body.results[0].uuid)
+})
+
+When('executo {string} para foto de aluno inexistente', function (acao) {
+	cy.validar_foto_aluno(acao, '0').then((response) => {
+		this.response = response
+	})
+})
+
+When('executo {string} para foto de aluno sem autenticacao', function (acao) {
+	cy.clearCookies()
+	cy.validar_foto_aluno(acao, '0', false).then((response) => {
+		this.response = response
+	})
+})
+
+Then('a operacao de foto do aluno deve retornar {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if (status === 401) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
 })

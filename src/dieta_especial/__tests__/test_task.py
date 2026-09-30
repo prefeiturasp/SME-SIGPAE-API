@@ -6,7 +6,7 @@ from model_bakery import baker
 from openpyxl import load_workbook
 from pypdf import PdfReader
 
-from src.dados_comuns.constants import NOME_ALUNO_PADRAO
+from src.dados_comuns.constants import StringsInformacoesPessoais
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.models import CentralDeDownload
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
@@ -286,7 +286,7 @@ def test_build_xlsx_status_cancelado(
     assert rows[4] == (
         3,
         "123456",
-        NOME_ALUNO_PADRAO,
+        StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         "CEI DIRET JOAO MENDES",
         None,
         None,
@@ -296,7 +296,7 @@ def test_build_xlsx_status_cancelado(
     assert rows[5] == (
         4,
         "123456",
-        NOME_ALUNO_PADRAO,
+        StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         "CEI DIRET JOAO MENDES",
         None,
         None,
@@ -306,7 +306,7 @@ def test_build_xlsx_status_cancelado(
     assert rows[6] == (
         5,
         "123456",
-        NOME_ALUNO_PADRAO,
+        StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         "CEI DIRET JOAO MENDES",
         None,
         None,
@@ -316,7 +316,7 @@ def test_build_xlsx_status_cancelado(
     assert rows[7] == (
         6,
         "123456",
-        NOME_ALUNO_PADRAO,
+        StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value,
         "CEI DIRET JOAO MENDES",
         None,
         None,
@@ -386,7 +386,7 @@ def test_build_xlsx_status_autorizado(
 
     for row_idx in range(4, 8):
         assert rows[row_idx][1] == "123456"
-        assert rows[row_idx][2] == NOME_ALUNO_PADRAO
+        assert rows[row_idx][2] == StringsInformacoesPessoais.NOME_ALUNO_PADRAO.value
         assert rows[row_idx][4] == "CEI DIRET JOAO MENDES"
 
 

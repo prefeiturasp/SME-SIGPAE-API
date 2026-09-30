@@ -8,7 +8,7 @@ from src.dados_comuns.behaviors import (
     ModeloBase,
     TemIdentificadorExternoAmigavel,
 )
-from src.dados_comuns.constants import MODEL_USUARIO
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import (
     CronogramaAlteracaoWorkflow,
     FluxoAlteracaoCronograma,
@@ -43,7 +43,10 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
     """
 
     numero = models.CharField(
-        "Número do Cronograma", blank=True, max_length=250, unique=True
+        StringsVerboseNameModels.NUMERO_DO_CRONOGRAMA.value,
+        blank=True,
+        max_length=250,
+        unique=True,
     )
     contrato = models.ForeignKey(
         Contrato, on_delete=models.CASCADE, blank=True, null=True
@@ -52,7 +55,7 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
         Terceirizada, on_delete=models.CASCADE, blank=True, null=True
     )
     qtd_total_programada = models.FloatField(
-        "Qtd Total Programada", blank=True, null=True
+        StringsVerboseNameModels.QTD_TOTAL_PROGRAMADA.value, blank=True, null=True
     )
     unidade_medida = models.ForeignKey(
         UnidadeMedida, on_delete=models.PROTECT, blank=True, null=True
@@ -77,13 +80,17 @@ class Cronograma(ModeloBase, TemIdentificadorExternoAmigavel, Logs, FluxoCronogr
         null=True,
     )
     custo_unitario_produto = models.FloatField(
-        "Custo Unitário do Produto", blank=True, null=True
+        StringsVerboseNameModels.CUSTO_UNITARIO_DO_PRODUTO.value, blank=True, null=True
     )
-    numero_empenho = models.CharField("Número do Empenho", blank=True, max_length=50)
+    numero_empenho = models.CharField(
+        StringsVerboseNameModels.NUMERO_DO_EMPENHO.value, blank=True, max_length=50
+    )
     qtd_total_empenho = models.FloatField(
-        "Qtde. Total do Empenho", blank=True, null=True
+        StringsVerboseNameModels.QTDE_TOTAL_DO_EMPENHO.value, blank=True, null=True
     )
-    observacoes = models.TextField("Observações", blank=True)
+    observacoes = models.TextField(
+        StringsVerboseNameModels.OBSERVACOES.value, blank=True
+    )
 
     @property
     def ponto_a_ponto(self) -> bool:
@@ -127,15 +134,25 @@ class EtapasDoCronograma(ModeloBase):
         null=True,
         related_name="etapas",
     )
-    numero_empenho = models.CharField("Número do Empenho", blank=True, max_length=50)
-    qtd_total_empenho = models.FloatField(
-        "Qtde. Total do Empenho", blank=True, null=True
+    numero_empenho = models.CharField(
+        StringsVerboseNameModels.NUMERO_DO_EMPENHO.value, blank=True, max_length=50
     )
-    etapa = models.IntegerField(blank=True, null=True, verbose_name="Etapa")
-    parte = models.IntegerField(blank=True, null=True, verbose_name="Parte")
-    data_programada = models.DateField("Data Programada", blank=True, null=True)
+    qtd_total_empenho = models.FloatField(
+        StringsVerboseNameModels.QTDE_TOTAL_DO_EMPENHO.value, blank=True, null=True
+    )
+    etapa = models.IntegerField(
+        blank=True, null=True, verbose_name=StringsVerboseNameModels.ETAPA.value
+    )
+    parte = models.IntegerField(
+        blank=True, null=True, verbose_name=StringsVerboseNameModels.PARTE.value
+    )
+    data_programada = models.DateField(
+        StringsVerboseNameModels.DATA_PROGRAMADA.value, blank=True, null=True
+    )
     quantidade = models.FloatField(blank=True, null=True)
-    total_embalagens = models.FloatField("Total de Embalagens", blank=True, null=True)
+    total_embalagens = models.FloatField(
+        StringsVerboseNameModels.TOTAL_DE_EMBALAGENS.value, blank=True, null=True
+    )
 
     def __str__(self):
         etapa = f" {self.etapa}" if self.etapa is not None else ""
@@ -315,7 +332,7 @@ class SolicitacaoAlteracaoCronograma(
         Cronograma, on_delete=models.PROTECT, related_name="solicitacoes_de_alteracao"
     )
     qtd_total_programada = models.FloatField(
-        "Qtd Total Programada", blank=True, null=True
+        StringsVerboseNameModels.QTD_TOTAL_PROGRAMADA.value, blank=True, null=True
     )
     etapas_antigas = models.ManyToManyField(
         EtapasDoCronograma, related_name="etapas_antigas"
@@ -329,11 +346,17 @@ class SolicitacaoAlteracaoCronograma(
         blank=True,
     )
     justificativa = models.TextField(
-        "Justificativa de solicitação pelo fornecedor", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_SOLICITACAO_PELO_FORNECEDOR.value,
+        blank=True,
     )
-    usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario_solicitante = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
     numero_solicitacao = models.CharField(
-        "Número da solicitação", blank=True, max_length=50, unique=True
+        StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
+        blank=True,
+        max_length=50,
+        unique=True,
     )
 
     objects = SolicitacaoAlteracaoCronogramaQuerySet.as_manager()
@@ -439,17 +462,19 @@ class InterrupcaoProgramadaEntrega(ModeloBase):
         (TIPO_CALENDARIO_PONTO_A_PONTO, "Ponto a Ponto"),
     )
 
-    data = models.DateField("Data da Interrupção")
+    data = models.DateField(StringsVerboseNameModels.DATA_DA_INTERRUPCAO.value)
     motivo = models.CharField(
-        "Motivo da Interrupção", max_length=20, choices=MOTIVO_CHOICES
+        StringsVerboseNameModels.MOTIVO_DA_INTERRUPCAO.value,
+        max_length=20,
+        choices=MOTIVO_CHOICES,
     )
     descricao_motivo = models.TextField(
-        "Descrição do Motivo",
+        StringsVerboseNameModels.DESCRICAO_DO_MOTIVO.value,
         blank=True,
         help_text="Obrigatório quando motivo = OUTROS",
     )
     tipo_calendario = models.CharField(
-        "Tipo de Calendário",
+        StringsVerboseNameModels.TIPO_DE_CALENDARIO.value,
         max_length=20,
         choices=TIPO_CALENDARIO_CHOICES,
         default=TIPO_CALENDARIO_ARMAZENAVEL,

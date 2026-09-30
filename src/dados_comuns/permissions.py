@@ -41,6 +41,7 @@ from .constants import (
     USUARIO_EMPRESA,
     USUARIO_GTIC_CODAE,
     USUARIO_RELATORIOS,
+    StringsModelosGestaoAlimentacao,
 )
 
 
@@ -86,7 +87,10 @@ class UsuarioEscolaTercTotal(BasePermission):
         if isinstance(obj, (Medicao, OcorrenciaMedicaoInicial)):
             return instituicao == obj.solicitacao_medicao_inicial.escola
 
-        if getattr(obj, "tipo", None) == "Kit Lanche Unificado":
+        if (
+            getattr(obj, "tipo", None)
+            == StringsModelosGestaoAlimentacao.KIT_LANCHE_UNIFICADO.value
+        ):
             return obj.escolas_quantidades.filter(escola=instituicao).exists()
 
         return False
@@ -1765,5 +1769,7 @@ class PermissaoParaGerenciarCategoriasPerguntaFrequente(BasePermission):
         )
 
 
-class PermissaoParaGerenciarPerguntasFrequentes(PermissaoParaGerenciarCategoriasPerguntaFrequente):
+class PermissaoParaGerenciarPerguntasFrequentes(
+    PermissaoParaGerenciarCategoriasPerguntaFrequente
+):
     """Permissão para gerenciar dúvidas frequentes na página de ajuda."""

@@ -70,3 +70,37 @@ Then('a consulta filtrada da DRE retorna dados ou permissao negada', function ()
 		expect(this.response.body).to.have.property('results')
 	}
 })
+
+When('consulto o relatorio DRE pela operacao {string} com acesso {string}', function (operacao, acesso) {
+	const autenticado = acesso === 'autenticado'
+	if (autenticado) cy.autenticar_login(Cypress.env('usuario_dre'), Cypress.env('senha'))
+	else cy.clearCookies()
+	const hoje = new Date()
+	const data = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`
+	this.operacaoRelatorioDre = operacao
+	cy.consultar_relatorio_solicitacoes_dre(operacao, { status: 'AUTORIZADOS', de: data, ate: data, limit: 2, offset: 0 }, autenticado).then((response) => { this.response = response })
+})
+
+Then('o relatorio DRE apresenta os dados esperados', function () {
+	expect(this.response.status).to.eq(200)
+	if (this.operacaoRelatorioDre === 'graficos') {
+		expect(this.response.body).to.be.an('array')
+	} else {
+		expect(this.response.body.results).to.be.an('array')
+		if (this.operacaoRelatorioDre === 'filtrar') {
+			expect(this.response.body.count).to.be.a('number').and.at.least(0)
+			expect(this.response.body.results.length).to.be.at.most(2)
+		}
+	}
+})
+
+Then('a exportacao DRE confirma o recebimento do pedido', function () {
+	expect(this.response.status).to.eq(200)
+	const detalhe = this.response.body.detail.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	expect(detalhe).to.eq('Solicitacao de geracao de arquivo recebida com sucesso.')
+})
+
+Then('o relatorio DRE rejeita a consulta sem autenticacao', function () {
+	expect(this.response.status).to.eq(401)
+	expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})

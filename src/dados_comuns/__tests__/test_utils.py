@@ -3,8 +3,8 @@ from datetime import date
 from unittest.mock import MagicMock, patch
 
 import environ
+import httpx
 import pytest
-import requests
 from freezegun import freeze_time
 
 from src.dieta_especial.logs_models.models import (
@@ -245,7 +245,7 @@ def test_envia_email_unico_exception(reclamacao_produto_codae_recusou, dados_htm
     assert email == reclamacao_produto
 
 
-@patch("requests.get")
+@patch("src.dados_comuns.utils.GITHUB_CLIENT.get")
 def test_obter_versao_api(mock_get):
     mock_response = MagicMock()
     mock_response.raise_for_status.return_value = None
@@ -256,9 +256,9 @@ def test_obter_versao_api(mock_get):
     assert resultado == "1.2.3"
 
 
-@patch("requests.get")
+@patch("src.dados_comuns.utils.GITHUB_CLIENT.get")
 def test_obter_versao_api_exception(mock_get):
-    mock_get.side_effect = requests.exceptions.RequestException("Erro de rede")
+    mock_get.side_effect = httpx.HTTPError("Erro de rede")
     resultado = obter_versao_api()
     assert resultado is None
 

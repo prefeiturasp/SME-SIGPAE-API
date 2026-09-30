@@ -4,6 +4,7 @@ import pytest
 from freezegun import freeze_time
 from pypdf import PdfReader
 
+from src.escola.models import Lote
 from src.medicao_inicial.services.relatorio_adesao_pdf import (
     _formata_filtros,
     gera_relatorio_adesao_pdf,
@@ -183,3 +184,74 @@ def test_gera_relatorio_adesao_pdf_por_escola_sem_frequencia(
     texto = extrair_texto_de_pdf(pdf)
     assert "EMEF TESTE A" in texto
     assert "TOTAL" in texto
+
+
+@freeze_time("2025-07-20")
+def test_gera_relatorio_adesao_pdf_por_data_uma_pagina_por_combinacao(
+    mock_exportacao_relatorio_adesao,
+    diretoria_regional,
+):
+    _, query_params = mock_exportacao_relatorio_adesao
+    diretoria_regional.iniciais = "BT"
+    diretoria_regional.save(update_fields=["iniciais"])
+    Lote.objects.filter(uuid__in=query_params["lotes"]).update(
+        diretoria_regional=diretoria_regional
+    )
+    query_params.pop("diretoria_regional", None)
+    resultados_por_data = [
+        {
+            "data": "04/08/2025",
+            "tipo_unidade": "Grupo 3 - EMEI, CEU EMEI",
+            "resultados": {
+                "MANHA": {
+                    "LANCHE": {
+                        "total_servido": 140,
+                        "total_frequencia": 755,
+                        "total_adesao": 0.1854,
+                    }
+                }
+            },
+        },
+        {
+            "data": "05/08/2025",
+            "tipo_unidade": "Grupo 3 - EMEI, CEU EMEI",
+            "resultados": {
+                "TARDE": {
+                    "REFEIÇÃO": {
+                        "total_servido": 24,
+                        "total_frequencia": 723,
+                        "total_adesao": 0.0332,
+                    }
+                }
+            },
+        },
+    ]
+
+    pdf = gera_relatorio_adesao_pdf(resultados_por_data, query_params)
+    pdf_reader = PdfReader(io.BytesIO(pdf))
+    assert len(pdf_reader.pages) == 2
+
+    texto_por_pagina = [
+        page.extract_text().replace("\n", " ") for page in pdf_reader.pages
+    ]
+    assert (
+        "Março 2025 | BT - Lote 01, BT - Lote 02, BT - Lote 03 | Grupo 3 - EMEI, CEU EMEI"
+        in texto_por_pagina[0]
+    )
+    assert "Data do Lançamento: 04/08/2025" in texto_por_pagina[0]
+    assert (
+        "Março 2025 | BT - Lote 01, BT - Lote 02, BT - Lote 03 | Grupo 3 - EMEI, CEU EMEI"
+        in texto_por_pagina[1]
+    )
+    assert "Data do Lançamento: 05/08/2025" in texto_por_pagina[1]
+    assert "04/08/2025" not in texto_por_pagina[1]
+    assert "05/08/2025" not in texto_por_pagina[0]
+    assert "MANHA" in texto_por_pagina[0]
+    assert "LANCHE" in texto_por_pagina[0]
+    assert "TARDE" not in texto_por_pagina[0]
+    assert "TARDE" in texto_por_pagina[1]
+    assert "REFEIÇÃO" in texto_por_pagina[1]
+    assert "MANHA" not in texto_por_pagina[1]
+    for texto_pagina in texto_por_pagina:
+        assert "RELATÓRIO DE ADESÃO DAS ALIMENTAÇÕES SERVIDAS" in texto_pagina
+        assert "Data do Relatório: 20/07/2025" in texto_pagina

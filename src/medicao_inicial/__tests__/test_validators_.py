@@ -9,6 +9,7 @@ from src.cardapio.base.models import (
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import FaixaEtaria, TipoTurma
 from src.inclusao_alimentacao.models import InclusaoDeAlimentacaoCEMEI
 from src.medicao_inicial.validators import (
@@ -605,7 +606,7 @@ def test_get_quantidade_dietas_autorizadas_tipo_c_excluido(
 ):
     periodo = make_periodo_escolar("INTEGRAL")
     medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
-    tipo_c = baker.make("ClassificacaoDieta", nome="Tipo C")
+    tipo_c = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_C)
     baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=solicitacao_medicao_inicial_cemei_simples.escola,
@@ -642,7 +643,7 @@ def test_get_quantidade_dietas_autorizadas_soma_multiplas_classificacoes_validas
             classificacao=classificacao,
             quantidade=qtd,
         )
-    tipo_c = baker.make("ClassificacaoDieta", nome="Tipo C")
+    tipo_c = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_C)
     baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=solicitacao_medicao_inicial_cemei_simples.escola,
@@ -822,7 +823,7 @@ def test_validate_cemei_faixas_tipo_c_nao_deduz_retorna_erro(
     medicao = make_medicao(solicitacao_medicao_inicial_cemei_simples, periodo)
     data = datetime.date(2023, 4, 1)
     logs_ = [(data, periodo.id, faixa_etaria.id, 2)]
-    tipo_c = baker.make("ClassificacaoDieta", nome="Tipo C")
+    tipo_c = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_C)
     baker.make(
         "LogQuantidadeDietasAutorizadasCEI",
         escola=solicitacao_medicao_inicial_cemei_simples.escola,

@@ -3,20 +3,18 @@ from datetime import datetime
 
 from django.core.validators import MinLengthValidator
 from django.db import models
-from django_prometheus.models import ExportModelOperationsMixin
+
+from src.dados_comuns.constants import StringsVerboseNameModels
 
 from .constants import (
     CRIADO_EM,
     ESCOLA_CANCELOU_LABEL,
-    MODEL_PERFIL,
-    MODEL_USUARIO,
     MODULO_DIETA_ESPECIAL,
+    StringsCaminhoModelos,
 )
 
 
-class LogSolicitacoesUsuario(
-    ExportModelOperationsMixin("log_solicitacoes"), models.Model
-):
+class LogSolicitacoesUsuario(models.Model):
     """Eventos de dados importantes para acompanhamento.
 
     Ex.: Fulano X  executou a atividade Y no objeto W no dia DDDDMMAA
@@ -406,13 +404,19 @@ class LogSolicitacoesUsuario(
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
-    descricao = models.TextField("Descricao", blank=True)
-    justificativa = models.TextField("Justificativa", blank=True)
-    resposta_sim_nao = models.BooleanField("Resposta - Sim ou Não", default=False)
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO.value, blank=True)
+    justificativa = models.TextField(
+        StringsVerboseNameModels.JUSTIFICATIVA.value, blank=True
+    )
+    resposta_sim_nao = models.BooleanField(
+        StringsVerboseNameModels.RESPOSTA_SIM_OU_NAO.value, default=False
+    )
     status_evento = models.PositiveSmallIntegerField(choices=STATUS_POSSIVEIS)
     solicitacao_tipo = models.PositiveSmallIntegerField(choices=TIPOS_SOLICITACOES)
     uuid_original = models.UUIDField()
-    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
 
     class Meta:
         ordering = ("-criado_em",)
@@ -433,9 +437,7 @@ class LogSolicitacoesUsuario(
         )
 
 
-class AnexoLogSolicitacoesUsuario(
-    ExportModelOperationsMixin("log_solicitacoes_anexo"), models.Model
-):
+class AnexoLogSolicitacoesUsuario(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     log = models.ForeignKey(
         LogSolicitacoesUsuario, related_name="anexos", on_delete=models.DO_NOTHING
@@ -447,7 +449,7 @@ class AnexoLogSolicitacoesUsuario(
         return f"Anexo {self.uuid} - {self.nome}"
 
 
-class Endereco(ExportModelOperationsMixin("endereco"), models.Model):
+class Endereco(models.Model):
     logradouro = models.CharField(max_length=255, validators=[MinLengthValidator(5)])
     numero = models.IntegerField(null=True)
     complemento = models.CharField(max_length=50, blank=True)
@@ -455,8 +457,10 @@ class Endereco(ExportModelOperationsMixin("endereco"), models.Model):
     cep = models.IntegerField()
 
 
-class Contato(ExportModelOperationsMixin("contato"), models.Model):
-    nome = models.CharField("Nome", max_length=160, blank=True)
+class Contato(models.Model):
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, max_length=160, blank=True
+    )
     telefone = models.CharField(
         max_length=13, validators=[MinLengthValidator(8)], blank=True
     )
@@ -467,8 +471,12 @@ class Contato(ExportModelOperationsMixin("contato"), models.Model):
         max_length=11, validators=[MinLengthValidator(8)], blank=True
     )
     email = models.EmailField(blank=True)
-    eh_nutricionista = models.BooleanField("É nutricionista?", default=False)
-    crn_numero = models.CharField("Nutricionista crn", max_length=160, blank=True)
+    eh_nutricionista = models.BooleanField(
+        StringsVerboseNameModels.E_NUTRICIONISTA.value, default=False
+    )
+    crn_numero = models.CharField(
+        StringsVerboseNameModels.NUTRICIONISTA_CRN.value, max_length=160, blank=True
+    )
 
     def __str__(self):
         if self.nome and self.telefone:
@@ -481,26 +489,28 @@ class Contato(ExportModelOperationsMixin("contato"), models.Model):
             return f"{self.email}"
 
 
-class CategoriaPerguntaFrequente(ExportModelOperationsMixin("cat_faq"), models.Model):
-    nome = models.CharField("Nome", blank=True, max_length=100)
+class CategoriaPerguntaFrequente(models.Model):
+    nome = models.CharField(
+        StringsVerboseNameModels.NOME.value, blank=True, max_length=100
+    )
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
         return self.nome
 
 
-class PerguntaFrequente(ExportModelOperationsMixin("faq"), models.Model):
+class PerguntaFrequente(models.Model):
     categoria = models.ForeignKey(
         "CategoriaPerguntaFrequente", on_delete=models.CASCADE
     )
     perfis = models.ManyToManyField(
-        MODEL_PERFIL,
+        StringsCaminhoModelos.MODEL_PERFIL.value,
         related_name="perguntas_frequentes",
         blank=True,
     )
     todos_os_perfis = models.BooleanField(default=False)
-    pergunta = models.TextField("Pergunta")
-    resposta = models.TextField("Resposta")
+    pergunta = models.TextField(StringsVerboseNameModels.PERGUNTA.value)
+    resposta = models.TextField(StringsVerboseNameModels.RESPOSTA.value)
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
@@ -608,35 +618,52 @@ class Notificacao(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     tipo = models.CharField(
-        "Tipo",
+        StringsVerboseNameModels.TIPO.value,
         max_length=15,
         choices=TIPO_NOTIFICACAO_CHOICES,
         default=TIPO_NOTIFICACAO_AVISO,
     )
 
     categoria = models.CharField(
-        "Categoria",
+        StringsVerboseNameModels.CATEGORIA.value,
         max_length=50,
         choices=CATEGORIA_NOTIFICACAO_CHOICES,
     )
 
-    titulo = models.CharField("Título", max_length=200, default="", blank=True)
+    titulo = models.CharField(
+        StringsVerboseNameModels.TITULO_2.value, max_length=200, default="", blank=True
+    )
 
-    descricao = models.TextField("Descrição", max_length=5000, default="", blank=True)
+    descricao = models.TextField(
+        StringsVerboseNameModels.DESCRICAO_2.value,
+        max_length=5000,
+        default="",
+        blank=True,
+    )
 
-    hora = models.TimeField("Hora", editable=False, auto_now_add=True)
+    hora = models.TimeField(
+        StringsVerboseNameModels.HORA.value, editable=False, auto_now_add=True
+    )
 
-    lido = models.BooleanField("Foi Lido?", default=False)
+    lido = models.BooleanField(StringsVerboseNameModels.FOI_LIDO.value, default=False)
 
-    resolvido = models.BooleanField("Foi resolvido?", default=False)
+    resolvido = models.BooleanField(
+        StringsVerboseNameModels.FOI_RESOLVIDO.value, default=False
+    )
 
     usuario = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.CASCADE,
+        default="",
+        null=True,
+        blank=True,
     )
 
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
-    link = models.CharField("Link", max_length=200, default="", blank=True)
+    link = models.CharField(
+        StringsVerboseNameModels.LINK.value, max_length=200, default="", blank=True
+    )
 
     requisicao = models.ForeignKey(
         "logistica.SolicitacaoRemessa",
@@ -774,17 +801,30 @@ class CentralDeDownload(models.Model):
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    identificador = models.CharField("Nome do arquivo", max_length=200, default="")
+    identificador = models.CharField(
+        StringsVerboseNameModels.NOME_DO_ARQUIVO.value, max_length=200, default=""
+    )
     arquivo = models.FileField(
-        blank=True, verbose_name="Arquivo", upload_to="cental_downloads"
+        blank=True,
+        verbose_name=StringsVerboseNameModels.ARQUIVO.value,
+        upload_to="cental_downloads",
     )
     status = models.CharField(
-        "status", max_length=20, choices=STATUS_CHOICES, default=STATUS_EM_PROCESSAMENTO
+        StringsVerboseNameModels.STATUS_2.value,
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_EM_PROCESSAMENTO,
     )
-    msg_erro = models.CharField("Mensagem erro", max_length=300, blank=True)
-    visto = models.BooleanField("Foi visto?", default=False)
+    msg_erro = models.CharField(
+        StringsVerboseNameModels.MENSAGEM_ERRO.value, max_length=300, blank=True
+    )
+    visto = models.BooleanField(StringsVerboseNameModels.FOI_VISTO.value, default=False)
     usuario = models.ForeignKey(
-        MODEL_USUARIO, on_delete=models.CASCADE, default="", null=True, blank=True
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.CASCADE,
+        default="",
+        null=True,
+        blank=True,
     )
     criado_em = models.DateTimeField(CRIADO_EM, editable=False, auto_now_add=True)
 
@@ -803,7 +843,9 @@ class CentralDeDownload(models.Model):
 
 class SolicitacaoAberta(models.Model):
     uuid_solicitacao = models.CharField(max_length=50)
-    usuario = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
     datetime_ultimo_acesso = models.DateTimeField()
 
     def __str__(self):

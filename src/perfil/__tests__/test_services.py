@@ -1,8 +1,8 @@
 from unittest.mock import MagicMock, Mock, patch
 
+import httpx
 import pytest
-from requests import Response
-from requests.exceptions import ConnectTimeout, ReadTimeout
+from httpx import Response
 from rest_framework import status
 
 from src.dados_comuns.constants import (
@@ -108,7 +108,7 @@ def test_cria_ou_atualiza_usuario_core_sso_exceptions():
 
     with patch(
         "src.eol_servico.utils.EOLServicoSGP.cria_usuario_core_sso",
-        side_effect=ReadTimeout,
+        side_effect=httpx.ReadTimeout("timeout"),
     ):
         with pytest.raises(ProcessaPlanilhaUsuarioServidorCoreSSOException):
             usuario_core_sso.cria_ou_atualiza_usuario_core_sso(
@@ -117,7 +117,7 @@ def test_cria_ou_atualiza_usuario_core_sso_exceptions():
 
     with patch(
         "src.eol_servico.utils.EOLServicoSGP.cria_usuario_core_sso",
-        side_effect=ConnectTimeout,
+        side_effect=httpx.ConnectTimeout("timeout"),
     ):
         with pytest.raises(ProcessaPlanilhaUsuarioServidorCoreSSOException):
             usuario_core_sso.cria_ou_atualiza_usuario_core_sso(
@@ -135,7 +135,10 @@ def test_autentica_sucesso():
     mock_response.status_code = status.HTTP_200_OK
     mock_response.json.return_value = dados_usuario
 
-    with patch("requests.post", return_value=mock_response) as mock_post:
+    with patch(
+        "src.perfil.services.autenticacao_service.AUTENTICA_CORESSO_CLIENT.post",
+        return_value=mock_response,
+    ) as mock_post:
         response = AutenticacaoService.autentica(login, senha)
 
         assert response.status_code == status.HTTP_200_OK
@@ -158,7 +161,10 @@ def test_autentica_falha():
     mock_response.status_code = status.HTTP_401_UNAUTHORIZED
     mock_response.json.return_value = {"detail": "Usuário não encontrado."}
 
-    with patch("requests.post", return_value=mock_response):
+    with patch(
+        "src.perfil.services.autenticacao_service.AUTENTICA_CORESSO_CLIENT.post",
+        return_value=mock_response,
+    ):
         response = AutenticacaoService.autentica(login, senha)
 
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -172,7 +178,10 @@ def test_get_perfis_do_sistema():
     mock_response.status_code = status.HTTP_200_OK
     mock_response.json.return_value = resposta_corresso
 
-    with patch("requests.get", return_value=mock_response) as mock_get:
+    with patch(
+        "src.perfil.services.autenticacao_service.AUTENTICA_CORESSO_CLIENT.get",
+        return_value=mock_response,
+    ) as mock_get:
         response = AutenticacaoService.get_perfis_do_sistema()
 
         assert response == resposta_corresso
@@ -189,7 +198,10 @@ def test_autentica_exception():
     login = dados_usuario["login"]
     senha = DJANGO_ADMIN_PASSWORD
 
-    with patch("requests.post", side_effect=Exception("Erro de conexão")) as mock_post:
+    with patch(
+        "src.perfil.services.autenticacao_service.AUTENTICA_CORESSO_CLIENT.post",
+        side_effect=Exception("Erro de conexão"),
+    ) as mock_post:
         with pytest.raises(Exception, match="Erro de conexão"):
             AutenticacaoService.autentica(login, senha)
 
@@ -203,7 +215,10 @@ def test_autentica_exception():
 
 @pytest.mark.django_db
 def test_get_perfis_do_sistema_exception():
-    with patch("requests.get", side_effect=Exception("Erro de conexão")) as mock_post:
+    with patch(
+        "src.perfil.services.autenticacao_service.AUTENTICA_CORESSO_CLIENT.get",
+        side_effect=Exception("Erro de conexão"),
+    ) as mock_post:
         with pytest.raises(Exception, match="Erro de conexão"):
             AutenticacaoService.get_perfis_do_sistema()
 

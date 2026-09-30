@@ -10,8 +10,10 @@ from rest_framework.test import APIClient
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
     GRUPO_RECREIO_NAS_FERIAS,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import CentralDeDownload
@@ -31,6 +33,7 @@ from src.medicao_inicial.fixtures.factories.base_factory import (
 from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     SolicitacaoMedicaoInicialFactory,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.tasks import gera_pdf_relatorio_unificado_async
 from src.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
@@ -61,7 +64,7 @@ class TestGeraRelatorioUnificado:
     def setup_infraestrutura_comum(self):
         terceirizada = EmpresaFactory.create()
         diretoria_regional = DiretoriaRegionalFactory.create(
-            nome="DIRETORIA REGIONAL TESTE"
+            nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_TESTE.value
         )
         lote = LoteFactory.create(
             terceirizada=terceirizada,
@@ -143,7 +146,9 @@ class TestGeraRelatorioUnificado:
         self, solicitacao_com_historico, solicitacao_sem_historico, periodo_escolar
     ):
         """Cria medições básicas para as solicitações."""
-        categoria_medicao = CategoriaMedicaoFactory.create(nome="ALIMENTAÇÃO")
+        categoria_medicao = CategoriaMedicaoFactory.create(
+            nome=CategoriaMedicao.ALIMENTACAO
+        )
 
         medicao_com_historico = baker.make(
             "Medicao",
@@ -235,10 +240,7 @@ class TestGeraRelatorioUnificado:
         )
 
         assert response.status_code == 200
-        assert (
-            response.json()["detail"]
-            == "Solicitação de geração de arquivo recebida com sucesso."
-        )
+        assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
         assert mock_delay.called
         assert mock_delay.call_count == 1
@@ -430,10 +432,7 @@ class TestGeraRelatorioUnificado:
         )
 
         assert response.status_code == 200
-        assert (
-            response.json()["detail"]
-            == "Solicitação de geração de arquivo recebida com sucesso."
-        )
+        assert response.json()["detail"] == MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 
         assert mock_delay.called
         assert mock_delay.call_count == 1

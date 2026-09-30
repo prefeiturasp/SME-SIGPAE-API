@@ -4,7 +4,7 @@ from django.db import models
 from multiselectfield import MultiSelectField
 
 from src.dados_comuns.behaviors import Logs, TemIdentificadorExternoAmigavel
-from src.dados_comuns.constants import MODEL_USUARIO
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import (
     FluxoSolicitacaoDeAlteracao,
     FluxoSolicitacaoRemessa,
@@ -48,15 +48,22 @@ class SolicitacaoRemessa(
         null=True,
         related_name="solicitacoes",
     )
-    cnpj = models.CharField("CNPJ", validators=[MinLengthValidator(14)], max_length=14)
+    cnpj = models.CharField(
+        StringsVerboseNameModels.CNPJ.value,
+        validators=[MinLengthValidator(14)],
+        max_length=14,
+    )
     numero_solicitacao = models.CharField(
-        "Número da solicitação", blank=True, max_length=100, unique=True
+        StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
+        blank=True,
+        max_length=100,
+        unique=True,
     )
     quantidade_total_guias = models.IntegerField(
-        "Qtd total de guias na requisição", null=True
+        StringsVerboseNameModels.QTD_TOTAL_DE_GUIAS_NA_REQUISICAO.value, null=True
     )
     sequencia_envio = models.IntegerField(
-        "Sequência de envio atribuído pelo papa", null=True
+        StringsVerboseNameModels.SEQUENCIA_DE_ENVIO_ATRIBUIDO_PELO_PAPA.value, null=True
     )
     situacao = models.CharField(choices=SITUACAO_CHOICES, max_length=10, default=ATIVA)
 
@@ -138,17 +145,23 @@ class SolicitacaoDeAlteracaoRequisicao(
     )
     motivo = MultiSelectField(choices=MOTIVO_CHOICES)
     justificativa = models.TextField(
-        "Justificativa de solicitação pelo distribuidor", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_SOLICITACAO_PELO_DISTRIBUIDOR.value,
+        blank=True,
     )
     justificativa_aceite = models.TextField(
-        "Justificativa de aceite pela dilog", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_ACEITE_PELA_DILOG.value, blank=True
     )
     justificativa_negacao = models.TextField(
-        "Justificativa de negacao pela dilog", blank=True
+        StringsVerboseNameModels.JUSTIFICATIVA_DE_NEGACAO_PELA_DILOG.value, blank=True
     )
-    usuario_solicitante = models.ForeignKey(MODEL_USUARIO, on_delete=models.DO_NOTHING)
+    usuario_solicitante = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value, on_delete=models.DO_NOTHING
+    )
     numero_solicitacao = models.CharField(
-        "Número da solicitação", blank=True, max_length=50, unique=True
+        StringsVerboseNameModels.NUMERO_DA_SOLICITACAO.value,
+        blank=True,
+        max_length=50,
+        unique=True,
     )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
@@ -184,7 +197,9 @@ class LogSolicitacaoDeCancelamentoPeloPapa(ModeloBase):
         related_name="solicitacoes_de_cancelamento",
     )
     guias = ArrayField(models.CharField(max_length=100))
-    sequencia_envio = models.IntegerField("Sequência de envio atribuída pelo papa")
+    sequencia_envio = models.IntegerField(
+        StringsVerboseNameModels.SEQUENCIA_DE_ENVIO_ATRIBUIDA_PELO_PAPA.value
+    )
     foi_confirmada = models.BooleanField(default=False)
 
     def __str__(self):

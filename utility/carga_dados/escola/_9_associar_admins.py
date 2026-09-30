@@ -1,5 +1,6 @@
 import datetime
 
+from src.dados_comuns.constants import EmailsParaTeste
 from src.escola.models import Codae, DiretoriaRegional, Escola
 from src.perfil.models import Perfil, Usuario, Vinculo
 
@@ -31,7 +32,9 @@ usuario_gestao_produto_codae.nome = "SUPER USUARIO GESTAO PRODUTO CODAE"
 usuario_gestao_produto_codae.cargo = "Nutricionista"
 usuario_gestao_produto_codae.save()
 
-usuario_terceirizada = Usuario.objects.get(email="terceirizada@admin.com")
+usuario_terceirizada = Usuario.objects.get(
+    email=EmailsParaTeste.TERCEIRIZADA_ADMIN.value
+)
 usuario_terceirizada.registro_funcional = "0000100"
 usuario_terceirizada.nome = "SUPER USUARIO TERCEIRIZADA"
 usuario_terceirizada.cargo = "Gerente"

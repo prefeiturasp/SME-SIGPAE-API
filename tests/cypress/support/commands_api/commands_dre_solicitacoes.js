@@ -201,3 +201,22 @@ Cypress.Commands.add('dre_consultar_aguardando_codae', (uuid) => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('consultar_relatorio_solicitacoes_dre', (operacao, filtros, autenticado = true) => {
+	const rotas = {
+		filtrar: 'filtrar-solicitacoes-ga',
+		cards: 'filtrar-solicitacoes-cards-totalizadores',
+		graficos: 'filtrar-solicitacoes-graficos',
+		pdf: 'exportar-pdf',
+		xlsx: 'exportar-xlsx',
+	}
+	expect(rotas).to.have.property(operacao)
+	return cy.request({
+		method: 'POST',
+		url: `${Cypress.config('baseUrl')}api/diretoria-regional-solicitacoes/${rotas[operacao]}/`,
+		body: filtros,
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		failOnStatusCode: false,
+		timeout: 60000,
+	})
+})

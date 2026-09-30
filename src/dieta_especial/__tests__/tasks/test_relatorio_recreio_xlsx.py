@@ -3,6 +3,7 @@ from freezegun.api import freeze_time
 from openpyxl import load_workbook
 
 from src.dados_comuns.models import CentralDeDownload
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.dieta_especial.tasks import (
     gera_xlsx_relatorio_recreio_nas_ferias_async,
 )
@@ -63,7 +64,7 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                     "7654321 - JOÃO COSTA",
                     "EMEF PERICLES",
                     "EMEBS HELEN KELLER",
-                    "Tipo B",
+                    ClassificacaoDieta.TIPO_B,
                     "DE 01/09/2025 ATÉ 29/09/2025",
                 ),
                 (
@@ -71,7 +72,7 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                     "1234567 - MARIA SILVA",
                     "EMEBS HELEN KELLER",
                     "EMEF PERICLES",
-                    "Tipo A",
+                    ClassificacaoDieta.TIPO_A,
                     "DE 01/08/2025 ATÉ 31/08/2025",
                 ),
                 (
@@ -79,7 +80,7 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
                     "Aluno não matriculado - GOHAN MENESES",
                     "-",
                     "EMEF PERICLES",
-                    "Tipo A",
+                    ClassificacaoDieta.TIPO_A,
                     "DE 01/08/2025 ATÉ 31/08/2025",
                 ),
             }

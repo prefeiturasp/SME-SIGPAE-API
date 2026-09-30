@@ -10,6 +10,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from freezegun import freeze_time
 from openpyxl import load_workbook
 
+from src.dados_comuns.constants import FaixasEtarias, StringsDatasISO
 from src.escola.models import (
     AlunoPeriodoParcial,
     AlunosMatriculadosPeriodoEscola,
@@ -73,8 +74,8 @@ def test_meses_para_mes_e_ano_string():
 
 
 def test_faixa_to_string():
-    assert faixa_to_string(0, 1) == "0 a 1 mes"
-    assert faixa_to_string(0, 0) == "0 meses a 11 meses"
+    assert faixa_to_string(0, 1) == FaixasEtarias.ZERO_A_UM_MES.value
+    assert faixa_to_string(0, 0) == FaixasEtarias.ZERO_MESES_A_ONZE_MESES.value
     assert faixa_to_string(12, 13) == "01 ano"
 
     assert faixa_to_string(2, 62) == "02 a 05 anos e 01 mês"
@@ -86,8 +87,8 @@ def test_faixa_to_string():
 
 
 def test_string_to_faixa():
-    assert string_to_faixa("0 a 1 mes") == (0, 1)
-    assert string_to_faixa("0 meses a 11 meses") == (0, 12)
+    assert string_to_faixa(FaixasEtarias.ZERO_A_UM_MES.value) == (0, 1)
+    assert string_to_faixa(FaixasEtarias.ZERO_MESES_A_ONZE_MESES.value) == (0, 12)
     assert string_to_faixa("1") == (1, 2)
 
     assert string_to_faixa("3 a 5") == (3, 6)
@@ -363,7 +364,10 @@ def test_calendario_sgp(mock_escolas):
         with patch.object(
             NovoSGPServico,
             "dias_letivos",
-            return_value={"data": "2025-01-01T00:00:00", "ehLetivo": True},
+            return_value={
+                "data": StringsDatasISO.DATA_PADRAO_2025_01_01.value,
+                "ehLetivo": True,
+            },
         ) as mock_dias_letivos:
             with patch(
                 "src.escola.utils.processa_dias_letivos"
@@ -380,7 +384,11 @@ def test_calendario_sgp(mock_escolas):
                     data_fim=data_fim,
                 )
                 mock_processa_dias_letivos.assert_called_once_with(
-                    {"data": "2025-01-01T00:00:00", "ehLetivo": True}, escola_mock
+                    {
+                        "data": StringsDatasISO.DATA_PADRAO_2025_01_01.value,
+                        "ehLetivo": True,
+                    },
+                    escola_mock,
                 )
 
 
@@ -801,55 +809,86 @@ class TestOrdenaFaixasPorIdade:
             make_periodo(
                 "MANHA",
                 [
-                    "07 a 11 meses",
-                    "0 a 1 mes",
-                    "04 a 05 meses",
-                    "01 a 03 meses",
-                    "06 meses",
-                    "01 ano a 03 anos e 11 meses",
-                    "04 anos a 06 anos",
+                    FaixasEtarias.SETE_A_ONZE_MESES.value,
+                    FaixasEtarias.ZERO_A_UM_MES.value,
+                    FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+                    FaixasEtarias.UM_A_TRES_MESES.value,
+                    FaixasEtarias.SEIS_MESES.value,
+                    FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+                    FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
                 ],
             )
         ]
         resultado = ordena_faixas_por_idade(periodos)
         nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
         assert nomes_ordenados == [
-            "0 a 1 mes",
-            "01 a 03 meses",
-            "04 a 05 meses",
-            "06 meses",
-            "07 a 11 meses",
-            "01 ano a 03 anos e 11 meses",
-            "04 anos a 06 anos",
+            FaixasEtarias.ZERO_A_UM_MES.value,
+            FaixasEtarias.UM_A_TRES_MESES.value,
+            FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+            FaixasEtarias.SEIS_MESES.value,
+            FaixasEtarias.SETE_A_ONZE_MESES.value,
+            FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
+            FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value,
         ]
 
     def test_faixas_ausentes_nao_quebram(self):
-        periodos = [make_periodo("TARDE", ["06 meses", "0 a 1 mes"])]
+        periodos = [
+            make_periodo(
+                "TARDE",
+                [FaixasEtarias.SEIS_MESES.value, FaixasEtarias.ZERO_A_UM_MES.value],
+            )
+        ]
         resultado = ordena_faixas_por_idade(periodos)
         nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
-        assert nomes_ordenados == ["0 a 1 mes", "06 meses"]
+        assert nomes_ordenados == [
+            FaixasEtarias.ZERO_A_UM_MES.value,
+            FaixasEtarias.SEIS_MESES.value,
+        ]
 
     def test_faixa_desconhecida_vai_para_o_fim(self):
         periodos = [
-            make_periodo("MANHA", ["faixa_desconhecida", "06 meses", "0 a 1 mes"])
+            make_periodo(
+                "MANHA",
+                [
+                    "faixa_desconhecida",
+                    FaixasEtarias.SEIS_MESES.value,
+                    FaixasEtarias.ZERO_A_UM_MES.value,
+                ],
+            )
         ]
         resultado = ordena_faixas_por_idade(periodos)
         nomes_ordenados = [f["nome_faixa"] for f in resultado[0]["faixas"]]
-        assert nomes_ordenados == ["0 a 1 mes", "06 meses", "faixa_desconhecida"]
+        assert nomes_ordenados == [
+            FaixasEtarias.ZERO_A_UM_MES.value,
+            FaixasEtarias.SEIS_MESES.value,
+            "faixa_desconhecida",
+        ]
 
     def test_multiplos_periodos_ordenados_independentemente(self):
         periodos = [
-            make_periodo("MANHA", ["07 a 11 meses", "0 a 1 mes"]),
-            make_periodo("TARDE", ["04 a 05 meses", "01 a 03 meses"]),
+            make_periodo(
+                "MANHA",
+                [
+                    FaixasEtarias.SETE_A_ONZE_MESES.value,
+                    FaixasEtarias.ZERO_A_UM_MES.value,
+                ],
+            ),
+            make_periodo(
+                "TARDE",
+                [
+                    FaixasEtarias.QUATRO_A_CINCO_MESES.value,
+                    FaixasEtarias.UM_A_TRES_MESES.value,
+                ],
+            ),
         ]
         resultado = ordena_faixas_por_idade(periodos)
         assert [f["nome_faixa"] for f in resultado[0]["faixas"]] == [
-            "0 a 1 mes",
-            "07 a 11 meses",
+            FaixasEtarias.ZERO_A_UM_MES.value,
+            FaixasEtarias.SETE_A_ONZE_MESES.value,
         ]
         assert [f["nome_faixa"] for f in resultado[1]["faixas"]] == [
-            "01 a 03 meses",
-            "04 a 05 meses",
+            FaixasEtarias.UM_A_TRES_MESES.value,
+            FaixasEtarias.QUATRO_A_CINCO_MESES.value,
         ]
 
     def test_lista_vazia_nao_quebra(self):

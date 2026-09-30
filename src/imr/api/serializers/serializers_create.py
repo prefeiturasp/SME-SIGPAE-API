@@ -4,7 +4,10 @@ import datetime
 from rest_framework import serializers
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.dados_comuns.constants import (
+    FORMATO_DATA_BRASILEIRO,
+    StringsValidationErrors,
+)
 from src.dados_comuns.utils import convert_base64_to_contentfile
 from src.escola.models import Escola
 from src.imr.models import (
@@ -362,7 +365,9 @@ class FormularioSupervisaoRascunhoCreateSerializer(
 
     def validate(self, attrs):
         if "data" not in attrs:
-            raise serializers.ValidationError({"data": ["Este campo é obrigatório!"]})
+            raise serializers.ValidationError(
+                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value]}
+            )
 
         return attrs
 
@@ -456,7 +461,9 @@ class FormularioSupervisaoCreateSerializer(
 
     def validate(self, attrs):
         if "data" not in attrs:
-            raise serializers.ValidationError({"data": ["Este campo é obrigatório!"]})
+            raise serializers.ValidationError(
+                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value]}
+            )
         if attrs["acompanhou_visita"] is True and (
             "nome_nutricionista_empresa" not in attrs
             or attrs["nome_nutricionista_empresa"] == ""
@@ -544,7 +551,9 @@ class FormularioDiretorCreateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if "data" not in attrs:
-            raise serializers.ValidationError({"data": ["Este campo é obrigatório!"]})
+            raise serializers.ValidationError(
+                {"data": [StringsValidationErrors.CAMPO_OBRIGATORIO_EXCLAMACAO.value]}
+            )
 
         return attrs
 

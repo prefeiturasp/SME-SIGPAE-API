@@ -1,5 +1,7 @@
 from django.template.loader import render_to_string
 
+from src.dados_comuns.constants import FaixasEtarias
+
 
 def test_relatorio_controle_frequencia_agrupa_cabecalho_da_faixa_em_tbody_proprio():
     html = render_to_string(
@@ -14,7 +16,7 @@ def test_relatorio_controle_frequencia_agrupa_cabecalho_da_faixa_em_tbody_propri
                     "quantidade": 0,
                     "faixas": [
                         {
-                            "nome_faixa": "01 ano a 03 anos e 11 meses",
+                            "nome_faixa": FaixasEtarias.UM_ANO_A_TRES_ANOS_E_ONZE_MESES.value,
                             "alunos_por_faixa": [],
                             "dias": [],
                         }

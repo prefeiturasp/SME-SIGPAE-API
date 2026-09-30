@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.db.models import Q
 from django_filters import rest_framework as filters
 
+from src.dados_comuns.constants import PayloadVariaveis
 from src.produto.models import InformacaoNutricional, Produto
 from src.produto.utils.genericos import (
     converte_para_datetime,
@@ -104,10 +105,12 @@ def aplica_filtro_datas(
 
 
 def filtros_produto_reclamacoes(request):
-    editais = request.query_params.getlist("editais[]")
-    lotes = request.query_params.getlist("lotes[]")
-    terceirizadas = request.query_params.getlist("terceirizadas[]")
-    status_reclamacao = request.query_params.getlist("status_reclamacao[]")
+    editais = request.query_params.getlist(PayloadVariaveis.EDITAIS.value)
+    lotes = request.query_params.getlist(PayloadVariaveis.LOTES.value)
+    terceirizadas = request.query_params.getlist(PayloadVariaveis.TERCEIRIZADAS.value)
+    status_reclamacao = request.query_params.getlist(
+        PayloadVariaveis.STATUS_RECLAMACAO.value
+    )
     data_inicial_reclamacao = request.query_params.get("data_inicial_reclamacao")
     data_final_reclamacao = request.query_params.get("data_final_reclamacao")
 

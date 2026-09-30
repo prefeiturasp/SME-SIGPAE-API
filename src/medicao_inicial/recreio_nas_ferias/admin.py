@@ -2,6 +2,7 @@ from django.contrib import admin
 from nested_inline.admin import NestedModelAdmin, NestedTabularInline
 from rangefilter.filters import DateRangeFilter
 
+from src.dados_comuns.constants import StringsSearchHelpText
 from src.medicao_inicial.recreio_nas_ferias.models import (
     CategoriaAlimentacao,
     RecreioNasFerias,
@@ -41,14 +42,18 @@ class RecreioNasFeriasAdmin(NestedModelAdmin):
         "unidades_participantes__unidade_educacional__nome",
         "unidades_participantes__unidade_educacional__codigo_eol",
     )
-    search_help_text = "Pesquisa por: nome da escola, código eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2.value
+    )
 
 
 @admin.register(RecreioNasFeriasUnidadeParticipante)
 class RecreioNasFeriasUnidadeParticipanteAdmin(admin.ModelAdmin):
     list_filter = ("recreio_nas_ferias__titulo",)
     search_fields = ("recreio_nas_ferias__titulo",)
-    search_help_text = "Pesquisa por: título do recreio nas férias"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISA_POR_TITULO_DO_RECREIO_NAS_FERIAS.value
+    )
 
 
 admin.site.register(CategoriaAlimentacao)

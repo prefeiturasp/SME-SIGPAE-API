@@ -4,6 +4,7 @@ from rest_framework import status
 
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import (
+    ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
 
@@ -29,8 +30,12 @@ class TestUseCaseRelatorioDietasAutorizadas:
         )
 
     def _setup_classificacao_dieta(self, classificacao_dieta_factory):
-        self.classificacao_tipo_a = classificacao_dieta_factory.create(nome="Tipo A")
-        self.classificacao_tipo_b = classificacao_dieta_factory.create(nome="Tipo B")
+        self.classificacao_tipo_a = classificacao_dieta_factory.create(
+            nome=ClassificacaoDieta.TIPO_A
+        )
+        self.classificacao_tipo_b = classificacao_dieta_factory.create(
+            nome=ClassificacaoDieta.TIPO_B
+        )
 
     def _setup_alunos(self, aluno_factory, escola):
         self.aluno_1 = aluno_factory.create(

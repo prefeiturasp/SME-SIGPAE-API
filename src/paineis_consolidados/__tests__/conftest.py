@@ -17,9 +17,9 @@ from src.cardapio.suspensao_alimentacao.models import (
 )
 from src.dados_comuns.constants import (
     EMAIL_TESTE,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_ESCOLA,
     TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
+    StringsCaminhoModelos,
 )
 from src.paineis_consolidados.api import constants as consts_pc
 from src.paineis_consolidados.api.serializers import (
@@ -670,9 +670,13 @@ def solicitacoes_ano_dre(
 def client_autenticado_painel_consolidados(client_autenticado, django_user_model):
     user = django_user_model.objects.get(email=EMAIL_TESTE)
     diretoria_regional = baker.make(
-        MODEL_DIRETORIA_REGIONAL, usuarios=[user], make_m2m=True
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
+        usuarios=[user],
+        make_m2m=True,
     )
-    escola = baker.make(MODEL_ESCOLA, diretoria_regional=diretoria_regional)
+    escola = baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLA.value, diretoria_regional=diretoria_regional
+    )
     baker.make(
         AlteracaoCardapio,
         escola=escola,
@@ -1223,7 +1227,11 @@ def inclusao_alimentacao_cemei(escola):
 
 @pytest.fixture
 def kit_lanche_cei(escola):
-    baker.make("escola.EscolaPeriodoEscolar", escola=escola, quantidade_alunos=500)
+    baker.make(
+        StringsCaminhoModelos.MODEL_ESCOLAPERIODOESCOLAR.value,
+        escola=escola,
+        quantidade_alunos=500,
+    )
     kits = baker.make("KitLanche", _quantity=3)
     baker.make("FaixaEtaria", _quantity=3, ativo=True)
     solicitacao_kit_lanche = baker.make(
@@ -1445,7 +1453,7 @@ def escola_cemei():
     lote = baker.make("Lote", terceirizada=terceirizada)
     diretoria_regional = baker.make(
         "DiretoriaRegional",
-        nome="DIRETORIA REGIONAL GUAIANASES",
+        nome=NomesParaTesteDiretoriaRegional.DIRETORIA_REGIONAL_GUAIANASES.value,
         uuid="e5583462-d6d5-4580-afd4-de2fd94a3440",
     )
     tipo_unidade = baker.make(

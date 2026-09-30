@@ -3,10 +3,10 @@ import io
 import logging
 
 import environ
+import httpx
 from celery import shared_task
 from django.core import management
 from django.template.loader import render_to_string
-from requests.exceptions import ConnectionError, Timeout
 
 from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import (
@@ -59,7 +59,7 @@ env = environ.Env()
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )
@@ -71,7 +71,7 @@ def atualiza_total_alunos_escolas():
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )
@@ -82,7 +82,7 @@ def atualiza_dados_escolas():
 
 @shared_task(
     bind=True,
-    autoretry_for=(ConnectionError, Timeout),
+    autoretry_for=(httpx.TransportError, httpx.TimeoutException),
     retry_kwargs={"max_retries": 2},
     default_retry_delay=60 * 60,  # 1 hora
 )
@@ -130,7 +130,7 @@ atualiza_alunos_escolas.on_failure = task_on_failure.__get__(
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=2,
     retry_kwargs={"max_retries": 3},
 )
@@ -142,7 +142,7 @@ def atualiza_codigo_codae_das_escolas_task(path_planilha, id_planilha):
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=2,
     retry_kwargs={"max_retries": 3},
 )
@@ -154,7 +154,9 @@ def atualiza_tipo_gestao_das_escolas_task(path_planilha, id_planilha):
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
+    autoretry_for=(httpx.TransportError,),
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 3},
 )
 def nega_solicitacoes_vencidas():
     """Gestão de Alimentação.
@@ -208,8 +210,32 @@ def nega_solicitacoes_vencidas():
             )
 
 
+def _solicitacoes_da_classe(classe_solicitacao, uuids_solicitacoes):
+    solicitacoes = classe_solicitacao.objects.filter(uuid__in=uuids_solicitacoes)
+    if classe_solicitacao == AlteracaoCardapio:
+        solicitacoes = solicitacoes.exclude(
+            motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+        )
+    return solicitacoes
+
+
+def _nega_solicitacao_vencida(solicitacao, justificativa):
+    usuario = Usuario.objects.filter(email="system@admin.com").first()
+    user = usuario if usuario else None
+    if solicitacao.status in [
+        PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
+        PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO,
+        PedidoAPartirDaDiretoriaRegionalWorkflow.CODAE_A_AUTORIZAR,
+    ]:
+        solicitacao.codae_nega(user=user, justificativa=justificativa)
+    else:
+        solicitacao.codae_nega_questionamento(user=user, justificativa=justificativa)
+
+
 @shared_task(
-    autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
+    autoretry_for=(httpx.TransportError,),
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 3},
 )
 def nega_solicitacoes_pendentes_autorizacao_vencidas():
     """Gestão de Alimentação.
@@ -250,31 +276,17 @@ def nega_solicitacoes_pendentes_autorizacao_vencidas():
     ]
 
     for classe_solicitacao in classes_solicitacoes:
-        solicitacoes = classe_solicitacao.objects.filter(
-            uuid__in=uuids_solicitacoes_dre_a_validar
+        solicitacoes = _solicitacoes_da_classe(
+            classe_solicitacao, uuids_solicitacoes_dre_a_validar
         )
-        if classe_solicitacao == AlteracaoCardapio:
-            solicitacoes = solicitacoes.exclude(
-                motivo__nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
-            )
         for solicitacao in solicitacoes.all():
-            usuario = Usuario.objects.filter(email="system@admin.com").first()
-            if solicitacao.status in [
-                PedidoAPartirDaEscolaWorkflow.DRE_VALIDADO,
-                PedidoAPartirDaEscolaWorkflow.CODAE_QUESTIONADO,
-                PedidoAPartirDaDiretoriaRegionalWorkflow.CODAE_A_AUTORIZAR,
-            ]:
-                solicitacao.codae_nega(
-                    user=usuario if usuario else None, justificativa=justificativa
-                )
-            else:
-                solicitacao.codae_nega_questionamento(
-                    user=usuario if usuario else None, justificativa=justificativa
-                )
+            _nega_solicitacao_vencida(solicitacao, justificativa)
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
+    autoretry_for=(httpx.TransportError,),
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 3},
 )
 def matriculados_por_escola_e_periodo_regulares(data_referencia=None):
     """Medição Inicial.
@@ -292,7 +304,9 @@ def matriculados_por_escola_e_periodo_regulares(data_referencia=None):
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
+    autoretry_for=(httpx.TransportError,),
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 3},
 )
 def matriculados_por_escola_e_periodo_programas():
     """Medição Inicial.
@@ -308,7 +322,9 @@ def matriculados_por_escola_e_periodo_programas():
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,), retry_backoff=2, retry_kwargs={"max_retries": 3}
+    autoretry_for=(httpx.TransportError,),
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 3},
 )
 def calendario_escolas():
     """Medição Inicial.
@@ -320,7 +336,7 @@ def calendario_escolas():
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )
@@ -408,7 +424,7 @@ def gera_xlsx_relatorio_alunos_matriculados_async(user, nome_arquivo, uuids):
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )
@@ -426,7 +442,7 @@ def registra_historico_matriculas_alunos(*args, **kwargs):
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )
@@ -438,7 +454,7 @@ def encerra_historicos_alunos_inativos():
 
 
 @shared_task(
-    autoretry_for=(ConnectionError,),
+    autoretry_for=(httpx.TransportError,),
     retry_backoff=5,
     retry_kwargs={"max_retries": 2},
 )

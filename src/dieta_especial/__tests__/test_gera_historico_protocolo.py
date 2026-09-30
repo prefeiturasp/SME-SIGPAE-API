@@ -1,6 +1,7 @@
 import pytest
 from django.core.exceptions import ValidationError
 
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo import (
     _compara_alergias,
     _compara_classificacao,
@@ -108,8 +109,8 @@ def test_atualiza_historico_protocolo_somente_classificacao(
     )
     assert isinstance(html, str)
     assert "Classificação da Dieta" in html
-    assert "Tipo A" in html
-    assert "Tipo B" in html
+    assert ClassificacaoDieta.TIPO_A in html
+    assert ClassificacaoDieta.TIPO_B in html
 
 
 def test_compara_protocolo(

@@ -10,6 +10,8 @@ from django.core.validators import (
 )
 from django.db import models
 
+from src.dados_comuns.constants import StringsVerboseNameModels
+
 from ..cardapio.base.models import TipoAlimentacao
 from ..dados_comuns.behaviors import (
     ArquivoCargaBase,
@@ -23,7 +25,7 @@ from ..dados_comuns.behaviors import (
     StatusAtivoInativo,
     TemNomeMaior,
 )
-from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsCaminhoModelos
 from ..dados_comuns.fluxo_status import FluxoFormularioSupervisao
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..dados_comuns.validators import validate_file_size_10mb
@@ -33,7 +35,7 @@ from ..perfil.models import Usuario
 
 
 class TipoGravidade(ModeloBase):
-    tipo = models.CharField("Tipo de Gravidade")
+    tipo = models.CharField(StringsVerboseNameModels.TIPO_DE_GRAVIDADE.value)
 
     def __str__(self):
         return f"{self.tipo}"
@@ -45,15 +47,19 @@ class TipoGravidade(ModeloBase):
 
 class TipoPenalidade(ModeloBase, CriadoPor, StatusAtivoInativo):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
         related_name="tipos_penalidades",
     )
-    numero_clausula = models.CharField("Número da Cláusula/Item", max_length=300)
+    numero_clausula = models.CharField(
+        StringsVerboseNameModels.NUMERO_DA_CLAUSULA_ITEM.value, max_length=300
+    )
     gravidade = models.ForeignKey(
         TipoGravidade, on_delete=models.PROTECT, related_name="tipos_penalidades"
     )
-    descricao = models.TextField("Descrição da Cláusula/Item")
+    descricao = models.TextField(
+        StringsVerboseNameModels.DESCRICAO_DA_CLAUSULA_ITEM.value
+    )
 
     def __str__(self):
         return f"Item: {self.numero_clausula} - Edital: {self.edital.numero}"
@@ -68,11 +74,13 @@ class TipoPenalidade(ModeloBase, CriadoPor, StatusAtivoInativo):
 class ObrigacaoPenalidade(ModeloBase):
     tipo_penalidade = models.ForeignKey(
         TipoPenalidade,
-        verbose_name="Tipo de Penalidade",
+        verbose_name=StringsVerboseNameModels.TIPO_DE_PENALIDADE.value,
         on_delete=models.CASCADE,
         related_name="obrigacoes",
     )
-    descricao = models.CharField("Descrição", max_length=300)
+    descricao = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_2.value, max_length=300
+    )
 
     def __str__(self):
         return f"{self.descricao}"
@@ -106,7 +114,9 @@ class CategoriaOcorrencia(ModeloBase, Nomeavel, Posicao, PerfilDiretorSupervisao
         (False, NAO),
     )
     gera_notificacao = models.BooleanField(
-        "Gera Notificação?", choices=STATUS_CHOICES, default=False
+        StringsVerboseNameModels.GERA_NOTIFICACAO.value,
+        choices=STATUS_CHOICES,
+        default=False,
     )
 
     def __str__(self):
@@ -121,7 +131,7 @@ class CategoriaOcorrencia(ModeloBase, Nomeavel, Posicao, PerfilDiretorSupervisao
 class FormularioOcorrenciasBase(ModeloBase):
     usuario = models.ForeignKey(
         Usuario,
-        verbose_name="Usuário",
+        verbose_name=StringsVerboseNameModels.USUARIO.value,
         on_delete=models.PROTECT,
         related_name="formularios_ocorrencias",
     )
@@ -192,31 +202,33 @@ class TipoOcorrencia(
     )
 
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
         related_name="tipos_ocorrencia",
     )
     categoria = models.ForeignKey(
         CategoriaOcorrencia,
-        verbose_name="Categoria da Ocorrência",
+        verbose_name=StringsVerboseNameModels.CATEGORIA_DA_OCORRENCIA.value,
         on_delete=models.PROTECT,
         related_name="tipos_ocorrencia",
     )
-    titulo = models.CharField("Titulo", max_length=100)
-    descricao = models.TextField("Descrição")
+    titulo = models.CharField(StringsVerboseNameModels.TITULO.value, max_length=100)
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO_2.value)
     penalidade = models.ForeignKey(
         TipoPenalidade,
-        verbose_name="Penalidade do Item",
+        verbose_name=StringsVerboseNameModels.PENALIDADE_DO_ITEM.value,
         on_delete=models.PROTECT,
         related_name="tipos_ocorrencia",
     )
-    eh_imr = models.BooleanField("É IMR?", default=False)
+    eh_imr = models.BooleanField(StringsVerboseNameModels.E_IMR.value, default=False)
     pontuacao = models.PositiveSmallIntegerField(
-        "Pontuação (IMR)", blank=True, null=True
+        StringsVerboseNameModels.PONTUACAO_IMR.value, blank=True, null=True
     )
-    tolerancia = models.PositiveSmallIntegerField("Tolerância", blank=True, null=True)
+    tolerancia = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.TOLERANCIA.value, blank=True, null=True
+    )
     porcentagem_desconto = models.FloatField(
-        "% de desconto",
+        StringsVerboseNameModels.DE_DESCONTO_2.value,
         null=True,
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
         help_text=(
@@ -225,7 +237,9 @@ class TipoOcorrencia(
         ),
     )
     aceita_multiplas_respostas = models.BooleanField(
-        "Aceita múltiplas respostas?", choices=CHOICES, default=False
+        StringsVerboseNameModels.ACEITA_MULTIPLAS_RESPOSTAS.value,
+        choices=CHOICES,
+        default=False,
     )
 
     objects = models.Manager()
@@ -335,7 +349,9 @@ class TipoRespostaModelo(ModeloBase, Nomeavel):
 
 class TipoPerguntaParametrizacaoOcorrencia(ModeloBase, Nomeavel):
     tipo_resposta = models.OneToOneField(
-        TipoRespostaModelo, verbose_name="Tipo de resposta", on_delete=models.CASCADE
+        TipoRespostaModelo,
+        verbose_name=StringsVerboseNameModels.TIPO_DE_RESPOSTA.value,
+        on_delete=models.CASCADE,
     )
 
     def get_model_tipo_resposta(self):
@@ -352,7 +368,7 @@ class TipoPerguntaParametrizacaoOcorrencia(ModeloBase, Nomeavel):
 
 
 class ParametrizacaoOcorrencia(ModeloBase, Posicao):
-    titulo = models.CharField("Titulo", max_length=100)
+    titulo = models.CharField(StringsVerboseNameModels.TITULO.value, max_length=100)
     tipo_ocorrencia = models.ForeignKey(
         TipoOcorrencia, on_delete=models.PROTECT, related_name="parametrizacoes"
     )
@@ -394,7 +410,7 @@ class PeriodoVisita(ModeloBase, Nomeavel):
 
 class AnexosFormularioBase(ModeloBase):
     anexo = models.FileField(
-        "Anexo",
+        StringsVerboseNameModels.ANEXO.value,
         upload_to="IMR",
         validators=[
             FileExtensionValidator(
@@ -434,7 +450,7 @@ class AnexosFormularioBase(ModeloBase):
 
 class NotificacoesAssinadasFormularioBase(ModeloBase):
     notificacao_assinada = models.FileField(
-        "Notificação Assinada",
+        StringsVerboseNameModels.NOTIFICACAO_ASSINADA.value,
         upload_to="IMR",
         validators=[
             FileExtensionValidator(
@@ -472,7 +488,7 @@ class FormularioDiretor(ModeloBase):
     )
     solicitacao_medicao_inicial = models.ForeignKey(
         SolicitacaoMedicaoInicial,
-        verbose_name="Solicitação Medição Inicial",
+        verbose_name=StringsVerboseNameModels.SOLICITACAO_MEDICAO_INICIAL.value,
         on_delete=models.PROTECT,
         related_name="formularios_ocorrencias",
     )
@@ -494,23 +510,25 @@ class FormularioSupervisao(ModeloBase, FluxoFormularioSupervisao, Logs):
     )
     periodo_visita = models.ForeignKey(
         PeriodoVisita,
-        verbose_name="Período da Visita",
+        verbose_name=StringsVerboseNameModels.PERIODO_DA_VISITA.value,
         on_delete=models.PROTECT,
         related_name="formularios_supervisao",
         null=True,
         blank=True,
     )
     nome_nutricionista_empresa = models.CharField(
-        "Nome da Nutricionista RT da Empresa",
+        StringsVerboseNameModels.NOME_DA_NUTRICIONISTA_RT_DA_EMPRESA.value,
         max_length=100,
         null=True,
         blank=True,
     )
 
-    acompanhou_visita = models.BooleanField("Acompanhou a visita?", default=False)
+    acompanhou_visita = models.BooleanField(
+        StringsVerboseNameModels.ACOMPANHOU_A_VISITA.value, default=False
+    )
 
     maior_frequencia_no_periodo = models.PositiveIntegerField(
-        "Maior Nº de Frequentes no Período",
+        StringsVerboseNameModels.MAIOR_NO_DE_FREQUENTES_NO_PERIODO.value,
         null=True,
         blank=True,
     )
@@ -539,10 +557,12 @@ class RespostaSimNao(ModeloBase, Grupo):
     NAO = "Não"
 
     CHOICES = ((SIM, SIM), (NAO, NAO))
-    resposta = models.CharField("Opção", choices=CHOICES, max_length=3)
+    resposta = models.CharField(
+        StringsVerboseNameModels.OPCAO.value, choices=CHOICES, max_length=3
+    )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_sim_nao",
         null=True,
@@ -570,7 +590,7 @@ class RespostaCampoNumerico(ModeloBase, Grupo):
     resposta = models.FloatField()
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_campo_numerico",
         null=True,
@@ -598,7 +618,7 @@ class RespostaCampoTextoSimples(ModeloBase, Grupo):
     resposta = models.CharField(max_length=500)
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_campo_texto_simples",
         null=True,
@@ -626,7 +646,7 @@ class RespostaCampoTextoLongo(ModeloBase, Grupo):
     resposta = models.TextField()
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_campo_texto_longo",
         null=True,
@@ -654,7 +674,7 @@ class RespostaDatas(ModeloBase, Grupo):
     resposta = ArrayField(models.DateField())
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_datas",
         null=True,
@@ -688,7 +708,7 @@ class RespostaPeriodo(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_periodo",
         null=True,
@@ -720,7 +740,7 @@ class RespostaFaixaEtaria(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_faixa_etaria",
         null=True,
@@ -752,7 +772,7 @@ class RespostaTipoAlimentacao(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_tipos_alimentacao",
         null=True,
@@ -782,10 +802,12 @@ class RespostaSimNaoNaoSeAplica(ModeloBase, Grupo):
     NAO_SE_APLICA = "Não se aplica"
 
     CHOICES = ((SIM, SIM), (NAO, NAO), (NAO_SE_APLICA, NAO_SE_APLICA))
-    resposta = models.CharField("Opção", choices=CHOICES, max_length=13)
+    resposta = models.CharField(
+        StringsVerboseNameModels.OPCAO.value, choices=CHOICES, max_length=13
+    )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_sim_nao_nao_se_aplica",
         null=True,
@@ -810,10 +832,10 @@ class RespostaSimNaoNaoSeAplica(ModeloBase, Grupo):
 
 
 class OcorrenciaNaoSeAplica(ModeloBase, Grupo):
-    descricao = models.TextField("Descrição", blank=True)
+    descricao = models.TextField(StringsVerboseNameModels.DESCRICAO_2.value, blank=True)
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_nao_se_aplica",
         null=True,
@@ -834,12 +856,14 @@ class OcorrenciaNaoSeAplica(ModeloBase, Grupo):
 
 
 class FaixaPontuacaoIMR(ModeloBase):
-    pontuacao_minima = models.PositiveSmallIntegerField("Pontuação Mínima")
+    pontuacao_minima = models.PositiveSmallIntegerField(
+        StringsVerboseNameModels.PONTUACAO_MINIMA.value
+    )
     pontuacao_maxima = models.PositiveSmallIntegerField(
-        "Pontuação Máxima", blank=True, null=True
+        StringsVerboseNameModels.PONTUACAO_MAXIMA.value, blank=True, null=True
     )
     porcentagem_desconto = models.FloatField(
-        "% de Desconto",
+        StringsVerboseNameModels.DE_DESCONTO.value,
         validators=[MinValueValidator(0.0), MaxValueValidator(100.0)],
         help_text="Desconto no faturamento do dia",
     )
@@ -896,13 +920,13 @@ class UtensilioMesa(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalUtensilioMesa(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
     utensilios_mesa = models.ManyToManyField(
         "UtensilioMesa",
-        verbose_name="Utensílios de Mesa",
+        verbose_name=StringsVerboseNameModels.UTENSILIOS_DE_MESA.value,
         blank=True,
     )
 
@@ -926,13 +950,13 @@ class UtensilioCozinha(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalUtensilioCozinha(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
     utensilios_cozinha = models.ManyToManyField(
         "UtensilioCozinha",
-        verbose_name="Utensílios de Cozinha",
+        verbose_name=StringsVerboseNameModels.UTENSILIOS_DE_COZINHA.value,
         blank=True,
     )
 
@@ -956,13 +980,13 @@ class Equipamento(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalEquipamento(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
     equipamentos = models.ManyToManyField(
         "Equipamento",
-        verbose_name="Equipamentos",
+        verbose_name=StringsVerboseNameModels.EQUIPAMENTOS.value,
         blank=True,
     )
 
@@ -986,13 +1010,13 @@ class Mobiliario(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalMobiliario(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
     mobiliarios = models.ManyToManyField(
         "Mobiliario",
-        verbose_name="Mobiliários",
+        verbose_name=StringsVerboseNameModels.MOBILIARIOS.value,
         blank=True,
     )
 
@@ -1016,13 +1040,13 @@ class ReparoEAdaptacao(ModeloBase, Nomeavel, StatusAtivoInativo):
 
 class EditalReparoEAdaptacao(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
     reparos_e_adaptacoes = models.ManyToManyField(
         "ReparoEAdaptacao",
-        verbose_name="Reparos e Adaptações",
+        verbose_name=StringsVerboseNameModels.REPAROS_E_ADAPTACOES.value,
         blank=True,
     )
 
@@ -1046,13 +1070,13 @@ class Insumo(ModeloBase, TemNomeMaior, StatusAtivoInativo):
 
 class EditalInsumo(ModeloBase):
     edital = models.ForeignKey(
-        "terceirizada.Edital",
+        StringsCaminhoModelos.MODEL_EDITAL.value,
         on_delete=models.PROTECT,
     )
 
     insumos = models.ManyToManyField(
         "Insumo",
-        verbose_name="Insumos",
+        verbose_name=StringsVerboseNameModels.INSUMOS.value,
         blank=True,
     )
 
@@ -1072,7 +1096,7 @@ class RespostaUtensilioMesa(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_utensilios_mesa",
         null=True,
@@ -1104,7 +1128,7 @@ class RespostaUtensilioCozinha(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_utensilios_cozinha",
         null=True,
@@ -1136,7 +1160,7 @@ class RespostaEquipamento(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_equipamentos",
         null=True,
@@ -1168,7 +1192,7 @@ class RespostaMobiliario(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_mobiliarios",
         null=True,
@@ -1200,7 +1224,7 @@ class RespostaReparoEAdaptacao(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_reparos_e_adaptacoes",
         null=True,
@@ -1232,7 +1256,7 @@ class RespostaInsumo(ModeloBase, Grupo):
     )
     formulario_base = models.ForeignKey(
         FormularioOcorrenciasBase,
-        verbose_name="Formulário de Ocorrências",
+        verbose_name=StringsVerboseNameModels.FORMULARIO_DE_OCORRENCIAS.value,
         on_delete=models.CASCADE,
         related_name="respostas_insumos",
         null=True,

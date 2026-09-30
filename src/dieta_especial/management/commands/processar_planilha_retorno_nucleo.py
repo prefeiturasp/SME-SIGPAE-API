@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font
 
+from src.dados_comuns.constants import StringsNomesAbasXLSX
 from src.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
 )
@@ -35,7 +36,7 @@ class Command(BaseCommand):
         wb = Workbook()
         ws = wb.active
         self.formatar_tamanho_celulas(ws)
-        ws.title = "Dietas não relacionadas"
+        ws.title = StringsNomesAbasXLSX.DIETAS_NAO_RELACIONADAS.value
         cabecalho = ["uuid", "escola", "aluno", "lote", "edital", "nome_protocolo"]
         for ind, title in enumerate(cabecalho, 1):
             celula = ws.cell(row=1, column=ind)

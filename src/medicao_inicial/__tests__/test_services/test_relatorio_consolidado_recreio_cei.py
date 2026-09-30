@@ -12,7 +12,10 @@ from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    FaixasEtarias,
+    NomesParaTesteEscola,
 )
+from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
     _get_lista_alimentacoes,
@@ -162,7 +165,7 @@ def test_get_valores_tabela(solicitacao_recreio_cei, mock_colunas_recreio_cei):
     assert linhas[0] == [
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168.0,
         168.0,
         168.0,
@@ -203,7 +206,12 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     )
     assert isinstance(recreio, list)
     assert len(recreio) == 4
-    assert recreio == [TIPO_UNIDADE_CEI_DIRET, "765432", "CEI DIRET TESTE", 168.0]
+    assert recreio == [
+        TIPO_UNIDADE_CEI_DIRET,
+        "765432",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
+        168.0,
+    ]
 
     colaboradores = _processa_periodo_campo(
         solicitacao_recreio_cei,
@@ -216,7 +224,7 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
     assert colaboradores == [
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168.0,
         280.0,
     ]
@@ -264,13 +272,16 @@ def test_calcula_soma_medicao_alimentacao(
     medicoes = solicitacao_recreio_cei.medicoes.all().order_by("grupo__nome")
     medicao_colaboradores = medicoes[0]
     colaboradores = _calcula_soma_medicao(
-        medicao_colaboradores, "sobremesa", None, "ALIMENTAÇÃO"
+        medicao_colaboradores, "sobremesa", None, CategoriaMedicao.ALIMENTACAO
     )
     assert math.isclose(colaboradores, 280.0, rel_tol=1e-9)
 
     medicao_recreio = medicoes[1]
     recreio = _calcula_soma_medicao(
-        medicao_recreio, "frequencia", faixas_etarias_ativas[0].id, "ALIMENTAÇÃO"
+        medicao_recreio,
+        "frequencia",
+        faixas_etarias_ativas[0].id,
+        CategoriaMedicao.ALIMENTACAO,
     )
     assert math.isclose(recreio, 168.0, rel_tol=1e-9)
 
@@ -355,24 +366,69 @@ def test_insere_tabela_periodos_na_planilha(
     )
     assert sum(1 for tupla in colunas_df if tupla[0] == "COLABORADORES") == 6
 
-    assert sum(1 for tupla in colunas_df if tupla[1] == "0 a 1 mes") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "01 a 03 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 a 05 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "06 a 07 meses") == 2
-    assert sum(1 for tupla in colunas_df if tupla[1] == "08 a 11 meses") == 2
     assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "01 ano a 01 ano e 11 meses") == 2
-    )
-    assert (
-        sum(1 for tupla in colunas_df if tupla[1] == "02 anos a 03 anos e 11 meses")
+        sum(1 for tupla in colunas_df if tupla[1] == FaixasEtarias.ZERO_A_UM_MES.value)
         == 2
     )
-    assert sum(1 for tupla in colunas_df if tupla[1] == "04 anos a 06 anos") == 2
+    assert (
+        sum(
+            1 for tupla in colunas_df if tupla[1] == FaixasEtarias.UM_A_TRES_MESES.value
+        )
+        == 2
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.QUATRO_A_CINCO_MESES.value
+        )
+        == 2
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.SEIS_A_SETE_MESES.value
+        )
+        == 2
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.OITO_A_ONZE_MESES.value
+        )
+        == 2
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.UM_ANO_A_UM_ANO_E_ONZE_MESES.value
+        )
+        == 2
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.DOIS_ANOS_A_TRES_ANOS_E_ONZE_MESES.value
+        )
+        == 2
+    )
+    assert (
+        sum(
+            1
+            for tupla in colunas_df
+            if tupla[1] == FaixasEtarias.QUATRO_ANOS_A_SEIS_ANOS.value
+        )
+        == 2
+    )
 
     assert df.iloc[0].tolist() == [
         TIPO_UNIDADE_CEI_DIRET,
         "765432",
-        "CEI DIRET TESTE",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
         168.0,
         168.0,
         168.0,

@@ -1,7 +1,11 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Q, Sum
-from django_prometheus.models import ExportModelOperationsMixin
+
+from src.dados_comuns.constants import (
+    StringsModelosGestaoAlimentacao,
+    StringsVerboseNameModels,
+)
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -25,9 +29,9 @@ from ..dados_comuns.behaviors import (
 )
 from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    MODEL_ESCOLA,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
 )
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
@@ -51,7 +55,6 @@ from .managers import (
 
 
 class QuantidadePorPeriodo(
-    ExportModelOperationsMixin("quantidade_periodo"),
     DiasSemana,
     TemChaveExterna,
     CanceladoIndividualmente,
@@ -61,10 +64,14 @@ class QuantidadePorPeriodo(
         blank=True,
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
-    observacao = models.CharField("Observação", blank=True, max_length=1000)
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
+    observacao = models.CharField(
+        StringsVerboseNameModels.OBSERVACAO.value, blank=True, max_length=1000
+    )
     grupo_inclusao_normal = models.ForeignKey(
         "GrupoInclusaoAlimentacaoNormal",
         on_delete=models.CASCADE,
@@ -94,9 +101,7 @@ class QuantidadePorPeriodo(
         verbose_name_plural = "Quantidades por periodo"
 
 
-class MotivoInclusaoContinua(
-    ExportModelOperationsMixin("motivo_inclusao_continua"), Nomeavel, TemChaveExterna
-):
+class MotivoInclusaoContinua(Nomeavel, TemChaveExterna):
     """Funciona em conjunto com InclusaoAlimentacaoContinua.
 
     - continuo -  mais educacao
@@ -113,7 +118,6 @@ class MotivoInclusaoContinua(
 
 
 class InclusaoAlimentacaoContinua(
-    ExportModelOperationsMixin("inclusao_continua"),
     IntervaloDeDia,
     Descritivel,
     TemChaveExterna,
@@ -129,10 +133,12 @@ class InclusaoAlimentacaoContinua(
     # TODO: noralizar campo de Descritivel: descricao -> observacao
     DESCRICAO = "Inclusão de Alimentação Contínua"
 
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
     motivo = models.ForeignKey(MotivoInclusaoContinua, on_delete=models.DO_NOTHING)
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_alimentacao_continua",
     )
@@ -150,7 +156,7 @@ class InclusaoAlimentacaoContinua(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -316,15 +322,13 @@ class InclusaoAlimentacaoContinua(
         ordering = ["data_inicial"]
 
 
-class MotivoInclusaoNormal(
-    ExportModelOperationsMixin("motivo_inclusao_normal"), Nomeavel, TemChaveExterna
-):
-    """Funciona em conjunto com InclusaoAlimentacaoNormal.
+class MotivoInclusaoNormal(Nomeavel, TemChaveExterna):
+    """Funciona em conjunto com InclusaoAlimentacaoNormal."""
 
-    - reposicao de aula
-    - dia de familia
-    - outro
-    """
+    REPOSICAO_DE_AULA = "Reposição de aula"
+    DIA_DA_FAMILIA = "Dia da família"
+    EVENTO_ESPECIFICO = "Evento Específico"
+    OUTRO = "Outro"
 
     def __str__(self):
         return self.nome
@@ -335,15 +339,18 @@ class MotivoInclusaoNormal(
 
 
 class InclusaoAlimentacaoNormal(
-    ExportModelOperationsMixin("inclusao_normal"),
     TemData,
     TemChaveExterna,
     TemTerceirizadaConferiuGestaoAlimentacao,
     CanceladoIndividualmente,
 ):
     motivo = models.ForeignKey(MotivoInclusaoNormal, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
-    evento = models.CharField("Descrição do Evento", blank=True, max_length=1500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
+    evento = models.CharField(
+        StringsVerboseNameModels.DESCRICAO_DO_EVENTO.value, blank=True, max_length=1500
+    )
     grupo_inclusao = models.ForeignKey(
         "GrupoInclusaoAlimentacaoNormal",
         blank=True,
@@ -364,7 +371,6 @@ class InclusaoAlimentacaoNormal(
 
 
 class GrupoInclusaoAlimentacaoNormal(
-    ExportModelOperationsMixin("grupo_inclusao"),
     Descritivel,
     TemChaveExterna,
     FluxoAprovacaoPartindoDaEscola,
@@ -376,10 +382,10 @@ class GrupoInclusaoAlimentacaoNormal(
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 ):
-    DESCRICAO = "Inclusão de Alimentação"
+    DESCRICAO = StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_normais",
     )
@@ -421,7 +427,7 @@ class GrupoInclusaoAlimentacaoNormal(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -509,7 +515,7 @@ class GrupoInclusaoAlimentacaoNormal(
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
             "unidade_educacional": self.rastro_escola.nome_historico(self.data),
             "terceirizada": self.rastro_terceirizada,
-            "tipo_doc": "Inclusão de Alimentação",
+            "tipo_doc": StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value,
             "data_evento": self.data,
             "numero_alunos": self.numero_alunos,
             "dias_inclusao": self.data,
@@ -526,9 +532,9 @@ class GrupoInclusaoAlimentacaoNormal(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if (
@@ -579,15 +585,20 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoDaCEI(
         on_delete=models.CASCADE,
         related_name="quantidade_alunos_da_inclusao",
     )
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.DO_NOTHING)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.DO_NOTHING
+    )
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
     periodo = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING, blank=True, null=True
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
     periodo_externo = models.ForeignKey(
-        "escola.PeriodoEscolar",
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
         on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
@@ -621,14 +632,19 @@ class InclusaoAlimentacaoDaCEI(
     DESCRICAO = "Inclusão de Alimentação Por CEI"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="grupos_inclusoes_por_cei",
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING, blank=True, null=True
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value,
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
 
     objects = models.Manager()  # Manager Padrão
     desta_semana = InclusaoDeAlimentacaoDeCeiDestaSemanaManager()
@@ -659,7 +675,7 @@ class InclusaoAlimentacaoDaCEI(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -838,9 +854,9 @@ class InclusaoAlimentacaoDaCEI(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if self.status == InclusaoAlimentacaoDaCEI.workflow_class.RASCUNHO or any(
@@ -882,7 +898,9 @@ class DiasMotivosInclusaoDeAlimentacaoCEI(
         related_name="dias_motivos_da_inclusao_cei",
     )
     motivo = models.ForeignKey(MotivoInclusaoNormal, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
 
     def __str__(self):
         if self.outro_motivo:
@@ -910,7 +928,7 @@ class InclusaoDeAlimentacaoCEMEI(
     DESCRICAO = "Inclusão de Alimentação CEMEI"
 
     escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         related_name="inclusoes_de_alimentacao_cemei",
     )
@@ -941,7 +959,7 @@ class InclusaoDeAlimentacaoCEMEI(
 
     @property
     def tipo(self):
-        return "Inclusão de Alimentação"
+        return StringsModelosGestaoAlimentacao.INCLUSAO_DE_ALIMENTACAO.value
 
     @property
     def path(self):
@@ -1001,7 +1019,9 @@ class InclusaoDeAlimentacaoCEMEI(
         return self.dias_motivos_da_inclusao_cemei.all().filter(cancelado=True).exists()
 
     def eh_evento_especifico(self):
-        if self.dias_motivos_da_inclusao_cemei.filter(motivo__nome="Evento Específico"):
+        if self.dias_motivos_da_inclusao_cemei.filter(
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
+        ):
             return True
         return False
 
@@ -1128,7 +1148,7 @@ class InclusaoDeAlimentacaoCEMEI(
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
         eh_evento_especifico = self.dias_motivos_da_inclusao_cemei.filter(
-            motivo__nome="Evento Específico"
+            motivo__nome=MotivoInclusaoNormal.EVENTO_ESPECIFICO
         ).exists()
         return {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",
@@ -1151,9 +1171,9 @@ class InclusaoDeAlimentacaoCEMEI(
     @property
     def solicitacoes_similares(self):
         MOTIVOS_PERMITIDOS = [
-            "Dia da família",
-            "Reposição de aula",
-            "Outro",
+            MotivoInclusaoNormal.DIA_DA_FAMILIA,
+            MotivoInclusaoNormal.REPOSICAO_DE_AULA,
+            MotivoInclusaoNormal.OUTRO,
         ]
 
         if self.status == InclusaoDeAlimentacaoCEMEI.workflow_class.RASCUNHO or any(
@@ -1194,12 +1214,14 @@ class QuantidadeDeAlunosPorFaixaEtariaDaInclusaoDeAlimentacaoCEMEI(
         on_delete=models.CASCADE,
         related_name="quantidade_alunos_cei_da_inclusao_cemei",
     )
-    faixa_etaria = models.ForeignKey("escola.FaixaEtaria", on_delete=models.DO_NOTHING)
+    faixa_etaria = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_FAIXAETARIA.value, on_delete=models.DO_NOTHING
+    )
     quantidade_alunos = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(1)]
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
 
     def __str__(self):
@@ -1226,9 +1248,11 @@ class QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI(
         validators=[MinValueValidator(1)]
     )
     periodo_escolar = models.ForeignKey(
-        "escola.PeriodoEscolar", on_delete=models.DO_NOTHING
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, on_delete=models.DO_NOTHING
     )
-    tipos_alimentacao = models.ManyToManyField("cardapio.TipoAlimentacao")
+    tipos_alimentacao = models.ManyToManyField(
+        StringsCaminhoModelos.MODEL_TIPOALIMENTACAO.value
+    )
 
     def __str__(self):
         return f"{self.periodo_escolar.nome} - {self.quantidade_alunos} alunos"
@@ -1249,9 +1273,11 @@ class DiasMotivosInclusaoDeAlimentacaoCEMEI(
         related_name="dias_motivos_da_inclusao_cemei",
     )
     motivo = models.ForeignKey(MotivoInclusaoNormal, on_delete=models.DO_NOTHING)
-    outro_motivo = models.CharField("Outro motivo", blank=True, max_length=500)
+    outro_motivo = models.CharField(
+        StringsVerboseNameModels.OUTRO_MOTIVO_2.value, blank=True, max_length=500
+    )
     descricao_evento = models.CharField(
-        "Descrição do Evento", blank=True, max_length=1500
+        StringsVerboseNameModels.DESCRICAO_DO_EVENTO.value, blank=True, max_length=1500
     )
 
     def __str__(self):

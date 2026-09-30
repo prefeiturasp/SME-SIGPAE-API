@@ -224,7 +224,9 @@ def validate_lancamento_alimentacoes_medicao_recreio_cemei(
         f"{dia:02d}"
         for dia in gerar_dias_letivos_recreio(recreio.data_inicio, recreio.data_fim)
     ]
-    categoria_alimentacao = CategoriaMedicao.objects.get(nome="ALIMENTAÇÃO")
+    categoria_alimentacao = CategoriaMedicao.objects.get(
+        nome=CategoriaMedicao.ALIMENTACAO
+    )
     participantes = dict()
     tipos_alimentacao = TipoAlimentacao.objects.none()
     informacoes_alimentacao = {}

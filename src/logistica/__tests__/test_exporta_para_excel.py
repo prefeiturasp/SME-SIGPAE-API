@@ -25,10 +25,8 @@ def test_exportar_entregas(solicitacao):
         guias__status=GuiaRemessaWorkFlow.DISTRIBUIDOR_REGISTRA_INSUCESSO,
     )
 
-    requisicoes_insucesso = (
-        retorna_dados_normalizados_excel_entregas_distribuidor(queryset_insucesso)
-        if tem_insucesso
-        else None
+    requisicoes_insucesso = retorna_dados_normalizados_excel_entregas_distribuidor(
+        queryset_insucesso
     )
     requisicoes = retorna_dados_normalizados_excel_entregas_distribuidor(queryset)
 

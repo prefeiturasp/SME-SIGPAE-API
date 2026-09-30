@@ -200,3 +200,23 @@ Cypress.Commands.add(
 		})
 	},
 )
+
+export const rotasRelatoriosCodae = {
+	filtrar: 'filtrar-solicitacoes-ga/',
+	totalizadores: 'filtrar-solicitacoes-cards-totalizadores/',
+	graficos: 'filtrar-solicitacoes-graficos/',
+	pdf: 'exportar-pdf/',
+	xlsx: 'exportar-xlsx/',
+}
+
+Cypress.Commands.add('consultar_relatorio_solicitacoes_codae', (operacao, dados, autenticado = true) => {
+	if (!rotasRelatoriosCodae[operacao]) throw new Error(`Operacao CODAE desconhecida: ${operacao}`)
+	return cy.request({
+		method: 'POST',
+		url: `${Cypress.config('baseUrl')}api/codae-solicitacoes/${rotasRelatoriosCodae[operacao]}`,
+		body: dados,
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		timeout: 120000,
+		failOnStatusCode: false,
+	})
+})

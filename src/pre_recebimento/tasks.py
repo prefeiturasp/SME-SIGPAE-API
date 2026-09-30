@@ -29,6 +29,9 @@ from src.pre_recebimento.cronograma_entrega.models import (
     EtapasDoCronograma,
     InterrupcaoProgramadaEntrega,
 )
+from src.pre_recebimento.cronograma_semanal.api.relatorio_cronograma_semanal_excel import (
+    gera_relatorio_cronogramas_semanais_xlsx,
+)
 from src.pre_recebimento.ficha_tecnica.api.relatorio_fichas_tecnicas_excel import (
     gera_relatorio_fichas_tecnicas_xlsx,
 )
@@ -256,6 +259,34 @@ def exporta_relatorio_fichas_tecnicas_xlsx(user, nome_arquivo, fichas_ids):
         logger.error(f"Erro ao gerar relatório de fichas técnicas: {e}")
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gerar_relatorio_cronogramas_semanais_xlsx_async(
+    user, ids_cronogramas, filtros=None
+):
+    TITULO_ARQUIVO = "relatorio_cronogramas_semanais.xlsx"
+
+    logger.info(f"x-x-x-x Iniciando a geração do arquivo {TITULO_ARQUIVO} x-x-x-x")
+
+    obj_central_download = gera_objeto_na_central_download(
+        user=user,
+        identificador=TITULO_ARQUIVO,
+    )
+
+    try:
+        arquivo = gera_relatorio_cronogramas_semanais_xlsx(ids_cronogramas, filtros)
+        atualiza_central_download(obj_central_download, TITULO_ARQUIVO, arquivo)
+    except Exception as e:
+        atualiza_central_download_com_erro(obj_central_download, str(e))
+        logger.error(f"Erro ao gerar relatório de cronogramas semanais: {e}")
+
+    logger.info(f"x-x-x-x Finaliza a geração do arquivo {TITULO_ARQUIVO} x-x-x-x")
 
 
 def _criar_linha_base_excel(cronograma, etapa):

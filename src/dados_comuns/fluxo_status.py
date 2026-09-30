@@ -32,11 +32,6 @@ from .constants import (
     ESCOLA_CANCELOU_LABEL,
     FORMATO_DATA_BRASILEIRO,
     FORMATO_DATA_HORA_BRASILEIRO,
-    MENSAGEM_PERMISSAO_NEGADA,
-    MODEL_DIRETORIA_REGIONAL,
-    MODEL_ESCOLA,
-    MODEL_LOTE,
-    MODEL_TERCEIRIZADA,
     MODULO_DIETA_ESPECIAL,
     MODULO_GESTAO_ALIMENTACAO,
     MODULO_GESTAO_PRODUTO,
@@ -48,6 +43,8 @@ from .constants import (
     TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
     TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
     TIPOS_ALIMENTACAO,
+    StringsCaminhoModelos,
+    StringsValidationErrors,
 )
 from .models import AnexoLogSolicitacoesUsuario, LogSolicitacoesUsuario, Notificacao
 from .services import EmailENotificacaoService, PartesInteressadasService
@@ -1674,7 +1671,7 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
     DIAS_PARA_CANCELAR = 2
 
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2238,7 +2235,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2246,7 +2243,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2254,7 +2251,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2262,7 +2259,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2675,13 +2672,13 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escolas = models.ManyToManyField(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         blank=True,
         related_name=RELATED_NAME_RASTRO_ESCOLA,
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2689,7 +2686,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2697,7 +2694,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2974,7 +2971,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
     DIAS_UTEIS_PARA_CANCELAR = 2
 
     rastro_escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2982,7 +2979,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -2990,7 +2987,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -2998,7 +2995,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3142,7 +3139,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
     status = xwf_models.StateField(workflow_class)
 
     rastro_escola = models.ForeignKey(
-        MODEL_ESCOLA,
+        StringsCaminhoModelos.MODEL_ESCOLA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3150,7 +3147,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_dre = models.ForeignKey(
-        MODEL_DIRETORIA_REGIONAL,
+        StringsCaminhoModelos.MODEL_DIRETORIA_REGIONAL.value,
         on_delete=models.DO_NOTHING,
         null=True,
         related_name=RELATED_NAME_RASTRO_DRE,
@@ -3158,7 +3155,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -3166,7 +3163,7 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -4091,7 +4088,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     status = xwf_models.StateField(workflow_class)
 
     rastro_lote = models.ForeignKey(
-        MODEL_LOTE,
+        StringsCaminhoModelos.MODEL_LOTE.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -4099,7 +4096,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         editable=False,
     )
     rastro_terceirizada = models.ForeignKey(
-        MODEL_TERCEIRIZADA,
+        StringsCaminhoModelos.MODEL_TERCEIRIZADA.value,
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
@@ -4141,7 +4138,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
             eh_diretor = user.vinculo_atual.perfil.nome == DIRETOR_UE
             escola_p_fom = user.vinculo_atual.instituicao.eh_p_fom
             if not eh_diretor and escola_possui_alunos_regulares and not escola_p_fom:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             log_transicao = self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_ENVIADA_PELA_UE,
                 usuario=user,
@@ -4168,7 +4165,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [COGESTOR_DRE]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             if isinstance(self, OcorrenciaMedicaoInicial) or isinstance(self, Medicao):
                 self.deletar_log_correcao(
                     status_evento=[
@@ -4219,7 +4216,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             if user.vinculo_atual.perfil.nome not in [COGESTOR_DRE]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             if isinstance(self, OcorrenciaMedicaoInicial) or isinstance(self, Medicao):
                 self.deletar_log_correcao(
                     status_evento=[
@@ -4266,7 +4263,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 ADMINISTRADOR_MEDICAO,
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4287,7 +4284,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 ADMINISTRADOR_MEDICAO,
                 COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
             ]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4305,7 +4302,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         justificativa = kwargs.get("justificativa", "")
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4323,7 +4320,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.deletar_log_correcao(
                 status_evento=[
                     LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
@@ -4342,7 +4339,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_APROVADA_PELA_CODAE,
                 usuario=user,
@@ -4374,7 +4371,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         if user:
             if user.vinculo_atual.perfil.nome not in [ADMINISTRADOR_MEDICAO]:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
                 usuario=user,
@@ -4415,7 +4412,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
         if user:
             if nao_possui_permissao:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PELA_UE
 
@@ -4450,7 +4447,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
 
         if user and isinstance(self, OcorrenciaMedicaoInicial):
             if nao_possui_permissao:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
 
             status = LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE
 
@@ -4473,7 +4470,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
                 usuario=user,
@@ -4489,7 +4486,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                 and not user.vinculo_atual.instituicao.eh_p_fom
             )
             if nao_possui_permissao:
-                raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
                 usuario=user,
@@ -4511,7 +4508,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
 
         if not user or nao_possui_permissao:
-            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+            raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
         if isinstance(self, Medicao):
             raise ValidationError(
                 "`Medicao` não possui fluxo `ue_envia_sem_lancamentos`"
@@ -4538,7 +4535,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         )
 
         if not user or nao_possui_permissao:
-            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+            raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
         if isinstance(self, SolicitacaoMedicaoInicial):
             raise ValidationError(
                 "`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`"
@@ -4557,7 +4554,7 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs["user"]
         justificativa = kwargs["justificativa"]
         if not user or user.vinculo_atual.perfil.nome != ADMINISTRADOR_MEDICAO:
-            raise PermissionDenied(MENSAGEM_PERMISSAO_NEGADA)
+            raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             usuario=user,
@@ -6328,6 +6325,7 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
             "numero_cronograma": numero_cronograma,
             "data_evento": data_evento,
             "url_detalhe_cronograma": url_detalhe_cronograma,
+            "nome_produto": nome_produto,
         }
 
         EmailENotificacaoService.enviar_email(

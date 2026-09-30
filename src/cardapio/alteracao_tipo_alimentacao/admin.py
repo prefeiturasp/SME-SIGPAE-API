@@ -4,6 +4,7 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     MotivoAlteracaoCardapio,
 )
+from src.dados_comuns.constants import StringsSearchHelpText
 
 
 @admin.register(AlteracaoCardapio)
@@ -37,7 +38,9 @@ class AlteracaoCardapioModelAdmin(admin.ModelAdmin):
         "DESCRICAO",
     )
     search_fields = ("uuid", "escola__nome", "escola__codigo_eol")
-    search_help_text = "Pesquisar por: UUID, nome da escola, codigo eol da escola"
+    search_help_text = (
+        StringsSearchHelpText.PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA.value
+    )
     list_filter = ("motivo__nome", "status", "rastro_lote", "rastro_terceirizada")
     readonly_fields = ("escola",)
 

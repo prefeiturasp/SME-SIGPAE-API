@@ -443,6 +443,35 @@ def test_get_pdf_ficha_tecnica_sem_envasador(ficha_tecnica_sem_envasador):
     assert "Envasador/Distribuidor" not in texto
 
 
+def test_get_pdf_ficha_tecnica_flv_ponto_a_ponto_sem_fabricante(
+    ficha_tecnica_flv_ponto_a_ponto_sem_fabricante,
+):
+    response = get_pdf_ficha_tecnica(
+        None, ficha_tecnica_flv_ponto_a_ponto_sem_fabricante
+    )
+    texto = extrair_texto_de_pdf(response.content)
+
+    assert response["Content-Type"] == "application/pdf"
+    assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" not in texto
+    assert "Nº do Registro do Rótulo" not in texto
+    assert "DETALHES DO PRODUTO" in texto
+
+
+def test_get_pdf_ficha_tecnica_flv_ponto_a_ponto_com_fabricante(
+    ficha_tecnica_flv_ponto_a_ponto_com_fabricante,
+):
+    ficha = ficha_tecnica_flv_ponto_a_ponto_com_fabricante
+
+    response = get_pdf_ficha_tecnica(None, ficha)
+    texto = extrair_texto_de_pdf(response.content)
+
+    assert response["Content-Type"] == "application/pdf"
+    assert "FABRICANTE E/OU ENVASADOR/DISTRIBUIDOR" in texto
+    assert ficha.fabricante.fabricante.nome in texto
+    assert "Nº do Registro do Rótulo" in texto
+    assert "987654" in texto
+
+
 @freeze_time("2024-12-27")
 def test_relatorio_reclamacao_produtos(
     mock_produtos_relatorio_reclamacao, mock_filtros_relatorio_reclamacao
@@ -753,7 +782,10 @@ def test_relatorio_cronograma_entrega(cronograma):
 
     texto_pdf = extrair_texto_de_pdf(pdf_response_cronograma.content)
 
-    assert cronograma.ficha_tecnica.produto.nome in texto_pdf
+    nome_produto = re.sub(r"\s+", "", cronograma.ficha_tecnica.produto.nome)
+    texto_pdf_sem_espacos = re.sub(r"\s+", "", texto_pdf)
+
+    assert nome_produto in texto_pdf_sem_espacos
     assert cronograma.ficha_tecnica.marca.nome in texto_pdf
     assert cronograma.numero in texto_pdf
     assert cronograma.contrato.numero in texto_pdf

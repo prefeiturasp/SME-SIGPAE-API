@@ -10,6 +10,7 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
 )
+from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
@@ -92,21 +93,26 @@ class ProtocoloPadraoDietaEspecial(
         (STATUS_NAO_LIBERADO, STATUS_NOMES[STATUS_NAO_LIBERADO]),
     )
 
-    nome_protocolo = models.TextField("Nome do Protocolo")
+    nome_protocolo = models.TextField(StringsVerboseNameModels.NOME_DO_PROTOCOLO.value)
 
-    orientacoes_gerais = models.TextField("Orientações Gerais", blank=True)
+    orientacoes_gerais = models.TextField(
+        StringsVerboseNameModels.ORIENTACOES_GERAIS.value, blank=True
+    )
 
     status = models.CharField(
-        "Status da guia",
+        StringsVerboseNameModels.STATUS_DA_GUIA.value,
         max_length=25,
         choices=STATUS_CHOICES,
         default=STATUS_NAO_LIBERADO,
     )
 
-    outras_informacoes = models.TextField("Outras Informações", blank=True)
+    outras_informacoes = models.TextField(
+        StringsVerboseNameModels.OUTRAS_INFORMACOES.value, blank=True
+    )
 
     editais = models.ManyToManyField(
-        "terceirizada.Edital", related_name="protocolos_padroes_dieta_especial"
+        StringsCaminhoModelos.MODEL_EDITAL.value,
+        related_name="protocolos_padroes_dieta_especial",
     )
 
     historico = models.JSONField(blank=True, null=True)

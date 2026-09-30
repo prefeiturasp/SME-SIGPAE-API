@@ -1,6 +1,8 @@
 import pytest
 from rest_framework import status
 
+from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+
 pytestmark = pytest.mark.django_db
 
 
@@ -17,8 +19,8 @@ def test_logs_dieta_recreio_nas_ferias(
     assert response.status_code == status.HTTP_200_OK
     logs = response.json()
     assert len(logs) == 3
-    assert any(log["classificacao"] == "Tipo B" for log in logs)
-    assert any(log["classificacao"] == "Tipo A" for log in logs)
+    assert any(log["classificacao"] == ClassificacaoDieta.TIPO_B for log in logs)
+    assert any(log["classificacao"] == ClassificacaoDieta.TIPO_A for log in logs)
     assert any(log["classificacao"] == "Tipo A Enteral" for log in logs)
 
     for log in logs:

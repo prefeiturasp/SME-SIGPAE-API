@@ -7,6 +7,7 @@ from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
+from src.dados_comuns.constants import StringsCaminhoModelos
 
 
 @pytest.fixture(
@@ -29,7 +30,9 @@ def suspensao_alimentacao_cei_params(request):
 @pytest.fixture
 def suspensao_alimentacao_de_cei(escola):
     motivo = baker.make(MotivoSuspensao, nome="Suspensão de aula")
-    periodos_escolares = baker.make("escola.PeriodoEscolar", _quantity=2)
+    periodos_escolares = baker.make(
+        StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value, _quantity=2
+    )
     return baker.make(
         SuspensaoAlimentacaoDaCEI,
         escola=escola,

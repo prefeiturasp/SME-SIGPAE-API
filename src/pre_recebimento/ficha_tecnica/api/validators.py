@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.fluxo_status import FichaTecnicaDoProdutoWorkflow
 from src.pre_recebimento.ficha_tecnica.models import (
     AnaliseFichaTecnica,
@@ -251,7 +252,9 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             for campo in campos_obrigatorios_collapse:
                 if campo not in self._attrs:
                     raise serializers.ValidationError(
-                        {campo: "Este campo é obrigatório."}
+                        {
+                            campo: StringsValidationErrors.CAMPO_OBRIGATORIO_PONTO_FINAL.value
+                        }
                     )
 
     def valida_campos_nao_permitidos_por_collapse(self):
@@ -309,7 +312,7 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
     def _obter_campos_collapses_por_categoria(self):
         if self._ficha_tecnica.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV:
-            return self.CAMPOS_FLV
+            return self._campos_flv_aplicaveis()
 
         return (
             self.CAMPOS_PERECIVEIS
@@ -317,6 +320,15 @@ class ServiceValidacaoCorrecaoFichaTecnica:
             == FichaTecnicaDoProduto.CATEGORIA_PERECIVEIS
             else self.CAMPOS_NAO_PERECIVEIS
         )
+
+    def _campos_flv_aplicaveis(self):
+        campos = {**self.CAMPOS_FLV}
+        if self._ficha_tecnica.eh_flv_ponto_a_ponto:
+            campos["fabricante_envasador_conferido"] = {
+                "obrigatorios": [],
+                "opcionais": ["fabricante", "envasador_distribuidor"],
+            }
+        return campos
 
     def _obter_collapses_com_correcao(self):
         analise = (

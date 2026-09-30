@@ -5,12 +5,12 @@ from pydantic import BaseModel, field_validator
 
 
 class ImportacaoPlanilhaTipoPenalidadeSchema(BaseModel):
-    edital: Optional[str]
-    numero_clausula: Optional[str]
-    gravidade: Optional[str]
-    obrigacoes: Optional[str]
-    descricao_clausula: Optional[str]
-    status: Optional[str]
+    edital: Optional[str] = None
+    numero_clausula: Optional[str] = None
+    gravidade: Optional[str] = None
+    obrigacoes: Optional[str] = None
+    descricao_clausula: Optional[str] = None
+    status: Optional[str] = None
 
     @classmethod
     def checa_vazio(cls, value: Optional[str], nome_parametro: str) -> None:
@@ -55,19 +55,19 @@ class ImportacaoPlanilhaTipoPenalidadeSchema(BaseModel):
 
 
 class ImportacaoPlanilhaTipoOcorrenciaSchema(BaseModel):
-    posicao: Optional[Union[str, int]]
-    perfis: Optional[str]
-    edital: Optional[str]
-    categoria_ocorrencia: Optional[str]
-    titulo: Optional[str]
-    descricao: Optional[str]
-    penalidade: Optional[str]
-    eh_imr: Optional[str]
-    pontuacao: Optional[Union[str, int]]
-    tolerancia: Optional[Union[str, int]]
-    porcentagem_desconto: Optional[Union[str, int]]
-    status: Optional[str]
-    aceita_multiplas_respostas: Optional[str]
+    posicao: Optional[Union[str, int]] = None
+    perfis: Optional[str] = None
+    edital: Optional[str] = None
+    categoria_ocorrencia: Optional[str] = None
+    titulo: Optional[str] = None
+    descricao: Optional[str] = None
+    penalidade: Optional[str] = None
+    eh_imr: Optional[str] = None
+    pontuacao: Optional[Union[str, int]] = None
+    tolerancia: Optional[Union[str, int]] = None
+    porcentagem_desconto: Optional[Union[str, int]] = None
+    status: Optional[str] = None
+    aceita_multiplas_respostas: Optional[str] = None
 
     @field_validator(
         "posicao", "pontuacao", "tolerancia", "porcentagem_desconto", mode="before"
