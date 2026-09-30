@@ -868,7 +868,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openpyxl</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span><span class="p">,</span> <span class="n">load_workbook</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openpyxl.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Font</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">NOME_PROTOCOLO_PLANILHA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">NOME_PROTOCOLO_PLANILHA</span><span class="p">,</span> <span class="n">StringsNomesAbasXLSX</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.protocolo_padrao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ProtocoloPadraoDietaEspecial</span><span class="p">,</span>
 <span class="p">)</span>
@@ -912,7 +912,7 @@
         <span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
         <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatar_tamanho_celulas</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
-        <span class="n">ws</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">"Dietas não relacionadas"</span>
+        <span class="n">ws</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">StringsNomesAbasXLSX</span><span class="o">.</span><span class="n">DIETAS_NAO_RELACIONADAS</span><span class="o">.</span><span class="n">value</span>
         <span class="n">cabecalho</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">"uuid"</span><span class="p">,</span>
             <span class="n">NOME_PROTOCOLO_PLANILHA</span><span class="p">,</span>
@@ -952,45 +952,50 @@
         <span class="n">dados_planilha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrair_dados_planilha</span><span class="p">()</span>
         <span class="n">solicitacoes_nao_relacionadas</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">dado</span> <span class="ow">in</span> <span class="n">dados_planilha</span><span class="p">:</span>
-            <span class="n">solicitacao</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">uuid</span><span class="o">=</span><span class="n">dado</span><span class="p">[</span><span class="s2">"UUID"</span><span class="p">]</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">solicitacao</span><span class="p">:</span>
-                <span class="n">editais_uuids</span> <span class="o">=</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">lote</span><span class="o">.</span><span class="n">contratos_do_lote</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
-                    <span class="s2">"edital__uuid"</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
-                <span class="p">)</span>
-                <span class="n">editais</span> <span class="o">=</span> <span class="n">Edital</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid__in</span><span class="o">=</span><span class="n">editais_uuids</span><span class="p">)</span>
-                <span class="n">protocolos_uuids</span> <span class="o">=</span> <span class="n">editais</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
-                    <span class="s2">"protocolos_padroes_dieta_especial__uuid"</span>
-                <span class="p">)</span>
-                <span class="n">protocolos</span> <span class="o">=</span> <span class="kc">None</span>
-
-                <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="n">nome_planilha</span> <span class="o">=</span> <span class="n">dado</span><span class="p">[</span><span class="s2">"ALTERAR NOME DO PROTOCOLO NO SISTEMA  PARA:"</span><span class="p">]</span>
-                <span class="n">nome_db</span> <span class="o">=</span> <span class="n">dado</span><span class="p">[</span><span class="s2">"CRIADO PROTOCOLO PADRÃO COM NOME:"</span><span class="p">]</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_deletar_solicitacoes</span><span class="p">(</span><span class="n">nome_planilha</span><span class="p">,</span> <span class="n">nome_db</span><span class="p">):</span>
-                    <span class="n">solicitacao</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">nome_planilha</span> <span class="k">if</span> <span class="n">nome_planilha</span> <span class="k">else</span> <span class="n">nome_db</span>
-                    <span class="n">protocolos</span> <span class="o">=</span> <span class="n">ProtocoloPadraoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                        <span class="n">uuid__in</span><span class="o">=</span><span class="n">protocolos_uuids</span><span class="p">,</span> <span class="n">nome_protocolo</span><span class="o">=</span><span class="n">nome_protocolo</span>
-                    <span class="p">)</span>
-
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">protocolos</span><span class="p">:</span>
-                        <span class="n">objeto</span> <span class="o">=</span> <span class="p">{</span>
-                            <span class="s2">"uuid"</span><span class="p">:</span> <span class="n">dado</span><span class="p">[</span><span class="s2">"UUID"</span><span class="p">],</span>
-                            <span class="n">NOME_PROTOCOLO_PLANILHA</span><span class="p">:</span> <span class="n">nome_protocolo</span><span class="p">,</span>
-                            <span class="s2">"escola"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
-                            <span class="s2">"aluno"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
-                            <span class="s2">"lote"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">lote</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
-                            <span class="s2">"erro"</span><span class="p">:</span> <span class="s2">"Protocolo não encontrado para o Edital e Lote da Escola "</span><span class="p">,</span>
-                        <span class="p">}</span>
-                        <span class="n">solicitacoes_nao_relacionadas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">objeto</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">solicitacao</span><span class="o">.</span><span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">protocolos</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
-                        <span class="n">solicitacao</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_processar_dado</span><span class="p">(</span><span class="n">dado</span><span class="p">,</span> <span class="n">solicitacoes_nao_relacionadas</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">exportar_planilha</span><span class="p">(</span><span class="n">solicitacoes_nao_relacionadas</span><span class="p">)</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_processar_dado</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dado</span><span class="p">,</span> <span class="n">solicitacoes_nao_relacionadas</span><span class="p">):</span>
+        <span class="n">solicitacao</span> <span class="o">=</span> <span class="n">SolicitacaoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid</span><span class="o">=</span><span class="n">dado</span><span class="p">[</span><span class="s2">"UUID"</span><span class="p">])</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">solicitacao</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">nome_planilha</span> <span class="o">=</span> <span class="n">dado</span><span class="p">[</span><span class="s2">"ALTERAR NOME DO PROTOCOLO NO SISTEMA  PARA:"</span><span class="p">]</span>
+        <span class="n">nome_db</span> <span class="o">=</span> <span class="n">dado</span><span class="p">[</span><span class="s2">"CRIADO PROTOCOLO PADRÃO COM NOME:"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_deletar_solicitacoes</span><span class="p">(</span><span class="n">nome_planilha</span><span class="p">,</span> <span class="n">nome_db</span><span class="p">):</span>
+            <span class="n">solicitacao</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">nome_planilha</span> <span class="k">if</span> <span class="n">nome_planilha</span> <span class="k">else</span> <span class="n">nome_db</span>
+        <span class="n">protocolos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_buscar_protocolos</span><span class="p">(</span><span class="n">solicitacao</span><span class="p">,</span> <span class="n">nome_protocolo</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">protocolos</span><span class="p">:</span>
+            <span class="n">solicitacao</span><span class="o">.</span><span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">protocolos</span><span class="o">.</span><span class="n">first</span><span class="p">()</span>
+            <span class="n">solicitacao</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">return</span>
+        <span class="n">solicitacoes_nao_relacionadas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_montar_objeto</span><span class="p">(</span><span class="n">dado</span><span class="p">,</span> <span class="n">solicitacao</span><span class="p">,</span> <span class="n">nome_protocolo</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_buscar_protocolos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solicitacao</span><span class="p">,</span> <span class="n">nome_protocolo</span><span class="p">):</span>
+        <span class="n">editais_uuids</span> <span class="o">=</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">lote</span><span class="o">.</span><span class="n">contratos_do_lote</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">"edital__uuid"</span><span class="p">,</span> <span class="n">flat</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">editais</span> <span class="o">=</span> <span class="n">Edital</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">uuid__in</span><span class="o">=</span><span class="n">editais_uuids</span><span class="p">)</span>
+        <span class="n">protocolos_uuids</span> <span class="o">=</span> <span class="n">editais</span><span class="o">.</span><span class="n">values_list</span><span class="p">(</span>
+            <span class="s2">"protocolos_padroes_dieta_especial__uuid"</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ProtocoloPadraoDietaEspecial</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">uuid__in</span><span class="o">=</span><span class="n">protocolos_uuids</span><span class="p">,</span> <span class="n">nome_protocolo</span><span class="o">=</span><span class="n">nome_protocolo</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_montar_objeto</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dado</span><span class="p">,</span> <span class="n">solicitacao</span><span class="p">,</span> <span class="n">nome_protocolo</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">"uuid"</span><span class="p">:</span> <span class="n">dado</span><span class="p">[</span><span class="s2">"UUID"</span><span class="p">],</span>
+            <span class="n">NOME_PROTOCOLO_PLANILHA</span><span class="p">:</span> <span class="n">nome_protocolo</span><span class="p">,</span>
+            <span class="s2">"escola"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">"aluno"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">aluno</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">"lote"</span><span class="p">:</span> <span class="n">solicitacao</span><span class="o">.</span><span class="n">escola</span><span class="o">.</span><span class="n">lote</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
+            <span class="s2">"erro"</span><span class="p">:</span> <span class="s2">"Protocolo não encontrado para o Edital e Lote da Escola "</span><span class="p">,</span>
+        <span class="p">}</span></div>
 
 </pre></div>
 

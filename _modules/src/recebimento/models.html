@@ -885,6 +885,7 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsVerboseNameModels</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoFichaDeRecebimento</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_file_size_10mb</span>
@@ -904,6 +905,7 @@
 <span class="sd">    secundária) respondidas durante o recebimento. Pode ser marcada como</span>
 <span class="sd">    obrigatória, exigindo então uma ``posicao`` para ordenação.</span>
 <span class="sd">    """</span>
+
     <span class="c1"># Tipo Questão Choice</span>
     <span class="n">TIPO_QUESTAO_PRIMARIA</span> <span class="o">=</span> <span class="s2">"PRIMARIA"</span>
     <span class="n">TIPO_QUESTAO_SECUNDARIA</span> <span class="o">=</span> <span class="s2">"SECUNDARIA"</span>
@@ -927,10 +929,14 @@
         <span class="p">(</span><span class="n">INATIVO</span><span class="p">,</span> <span class="s2">"Inativo"</span><span class="p">),</span>
     <span class="p">)</span>
 
-    <span class="n">questao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">"Questão"</span><span class="p">)</span>
+    <span class="n">questao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUESTAO</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
     <span class="n">tipo_questao</span> <span class="o">=</span> <span class="n">MultiSelectField</span><span class="p">(</span><span class="s2">"Tipo de Questão"</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_QUESTAO_CHOICES</span><span class="p">)</span>
-    <span class="n">pergunta_obrigatoria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">"Pergunta Obrigatória?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">posicao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span><span class="s2">"Posição"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pergunta_obrigatoria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">PERGUNTA_OBRIGATORIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="n">posicao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">PositiveSmallIntegerField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">POSICAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
     <span class="n">status</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">STATUS_CHOICES</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">ATIVO</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -972,12 +978,12 @@
     <span class="p">)</span>
     <span class="n">questoes_primarias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
         <span class="n">QuestaoConferencia</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Questões referentes à Embalagem Primária"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUESTOES_REFERENTES_A_EMBALAGEM_PRIMARIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"questoes_primarias"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">questoes_secundarias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
         <span class="n">QuestaoConferencia</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Questões referentes à Embalagem Secundária"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUESTOES_REFERENTES_A_EMBALAGEM_SECUNDARIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"questoes_secundarias"</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -1008,12 +1014,12 @@
     <span class="p">)</span>
 
     <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Tipo"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">TIPO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CHOICES</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">descricao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
-        <span class="s2">"Descrição"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DESCRICAO_2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1054,10 +1060,10 @@
         <span class="n">EtapasDoCronograma</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"ficha_recebimento"</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Etapa do Cronograma"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">ETAPA_DO_CRONOGRAMA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">data_entrega</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span>
-        <span class="s2">"Data de Entrega"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DATA_DE_ENTREGA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1069,64 +1075,72 @@
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"fichas_recebimentos"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">lote_fabricante_de_acordo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-        <span class="s2">"Lote(s) do Fabricante Observado(s) estão de acordo?"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">LOTE_S_DO_FABRICANTE_OBSERVADO_S_ESTAO_DE_ACORDO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">lote_fabricante_divergencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Descrição da divergência nos Lote(s) do Fabricante"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DESCRICAO_DA_DIVERGENCIA_NOS_LOTE_S_DO_FABRICANTE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">data_fabricacao_de_acordo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-        <span class="s2">"Data(s) de Fabricação Observada(s) estão de acordo?"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DATA_S_DE_FABRICACAO_OBSERVADA_S_ESTAO_DE_ACORDO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">data_fabricacao_divergencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Descrição da divergência nas Data(s) de Fabricação"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DESCRICAO_DA_DIVERGENCIA_NAS_DATA_S_DE_FABRICACAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">data_validade_de_acordo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-        <span class="s2">"Data(s) de Validades Observada(s) estão de acordo?"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DATA_S_DE_VALIDADES_OBSERVADA_S_ESTAO_DE_ACORDO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">data_validade_divergencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Descrição da divergência nas Data(s) de Validades"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DESCRICAO_DA_DIVERGENCIA_NAS_DATA_S_DE_VALIDADES</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">numero_lote_armazenagem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nº do Lote Armazenagem"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NO_DO_LOTE_ARMAZENAGEM</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">numero_paletes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span>
-        <span class="s2">"Nº de Paletes"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NO_DE_PALETES</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">peso_embalagem_primaria_1</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
-        <span class="s2">"Peso da Embalagem Primária (1)"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">PESO_DA_EMBALAGEM_PRIMARIA_1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">peso_embalagem_primaria_2</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
-        <span class="s2">"Peso da Embalagem Primária (2)"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">PESO_DA_EMBALAGEM_PRIMARIA_2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">peso_embalagem_primaria_3</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
-        <span class="s2">"Peso da Embalagem Primária (3)"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">PESO_DA_EMBALAGEM_PRIMARIA_3</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">peso_embalagem_primaria_4</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span>
-        <span class="s2">"Peso da Embalagem Primária (4)"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">PESO_DA_EMBALAGEM_PRIMARIA_4</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">sistema_vedacao_embalagem_secundaria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
-        <span class="s2">"Sistema de Vedação da Embalagem Secundária"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">SISTEMA_DE_VEDACAO_DA_EMBALAGEM_SECUNDARIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1138,7 +1152,7 @@
     <span class="p">)</span>
 
     <span class="n">houve_ocorrencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-        <span class="s2">"Houve Ocorrência?"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">HOUVE_OCORRENCIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1220,17 +1234,17 @@
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"veiculos"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">numero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nº do Veículo"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NO_DO_VEICULO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">temperatura_recebimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Temperatura da Área de Recebimento (°C)"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">TEMPERATURA_DA_AREA_DE_RECEBIMENTO_C</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">temperatura_produto</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Temperatura do Produto (°C)"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">TEMPERATURA_DO_PRODUTO_C</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1246,7 +1260,7 @@
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">numero_sif_sisbi_sisp</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nº SIF, SISBI ou SISP"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NO_SIF_SISBI_OU_SISP</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1263,7 +1277,7 @@
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">embalagens_nota_fiscal</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span>
-        <span class="s2">"Quantidade de Embalagens da Nota Fiscal"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUANTIDADE_DE_EMBALAGENS_DA_NOTA_FISCAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1274,12 +1288,12 @@
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">embalagens_recebidas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">IntegerField</span><span class="p">(</span>
-        <span class="s2">"Quantidade de Embalagens Recebidas"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUANTIDADE_DE_EMBALAGENS_RECEBIDAS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">estado_higienico_adequado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-        <span class="s2">"Estado Higiênico-Sanitário adequado?"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">ESTADO_HIGIENICO_SANITARIO_ADEQUADO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1351,6 +1365,7 @@
 <span class="sd">    ficha, com o tipo de embalagem (primária ou secundária). A combinação</span>
 <span class="sd">    de ficha, questão e tipo é única (``unique_together``).</span>
 <span class="sd">    """</span>
+
     <span class="n">TIPO_QUESTAO_PRIMARIA</span> <span class="o">=</span> <span class="s2">"PRIMARIA"</span>
     <span class="n">TIPO_QUESTAO_SECUNDARIA</span> <span class="o">=</span> <span class="s2">"SECUNDARIA"</span>
 
@@ -1367,14 +1382,16 @@
     <span class="n">ficha_recebimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="n">FichaDeRecebimento</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Ficha de Recebimento"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">FICHA_DE_RECEBIMENTO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">questao_conferencia</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="n">QuestaoConferencia</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Questão de Conferência"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUESTAO_DE_CONFERENCIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">resposta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">"Resposta (Sim/Não)"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">resposta</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">RESPOSTA_SIM_NAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="n">tipo_questao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">choices</span><span class="o">=</span><span class="n">TIPO_QUESTAO_CHOICES</span><span class="p">)</span>
 
@@ -1404,16 +1421,16 @@
         <span class="n">FichaDeRecebimento</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"documentos_ficha"</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Ficha de Recebimento"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">FICHA_DE_RECEBIMENTO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">documento_recebimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="n">DocumentoDeRecebimento</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"fichas_documentos"</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Documento de Recebimento"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DOCUMENTO_DE_RECEBIMENTO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">quantidade_recebida</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DecimalField</span><span class="p">(</span>
-        <span class="s2">"Quantidade Recebida"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUANTIDADE_RECEBIDA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_digits</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
         <span class="n">decimal_places</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s2">"Quantidade recebida do documento"</span><span class="p">,</span>
@@ -1443,6 +1460,7 @@
 <span class="sd">    do tipo ``RECUSA`` é permitida por ficha (validado no helper de</span>
 <span class="sd">    criação).</span>
 <span class="sd">    """</span>
+
     <span class="n">TIPO_FALTA</span> <span class="o">=</span> <span class="s2">"FALTA"</span>
     <span class="n">TIPO_RECUSA</span> <span class="o">=</span> <span class="s2">"RECUSA"</span>
     <span class="n">TIPO_OUTROS</span> <span class="o">=</span> <span class="s2">"OUTROS_MOTIVOS"</span>
@@ -1469,34 +1487,34 @@
         <span class="n">FichaDeRecebimento</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"ocorrencias"</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Ficha de Recebimento"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">FICHA_DE_RECEBIMENTO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">tipo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Tipo de Ocorrência"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">TIPO_DE_OCORRENCIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">TIPO_CHOICES</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">relacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Relação"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">RELACAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="n">RELACAO_CHOICES</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">numero_nota</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Número da Nota"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NUMERO_DA_NOTA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Quantidade"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUANTIDADE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">descricao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
-        <span class="s2">"Descrição"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DESCRICAO_2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>

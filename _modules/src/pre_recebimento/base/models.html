@@ -874,6 +874,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="n">CriadoEm</span><span class="p">,</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsVerboseNameModels</span>
 
 
 <div class="viewcode-block" id="UnidadeMedida">
@@ -887,7 +888,10 @@
 <span class="sd">    abreviação sempre em letras minúsculas, normalização aplicada no</span>
 <span class="sd">    ``save``.</span>
 <span class="sd">    """</span>
-    <span class="n">abreviacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">"Abreviação"</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+    <span class="n">abreviacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">ABREVIACAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">25</span>
+    <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Retorna o nome da unidade de medida."""</span>

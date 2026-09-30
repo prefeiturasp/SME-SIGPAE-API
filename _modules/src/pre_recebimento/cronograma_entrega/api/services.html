@@ -896,6 +896,7 @@
 <span class="sd">    no dashboard de solicitações de alteração para cada perfil</span>
 <span class="sd">    (DILOG Abastecimento, DILOG Diretoria, DILOG Cronograma, etc.).</span>
 <span class="sd">    """</span>
+
     <span class="n">STATUS_POR_PERFIL</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">DILOG_ABASTECIMENTO</span><span class="p">:</span> <span class="p">[</span>
             <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">CRONOGRAMA_CIENTE</span><span class="p">,</span>
@@ -960,6 +961,7 @@
 <span class="sd">    e monta uma QuerySet ordenada: primeiro os registros com status</span>
 <span class="sd">    prioritário, depois os demais, ambos ordenados por criado_em.</span>
 <span class="sd">    """</span>
+
     <span class="n">STATUS_PRIORITARIO</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">ADMINISTRADOR_EMPRESA</span><span class="p">:</span> <span class="p">[</span>
             <span class="n">CronogramaAlteracaoWorkflow</span><span class="o">.</span><span class="n">ALTERACAO_ENVIADA_FORNECEDOR</span><span class="p">,</span>
@@ -993,17 +995,17 @@
 <div class="viewcode-block" id="ServiceQuerysetAlteracaoCronograma.get_status">
 <a class="viewcode-back" href="../../../../../pre_recebimento/cronograma_entrega/api.html#src.pre_recebimento.cronograma_entrega.api.services.ServiceQuerysetAlteracaoCronograma.get_status">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_status</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">user</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Retorna a lista de status prioritários para o perfil do usuário.</span>
 
 <span class="sd">        Levanta ValueError se o perfil do usuário não estiver mapeado.</span>
 <span class="sd">        """</span>
         <span class="n">perfil</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span>
 
-        <span class="k">if</span> <span class="n">perfil</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">STATUS_PRIORITARIO</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">perfil</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">STATUS_PRIORITARIO</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Perfil não existe"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">STATUS_PRIORITARIO</span><span class="p">[</span><span class="n">perfil</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">STATUS_PRIORITARIO</span><span class="p">[</span><span class="n">perfil</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="ServiceQuerysetAlteracaoCronograma.get_queryset">

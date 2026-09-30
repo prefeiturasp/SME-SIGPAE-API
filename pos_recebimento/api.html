@@ -895,7 +895,22 @@ erros de validação ou <code class="docutils literal notranslate"><span class="
 </div></blockquote>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/&lt;uuid&gt;/</span></code> — Detalhe do termo.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/pendentes-assinatura/</span></code> — Painel do fiscal: termos a assinar.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/assinados/</span></code> — Painel do fiscal: termos já assinados.</p></li>
 </ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.ACTIONS_PAINEL_ASSINATURA">
+<span class="sig-name descname"><span class="pre">ACTIONS_PAINEL_ASSINATURA</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('pendentes_assinatura',</span> <span class="pre">'assinados')</span></span><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.ACTIONS_PAINEL_ASSINATURA" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.assinados">
+<span class="sig-name descname"><span class="pre">assinados</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/viewsets.html#TermoRecebimentoDefinitivoViewSet.assinados"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.assinados" title="Link to this definition"></a></dt>
+<dd><p>Termos já assinados pelo fornecedor, dos quais o usuário logado
+é fiscal.</p>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/pos-recebimento/termos/assinados/</span></code></p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.create">
 <span class="sig-name descname"><span class="pre">create</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/viewsets.html#TermoRecebimentoDefinitivoViewSet.create"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.create" title="Link to this definition"></a></dt>
@@ -952,6 +967,13 @@ pré-carregados para evitar N+1.</p>
 <dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.pagination_class">
 <span class="sig-name descname"><span class="pre">pagination_class</span></span><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.pagination_class" title="Link to this definition"></a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">DefaultPagination</span></code></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.pendentes_assinatura">
+<span class="sig-name descname"><span class="pre">pendentes_assinatura</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">request</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/viewsets.html#TermoRecebimentoDefinitivoViewSet.pendentes_assinatura"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.pendentes_assinatura" title="Link to this definition"></a></dt>
+<dd><p>Termos aguardando a assinatura do fiscal logado.</p>
+<p>Endpoint: <code class="docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/pos-recebimento/termos/pendentes-assinatura/</span></code></p>
 </dd></dl>
 
 <dl class="py method">
@@ -1203,6 +1225,52 @@ ficha de recebimento com status “Assinado CODAE”
 <dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoListagemSerializer.get_produtos">
 <span class="sig-name descname"><span class="pre">get_produtos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoListagemSerializer.get_produtos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoListagemSerializer.get_produtos" title="Link to this definition"></a></dt>
 <dd><p>Nomes dos produtos dos cronogramas do termo, sem duplicidades.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">TermoRecebimentoDefinitivoPainelAssinaturaSerializer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoPainelAssinaturaSerializer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelSerializer</span></code></p>
+<p>Termo no painel de assinaturas do fiscal.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Meta</span></span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta.fields">
+<span class="sig-name descname"><span class="pre">fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'empresa',</span> <span class="pre">'razao_social',</span> <span class="pre">'numero_contrato',</span> <span class="pre">'numeros_cronogramas',</span> <span class="pre">'nomes_produtos',</span> <span class="pre">'criado_em')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta.fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta.model">
+<span class="sig-name descname"><span class="pre">model</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta.model" title="Link to this definition"></a></dt>
+<dd><p>alias of <a class="reference internal" href="models.html#src.pos_recebimento.models.TermoRecebimentoDefinitivo" title="src.pos_recebimento.models.TermoRecebimentoDefinitivo"><code class="xref py py-class docutils literal notranslate"><span class="pre">TermoRecebimentoDefinitivo</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta.read_only_fields">
+<span class="sig-name descname"><span class="pre">read_only_fields</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('uuid',</span> <span class="pre">'empresa',</span> <span class="pre">'razao_social',</span> <span class="pre">'numero_contrato',</span> <span class="pre">'numeros_cronogramas',</span> <span class="pre">'nomes_produtos',</span> <span class="pre">'criado_em')</span></span><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta.read_only_fields" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_criado_em">
+<span class="sig-name descname"><span class="pre">get_criado_em</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_criado_em"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_criado_em" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_nomes_produtos">
+<span class="sig-name descname"><span class="pre">get_nomes_produtos</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_nomes_produtos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_nomes_produtos" title="Link to this definition"></a></dt>
+<dd><p>Nomes dos produtos dos cronogramas do termo, sem duplicidades.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_numeros_cronogramas">
+<span class="sig-name descname"><span class="pre">get_numeros_cronogramas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/src/pos_recebimento/api/serializers/serializers.html#TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_numeros_cronogramas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_numeros_cronogramas" title="Link to this definition"></a></dt>
+<dd><p>Números dos cronogramas vinculados ao termo.</p>
 </dd></dl>
 
 </dd></dl>

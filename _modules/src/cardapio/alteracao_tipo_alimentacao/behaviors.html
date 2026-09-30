@@ -872,7 +872,7 @@
     <span class="n">AlteracoesCardapioDoMesCorrenteManager</span><span class="p">,</span>
     <span class="n">AlteracoesCardapioVencidaManager</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MODEL_ESCOLA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsCaminhoModelos</span>
 
 
 <div class="viewcode-block" id="EhAlteracaoCardapio">
@@ -903,7 +903,10 @@
     <span class="n">do_mes_corrente</span> <span class="o">=</span> <span class="n">AlteracoesCardapioDoMesCorrenteManager</span><span class="p">()</span>
 
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">"MotivoAlteracaoCardapio"</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span>

@@ -870,6 +870,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.suspensao_alimentacao_cei.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">SuspensaoAlimentacaoDaCEI</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsSearchHelpText</span>
 
 
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEIModelAdmin">
@@ -894,7 +895,9 @@
         <span class="s2">"get_periodos_escolares"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">search_fields</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"uuid"</span><span class="p">,</span> <span class="s2">"escola__nome"</span><span class="p">,</span> <span class="s2">"escola__codigo_eol"</span><span class="p">)</span>
-    <span class="n">search_help_text</span> <span class="o">=</span> <span class="s2">"Pesquisar por: UUID, nome da escola, código EOL da escola"</span>
+    <span class="n">search_help_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">StringsSearchHelpText</span><span class="o">.</span><span class="n">PESQUISAR_POR_UUID_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_2</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s2">"data"</span><span class="p">,</span> <span class="n">DateRangeFilter</span><span class="p">),</span>
         <span class="s2">"escola__lote"</span><span class="p">,</span>

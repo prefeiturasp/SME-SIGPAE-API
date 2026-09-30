@@ -1104,7 +1104,9 @@
             <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">destroy</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="s2">"Você só pode excluir quando o status for RASCUNHO."</span><span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">"detail"</span><span class="p">:</span> <span class="n">constants</span><span class="o">.</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">EXCLUSAO_SOMENTE_RASCUNHO</span><span class="o">.</span><span class="n">value</span>
+                <span class="p">},</span>
                 <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_403_FORBIDDEN</span><span class="p">,</span>
             <span class="p">)</span></div>
 

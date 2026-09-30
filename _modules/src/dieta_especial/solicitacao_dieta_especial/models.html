@@ -885,7 +885,6 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.core.validators</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaxLengthValidator</span><span class="p">,</span> <span class="n">MinLengthValidator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Q</span><span class="p">,</span> <span class="n">QuerySet</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Ativavel</span><span class="p">,</span>
@@ -900,8 +899,9 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span>
-    <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
     <span class="n">MODULO_DIETA_ESPECIAL</span><span class="p">,</span>
+    <span class="n">StringsCaminhoModelos</span><span class="p">,</span>
+    <span class="n">StringsVerboseNameModels</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoDietaEspecialPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
@@ -1040,6 +1040,16 @@
 <span class="sd">      adicional. Ex.: troca peixe por carne.</span>
 <span class="sd">    """</span>
 
+    <span class="n">TIPO_A</span> <span class="o">=</span> <span class="s2">"Tipo A"</span>
+    <span class="n">TIPO_A_ENTERAL</span> <span class="o">=</span> <span class="s2">"Tipo A ENTERAL"</span>
+    <span class="n">TIPO_A_RESTRICAO_AMINOACIDOS</span> <span class="o">=</span> <span class="s2">"Tipo A RESTRIÇÃO DE AMINOÁCIDOS"</span>
+    <span class="n">TIPO_B</span> <span class="o">=</span> <span class="s2">"Tipo B"</span>
+    <span class="n">TIPO_C</span> <span class="o">=</span> <span class="s2">"Tipo C"</span>
+
+    <span class="n">CLASSIFICACAO_CONTEM_ENTERAL</span> <span class="o">=</span> <span class="s2">"Enteral"</span>
+    <span class="n">CLASSIFICACAO_CONTEM_AMINOACIDOS</span> <span class="o">=</span> <span class="s2">"Aminoácidos"</span>
+    <span class="n">CLASSIFICACAO_CONTEM_TIPO_A</span> <span class="o">=</span> <span class="s2">"Tipo A"</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Retorna o nome da classificação de dieta."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nome</span></div>
@@ -1049,7 +1059,6 @@
 <div class="viewcode-block" id="SolicitacaoDietaEspecial">
 <a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SolicitacaoDietaEspecial</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"dieta_especial"</span><span class="p">),</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">CriadoEm</span><span class="p">,</span>
     <span class="n">CriadoPor</span><span class="p">,</span>
@@ -1090,36 +1099,40 @@
     <span class="p">]</span>
 
     <span class="n">aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.Aluno"</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ALUNO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"dietas_especiais"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">nome_completo_pescritor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nome completo do pescritor da receita"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NOME_COMPLETO_DO_PESCRITOR_DA_RECEITA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">registro_funcional_pescritor</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Registro funcional do pescritor da receita"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">REGISTRO_FUNCIONAL_DO_PESCRITOR_DA_RECEITA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s2">"CRN/CRM/CRFa..."</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">MaxLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">registro_funcional_nutricionista</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Registro funcional do nutricionista"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">REGISTRO_FUNCIONAL_DO_NUTRICIONISTA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s2">"CRN/CRM/CRFa..."</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span>
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="c1"># Preenchido pela Escola</span>
-    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">"Observações"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">OBSERVACOES</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="c1"># Preenchido pela_ CODAE ao autorizar a dieta</span>
-    <span class="n">informacoes_adicionais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">"Informações Adicionais"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">informacoes_adicionais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">INFORMACOES_ADICIONAIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="n">protocolo_padrao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">"ProtocoloPadraoDietaEspecial"</span><span class="p">,</span>
@@ -1129,10 +1142,14 @@
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">"Nome do Protocolo"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">nome_protocolo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NOME_DO_PROTOCOLO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="c1"># Preenchido pela NutriCODAE ao autorizar a dieta</span>
-    <span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">"Orientações Gerais"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">orientacoes_gerais</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">ORIENTACOES_GERAIS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="c1"># TODO: Confirmar se PROTECT é a melhor escolha para o campos abaixo</span>
     <span class="n">classificacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -1155,7 +1172,10 @@
     <span class="p">)</span>
 
     <span class="n">escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">dieta_alterada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
@@ -1170,18 +1190,24 @@
         <span class="n">default</span><span class="o">=</span><span class="s2">"COMUM"</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">observacoes_alteracao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">"Observações Alteração"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="n">caracteristicas_do_alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
-        <span class="s2">"Características dos alimentos"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="n">observacoes_alteracao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">OBSERVACOES_ALTERACAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
 
-    <span class="n">conferido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">"Marcar como conferido?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">caracteristicas_do_alimento</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">CARACTERISTICAS_DOS_ALIMENTOS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
-    <span class="n">eh_importado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="s2">"Proveniente de importacao?"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">conferido</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">MARCAR_COMO_CONFERIDO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+    <span class="n">eh_importado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">PROVENIENTE_DE_IMPORTACAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
 
     <span class="n">dieta_para_recreio_ferias</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span>
-        <span class="s2">"Dieta para Recreio nas Férias"</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DIETA_PARA_RECREIO_NAS_FERIAS</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span>
 
     <span class="nd">@classmethod</span>
@@ -1616,7 +1642,7 @@
 
 <div class="viewcode-block" id="Anexo">
 <a class="viewcode-back" href="../../../../dieta_especial/solicitacao_dieta_especial/models.html#src.dieta_especial.solicitacao_dieta_especial.models.Anexo">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Anexo</span><span class="p">(</span><span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"anexo"</span><span class="p">),</span> <span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Anexo</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Anexo (arquivo) vinculado a uma solicitação de dieta especial.</span>
 
 <span class="sd">    Attributes:</span>

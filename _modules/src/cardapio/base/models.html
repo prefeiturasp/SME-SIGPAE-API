@@ -865,7 +865,6 @@
              
   <h1>Source code for src.cardapio.base.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">Ativavel</span><span class="p">,</span>
@@ -873,14 +872,15 @@
     <span class="n">Posicao</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MODEL_ESCOLA</span><span class="p">,</span> <span class="n">TIPOS_ALIMENTACAO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TIPOS_ALIMENTACAO</span><span class="p">,</span>
+    <span class="n">StringsCaminhoModelos</span><span class="p">,</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="TipoAlimentacao">
 <a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.TipoAlimentacao">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacao</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"tipo_alimentacao"</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">Posicao</span>
-<span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TipoAlimentacao</span><span class="p">(</span><span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">Posicao</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Representa um tipo de alimentação que pode compor o cardápio escolar.</span>
 
 <span class="sd">    Os registros deste modelo são reutilizados em vínculos com período escolar,</span>
@@ -941,13 +941,22 @@
     <span class="n">hora_inicial</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">hora_final</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TimeField</span><span class="p">(</span><span class="n">auto_now</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">auto_now_add</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">tipo_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"cardapio.TipoAlimentacao"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TIPOALIMENTACAO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.PeriodoEscolar"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_PERIODOESCOLAR</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -958,7 +967,6 @@
 <div class="viewcode-block" id="VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">
 <a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"vinculo_alimentacao_periodo_escolar_tipo_ue"</span><span class="p">),</span>
     <span class="n">Ativavel</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
 <span class="p">):</span>
@@ -977,7 +985,9 @@
         <span class="s2">"escola.TipoUnidadeEscolar"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
     <span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.PeriodoEscolar"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_PERIODOESCOLAR</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">tipos_alimentacao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
         <span class="s2">"TipoAlimentacao"</span><span class="p">,</span> <span class="n">related_name</span><span class="o">=</span><span class="s2">"vinculos"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
@@ -995,9 +1005,7 @@
 
 <div class="viewcode-block" id="MotivoDRENaoValida">
 <a class="viewcode-back" href="../../../../cardapio/base.html#src.cardapio.base.models.MotivoDRENaoValida">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MotivoDRENaoValida</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"motivo_dre_nao_valida"</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
-<span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoDRENaoValida</span><span class="p">(</span><span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Armazena motivos usados pela DRE para não validar uma solicitação no módulo de Gestão de Alimentação.</span>
 
 <span class="sd">    Os registros deste modelo são exibidos quando uma solicitação que passa</span>

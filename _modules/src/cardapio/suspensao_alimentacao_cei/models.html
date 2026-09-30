@@ -865,7 +865,6 @@
              
   <h1>Source code for src.cardapio.suspensao_alimentacao_cei.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.suspensao_alimentacao.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">MotivoSuspensao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.behaviors</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -881,7 +880,8 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI</span><span class="p">,</span>
-    <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+    <span class="n">StringsCaminhoModelos</span><span class="p">,</span>
+    <span class="n">StringsVerboseNameModels</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoInformativoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
@@ -891,7 +891,6 @@
 <div class="viewcode-block" id="SuspensaoAlimentacaoDaCEI">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao_cei.html#src.cardapio.suspensao_alimentacao_cei.models.SuspensaoAlimentacaoDaCEI">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacaoDaCEI</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"suspensao_alimentacao_de_cei"</span><span class="p">),</span>
     <span class="n">TemData</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">CriadoPor</span><span class="p">,</span>
@@ -914,11 +913,15 @@
 <span class="sd">    """</span>
 
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="n">DESCRICAO_SUSPENSAO_ALIMENTACAO_CEI</span>
-    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MODEL_ESCOLA</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+    <span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MotivoSuspensao</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
-    <span class="n">outro_motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">"Outro motivo"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="n">outro_motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">OUTRO_MOTIVO_2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span>
+    <span class="p">)</span>
     <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
-        <span class="s2">"escola.PeriodoEscolar"</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_PERIODOESCOLAR</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"</span><span class="si">%(app_label)s</span><span class="s2">_</span><span class="si">%(class)s</span><span class="s2">_periodos"</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s2">"Periodos escolares da suspensão"</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>

@@ -962,9 +962,43 @@
 
 
 
+<div class="viewcode-block" id="FabricanteOpcionalFLVPontoAPontoMixin">
+<a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.viewsets.FabricanteOpcionalFLVPontoAPontoMixin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FabricanteOpcionalFLVPontoAPontoMixin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Torna o bloco Fabricante/Envasador opcional quando FLV + Ponto a Ponto."""</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eh_flv_ponto_a_ponto</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="s2">"fabricante"</span><span class="p">]</span> <span class="o">=</span> <span class="n">FabricanteFichaTecnicaCreateSerializer</span><span class="p">(</span>
+                <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fabricante_opcional</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span>
+                <span class="s2">"envasador_distribuidor"</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="n">FabricanteFichaTecnicaCreateSerializer</span><span class="p">(</span>
+                <span class="n">required</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">allow_null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fabricante_opcional</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_eh_flv_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">initial_data</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"initial_data"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">categoria</span> <span class="o">=</span> <span class="n">initial_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"categoria"</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="s2">"categoria"</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">tipo_entrega</span> <span class="o">=</span> <span class="n">initial_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tipo_entrega"</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">instance</span><span class="p">,</span> <span class="s2">"tipo_entrega"</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">categoria</span> <span class="o">==</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">CATEGORIA_FLV</span>
+            <span class="ow">and</span> <span class="n">tipo_entrega</span> <span class="o">==</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">PONTO_A_PONTO</span>
+        <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="FichaTecnicaRascunhoSerializer">
 <a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.viewsets.FichaTecnicaRascunhoSerializer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaRascunhoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaRascunhoSerializer</span><span class="p">(</span>
+    <span class="n">FabricanteOpcionalFLVPontoAPontoMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
     <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">"uuid"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1127,7 +1161,9 @@
 
 <div class="viewcode-block" id="FichaTecnicaCreateSerializer">
 <a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.viewsets.FichaTecnicaCreateSerializer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaCreateSerializer</span><span class="p">(</span>
+    <span class="n">FabricanteOpcionalFLVPontoAPontoMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
     <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">"uuid"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1311,7 +1347,9 @@
 
 <div class="viewcode-block" id="FichaTecnicaFLVCreateSerializer">
 <a class="viewcode-back" href="../../../../../../pre_recebimento/ficha_tecnica/api.html#src.pre_recebimento.ficha_tecnica.api.viewsets.FichaTecnicaFLVCreateSerializer">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaFLVCreateSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FichaTecnicaFLVCreateSerializer</span><span class="p">(</span>
+    <span class="n">FabricanteOpcionalFLVPontoAPontoMixin</span><span class="p">,</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span>
+<span class="p">):</span>
     <span class="n">produto</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SlugRelatedField</span><span class="p">(</span>
         <span class="n">slug_field</span><span class="o">=</span><span class="s2">"uuid"</span><span class="p">,</span>
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1588,6 +1626,8 @@
                 <span class="s2">"embalagem_e_rotulagem_conferido"</span><span class="p">,</span>
                 <span class="s2">"modo_preparo_conferido"</span><span class="p">,</span>
             <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">exibir_bloco_fabricante</span><span class="p">:</span>
+                <span class="n">campos_inexistentes_flv</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"fabricante_envasador_conferido"</span><span class="p">)</span>
             <span class="k">for</span> <span class="n">campo</span> <span class="ow">in</span> <span class="n">campos_inexistentes_flv</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="n">campo</span><span class="p">]</span><span class="o">.</span><span class="n">allow_null</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1620,6 +1660,8 @@
                 <span class="s2">"embalagem_e_rotulagem"</span><span class="p">,</span>
                 <span class="s2">"modo_preparo"</span><span class="p">,</span>
             <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">exibir_bloco_fabricante</span><span class="p">:</span>
+                <span class="n">campos_para_remover</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"fabricante_envasador"</span><span class="p">)</span>
             <span class="n">campos_dependentes</span> <span class="o">=</span> <span class="p">[</span>
                 <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">campos_dependentes</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">campos_para_remover</span>
             <span class="p">]</span>

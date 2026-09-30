@@ -871,6 +871,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">transaction</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsValidationErrors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cronograma</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_semanal.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CronogramaSemanal</span><span class="p">,</span>
@@ -927,7 +928,7 @@
         <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">error_messages</span><span class="o">=</span><span class="p">{</span>
             <span class="s2">"does_not_exist"</span><span class="p">:</span> <span class="s2">"Cronograma mensal não encontrado."</span><span class="p">,</span>
-            <span class="s2">"required"</span><span class="p">:</span> <span class="s2">"Este campo é obrigatório."</span><span class="p">,</span>
+            <span class="s2">"required"</span><span class="p">:</span> <span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">CAMPO_OBRIGATORIO_PONTO_FINAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="p">},</span>
     <span class="p">)</span>
     <span class="n">observacoes</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>

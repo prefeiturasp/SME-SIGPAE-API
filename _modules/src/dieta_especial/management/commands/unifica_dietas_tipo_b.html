@@ -869,7 +869,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">environ</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.core.management</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseCommand</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DIETA_ESPECIAL_TIPO_B</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DIETA_ESPECIAL_TIPO_B</span><span class="p">,</span>
+    <span class="n">ClassificacoesDietasDeprecadas</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.logs_models.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LogQuantidadeDietasAutorizadas</span><span class="p">,</span>
     <span class="n">LogQuantidadeDietasAutorizadasCEI</span><span class="p">,</span>
@@ -898,10 +901,10 @@
         <span class="n">classificacoes_existem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">checa_se_classificacoes_exitem</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">classificacoes_existem</span><span class="p">:</span>
             <span class="n">classificacao_tipo_b_lanche</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE"</span>
+                <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE</span><span class="o">.</span><span class="n">value</span>
             <span class="p">)</span>
             <span class="n">classificacao_tipo_b_lanche_refeicao</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE e REFEIÇÃO"</span>
+                <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE_REFEICAO</span><span class="o">.</span><span class="n">value</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unifica_fks_classificacao_tipo_b</span><span class="p">(</span>
                 <span class="n">classificacao_tipo_b_lanche</span><span class="p">,</span> <span class="n">classificacao_tipo_b_lanche_refeicao</span>
@@ -920,17 +923,21 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">SUCCESS</span><span class="p">(</span><span class="s2">"Checa se classificações existem"</span><span class="p">))</span>
         <span class="n">classificacoes_existem</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-            <span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE e REFEIÇÃO"</span>
+            <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE_REFEICAO</span><span class="o">.</span><span class="n">value</span>
         <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">ERROR</span><span class="p">(</span>
-                    <span class="s2">"Classificação `Tipo B - LANCHE e REFEIÇÃO` não encontrada"</span>
+                    <span class="sa">f</span><span class="s2">"Classificação `</span><span class="si">{</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE_REFEICAO</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">` não encontrada"</span>
                 <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">classificacoes_existem</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">ERROR</span><span class="p">(</span><span class="s2">"Classificação `Tipo B - LANCHE` não encontrada"</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">ERROR</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Classificação `</span><span class="si">{</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">` não encontrada"</span>
+                <span class="p">)</span>
             <span class="p">)</span>
             <span class="n">classificacoes_existem</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">return</span> <span class="n">classificacoes_existem</span></div>
@@ -993,9 +1000,11 @@
 <div class="viewcode-block" id="Command.atualizar_quantidades_log_escolas_gerais">
 <a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_gerais">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">atualizar_quantidades_log_escolas_gerais</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">classificacao_lanche</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE"</span><span class="p">)</span>
+        <span class="n">classificacao_lanche</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span>
         <span class="n">classificacao_lanche_refeicao</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE e REFEIÇÃO"</span>
+            <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE_REFEICAO</span><span class="o">.</span><span class="n">value</span>
         <span class="p">)</span>
         <span class="n">key_fields</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">"escola_id"</span><span class="p">,</span>
@@ -1015,9 +1024,11 @@
 <div class="viewcode-block" id="Command.atualizar_quantidades_log_escolas_cei">
 <a class="viewcode-back" href="../../../../../dieta_especial/management/commands.html#src.dieta_especial.management.commands.unifica_dietas_tipo_b.Command.atualizar_quantidades_log_escolas_cei">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">atualizar_quantidades_log_escolas_cei</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">classificacao_lanche</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE"</span><span class="p">)</span>
+        <span class="n">classificacao_lanche</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span>
         <span class="n">classificacao_lanche_refeicao</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-            <span class="n">nome</span><span class="o">=</span><span class="s2">"Tipo B - LANCHE e REFEIÇÃO"</span>
+            <span class="n">nome</span><span class="o">=</span><span class="n">ClassificacoesDietasDeprecadas</span><span class="o">.</span><span class="n">TIPO_B_LANCHE_REFEICAO</span><span class="o">.</span><span class="n">value</span>
         <span class="p">)</span>
         <span class="n">key_fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"escola_id"</span><span class="p">,</span> <span class="s2">"periodo_escolar_id"</span><span class="p">,</span> <span class="s2">"faixa_etaria_id"</span><span class="p">,</span> <span class="s2">"data"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">atualizar_quantidades_log</span><span class="p">(</span>
@@ -1038,7 +1049,7 @@
                 <span class="s2">"Renomeia classificação para Tipo B e exclui a classificação extra"</span>
             <span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">classificacao_tipo_b_lanche</span><span class="o">.</span><span class="n">nome</span> <span class="o">=</span> <span class="s2">"Tipo B"</span>
+        <span class="n">classificacao_tipo_b_lanche</span><span class="o">.</span><span class="n">nome</span> <span class="o">=</span> <span class="n">ClassificacaoDieta</span><span class="o">.</span><span class="n">TIPO_B</span>
         <span class="n">classificacao_tipo_b_lanche</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
         <span class="n">classificacao_tipo_b_lanche_refeicao</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span></div>
 

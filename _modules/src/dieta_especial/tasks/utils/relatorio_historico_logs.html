@@ -876,6 +876,7 @@
     <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span>
     <span class="n">TIPO_UNIDADE_CEI_DIRET</span><span class="p">,</span>
     <span class="n">TIPOS_UNIDADE_ESCOLAR</span><span class="p">,</span>
+    <span class="n">PayloadVariaveis</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiretoriaRegional</span><span class="p">,</span> <span class="n">PeriodoEscolar</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">faixa_to_string</span>
@@ -1002,7 +1003,9 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">titulo</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"para as unidades da DRE </span><span class="si">{</span><span class="n">dre_nome</span><span class="si">}</span><span class="s2">"</span>
 
-    <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">querydict_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"periodos_escolares_selecionadas[]"</span><span class="p">)</span>
+    <span class="n">periodos_escolares</span> <span class="o">=</span> <span class="n">querydict_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+        <span class="n">PayloadVariaveis</span><span class="o">.</span><span class="n">PERIODOS_ESCOLARES_SELECIONADAS</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="n">periodos_escolares</span><span class="p">:</span>
         <span class="n">nomes_periodos</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
             <span class="n">nome</span>

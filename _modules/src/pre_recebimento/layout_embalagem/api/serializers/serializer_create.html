@@ -869,6 +869,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">xworkflows.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidTransitionError</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsValidationErrors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">convert_base64_to_contentfile</span><span class="p">,</span>
 <span class="p">)</span>
@@ -917,7 +918,7 @@
                     <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
                         <span class="p">{</span>
                             <span class="sa">f</span><span class="s2">"Layout Embalagem </span><span class="si">{</span><span class="n">tipo_embalagem</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="p">[</span>
-                                <span class="s2">"Este campo é obrigatório."</span>
+                                <span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">CAMPO_OBRIGATORIO_PONTO_FINAL</span><span class="o">.</span><span class="n">value</span>
                             <span class="p">]</span>
                         <span class="p">}</span>
                     <span class="p">)</span>

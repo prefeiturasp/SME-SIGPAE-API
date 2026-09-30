@@ -866,7 +866,6 @@
   <h1>Source code for src.cardapio.suspensao_alimentacao.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">models</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sum</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django_prometheus.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportModelOperationsMixin</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.base.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">TipoAlimentacao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.suspensao_alimentacao.managers.suspensao_alimentacao_managers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -886,7 +885,11 @@
     <span class="n">TemPrioridade</span><span class="p">,</span>
     <span class="n">TemTerceirizadaConferiuGestaoAlimentacao</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span> <span class="n">MODEL_ESCOLA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span>
+    <span class="n">StringsCaminhoModelos</span><span class="p">,</span>
+    <span class="n">StringsVerboseNameModels</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoInformativoPartindoDaEscola</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogSolicitacoesUsuario</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch_docs</span>
@@ -894,9 +897,7 @@
 
 <div class="viewcode-block" id="MotivoSuspensao">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.MotivoSuspensao">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensao</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"motivo_suspensao"</span><span class="p">),</span> <span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span>
-<span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MotivoSuspensao</span><span class="p">(</span><span class="n">Nomeavel</span><span class="p">,</span> <span class="n">TemChaveExterna</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Motivo de Suspensão de um dia letivo em uma unidade educacional.</span>
 
 <span class="sd">    Exemplos:</span>
@@ -922,7 +923,6 @@
 <div class="viewcode-block" id="SuspensaoAlimentacao">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.SuspensaoAlimentacao">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SuspensaoAlimentacao</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"suspensao_alimentacao"</span><span class="p">),</span>
     <span class="n">TemData</span><span class="p">,</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">CanceladoIndividualmente</span><span class="p">,</span>
@@ -936,7 +936,9 @@
 
     <span class="n">prioritario</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BooleanField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MotivoSuspensao</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
-    <span class="n">outro_motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="s2">"Outro motivo"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+    <span class="n">outro_motivo</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">OUTRO_MOTIVO_2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">500</span>
+    <span class="p">)</span>
     <span class="n">grupo_suspensao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">"GrupoSuspensaoAlimentacao"</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
@@ -961,9 +963,7 @@
 
 <div class="viewcode-block" id="QuantidadePorPeriodoSuspensaoAlimentacao">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.QuantidadePorPeriodoSuspensaoAlimentacao">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"quantidade_periodo"</span><span class="p">),</span> <span class="n">TemChaveExterna</span>
-<span class="p">):</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantidadePorPeriodoSuspensaoAlimentacao</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Tabela auxiliar de uma Solicitação de Suspensão de Alimentação.</span>
 
 <span class="sd">    Uma Solicitação de Suspensão de Alimentação pode ter N períodos escolares.</span>
@@ -983,7 +983,7 @@
     <span class="p">]</span>
     <span class="n">numero_alunos</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">SmallIntegerField</span><span class="p">()</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.PeriodoEscolar"</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_PERIODOESCOLAR</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
     <span class="p">)</span>
     <span class="n">grupo_suspensao</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
         <span class="s2">"GrupoSuspensaoAlimentacao"</span><span class="p">,</span>
@@ -1014,7 +1014,6 @@
 <div class="viewcode-block" id="GrupoSuspensaoAlimentacao">
 <a class="viewcode-back" href="../../../../cardapio/suspensao_alimentacao.html#src.cardapio.suspensao_alimentacao.admin.GrupoSuspensaoAlimentacao">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">GrupoSuspensaoAlimentacao</span><span class="p">(</span>
-    <span class="n">ExportModelOperationsMixin</span><span class="p">(</span><span class="s2">"grupo_suspensao_alimentacao"</span><span class="p">),</span>
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">CriadoPor</span><span class="p">,</span>
     <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
@@ -1035,7 +1034,9 @@
 <span class="sd">    """</span>
 
     <span class="n">DESCRICAO</span> <span class="o">=</span> <span class="s2">"Suspensão de Alimentação"</span>
-    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">MODEL_ESCOLA</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">)</span>
+    <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+    <span class="p">)</span>
     <span class="n">objects</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Manager</span><span class="p">()</span>  <span class="c1"># Manager Padrão</span>
     <span class="n">desta_semana</span> <span class="o">=</span> <span class="n">GrupoSuspensaoAlimentacaoDestaSemanaManager</span><span class="p">()</span>
     <span class="n">deste_mes</span> <span class="o">=</span> <span class="n">GrupoSuspensaoAlimentacaoDesteMesManager</span><span class="p">()</span>

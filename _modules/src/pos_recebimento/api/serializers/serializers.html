@@ -973,6 +973,71 @@
 
 
 
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoPainelAssinaturaSerializer">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TermoRecebimentoDefinitivoPainelAssinaturaSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Termo no painel de assinaturas do fiscal."""</span>
+
+    <span class="n">empresa</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">"empresa.nome_fantasia"</span><span class="p">,</span>
+        <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">razao_social</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">"empresa.razao_social"</span><span class="p">,</span>
+        <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">numero_contrato</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
+        <span class="n">source</span><span class="o">=</span><span class="s2">"contrato.numero"</span><span class="p">,</span>
+        <span class="n">read_only</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">numeros_cronogramas</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">nomes_produtos</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+    <span class="n">criado_em</span> <span class="o">=</span> <span class="n">serializers</span><span class="o">.</span><span class="n">SerializerMethodField</span><span class="p">()</span>
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_numeros_cronogramas">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_numeros_cronogramas">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_numeros_cronogramas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Números dos cronogramas vinculados ao termo."""</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">cronograma</span><span class="o">.</span><span class="n">numero</span> <span class="k">for</span> <span class="n">cronograma</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronogramas</span><span class="o">.</span><span class="n">all</span><span class="p">()]</span></div>
+
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_nomes_produtos">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_nomes_produtos">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_nomes_produtos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Nomes dos produtos dos cronogramas do termo, sem duplicidades."""</span>
+        <span class="n">produtos</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cronograma</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">cronogramas</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="n">ficha_tecnica</span> <span class="o">=</span> <span class="n">cronograma</span><span class="o">.</span><span class="n">ficha_tecnica</span>
+            <span class="n">nome</span> <span class="o">=</span> <span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">produto</span><span class="o">.</span><span class="n">nome</span> <span class="k">if</span> <span class="n">ficha_tecnica</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">nome</span> <span class="ow">and</span> <span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">produtos</span><span class="p">:</span>
+                <span class="n">produtos</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">nome</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">produtos</span></div>
+
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_criado_em">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.get_criado_em">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_criado_em</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">criado_em</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta">
+<a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoPainelAssinaturaSerializer.Meta">[docs]</a>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="n">TermoRecebimentoDefinitivo</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">"uuid"</span><span class="p">,</span>
+            <span class="s2">"empresa"</span><span class="p">,</span>
+            <span class="s2">"razao_social"</span><span class="p">,</span>
+            <span class="s2">"numero_contrato"</span><span class="p">,</span>
+            <span class="s2">"numeros_cronogramas"</span><span class="p">,</span>
+            <span class="s2">"nomes_produtos"</span><span class="p">,</span>
+            <span class="s2">"criado_em"</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">read_only_fields</span> <span class="o">=</span> <span class="n">fields</span></div>
+</div>
+
+
+
 <div class="viewcode-block" id="TermoRecebimentoDefinitivoSerializer">
 <a class="viewcode-back" href="../../../../../pos_recebimento/api.html#src.pos_recebimento.api.serializers.serializers.TermoRecebimentoDefinitivoSerializer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TermoRecebimentoDefinitivoSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>

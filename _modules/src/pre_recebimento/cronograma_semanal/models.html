@@ -877,6 +877,7 @@
     <span class="n">ModeloBase</span><span class="p">,</span>
     <span class="n">TemIdentificadorExternoAmigavel</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsVerboseNameModels</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxoCronogramaSemanal</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.cronograma_entrega.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cronograma</span>
 
@@ -892,7 +893,7 @@
 <span class="sd">    """</span>
 
     <span class="n">numero</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Número do Cronograma Semanal"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NUMERO_DO_CRONOGRAMA_SEMANAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
@@ -902,9 +903,11 @@
         <span class="n">Cronograma</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">PROTECT</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"cronogramas_semanais"</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Cronograma Mensal"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">CRONOGRAMA_MENSAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span><span class="s2">"Observações"</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">observacoes</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">TextField</span><span class="p">(</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">OBSERVACOES</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Retorna a representação textual do cronograma semanal."""</span>
@@ -931,16 +934,16 @@
         <span class="n">CronogramaSemanal</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"programacoes"</span><span class="p">,</span>
-        <span class="n">verbose_name</span><span class="o">=</span><span class="s2">"Cronograma Semanal"</span><span class="p">,</span>
+        <span class="n">verbose_name</span><span class="o">=</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">CRONOGRAMA_SEMANAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">mes_programado</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Mês Programado"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">MES_PROGRAMADO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
         <span class="n">help_text</span><span class="o">=</span><span class="s2">"Formato MM/YYYY"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">data_inicio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">"Data Início"</span><span class="p">)</span>
-    <span class="n">data_fim</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="s2">"Data Fim"</span><span class="p">)</span>
-    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="s2">"Quantidade da Entrega"</span><span class="p">)</span>
+    <span class="n">data_inicio</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DATA_INICIO</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">data_fim</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">(</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">DATA_FIM</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+    <span class="n">quantidade</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">(</span><span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">QUANTIDADE_DA_ENTREGA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Retorna a representação textual da programação de entrega."""</span>

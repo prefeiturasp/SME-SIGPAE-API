@@ -872,7 +872,11 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span>
     <span class="n">TemData</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span> <span class="n">MODEL_ESCOLA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span>
+    <span class="n">StringsCaminhoModelos</span><span class="p">,</span>
+    <span class="n">StringsVerboseNameModels</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CEI_OU_EMEI</span><span class="p">,</span> <span class="n">INFANTIL_OU_FUNDAMENTAL</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.escola.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Escola</span>
 
@@ -886,34 +890,43 @@
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"dietas_especiais"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">codigo_eol_aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>  <span class="c1"># noqa DJ01</span>
-        <span class="s2">"Código EOL aluno"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">CODIGO_EOL_ALUNO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">7</span><span class="p">)],</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">nome_aluno</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nome do Aluno"</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NOME_DO_ALUNO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">codigo_eol_escola_origem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Código EOL escola origem"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">CODIGO_EOL_ESCOLA_ORIGEM</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">nome_escola_origem</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nome da Escola origem"</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NOME_DA_ESCOLA_ORIGEM</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">codigo_eol_escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Código EOL escola destino"</span><span class="p">,</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">CODIGO_EOL_ESCOLA_DESTINO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">max_length</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
         <span class="n">validators</span><span class="o">=</span><span class="p">[</span><span class="n">MinLengthValidator</span><span class="p">(</span><span class="mi">6</span><span class="p">)],</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">nome_escola_destino</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span>
-        <span class="s2">"Nome da Escola destino"</span><span class="p">,</span> <span class="n">max_length</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">blank</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">StringsVerboseNameModels</span><span class="o">.</span><span class="n">NOME_DA_ESCOLA_DESTINO</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">max_length</span><span class="o">=</span><span class="mi">160</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
@@ -939,7 +952,7 @@
 <a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadas">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LogQuantidadeDietasAutorizadas</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span><span class="p">):</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas"</span><span class="p">,</span>
     <span class="p">)</span>
@@ -950,7 +963,7 @@
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.PeriodoEscolar"</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_PERIODOESCOLAR</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span>
@@ -981,7 +994,7 @@
 <a class="viewcode-back" href="../../../../dieta_especial/logs_models/models.html#src.dieta_especial.logs_models.models.LogQuantidadeDietasAutorizadasCEI">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LogQuantidadeDietasAutorizadasCEI</span><span class="p">(</span><span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span><span class="p">):</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_cei"</span><span class="p">,</span>
     <span class="p">)</span>
@@ -992,12 +1005,14 @@
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_cei"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">periodo_escolar</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.PeriodoEscolar"</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_PERIODOESCOLAR</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_cei"</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.FaixaEtaria"</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_FAIXAETARIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -1021,7 +1036,7 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span>
 <span class="p">):</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_recreio_ferias"</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1051,7 +1066,7 @@
     <span class="n">TemChaveExterna</span><span class="p">,</span> <span class="n">TemData</span><span class="p">,</span> <span class="n">CriadoEm</span>
 <span class="p">):</span>
     <span class="n">escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">CASCADE</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_recreio_ferias_cei"</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1062,7 +1077,7 @@
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_recreio_ferias_cei"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">faixa_etaria</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="s2">"escola.FaixaEtaria"</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_FAIXAETARIA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="s2">"logs_dietas_autorizadas_recreio_ferias_cei"</span><span class="p">,</span>

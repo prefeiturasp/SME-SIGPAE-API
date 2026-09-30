@@ -898,11 +898,6 @@
     <span class="n">ESCOLA_CANCELOU_LABEL</span><span class="p">,</span>
     <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span>
     <span class="n">FORMATO_DATA_HORA_BRASILEIRO</span><span class="p">,</span>
-    <span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">,</span>
-    <span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="p">,</span>
-    <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
-    <span class="n">MODEL_LOTE</span><span class="p">,</span>
-    <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
     <span class="n">MODULO_DIETA_ESPECIAL</span><span class="p">,</span>
     <span class="n">MODULO_GESTAO_ALIMENTACAO</span><span class="p">,</span>
     <span class="n">MODULO_GESTAO_PRODUTO</span><span class="p">,</span>
@@ -914,6 +909,8 @@
     <span class="n">TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR</span><span class="p">,</span>
     <span class="n">TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA</span><span class="p">,</span>
     <span class="n">TIPOS_ALIMENTACAO</span><span class="p">,</span>
+    <span class="n">StringsCaminhoModelos</span><span class="p">,</span>
+    <span class="n">StringsValidationErrors</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnexoLogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">LogSolicitacoesUsuario</span><span class="p">,</span> <span class="n">Notificacao</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">EmailENotificacaoService</span><span class="p">,</span> <span class="n">PartesInteressadasService</span>
@@ -2540,7 +2537,7 @@
     <span class="n">DIAS_PARA_CANCELAR</span> <span class="o">=</span> <span class="mi">2</span>
 
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TERCEIRIZADA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3104,7 +3101,7 @@
     <span class="n">DIAS_UTEIS_PARA_CANCELAR</span> <span class="o">=</span> <span class="mi">2</span>
 
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3112,7 +3109,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_dre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="n">RELATED_NAME_RASTRO_DRE</span><span class="p">,</span>
@@ -3120,7 +3117,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_LOTE</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_LOTE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3128,7 +3125,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TERCEIRIZADA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3541,13 +3538,13 @@
     <span class="n">DIAS_UTEIS_PARA_CANCELAR</span> <span class="o">=</span> <span class="mi">2</span>
 
     <span class="n">rastro_escolas</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ManyToManyField</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="n">RELATED_NAME_RASTRO_ESCOLA</span><span class="p">,</span>
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_dre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="n">RELATED_NAME_RASTRO_DRE</span><span class="p">,</span>
@@ -3555,7 +3552,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_LOTE</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_LOTE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3563,7 +3560,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TERCEIRIZADA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3840,7 +3837,7 @@
     <span class="n">DIAS_UTEIS_PARA_CANCELAR</span> <span class="o">=</span> <span class="mi">2</span>
 
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3848,7 +3845,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_dre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="n">RELATED_NAME_RASTRO_DRE</span><span class="p">,</span>
@@ -3856,7 +3853,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_LOTE</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_LOTE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -3864,7 +3861,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TERCEIRIZADA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -4008,7 +4005,7 @@
     <span class="n">status</span> <span class="o">=</span> <span class="n">xwf_models</span><span class="o">.</span><span class="n">StateField</span><span class="p">(</span><span class="n">workflow_class</span><span class="p">)</span>
 
     <span class="n">rastro_escola</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_ESCOLA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_ESCOLA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -4016,7 +4013,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_dre</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_DIRETORIA_REGIONAL</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">related_name</span><span class="o">=</span><span class="n">RELATED_NAME_RASTRO_DRE</span><span class="p">,</span>
@@ -4024,7 +4021,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_LOTE</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_LOTE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -4032,7 +4029,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TERCEIRIZADA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -4957,7 +4954,7 @@
     <span class="n">status</span> <span class="o">=</span> <span class="n">xwf_models</span><span class="o">.</span><span class="n">StateField</span><span class="p">(</span><span class="n">workflow_class</span><span class="p">)</span>
 
     <span class="n">rastro_lote</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_LOTE</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_LOTE</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -4965,7 +4962,7 @@
         <span class="n">editable</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">rastro_terceirizada</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span>
-        <span class="n">MODEL_TERCEIRIZADA</span><span class="p">,</span>
+        <span class="n">StringsCaminhoModelos</span><span class="o">.</span><span class="n">MODEL_TERCEIRIZADA</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
         <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">DO_NOTHING</span><span class="p">,</span>
         <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">blank</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -5007,7 +5004,7 @@
             <span class="n">eh_diretor</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">==</span> <span class="n">DIRETOR_UE</span>
             <span class="n">escola_p_fom</span> <span class="o">=</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">eh_diretor</span> <span class="ow">and</span> <span class="n">escola_possui_alunos_regulares</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">escola_p_fom</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="n">log_transicao</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_ENVIADA_PELA_UE</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -5034,7 +5031,7 @@
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">COGESTOR_DRE</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OcorrenciaMedicaoInicial</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Medicao</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">deletar_log_correcao</span><span class="p">(</span>
                     <span class="n">status_evento</span><span class="o">=</span><span class="p">[</span>
@@ -5085,7 +5082,7 @@
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">COGESTOR_DRE</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OcorrenciaMedicaoInicial</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Medicao</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">deletar_log_correcao</span><span class="p">(</span>
                     <span class="n">status_evento</span><span class="o">=</span><span class="p">[</span>
@@ -5132,7 +5129,7 @@
                 <span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">,</span>
                 <span class="n">COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO</span><span class="p">,</span>
             <span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deletar_log_correcao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="p">[</span>
                     <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRECAO_SOLICITADA_CODAE</span><span class="p">,</span>
@@ -5153,7 +5150,7 @@
                 <span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">,</span>
                 <span class="n">COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO</span><span class="p">,</span>
             <span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deletar_log_correcao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="p">[</span>
                     <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRECAO_SOLICITADA_CODAE</span><span class="p">,</span>
@@ -5171,7 +5168,7 @@
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deletar_log_correcao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="p">[</span>
                     <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRECAO_SOLICITADA_CODAE</span><span class="p">,</span>
@@ -5189,7 +5186,7 @@
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deletar_log_correcao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="p">[</span>
                     <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRECAO_SOLICITADA_CODAE</span><span class="p">,</span>
@@ -5208,7 +5205,7 @@
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_APROVADA_PELA_CODAE</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -5240,7 +5237,7 @@
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">]:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRECAO_SOLICITADA_CODAE</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -5281,7 +5278,7 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PELA_UE</span>
 
@@ -5316,7 +5313,7 @@
 
         <span class="k">if</span> <span class="n">user</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OcorrenciaMedicaoInicial</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
 
             <span class="n">status</span> <span class="o">=</span> <span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PARA_CODAE</span>
 
@@ -5339,7 +5336,7 @@
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PARA_CODAE</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -5355,7 +5352,7 @@
                 <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
                 <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PARA_CODAE</span><span class="p">,</span>
                 <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -5377,7 +5374,7 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Medicao</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
                 <span class="s2">"`Medicao` não possui fluxo `ue_envia_sem_lancamentos`"</span>
@@ -5404,7 +5401,7 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">SolicitacaoMedicaoInicial</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span>
                 <span class="s2">"`SolicitacaoMedicaoInicial` não possui fluxo `medicao_sem_lancamentos`"</span>
@@ -5423,7 +5420,7 @@
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
         <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"justificativa"</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">user</span> <span class="ow">or</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">ADMINISTRADOR_MEDICAO</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">MENSAGEM_PERMISSAO_NEGADA</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
             <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE</span><span class="p">,</span>
             <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
@@ -7194,6 +7191,7 @@
             <span class="s2">"numero_cronograma"</span><span class="p">:</span> <span class="n">numero_cronograma</span><span class="p">,</span>
             <span class="s2">"data_evento"</span><span class="p">:</span> <span class="n">data_evento</span><span class="p">,</span>
             <span class="s2">"url_detalhe_cronograma"</span><span class="p">:</span> <span class="n">url_detalhe_cronograma</span><span class="p">,</span>
+            <span class="s2">"nome_produto"</span><span class="p">:</span> <span class="n">nome_produto</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="n">EmailENotificacaoService</span><span class="o">.</span><span class="n">enviar_email</span><span class="p">(</span>

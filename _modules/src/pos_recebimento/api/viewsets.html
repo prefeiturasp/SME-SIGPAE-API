@@ -864,9 +864,10 @@
            <div itemprop="articleBody">
              
   <h1>Source code for src.pos_recebimento.api.viewsets</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prefetch</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Prefetch</span><span class="p">,</span> <span class="n">Q</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">django_filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">rest_framework</span> <span class="k">as</span> <span class="n">filters</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">mixins</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">viewsets</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.api.paginations</span><span class="w"> </span><span class="kn">import</span> <span class="n">DefaultPagination</span>
@@ -881,6 +882,7 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.serializers.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">TermoRecebimentoDefinitivoListagemSerializer</span><span class="p">,</span>
+    <span class="n">TermoRecebimentoDefinitivoPainelAssinaturaSerializer</span><span class="p">,</span>
     <span class="n">TermoRecebimentoDefinitivoSerializer</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.serializers.serializers_create</span><span class="w"> </span><span class="kn">import</span> <span class="n">TermoRecebimentoDefinitivoCreateSerializer</span>
@@ -901,6 +903,8 @@
 <span class="sd">    - ``GET /`` — Lista os termos (paginado, com filtros por produto,</span>
 <span class="sd">      empresa, número de cronograma, status e período de cadastro).</span>
 <span class="sd">    - ``GET /&lt;uuid&gt;/`` — Detalhe do termo.</span>
+<span class="sd">    - ``GET /pendentes-assinatura/`` — Painel do fiscal: termos a assinar.</span>
+<span class="sd">    - ``GET /assinados/`` — Painel do fiscal: termos já assinados.</span>
 <span class="sd">    """</span>
 
     <span class="n">lookup_field</span> <span class="o">=</span> <span class="s2">"uuid"</span>
@@ -910,6 +914,8 @@
     <span class="n">filter_backends</span> <span class="o">=</span> <span class="p">(</span><span class="n">filters</span><span class="o">.</span><span class="n">DjangoFilterBackend</span><span class="p">,)</span>
     <span class="n">filterset_class</span> <span class="o">=</span> <span class="n">TermoRecebimentoDefinitivoFilter</span>
     <span class="n">pagination_class</span> <span class="o">=</span> <span class="n">DefaultPagination</span>
+
+    <span class="n">ACTIONS_PAINEL_ASSINATURA</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pendentes_assinatura"</span><span class="p">,</span> <span class="s2">"assinados"</span><span class="p">)</span>
 
 <div class="viewcode-block" id="TermoRecebimentoDefinitivoViewSet.get_queryset">
 <a class="viewcode-back" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.get_queryset">[docs]</a>
@@ -933,7 +939,7 @@
                 <span class="p">],</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">"list"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"list"</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">ACTIONS_PAINEL_ASSINATURA</span><span class="p">):</span>
             <span class="k">return</span> <span class="n">queryset</span><span class="o">.</span><span class="n">select_related</span><span class="p">(</span><span class="s2">"empresa"</span><span class="p">,</span> <span class="s2">"contrato"</span><span class="p">)</span><span class="o">.</span><span class="n">prefetch_related</span><span class="p">(</span>
                 <span class="n">Prefetch</span><span class="p">(</span>
                     <span class="s2">"cronogramas"</span><span class="p">,</span>
@@ -950,7 +956,7 @@
 <a class="viewcode-back" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.get_permissions">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_permissions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Visualização é liberada para mais perfis do que o cadastro."""</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"list"</span><span class="p">,</span> <span class="s2">"retrieve"</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"list"</span><span class="p">,</span> <span class="s2">"retrieve"</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">ACTIONS_PAINEL_ASSINATURA</span><span class="p">):</span>
             <span class="k">return</span> <span class="p">[</span><span class="n">PermissaoParaVisualizarTermoRecebimentoDefinitivo</span><span class="p">()]</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">PermissaoParaCadastrarTermoRecebimentoDefinitivo</span><span class="p">()]</span></div>
@@ -964,6 +970,8 @@
             <span class="k">return</span> <span class="n">TermoRecebimentoDefinitivoListagemSerializer</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">"retrieve"</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">TermoRecebimentoDefinitivoSerializer</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACTIONS_PAINEL_ASSINATURA</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TermoRecebimentoDefinitivoPainelAssinaturaSerializer</span>
 
         <span class="k">return</span> <span class="n">TermoRecebimentoDefinitivoCreateSerializer</span></div>
 
@@ -985,6 +993,68 @@
 
         <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_termos_do_fiscal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">status_termo</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Resposta paginada do painel de assinaturas do fiscal.</span>
+
+<span class="sd">        Termos no status informado em que o usuário da requisição é um dos</span>
+<span class="sd">        três fiscais, já com os filtros do painel (``numero_contrato``,</span>
+<span class="sd">        ``nome_produto`` e ``nome_empresa``) aplicados.</span>
+<span class="sd">        """</span>
+        <span class="n">usuario</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span>
+
+        <span class="n">queryset</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">filter_queryset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">())</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">status_termo</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="n">fiscal_1</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">fiscal_2</span><span class="o">=</span><span class="n">usuario</span><span class="p">)</span> <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">fiscal_3</span><span class="o">=</span><span class="n">usuario</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s2">"-criado_em"</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">distinct</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="n">page</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">paginate_queryset</span><span class="p">(</span><span class="n">queryset</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">page</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">page</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_paginated_response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="n">serializer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_serializer</span><span class="p">(</span><span class="n">queryset</span><span class="p">,</span> <span class="n">many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="n">serializer</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoViewSet.pendentes_assinatura">
+<a class="viewcode-back" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.pendentes_assinatura">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"GET"</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">"pendentes-assinatura"</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">"pendentes_assinatura"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pendentes_assinatura</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Termos aguardando a assinatura do fiscal logado.</span>
+
+<span class="sd">        Endpoint: ``GET /pos-recebimento/termos/pendentes-assinatura/``</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_termos_do_fiscal</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span> <span class="n">TermoRecebimentoDefinitivo</span><span class="o">.</span><span class="n">ENVIADO_FISCAIS</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TermoRecebimentoDefinitivoViewSet.assinados">
+<a class="viewcode-back" href="../../../../pos_recebimento/api.html#src.pos_recebimento.api.viewsets.TermoRecebimentoDefinitivoViewSet.assinados">[docs]</a>
+    <span class="nd">@action</span><span class="p">(</span>
+        <span class="n">detail</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s2">"GET"</span><span class="p">],</span>
+        <span class="n">url_path</span><span class="o">=</span><span class="s2">"assinados"</span><span class="p">,</span>
+        <span class="n">url_name</span><span class="o">=</span><span class="s2">"assinados"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">assinados</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Termos já assinados pelo fornecedor, dos quais o usuário logado</span>
+<span class="sd">        é fiscal.</span>
+
+<span class="sd">        Endpoint: ``GET /pos-recebimento/termos/assinados/``</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_termos_do_fiscal</span><span class="p">(</span>
+            <span class="n">request</span><span class="p">,</span> <span class="n">TermoRecebimentoDefinitivo</span><span class="o">.</span><span class="n">ASSINADO_FORNECEDOR</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="TermoRecebimentoDefinitivoViewSet.perform_create">

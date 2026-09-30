@@ -872,6 +872,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTTP_200_OK</span><span class="p">,</span> <span class="n">HTTP_201_CREATED</span><span class="p">,</span> <span class="n">HTTP_400_BAD_REQUEST</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.helpers_autenticidade</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">verificar_autenticidade_usuario</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1267,9 +1268,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_calcular_totalizadores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">qs</span><span class="p">):</span>
         <span class="n">workflow</span> <span class="o">=</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">workflow_class</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">"Total de Fichas Aprovadas"</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                <span class="n">status</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">APROVADA</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+            <span class="s2">"Total de Fichas Aprovadas"</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">APROVADA</span><span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
             <span class="s2">"Total de Fichas Enviadas para Correção"</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="n">status</span><span class="o">=</span><span class="n">workflow</span><span class="o">.</span><span class="n">ENVIADA_PARA_CORRECAO</span>
             <span class="p">)</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
@@ -1343,7 +1342,7 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="s2">"Solicitação de geração de arquivo recebida com sucesso."</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="n">MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO</span><span class="p">},</span>
             <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
         <span class="p">)</span></div>
 

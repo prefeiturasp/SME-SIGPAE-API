@@ -868,7 +868,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">openpyxl</span><span class="w"> </span><span class="kn">import</span> <span class="n">Workbook</span><span class="p">,</span> <span class="n">load_workbook</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">openpyxl.styles</span><span class="w"> </span><span class="kn">import</span> <span class="n">Font</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">CHAVE_NOME_PROTOCOLO_DB</span><span class="p">,</span> <span class="n">NOME_PROTOCOLO_PLANILHA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">CHAVE_NOME_PROTOCOLO_DB</span><span class="p">,</span>
+    <span class="n">NOME_PROTOCOLO_PLANILHA</span><span class="p">,</span>
+    <span class="n">StringsNomesAbasXLSX</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dieta_especial.protocolo_padrao.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ProtocoloPadraoDietaEspecial</span><span class="p">,</span>
 <span class="p">)</span>
@@ -912,7 +916,7 @@
         <span class="n">wb</span> <span class="o">=</span> <span class="n">Workbook</span><span class="p">()</span>
         <span class="n">ws</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">active</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">formatar_tamanho_celulas</span><span class="p">(</span><span class="n">ws</span><span class="p">)</span>
-        <span class="n">ws</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">"Dietas não relacionadas"</span>
+        <span class="n">ws</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">StringsNomesAbasXLSX</span><span class="o">.</span><span class="n">DIETAS_NAO_RELACIONADAS</span><span class="o">.</span><span class="n">value</span>
         <span class="n">cabecalho</span> <span class="o">=</span> <span class="p">[</span>
             <span class="s2">"uuid"</span><span class="p">,</span>
             <span class="n">NOME_PROTOCOLO_PLANILHA</span><span class="p">,</span>

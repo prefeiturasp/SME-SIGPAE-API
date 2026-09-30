@@ -885,7 +885,11 @@
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">xworkflows.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidTransitionError</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">ADMINISTRADOR_EMPRESA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ADMINISTRADOR_EMPRESA</span><span class="p">,</span>
+    <span class="n">MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO</span><span class="p">,</span>
+    <span class="n">PayloadVariaveis</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CronogramaWorkflow</span><span class="p">,</span>
 <span class="p">)</span>
@@ -1611,7 +1615,7 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="s2">"Solicitação de geração de arquivo recebida com sucesso."</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="n">MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO</span><span class="p">},</span>
             <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
         <span class="p">)</span></div>
 
@@ -1651,7 +1655,7 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="s2">"Solicitação de geração de arquivo recebida com sucesso."</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"detail"</span><span class="p">:</span> <span class="n">MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO</span><span class="p">},</span>
             <span class="n">status</span><span class="o">=</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
@@ -2158,8 +2162,10 @@
         <span class="n">qs</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_queryset</span><span class="p">()</span>
         <span class="n">mes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"mes"</span><span class="p">)</span>
         <span class="n">ano</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"ano"</span><span class="p">)</span>
-        <span class="n">motivo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"motivo[]"</span><span class="p">)</span>
-        <span class="n">tipo_calendario</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="s2">"tipo_calendario[]"</span><span class="p">)</span>
+        <span class="n">motivo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span><span class="n">PayloadVariaveis</span><span class="o">.</span><span class="n">MOTIVO</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">tipo_calendario</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">query_params</span><span class="o">.</span><span class="n">getlist</span><span class="p">(</span>
+            <span class="n">PayloadVariaveis</span><span class="o">.</span><span class="n">TIPO_CALENDARIO</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mes</span> <span class="ow">and</span> <span class="n">ano</span><span class="p">:</span>
             <span class="n">qs</span> <span class="o">=</span> <span class="n">qs</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">data__month</span><span class="o">=</span><span class="n">mes</span><span class="p">,</span> <span class="n">data__year</span><span class="o">=</span><span class="n">ano</span><span class="p">)</span>

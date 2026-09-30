@@ -868,7 +868,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">rangefilter.filters</span><span class="w"> </span><span class="kn">import</span> <span class="n">DateRangeFilter</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.cardapio.inversao_dia_cardapio.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversaoCardapio</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FORMATO_DATA_BRASILEIRO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FORMATO_DATA_BRASILEIRO</span><span class="p">,</span> <span class="n">StringsSearchHelpText</span>
 
 
 <div class="viewcode-block" id="InversaoCardapioModelAdmin">
@@ -911,7 +911,9 @@
         <span class="s2">"escola__nome"</span><span class="p">,</span>
         <span class="s2">"escola__codigo_eol"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">search_help_text</span> <span class="o">=</span> <span class="s2">"Pesquisa por: nome da escola, codigo eol da escola"</span>
+    <span class="n">search_help_text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">StringsSearchHelpText</span><span class="o">.</span><span class="n">PESQUISA_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA</span><span class="o">.</span><span class="n">value</span>
+    <span class="p">)</span>
     <span class="n">list_filter</span> <span class="o">=</span> <span class="p">(</span>
         <span class="p">(</span><span class="s2">"data_de_inversao"</span><span class="p">,</span> <span class="n">DateRangeFilter</span><span class="p">),</span>
         <span class="p">(</span><span class="s2">"data_para_inversao"</span><span class="p">,</span> <span class="n">DateRangeFilter</span><span class="p">),</span>

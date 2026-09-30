@@ -868,6 +868,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">xworkflows.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">InvalidTransitionError</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.api.serializers</span><span class="w"> </span><span class="kn">import</span> <span class="n">CamposObrigatoriosMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsValidationErrors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">update_instance_from_dict</span><span class="p">,</span>
 <span class="p">)</span>
@@ -914,7 +915,11 @@
             <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">arquivos</span><span class="p">:</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">doc</span><span class="p">[</span><span class="s2">"arquivo"</span><span class="p">]</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">doc</span><span class="p">[</span><span class="s2">"nome"</span><span class="p">]:</span>
                     <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
-                        <span class="p">{</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tipo_documento</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"Este campo é obrigatório."</span><span class="p">]}</span>
+                        <span class="p">{</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tipo_documento</span><span class="si">}</span><span class="s2">"</span><span class="p">:</span> <span class="p">[</span>
+                                <span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">CAMPO_OBRIGATORIO_PONTO_FINAL</span><span class="o">.</span><span class="n">value</span>
+                            <span class="p">]</span>
+                        <span class="p">}</span>
                     <span class="p">)</span>
         <span class="k">return</span> <span class="n">attrs</span></div>
 
@@ -1204,8 +1209,7 @@
 <a class="viewcode-back" href="../../../../../../pre_recebimento/documento_recebimento/api.html#src.pre_recebimento.documento_recebimento.api.serializers.serializer_create.DocumentoDeRecebimentoCorrecaoSerializer.validate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
         <span class="n">tipos_documentos_recebidos</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">dados</span><span class="p">[</span><span class="s2">"tipo_documento"</span><span class="p">]</span>
-            <span class="k">for</span> <span class="n">dados</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tipos_de_documentos"</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">dados</span><span class="p">[</span><span class="s2">"tipo_documento"</span><span class="p">]</span> <span class="k">for</span> <span class="n">dados</span> <span class="ow">in</span> <span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"tipos_de_documentos"</span><span class="p">,</span> <span class="p">[])</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">TipoDeDocumentoDeRecebimento</span><span class="o">.</span><span class="n">TIPO_DOC_LAUDO</span>

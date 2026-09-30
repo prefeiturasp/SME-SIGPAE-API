@@ -866,6 +866,7 @@
   <h1>Source code for src.pre_recebimento.ficha_tecnica.api.validators</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializers</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">StringsValidationErrors</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.dados_comuns.fluxo_status</span><span class="w"> </span><span class="kn">import</span> <span class="n">FichaTecnicaDoProdutoWorkflow</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">src.pre_recebimento.ficha_tecnica.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AnaliseFichaTecnica</span><span class="p">,</span>
@@ -1139,7 +1140,9 @@
             <span class="k">for</span> <span class="n">campo</span> <span class="ow">in</span> <span class="n">campos_obrigatorios_collapse</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">campo</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_attrs</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="n">serializers</span><span class="o">.</span><span class="n">ValidationError</span><span class="p">(</span>
-                        <span class="p">{</span><span class="n">campo</span><span class="p">:</span> <span class="s2">"Este campo é obrigatório."</span><span class="p">}</span>
+                        <span class="p">{</span>
+                            <span class="n">campo</span><span class="p">:</span> <span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">CAMPO_OBRIGATORIO_PONTO_FINAL</span><span class="o">.</span><span class="n">value</span>
+                        <span class="p">}</span>
                     <span class="p">)</span></div>
 
 
@@ -1201,7 +1204,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_obter_campos_collapses_por_categoria</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ficha_tecnica</span><span class="o">.</span><span class="n">categoria</span> <span class="o">==</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">CATEGORIA_FLV</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAMPOS_FLV</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_campos_flv_aplicaveis</span><span class="p">()</span>
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">CAMPOS_PERECIVEIS</span>
@@ -1209,6 +1212,15 @@
             <span class="o">==</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">CATEGORIA_PERECIVEIS</span>
             <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">CAMPOS_NAO_PERECIVEIS</span>
         <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_campos_flv_aplicaveis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">campos</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">CAMPOS_FLV</span><span class="p">}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ficha_tecnica</span><span class="o">.</span><span class="n">eh_flv_ponto_a_ponto</span><span class="p">:</span>
+            <span class="n">campos</span><span class="p">[</span><span class="s2">"fabricante_envasador_conferido"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">"obrigatorios"</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">"opcionais"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"fabricante"</span><span class="p">,</span> <span class="s2">"envasador_distribuidor"</span><span class="p">],</span>
+            <span class="p">}</span>
+        <span class="k">return</span> <span class="n">campos</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_obter_collapses_com_correcao</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">analise</span> <span class="o">=</span> <span class="p">(</span>

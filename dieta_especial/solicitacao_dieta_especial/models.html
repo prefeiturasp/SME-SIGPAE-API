@@ -888,7 +888,7 @@ cancelamento de dieta ou solicitação para aluno não matriculado.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">SolicitacaoDietaEspecial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/solicitacao_dieta_especial/models.html#SolicitacaoDietaEspecial"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.SolicitacaoDietaEspecial" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('dieta_especial')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoDietaEspecialPartindoDaEscola</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemPrioridade</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Ativavel</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">TemChaveExterna</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoEm</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CriadoPor</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">FluxoDietaEspecialPartindoDaEscola</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemPrioridade</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Logs</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">TemIdentificadorExternoAmigavel</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Ativavel</span></code></p>
 <p>Solicitação de dieta especial de um aluno.</p>
 <p>Modelo central do módulo de dieta especial. Representa a solicitação de
 dieta especial de um aluno e percorre um fluxo de autorização que envolve
@@ -2103,6 +2103,21 @@ tipo A; a troca vale para lanche e refeição.</p></li>
 <li><p><strong>Tipo C</strong>: apenas altera algum ingrediente por outro, sem custo
 adicional. Ex.: troca peixe por carne.</p></li>
 </ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS">
+<span class="sig-name descname"><span class="pre">CLASSIFICACAO_CONTEM_AMINOACIDOS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Aminoácidos'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL">
+<span class="sig-name descname"><span class="pre">CLASSIFICACAO_CONTEM_ENTERAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Enteral'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A">
+<span class="sig-name descname"><span class="pre">CLASSIFICACAO_CONTEM_TIPO_A</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Tipo</span> <span class="pre">A'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py exception">
 <dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.DoesNotExist">
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">DoesNotExist</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.DoesNotExist" title="Link to this definition"></a></dt>
@@ -2114,6 +2129,31 @@ adicional. Ex.: troca peixe por carne.</p></li>
 <span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">MultipleObjectsReturned</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.MultipleObjectsReturned" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleObjectsReturned</span></code></p>
 </dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_A">
+<span class="sig-name descname"><span class="pre">TIPO_A</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Tipo</span> <span class="pre">A'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_A" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_A_ENTERAL">
+<span class="sig-name descname"><span class="pre">TIPO_A_ENTERAL</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Tipo</span> <span class="pre">A</span> <span class="pre">ENTERAL'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_A_ENTERAL" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS">
+<span class="sig-name descname"><span class="pre">TIPO_A_RESTRICAO_AMINOACIDOS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Tipo</span> <span class="pre">A</span> <span class="pre">RESTRIÇÃO</span> <span class="pre">DE</span> <span class="pre">AMINOÁCIDOS'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_B">
+<span class="sig-name descname"><span class="pre">TIPO_B</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Tipo</span> <span class="pre">B'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_B" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_C">
+<span class="sig-name descname"><span class="pre">TIPO_C</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Tipo</span> <span class="pre">C'</span></span><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.TIPO_C" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.ClassificacaoDieta.descricao">
@@ -2241,7 +2281,7 @@ laudo de alta.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.Anexo">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">Anexo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/dieta_especial/solicitacao_dieta_especial/models.html#Anexo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#src.dieta_especial.solicitacao_dieta_especial.models.Anexo" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ExportModelOperationsMixin('anexo')</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Model</span></code></p>
 <p>Anexo (arquivo) vinculado a uma solicitação de dieta especial.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.dieta_especial.solicitacao_dieta_especial.models.Anexo.solicitacao_dieta_especial">
