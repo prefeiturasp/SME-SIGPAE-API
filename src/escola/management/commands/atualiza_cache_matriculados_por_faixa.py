@@ -37,6 +37,13 @@ class Command(BaseCommand):
     help_text += "com alunos matriculados por escola, faixa etária e período escolar"
     help = help_text
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--codigo_eol",
+            help="Gera os logs apenas para escolas com codigo EOL maior ou igual ao informado",
+            type=str,
+        )
+
     def handle(self, *args, **options):
         iniciais = [
             TIPO_UNIDADE_CEI_DIRET,
@@ -48,7 +55,19 @@ class Command(BaseCommand):
             TIPOS_UNIDADE_ESCOLAR.CEU_CEMEI.value,
             TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
         ]
-        escolas = Escola.objects.filter(tipo_unidade__iniciais__in=iniciais)
+        escolas = Escola.objects.filter(tipo_unidade__iniciais__in=iniciais).order_by(
+            "codigo_eol"
+        )
+
+        codigo_eol = options.get("codigo_eol")
+        if codigo_eol:
+            escolas = escolas.filter(codigo_eol__gte=codigo_eol)
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Retomando a partir da escola com codigo EOL {codigo_eol}"
+                )
+            )
+
         for escola in escolas:
             self._criar_cache_matriculados_por_faixa(escola)
             self._salvar_matriculados_por_faixa_dia(escola)
