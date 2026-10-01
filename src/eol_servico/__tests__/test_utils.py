@@ -83,6 +83,22 @@ class TestEOLServicoSGP(TestCase):
         assert len(lista_alunos) == 1
         assert lista_alunos[0]["nomeAluno"] == "MILENA SANTOS"
 
+    @pytest.mark.django_db(transaction=True)
+    @patch(
+        "src.eol_servico.utils.EOLServicoSGP.chamada_externa_alunos_por_escola_por_ano_letivo"
+    )
+    def test_get_alunos_por_escola_por_ano_letivo_404_retorna_lista_vazia(
+        self, mock_chamada_externa_alunos_por_escola_por_ano_letivo
+    ):
+        mock_chamada_externa_alunos_por_escola_por_ano_letivo.return_value = (
+            mocked_response("Not found", 404)
+        )
+
+        lista_alunos = self.eol_servico_sgp.get_alunos_por_escola_por_ano_letivo(
+            self.escola.codigo_eol
+        )
+        assert lista_alunos == []
+
     @freeze_time("2024-12-27")
     @pytest.mark.django_db(transaction=True)
     @patch("src.eol_servico.utils.EOL_SGP_CLIENT.get")
