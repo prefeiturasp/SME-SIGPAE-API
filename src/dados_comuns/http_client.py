@@ -20,6 +20,11 @@ EOL_CLIENT = build_http_client("eol", base_url=DJANGO_EOL_API_URL, limits=_LIMIT
 EOL_SGP_CLIENT = build_http_client(
     "eol-sgp", base_url=DJANGO_EOL_SGP_API_URL, limits=_LIMITS
 )
+EOL_SGP_CLIENT_SEM_RAISE = httpx.Client(
+    base_url=DJANGO_EOL_SGP_API_URL,
+    timeout=httpx.Timeout(30.0),
+    limits=_LIMITS,
+)
 EOL_PAPA_CLIENT = build_http_client(
     "eol-papa", base_url=DJANGO_EOL_PAPA_API_URL, limits=_LIMITS
 )
