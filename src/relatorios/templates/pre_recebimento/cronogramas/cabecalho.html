@@ -70,6 +70,17 @@
         <b>E-mail:</b> {{empresa.responsavel_email}}
       </div>
     </section>
+
+    {% if cronograma.cronograma_mensal %}
+    <section class="flex pb-2">
+      <div class="dados-empresa" style="width: 66.6%;">
+        <b>Local de Entrega:</b> Unidade Educacional da RME
+      </div>
+      <div class="dados-empresa">
+        <b>Horário:</b> 08:00 às 16:00
+      </div>
+    </section>
+    {% endif %}
     {% if cronograma.ponto_a_ponto %}
     <section class="flex">
       <div class="dados-empresa" style="width: 100%;">
