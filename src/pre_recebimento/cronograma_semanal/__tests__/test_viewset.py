@@ -901,19 +901,19 @@ class TestCronogramaSemanalViewSet:
         """PDF deve ser gerado somente para cronogramas no status FORNECEDOR_CIENTE."""
         client, _ = client_autenticado_vinculo_dilog_cronograma
 
-        # RASCUNHO — deve retornar 400
+        # RASCUNHO: deve retornar 400
         response = client.get(
             f"/cronogramas-semanais/{cronograma_semanal_rascunho.uuid}/gerar-pdf-cronograma/"
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        # ENVIADO_AO_FORNECEDOR — deve retornar 400
+        # ENVIADO_AO_FORNECEDOR: deve retornar 400
         response = client.get(
             f"/cronogramas-semanais/{cronograma_semanal_enviado_ao_fornecedor.uuid}/gerar-pdf-cronograma/"
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
 
-        # FORNECEDOR_CIENTE — deve retornar 200 com PDF
+        # FORNECEDOR_CIENTE: deve retornar 200 com PDF
         response = client.get(
             f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/gerar-pdf-cronograma/"
         )
@@ -928,8 +928,28 @@ class TestCronogramaSemanalViewSet:
         assert "Quantidade Total do Empenho" in pdf_text
         assert "Custo Unitário do Produto" in pdf_text
 
-        # Colunas exclusivas do template Mensal não devem aparecer no template semanal
         assert "Etapa" not in pdf_text or "Data Programada" in pdf_text
+
+    def test_pdf_exibe_local_de_entrega_e_horario(
+        self,
+        client_autenticado_vinculo_dilog_cronograma,
+        cronograma_semanal_fornecedor_ciente,
+    ):
+        """O cabeçalho do PDF traz Local de Entrega e Horário, ambos fixos."""
+        client, _ = client_autenticado_vinculo_dilog_cronograma
+
+        response = client.get(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}"
+            "/gerar-pdf-cronograma/"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+
+        pdf_reader = PdfReader(BytesIO(response.content))
+        pdf_text = "\n".join(page.extract_text() for page in pdf_reader.pages)
+
+        assert "Local de Entrega: Unidade Educacional da RME" in pdf_text
+        assert "Horário: 08:00 às 16:00" in pdf_text
 
 
 class TestRelatorioCronogramaSemanalFiltros:
