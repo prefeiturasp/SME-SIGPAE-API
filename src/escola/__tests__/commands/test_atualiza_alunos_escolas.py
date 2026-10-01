@@ -457,7 +457,7 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         assert aluno_atualizado.historico.filter(data_fim__isnull=False).count() == 1
 
     @patch(
-        "src.escola.management.commands.atualiza_alunos_escolas.Command._coleta_dados_em_paralelo"
+        "src.escola.management.commands.atualiza_alunos_escolas.Command._coleta_dados_sequencial"
     )
     @pytest.mark.django_db
     def test_get_todos_os_registros_exclui_escolas_particulares(
