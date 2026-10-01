@@ -14,7 +14,7 @@ from src.dados_comuns.constants import (
     DJANGO_EOL_SGP_API_URL,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
+from src.dados_comuns.http_client import EOL_SGP_CLIENT_SEM_RAISE, executar_chamada
 from src.dados_comuns.utils import bulk_create_safe, bulk_update_safe
 from src.escola.models import (
     Aluno,
@@ -134,7 +134,7 @@ class Command(BaseCommand):
     def get_response_alunos_por_escola(self, cod_eol_escola, ano_param=None):
         ano = datetime.date.today().year
         return executar_chamada(
-            EOL_SGP_CLIENT,
+            EOL_SGP_CLIENT_SEM_RAISE,
             "get",
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{cod_eol_escola}/anosLetivos/{ano_param or ano}",
             headers=self.headers,
