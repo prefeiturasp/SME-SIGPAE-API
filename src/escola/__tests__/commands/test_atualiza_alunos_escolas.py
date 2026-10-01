@@ -589,6 +589,61 @@ class AtualizaAlunosEscolasCommandTest(TestCase):
         assert escola_particular not in escolas_usadas
 
 
+class TestInterrupcaoRequisicoesDMenos2(TestCase):
+    def set_up_periodos_escolares(self):
+        PeriodoEscolarFactory.create(nome="MANHA", tipo_turno=1)
+        PeriodoEscolarFactory.create(nome="INTERMEDIARIO", tipo_turno=2)
+        PeriodoEscolarFactory.create(nome="TARDE", tipo_turno=3)
+        PeriodoEscolarFactory.create(nome="VESPERTINO", tipo_turno=4)
+        PeriodoEscolarFactory.create(nome="NOITE", tipo_turno=5)
+        PeriodoEscolarFactory.create(nome="INTEGRAL", tipo_turno=6)
+
+    def setUp(self) -> None:
+        self.set_up_periodos_escolares()
+        self.command = Command()
+
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_requisicao_falha_interrompe_coleta_d_menos_2(self, mock_get_response):
+        """Falha (5xx) após os retries deve interromper a coleta do d_menos_2,
+        propagando MaxRetriesExceeded em vez de retornar dados parciais."""
+        EscolaFactory.create(codigo_eol="000086")
+
+        mock_erro = MagicMock(spec=Response)
+        mock_erro.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+        mock_erro.text = "503 service unavailable"
+        mock_get_response.return_value = mock_erro
+
+        with self.assertRaises(MaxRetriesExceeded):
+            self.command.get_todos_os_registros()
+
+    @patch(
+        "src.escola.management.commands.atualiza_alunos_escolas.Command.get_response_alunos_por_escola"
+    )
+    @pytest.mark.django_db
+    def test_escola_que_falha_interrompe_mesmo_com_outras_ok(self, mock_get_response):
+        """Mesmo que uma escola retorne dados com sucesso, a falha de outra
+        (403) deve interromper a task, pois não se pode usar dados parciais."""
+        EscolaFactory.create(codigo_eol="000086")
+        EscolaFactory.create(codigo_eol="000094")
+
+        mock_erro = MagicMock(spec=Response)
+        mock_erro.status_code = status.HTTP_403_FORBIDDEN
+        mock_erro.text = "403 forbidden"
+
+        def side_effect_fn(cod_eol, ano_param=None):
+            if cod_eol == "000094":
+                return mock_erro
+            return mocked_response({}, 404)
+
+        mock_get_response.side_effect = side_effect_fn
+
+        with self.assertRaises(MaxRetriesExceeded):
+            self.command.get_todos_os_registros()
+
+
 class TestObtemAlunosEscola(TestCase):
     def set_up_periodos_escolares(self):
         PeriodoEscolarFactory.create(nome="MANHA", tipo_turno=1)
