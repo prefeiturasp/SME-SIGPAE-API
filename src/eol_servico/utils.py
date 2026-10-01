@@ -308,6 +308,8 @@ class EOLServicoSGP:
                     aluno["codigoAluno"]: aluno for aluno in lista_alunos_filtrada
                 }.values()
                 return list(unique_data)
+            elif response.status_code == status.HTTP_404_NOT_FOUND:
+                return []
             else:
                 raise EOLException(
                     f"Erro ao consultar alunos para a escola {codigo_eol_ue}. Status: {response.status_code}"
