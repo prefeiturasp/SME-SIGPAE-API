@@ -214,24 +214,20 @@ class Command(BaseCommand):
 
     def _fetch_dados_escola(self, codigo_eol, proximo_ano, index, total):
         """Busca os dados da escola na API e adiciona o código EOL."""
-        try:
-            logger.debug(f"{index + 1}/{total} - Escola EOL {codigo_eol}")
+        logger.debug(f"{index + 1}/{total} - Escola EOL {codigo_eol}")
 
-            dados = self._obtem_alunos_escola(codigo_eol)
-            dados_prox = self._obtem_alunos_escola(codigo_eol, proximo_ano)
+        dados = self._obtem_alunos_escola(codigo_eol)
+        dados_prox = self._obtem_alunos_escola(codigo_eol, proximo_ano)
 
-            registros = []
-            for d in dados or []:
-                d["codigoEolEscola"] = codigo_eol
-                registros.append(d)
-            for d in dados_prox or []:
-                d["codigoEolEscola"] = codigo_eol
-                registros.append(d)
+        registros = []
+        for d in dados or []:
+            d["codigoEolEscola"] = codigo_eol
+            registros.append(d)
+        for d in dados_prox or []:
+            d["codigoEolEscola"] = codigo_eol
+            registros.append(d)
 
-            return registros
-        except Exception as e:
-            logger.error(f"Erro ao buscar dados da escola {codigo_eol}: {e}")
-            return []
+        return registros
 
     def _coleta_dados_em_paralelo(self, escolas, proximo_ano):
         """Coleta os dados das escolas em paralelo usando threads."""
@@ -239,19 +235,23 @@ class Command(BaseCommand):
         total = len(escolas)
         logger.debug(f"Iniciando coleta de dados de {total} escolas...")
 
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [
-                executor.submit(
-                    self._fetch_dados_escola, codigo_eol, proximo_ano, i, total
-                )
-                for i, codigo_eol in enumerate(escolas)
-            ]
+        executor = ThreadPoolExecutor(max_workers=10)
+        futures = [
+            executor.submit(self._fetch_dados_escola, codigo_eol, proximo_ano, i, total)
+            for i, codigo_eol in enumerate(escolas)
+        ]
+        try:
             for future in as_completed(futures):
-                try:
-                    registros = future.result()
-                    todos_os_registros.extend(registros)
-                except Exception as e:
-                    logger.exception(f"Erro ao processar futuro: {e}")
+                registros = future.result()
+                todos_os_registros.extend(registros)
+        except Exception as e:
+            logger.error(f"Erro na coleta de dados: {e}. Interrompendo execução.")
+            for future in futures:
+                future.cancel()
+            executor.shutdown(wait=False, cancel_futures=True)
+            raise
+        else:
+            executor.shutdown(wait=True)
 
         return todos_os_registros
 
