@@ -5,8 +5,6 @@ import logging.config
 import os
 
 import environ
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
 
 # (src/config/settings/base.py - 3 = src/)
 
@@ -367,7 +365,7 @@ CELERY_TIMEZONE = TIME_ZONE
 # reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1
 
-sentry_sdk.init(dsn=env("SENTRY_URL"), integrations=[DjangoIntegration()])
+# sentry_sdk.init(dsn=env("SENTRY_URL"), integrations=[DjangoIntegration()])
 
 logging.config.dictConfig(
     {
@@ -392,11 +390,11 @@ logging.config.dictConfig(
             },
         },
         "loggers": {
-            "sentry_sdk": {
-                "level": "ERROR",
-                "handlers": ["console"],
-                "propagate": False,
-            },
+            # "sentry_sdk": {
+            #     "level": "ERROR",
+            #     "handlers": ["console"],
+            #     "propagate": False,
+            # },
             "sigpae": {
                 "level": "DEBUG",
                 "handlers": ["console"],
