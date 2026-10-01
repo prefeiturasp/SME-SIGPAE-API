@@ -1,7 +1,6 @@
 import datetime
 import logging
 import timeit
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import environ
 import httpx
@@ -229,29 +228,15 @@ class Command(BaseCommand):
 
         return registros
 
-    def _coleta_dados_em_paralelo(self, escolas, proximo_ano):
-        """Coleta os dados das escolas em paralelo usando threads."""
+    def _coleta_dados_sequencial(self, escolas, proximo_ano):
+        """Coleta os dados das escolas uma a uma, na ordem."""
         todos_os_registros = []
         total = len(escolas)
         logger.debug(f"Iniciando coleta de dados de {total} escolas...")
 
-        executor = ThreadPoolExecutor(max_workers=10)
-        futures = [
-            executor.submit(self._fetch_dados_escola, codigo_eol, proximo_ano, i, total)
-            for i, codigo_eol in enumerate(escolas)
-        ]
-        try:
-            for future in as_completed(futures):
-                registros = future.result()
-                todos_os_registros.extend(registros)
-        except Exception as e:
-            logger.error(f"Erro na coleta de dados: {e}. Interrompendo execução.")
-            for future in futures:
-                future.cancel()
-            executor.shutdown(wait=False, cancel_futures=True)
-            raise
-        else:
-            executor.shutdown(wait=True)
+        for index, codigo_eol in enumerate(escolas):
+            registros = self._fetch_dados_escola(codigo_eol, proximo_ano, index, total)
+            todos_os_registros.extend(registros)
 
         return todos_os_registros
 
@@ -264,7 +249,7 @@ class Command(BaseCommand):
         )
         proximo_ano = datetime.date.today().year + 1
 
-        todos_os_registros = self._coleta_dados_em_paralelo(escolas, proximo_ano)
+        todos_os_registros = self._coleta_dados_sequencial(escolas, proximo_ano)
         todos_os_registros.sort(
             key=lambda x: (
                 x["codigoAluno"],
