@@ -1,5 +1,6 @@
 import httpx
-from sme_sidecar_sdk import build_http_client
+from rest_framework import status
+from sme_sidecar_sdk import CircuitOpenError, build_http_client
 
 from .constants import (
     DJANGO_AUTENTICA_CORESSO_API_URL,
@@ -19,6 +20,11 @@ EOL_CLIENT = build_http_client("eol", base_url=DJANGO_EOL_API_URL, limits=_LIMIT
 EOL_SGP_CLIENT = build_http_client(
     "eol-sgp", base_url=DJANGO_EOL_SGP_API_URL, limits=_LIMITS
 )
+EOL_SGP_CLIENT_SEM_RAISE = httpx.Client(
+    base_url=DJANGO_EOL_SGP_API_URL,
+    timeout=httpx.Timeout(30.0),
+    limits=_LIMITS,
+)
 EOL_PAPA_CLIENT = build_http_client(
     "eol-papa", base_url=DJANGO_EOL_PAPA_API_URL, limits=_LIMITS
 )
@@ -36,11 +42,17 @@ GITHUB_CLIENT = build_http_client(
 def executar_chamada(client, method, url, **kwargs):
     """Executa a chamada externa devolvendo a resposta com o status.
 
-    O SDK levanta ``HTTPStatusError`` para respostas 4xx/5xx. Aqui a
-    exceção é capturada e a resposta é devolvida, preservando a lógica
-    de status já existente nos chamadores.
+    O SDK levanta ``HTTPStatusError`` para respostas 4xx/5xx e
+    ``CircuitOpenError`` quando o circuit breaker está aberto. Aqui as
+    exceções são capturadas e a resposta é devolvida, preservando a
+    lógica de status já existente nos chamadores.
     """
     try:
         return getattr(client, method)(url, **kwargs)
     except httpx.HTTPStatusError as exc:
         return exc.response
+    except CircuitOpenError:
+        return httpx.Response(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            request=httpx.Request(method, url),
+        )
