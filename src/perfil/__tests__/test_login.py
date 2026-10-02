@@ -9,6 +9,7 @@ from src.dados_comuns.constants import (
     ADMINISTRADOR_UE,
     DIRETOR_UE,
     DJANGO_ADMIN_PASSWORD,
+    StringsValidationErrors,
 )
 from src.eol_servico.utils import EOLServicoSGP
 from src.escola.__tests__.conftest import mocked_response
@@ -232,7 +233,9 @@ def test_login_coresso_erro_usuario_nao_existe(
         "/login/", content_type="application/json", data=json.dumps(data)
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json() == {"detail": "Usuário não encontrado."}
+    assert response.json() == {
+        "detail": StringsValidationErrors.USUARIO_NAO_ENCONTRADO.value
+    }
 
 
 def test_login_coresso_erro_usuario_sem_email(
@@ -267,9 +270,9 @@ def test_login_coresso_erro_usuario_sem_email(
     response = client_autenticado_da_escola_email_invalido.post(
         "/login/", content_type="application/json", data=json.dumps(data)
     )
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "detail": "Usuário sem e-mail cadastrado. E-mail é obrigatório."
+        "detail": StringsValidationErrors.NAO_FOI_POSSIVEL_LOGAR.value
     }
 
 
@@ -464,7 +467,7 @@ def test_login_coresso_cargo_sem_acesso_automatico_sem_vinculo_no_sigpae(
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {
-        "detail": "Usuário não possui permissão de acesso ao SIGPAE"
+        "detail": StringsValidationErrors.SEM_AUTORIZACAO_ACESSO.value
     }
 
 
@@ -488,7 +491,9 @@ def test_login_coresso_login_cpf_erro(client_autenticado_da_escola_adm, monkeypa
         "/login/", content_type="application/json", data=json.dumps(data)
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert response.json() == {"detail": "Usuário ou senha inválidos."}
+    assert response.json() == {
+        "detail": StringsValidationErrors.USUARIO_OU_SENHA_INVALIDOS.value
+    }
 
 
 def test_login_coresso_dados_usuario_erro(
@@ -510,7 +515,9 @@ def test_login_coresso_dados_usuario_erro(
         "/login/", content_type="application/json", data=json.dumps(data)
     )
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json() == {"detail": "Usuário não encontrado"}
+    assert response.json() == {
+        "detail": StringsValidationErrors.NAO_FOI_POSSIVEL_LOGAR.value
+    }
 
 
 def test_login_coresso_cogestor_dre(client_autenticado_da_dre, monkeypatch):
@@ -584,8 +591,7 @@ def test_login_usuario_adm_escola_trocou_unidade_erro(
     )
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
     assert response.json() == {
-        "detail": "Você está sem autorização de acesso à aplicação no momento. "
-        "Entre em contato com o administrador do SIGPAE."
+        "detail": StringsValidationErrors.SEM_AUTORIZACAO_ACESSO.value
     }
 
 
@@ -617,9 +623,9 @@ def test_login_coresso_cargo_sem_acesso_automatico_no_sigpae(
     response = client_autenticado_da_escola.post(
         "/login/", content_type="application/json", data=json.dumps(data)
     )
-    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
-        "detail": "Usuário não possui permissão de acesso ao SIGPAE"
+        "detail": StringsValidationErrors.NAO_FOI_POSSIVEL_LOGAR.value
     }
 
 
@@ -732,3 +738,71 @@ def test_login_coresso_coordenador_polo_tem_vinculo_diretor_ue(
     assert response.status_code == status.HTTP_200_OK
     usuario = Usuario.objects.get(username=data["login"])
     assert usuario.vinculo_atual.perfil.nome == DIRETOR_UE
+
+
+def test_login_usuario_nao_autentica_retorna_credenciais_invalidas(
+    client_autenticado_da_escola, monkeypatch
+):
+    data = {"login": "1234567", "password": "senha_incorreta"}
+
+    monkeypatch.setattr(
+        AutenticacaoService, "autentica", lambda p1, p2: mocked_response({}, 401)
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "_obter_token",
+        lambda self: "Bearer #ABC123",
+    )
+    monkeypatch.setattr(
+        NovoSGPServicoLogado,
+        "pegar_token_acesso",
+        lambda p1, p2, p3: mocked_response({}, 401),
+    )
+    response = client_autenticado_da_escola.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {
+        "detail": StringsValidationErrors.USUARIO_OU_SENHA_INVALIDOS.value
+    }
+
+
+def test_login_novosgp_erro_retorna_usuario_ou_senha_invalidos(
+    client_autenticado_da_escola, monkeypatch
+):
+    data = {"login": "1234567", "password": "senha_incorreta"}
+
+    def _erro_novosgp(self):
+        raise NovoSGPServicoLogadoException(
+            StringsValidationErrors.NAO_FOI_POSSIVEL_LOGAR.value
+        )
+
+    monkeypatch.setattr(
+        AutenticacaoService, "autentica", lambda p1, p2: mocked_response({}, 401)
+    )
+    monkeypatch.setattr(NovoSGPServicoLogado, "_obter_token", _erro_novosgp)
+    response = client_autenticado_da_escola.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    assert response.json() == {
+        "detail": StringsValidationErrors.USUARIO_OU_SENHA_INVALIDOS.value
+    }
+
+
+def test_login_erro_inesperado_retorna_nao_foi_possivel_logar(
+    client_autenticado_da_escola, monkeypatch
+):
+    data = {"login": "1234567", "password": DJANGO_ADMIN_PASSWORD}
+
+    def _erro_inesperado(p1, p2):
+        raise Exception("Erro inesperado")
+
+    monkeypatch.setattr(AutenticacaoService, "autentica", _erro_inesperado)
+    response = client_autenticado_da_escola.post(
+        "/login/", content_type="application/json", data=json.dumps(data)
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": StringsValidationErrors.NAO_FOI_POSSIVEL_LOGAR.value
+    }
