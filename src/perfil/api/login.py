@@ -2,14 +2,17 @@ import datetime
 import logging
 import re
 
-import httpx
 from django.contrib.auth import get_user_model
 from rest_framework import permissions, status
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from src.dados_comuns.constants import ADMINISTRADOR_UE, DIRETOR_UE
+from src.dados_comuns.constants import (
+    ADMINISTRADOR_UE,
+    DIRETOR_UE,
+    StringsValidationErrors,
+)
 from src.eol_servico.utils import EOLException, EOLServicoSGP
 from src.escola.models import Escola
 from src.escola.services import (
@@ -29,23 +32,37 @@ User = get_user_model()
 logger = logging.getLogger(__name__)
 
 
+class CredenciaisInvalidasException(NovoSGPServicoLogadoException):
+    """Usuário ou senha inválidos."""
+
+
+class SemVinculoAtivoException(PermissionDenied):
+    """Usuário sem vínculo ativo no SIGPAE."""
+
+
 class LoginView(TokenObtainPairView):
     # Substitui o login feito por /api-token-auth/
 
     permission_classes = (permissions.AllowAny,)
 
     def checa_login_senha_coresso(self, login, senha):
-        novo_sgp = NovoSGPServicoLogado(login, senha)
-        response_login = novo_sgp.pegar_token_acesso(login, senha)
+        try:
+            novo_sgp = NovoSGPServicoLogado(login, senha)
+            response_login = novo_sgp.pegar_token_acesso(login, senha)
+        except NovoSGPServicoLogadoException as e:
+            raise CredenciaisInvalidasException(
+                StringsValidationErrors.USUARIO_OU_SENHA_INVALIDOS.value
+            ) from e
         if response_login.status_code != status.HTTP_200_OK or len(login) != 7:
-            raise NovoSGPServicoLogadoException("Usuário ou senha inválidos.")
+            raise CredenciaisInvalidasException(
+                StringsValidationErrors.USUARIO_OU_SENHA_INVALIDOS.value
+            )
 
     def update_user(self, user_dict, senha):
         user = User.objects.get(username=user_dict["login"])
         if not user.is_active or not user.existe_vinculo_ativo:
-            raise PermissionDenied(
-                "Você está sem autorização de acesso à aplicação no momento. "
-                "Entre em contato com o administrador do SIGPAE."
+            raise SemVinculoAtivoException(
+                StringsValidationErrors.SEM_AUTORIZACAO_ACESSO.value
             )
         last_login = user.last_login
         user.name = user_dict["nome"]
@@ -197,7 +214,9 @@ class LoginView(TokenObtainPairView):
 
     def garante_acesso_automatico(self, user, dados_usuario, hoje):
         if not self.usuario_com_cargo_de_acesso_automatico(dados_usuario):
-            raise PermissionDenied("Usuário não possui permissão de acesso ao SIGPAE")
+            raise SemVinculoAtivoException(
+                StringsValidationErrors.SEM_AUTORIZACAO_ACESSO.value
+            )
 
         perfil = self.get_perfil_automatico(dados_usuario)
 
@@ -273,12 +292,12 @@ class LoginView(TokenObtainPairView):
             return Response(data)
         except User.DoesNotExist:
             return self.handle_user_not_found(login)
-        except (NovoSGPServicoLogadoException, PermissionDenied) as e:
-            return self.handle_unauthorized_error(e, login)
-        except EOLException as e:
-            return self.handle_bad_request_error(e, login)
-        except httpx.TimeoutException as e:
-            return self.handle_timeout_error(e, login)
+        except CredenciaisInvalidasException as e:
+            return self.handle_credenciais_invalidas(e, login)
+        except SemVinculoAtivoException as e:
+            return self.handle_sem_autorizacao(e, login)
+        except Exception as e:
+            return self.handle_erro_inesperado(e, login)
 
     def autenticar_usuario(self, login, senha):
         response = AutenticacaoService.autentica(login, senha)
@@ -301,17 +320,24 @@ class LoginView(TokenObtainPairView):
     def handle_user_not_found(self, login):
         logger.info("Usuário %s não encontrado.", login)
         return Response(
-            {"detail": "Usuário não encontrado."}, status=status.HTTP_401_UNAUTHORIZED
+            {"detail": StringsValidationErrors.USUARIO_NAO_ENCONTRADO.value},
+            status=status.HTTP_401_UNAUTHORIZED,
         )
 
-    def handle_unauthorized_error(self, e, login):
+    def handle_credenciais_invalidas(self, e, login):
         logger.info(f"{str(e)}, {login}")
         return Response({"detail": str(e)}, status=status.HTTP_401_UNAUTHORIZED)
 
-    def handle_bad_request_error(self, e, login):
+    def handle_sem_autorizacao(self, e, login):
         logger.info(f"{str(e)}, {login}")
-        return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": StringsValidationErrors.SEM_AUTORIZACAO_ACESSO.value},
+            status=status.HTTP_401_UNAUTHORIZED,
+        )
 
-    def handle_timeout_error(self, e, login):
-        logger.error(f"Timeout ao tentar autenticar usuário {login}")
-        return Response({"detail": str(e)}, status=status.HTTP_504_GATEWAY_TIMEOUT)
+    def handle_erro_inesperado(self, e, login):
+        logger.error(f"Erro inesperado ao logar usuário {login}: {str(e)}")
+        return Response(
+            {"detail": StringsValidationErrors.NAO_FOI_POSSIVEL_LOGAR.value},
+            status=status.HTTP_400_BAD_REQUEST,
+        )

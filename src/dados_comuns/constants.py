@@ -973,6 +973,13 @@ class StringsValidationErrors(Enum):
         "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
     )
     CAMPO_OBRIGATORIO_PARA_O_GRUPO = "Campo obrigatório para o grupo."
+    USUARIO_OU_SENHA_INVALIDOS = "Usuário ou senha inválidos"
+    USUARIO_NAO_ENCONTRADO = "Usuário não encontrado"
+    SEM_AUTORIZACAO_ACESSO = (
+        "Você está sem autorização de acesso à aplicação no momento. "
+        "Entre em contato com o administrador do SIGPAE."
+    )
+    NAO_FOI_POSSIVEL_LOGAR = "Não foi possível logar no sistema"
 
     @classmethod
     def choices(cls):
