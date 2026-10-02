@@ -56,3 +56,77 @@ Then('a consulta de solicitacoes da escola retorna resultados validos', function
 	expect(this.response.status).to.eq(200)
 	expect(this.response.body).to.have.property('results').that.is.an('array')
 })
+
+function parametrosMensais() {
+	const hoje = new Date()
+	return { escola_uuid: escolaUuid, mes: hoje.getMonth() + 1, ano: hoje.getFullYear() }
+}
+
+function filtrosRelatorio() {
+	const hoje = new Date()
+	const data = `${String(hoje.getDate()).padStart(2, '0')}/${String(hoje.getMonth() + 1).padStart(2, '0')}/${hoje.getFullYear()}`
+	return { status: 'AUTORIZADOS', de: data, ate: data, limit: 2, offset: 0 }
+}
+
+When('consulto a rota mensal da escola {string}', function (rota) {
+	cy.executar_escola_solicitacoes({ rota, qs: parametrosMensais() }).then((response) => { this.response = response })
+})
+
+Then('a consulta de periodos da escola retorna uma lista valida', function () {
+	expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
+	expect(this.response.body).to.be.an('array')
+	this.response.body.forEach((periodo) => expect(periodo).to.be.an('object'))
+})
+
+Then('a consulta da escola retorna a ultima data ou nenhum resultado', function () {
+	expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
+	expect(this.response.body).to.have.all.keys('ultima_data')
+	if (this.response.body.ultima_data !== null) {
+		expect(this.response.body.ultima_data).to.match(/^\d{4}-\d{2}-\d{2}$/)
+		expect(Number.isNaN(Date.parse(this.response.body.ultima_data))).to.eq(false)
+	}
+})
+
+When('envio os filtros de solicitacoes da escola para {string}', function (rota) {
+	this.rotaRelatorioEscola = rota
+	cy.executar_escola_solicitacoes({ rota, metodo: 'POST', body: filtrosRelatorio() }).then((response) => { this.response = response })
+})
+
+Then('o relatorio de solicitacoes da escola retorna dados validos', function () {
+	expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
+	if (this.rotaRelatorioEscola === 'filtrar-solicitacoes-graficos') {
+		expect(this.response.body).to.be.an('array')
+	} else {
+		expect(this.response.body.results).to.be.an('array')
+		if (this.rotaRelatorioEscola === 'filtrar-solicitacoes-ga') {
+			expect(this.response.body.count).to.be.a('number').and.at.least(0)
+			expect(Number.isInteger(this.response.body.count)).to.eq(true)
+			expect(this.response.body.results.length).to.be.at.most(2)
+			expect(this.response.body.count).to.be.at.least(this.response.body.results.length)
+		}
+	}
+})
+
+Then('a exportacao de solicitacoes da escola confirma o recebimento', function () {
+	expect(this.response.status, JSON.stringify(this.response.body)).to.eq(200)
+	expect(this.response.body.detail).to.be.a('string')
+	const detalhe = this.response.body.detail.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+	expect(detalhe).to.eq('Solicitacao de geracao de arquivo recebida com sucesso.')
+})
+
+When('executo {string} na rota de solicitacoes da escola {string} com acesso {string}', function (metodo, rota, acesso) {
+	const autenticado = acesso === 'autenticado'
+	if (!autenticado) cy.clearCookies()
+	cy.executar_escola_solicitacoes({
+		rota: rota.replace('{escola_uuid}', escolaUuid),
+		metodo,
+		qs: parametrosMensais(),
+		body: ['POST', 'PUT', 'PATCH'].includes(metodo) ? filtrosRelatorio() : undefined,
+		autenticado,
+	}).then((response) => { this.response = response })
+})
+
+Then('a operacao de solicitacoes da escola retorna {int}', function (status) {
+	expect(this.response.status, JSON.stringify(this.response.body)).to.eq(status)
+	if ([401, 405].includes(status)) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
