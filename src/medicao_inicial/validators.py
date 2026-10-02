@@ -1261,6 +1261,9 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
             tipos_alimentacao = list(
                 set(tipos_alimentacao.values_list("nome", flat=True))
             )
+            alimentacoes_permitidas = filtrar_alimentacoes_permitidas_pela_inclusao(
+                tipos_alimentacao, alimentacoes_permitidas
+            )
             alimentacoes = tipos_alimentacao + alimentacoes_permitidas
             eh_numero_alunos = periodo.periodo_escolar not in escola.periodos_escolares(
                 ano=solicitacao.ano,
@@ -1302,6 +1305,9 @@ def validate_lancamento_inclusoes_emei_cemei(
                 )
                 tipos_alimentacao = list(
                     set(tipos_alimentacao.values_list("nome", flat=True))
+                )
+                alimentacoes_permitidas = filtrar_alimentacoes_permitidas_pela_inclusao(
+                    tipos_alimentacao, alimentacoes_permitidas
                 )
                 alimentacoes = tipos_alimentacao + alimentacoes_permitidas
                 eh_numero_alunos = periodo not in escola.periodos_escolares(
@@ -4636,3 +4642,24 @@ def _programas_e_projetos_periodo_zero_emebs_necessita_erro_otimizado(
         return False
 
     return True
+
+
+def filtrar_alimentacoes_permitidas_pela_inclusao(
+    tipos_alimentacao, alimentacoes_permitidas
+):
+    tipos_alimentacao = [nome.lower() for nome in tipos_alimentacao]
+    tipos_permitidos = {
+        "refeição": "refeição" in tipos_alimentacao,
+        "sobremesa": "sobremesa" in tipos_alimentacao,
+        "lanche": any("lanche" in tipo for tipo in tipos_alimentacao),
+    }
+    alimentacoes_filtradas = []
+    for alimentacao in alimentacoes_permitidas:
+        nome = alimentacao.lower()
+        tipo = next(
+            (tipo for tipo in tipos_permitidos if tipo in nome),
+            None,
+        )
+        if tipos_permitidos.get(tipo, True):
+            alimentacoes_filtradas.append(alimentacao)
+    return alimentacoes_filtradas
