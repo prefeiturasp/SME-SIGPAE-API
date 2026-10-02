@@ -206,3 +206,15 @@ Cypress.Commands.add('ue_consultar_suspensoes_autorizadas', () => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('executar_escola_solicitacoes', ({ rota, metodo = 'GET', qs = {}, body, autenticado = true }) => {
+	return cy.request({
+		method: metodo,
+		url: `${Cypress.config('baseUrl')}api/escola-solicitacoes/${rota}/`,
+		qs,
+		body,
+		headers: autenticado ? { Authorization: `JWT ${globalThis.token}` } : {},
+		failOnStatusCode: false,
+		timeout: 60000,
+	})
+})

@@ -14,6 +14,7 @@ from openpyxl import Workbook, styles
 from openpyxl.worksheet.datavalidation import DataValidation
 from rest_framework import permissions, status
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404 as get_api_object_or_404
 from rest_framework.mixins import (
     CreateModelMixin,
     ListModelMixin,
@@ -194,7 +195,7 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
 
     @action(detail=True, url_path="periodos-escolares", url_name="periodos-escolares")
     def periodos_escolares(self, _, uuid: str):
-        escola = get_object_or_404(Escola, uuid=uuid)
+        escola = get_api_object_or_404(Escola, uuid=uuid)
         serializer = EscolaParaFiltrosPeriodoEscolarReadOnlySerializer(
             instance=escola.periodos_escolares(), many=True
         )
@@ -202,7 +203,7 @@ class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
 
     @action(detail=True, url_path="tipos-alimentacao", url_name="tipos-alimentacao")
     def tipos_alimentacao(self, _, uuid: str):
-        escola = get_object_or_404(Escola, uuid=uuid)
+        escola = get_api_object_or_404(Escola, uuid=uuid)
         serializer = TipoAlimentacaoSerializer(
             instance=escola.tipos_alimentacao, many=True
         )
@@ -906,8 +907,8 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     )
     def ver_foto(self, request, codigo_eol):
         try:
-            novosgpservicologado = NovoSGPServicoLogado()
             codigo_eol_ = self.get_object().codigo_eol
+            novosgpservicologado = NovoSGPServicoLogado()
             response = novosgpservicologado.pegar_foto_aluno(codigo_eol_)
             if response.status_code == status.HTTP_200_OK:
                 return Response({"data": response.json()}, status=response.status_code)
@@ -923,8 +924,8 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     )
     def atualizar_foto(self, request, codigo_eol):
         try:
-            novosgpservicologado = NovoSGPServicoLogado()
             codigo_eol_ = self.get_object().codigo_eol
+            novosgpservicologado = NovoSGPServicoLogado()
             response = novosgpservicologado.atualizar_foto_aluno(
                 codigo_eol_, request.FILES["file"]
             )
@@ -942,8 +943,8 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
     )
     def deletar_foto(self, request, codigo_eol):
         try:
-            novosgpservicologado = NovoSGPServicoLogado()
             codigo_eol_ = self.get_object().codigo_eol
+            novosgpservicologado = NovoSGPServicoLogado()
             response = novosgpservicologado.deletar_foto_aluno(codigo_eol_)
             if response.status_code == status.HTTP_200_OK:
                 return Response({"data": response.json()}, status=response.status_code)
