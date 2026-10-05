@@ -29,6 +29,7 @@ from src.medicao_inicial.services.pendencias_acao_dre import (
 )
 from src.medicao_inicial.services.relatorio_adesao import (
     obtem_dias_com_dados,
+    existe_resultado_disponivel,
     obtem_escolas_ordenadas,
     obtem_nome_arquivo_relatorio_adesao,
     obtem_resultados,
@@ -2311,17 +2312,30 @@ class RelatoriosViewSet(ViewSet):
         escolas_uuid = query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value)
         escolas = obtem_escolas_ordenadas(escolas_uuid)
         return self._pagina_resultados(
-            request, query_params, escolas, obtem_resultados_para_escola
+            request,
+            query_params,
+            escolas,
+            obtem_resultados_para_escola,
+            existe_resultado_disponivel(query_params),
         )
 
     def _relatorio_adesao_por_data(self, request: Request, query_params) -> Response:
         dias = obtem_dias_com_dados(query_params)
         return self._pagina_resultados(
-            request, query_params, dias, obtem_resultados_para_dia
+            request,
+            query_params,
+            dias,
+            obtem_resultados_para_dia,
+            len(dias) > 0,
         )
 
     def _pagina_resultados(
-        self, request: Request, query_params, itens: list, obter_resultado
+        self,
+        request: Request,
+        query_params,
+        itens: list,
+        obter_resultado,
+        existe_resultado_disponivel: bool,
     ) -> Response:
         paginator = Paginator(itens, 1)
         page_number = query_params.get("page") or request.query_params.get("page", 1)
@@ -2354,6 +2368,7 @@ class RelatoriosViewSet(ViewSet):
                 "previous": previous_page,
                 "count": paginator.count,
                 "page_size": 1,
+                "possui_resultados": existe_resultado_disponivel,
                 "results": resultados,
             }
         )
