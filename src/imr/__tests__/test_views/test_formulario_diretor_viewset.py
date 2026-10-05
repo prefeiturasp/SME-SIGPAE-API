@@ -2,6 +2,7 @@ import json
 import uuid
 
 import pytest
+from freezegun import freeze_time
 from rest_framework import status
 
 from src.dados_comuns.constants import StringsValidationErrors
@@ -10,6 +11,7 @@ from src.imr.models import FormularioOcorrenciasBase, TipoOcorrencia
 pytestmark = pytest.mark.django_db
 
 
+@freeze_time("2024-06-10")
 def test_create_formulario_diretor(
     client_autenticado_diretor_escola,
     escola,
@@ -117,6 +119,7 @@ def test_create_formulario_diretor(
     assert instance.respostas_campo_numerico.filter(resposta=10).exists() is True
 
 
+@freeze_time("2024-06-10")
 def test_create_formulario_diretor_erro_parametrizacao_uuid(
     client_autenticado_diretor_escola,
     escola,
@@ -184,6 +187,7 @@ def test_create_formulario_diretor_erro_parametrizacao_uuid(
     }
 
 
+@freeze_time("2024-06-10")
 def test_create_formulario_diretor_data_fora_da_competencia(
     client_autenticado_diretor_escola,
     escola,
@@ -236,6 +240,7 @@ def test_create_formulario_diretor_data_fora_da_competencia(
     assert FormularioOcorrenciasBase.objects.count() == 0
 
 
+@freeze_time("2024-06-10")
 def test_create_formulario_diretor_data_formato_invalido(
     client_autenticado_diretor_escola,
     escola,
@@ -261,6 +266,37 @@ def test_create_formulario_diretor_data_formato_invalido(
     assert response.json() == {
         "datas": [StringsValidationErrors.DATA_EM_FORMATO_INVALIDO.value]
     }
+
+
+@pytest.mark.parametrize("data_futura", ["10/06/2024", "20/06/2024"])
+@freeze_time("2024-06-10")
+def test_create_formulario_diretor_data_de_hoje_ou_futura(
+    client_autenticado_diretor_escola,
+    escola,
+    solicitacao_medicao_inicial_factory,
+    data_futura,
+):
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
+
+    payload = {
+        "datas": [data_futura],
+        "solicitacao_medicao_inicial": str(solicitacao_medicao_inicial.uuid),
+        "ocorrencias": [],
+    }
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "datas": [StringsValidationErrors.DATA_DE_OCORRENCIA_FUTURA.value]
+    }
+    assert FormularioOcorrenciasBase.objects.count() == 0
 
 
 def test_formulario_diretor_get_tipos_ocorrencias(
