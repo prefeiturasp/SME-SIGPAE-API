@@ -1,4 +1,5 @@
 import pytest
+from freezegun import freeze_time
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -54,12 +55,15 @@ def test_formulario_diretor_create(
     assert form_diretor.solicitacao_medicao_inicial == solicitacao_medicao_inicial
 
 
+@freeze_time("2024-06-10")
 def test_formulario_diretor_many_create(
     client_autenticado_diretor_escola, solicitacao_medicao_inicial_factory
 ):
-    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory.create()
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory.create(
+        mes="06", ano="2024"
+    )
     data = {
-        "datas": ["31/05/2024", "01/06/2024"],
+        "datas": ["07/06/2024", "08/06/2024"],
         "solicitacao_medicao_inicial": solicitacao_medicao_inicial.uuid,
         "ocorrencias": [],
     }

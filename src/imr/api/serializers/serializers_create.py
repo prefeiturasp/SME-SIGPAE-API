@@ -626,7 +626,103 @@ class FormularioDiretorManyCreateSerializer(serializers.Serializer):
         allow_null=True,
         queryset=SolicitacaoMedicaoInicial.objects.all(),
     )
+    tipo_ocorrencia = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=False,
+        allow_null=True,
+        queryset=TipoOcorrencia.objects.all(),
+    )
     ocorrencias = serializers.ListField(required=True, allow_null=True)
+
+    def validate(self, attrs):
+        solicitacao_medicao_inicial = attrs.get("solicitacao_medicao_inicial")
+        datas = attrs.get("datas") or []
+
+        if solicitacao_medicao_inicial:
+            competencia = (
+                int(solicitacao_medicao_inicial.mes),
+                int(solicitacao_medicao_inicial.ano),
+            )
+            tipos_ocorrencia = self._get_tipos_ocorrencia(
+                attrs.get("ocorrencias") or [],
+                attrs.get("tipo_ocorrencia"),
+            )
+
+            for data in datas:
+                data_formatada = self._parse_data(data)
+                self._valida_data_no_periodo_da_medicao(data_formatada, competencia)
+                self._valida_data_duplicada(
+                    solicitacao_medicao_inicial.escola,
+                    data_formatada,
+                    tipos_ocorrencia,
+                )
+
+        return attrs
+
+    def _parse_data(self, data):
+        try:
+            return datetime.datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError(
+                {"datas": [StringsValidationErrors.DATA_EM_FORMATO_INVALIDO.value]}
+            )
+
+    def _valida_data_no_periodo_da_medicao(self, data_formatada, competencia):
+        if (data_formatada.month, data_formatada.year) != competencia:
+            raise serializers.ValidationError(
+                {
+                    "datas": [
+                        StringsValidationErrors.DATA_FORA_DA_COMPETENCIA_DA_MEDICAO.value
+                    ]
+                }
+            )
+
+        if data_formatada.date() >= datetime.date.today():
+            raise serializers.ValidationError(
+                {"datas": [StringsValidationErrors.DATA_DE_OCORRENCIA_FUTURA.value]}
+            )
+
+    def _get_tipos_ocorrencia(self, ocorrencias, tipo_ocorrencia=None):
+        tipos_ocorrencia = set()
+        if tipo_ocorrencia:
+            tipos_ocorrencia.add(tipo_ocorrencia.pk)
+
+        parametrizacoes_uuids = [
+            ocorrencia["parametrizacao"]
+            for ocorrencia in ocorrencias
+            if isinstance(ocorrencia, dict) and ocorrencia.get("parametrizacao")
+        ]
+        if parametrizacoes_uuids:
+            tipos_ocorrencia.update(
+                ParametrizacaoOcorrencia.objects.filter(
+                    uuid__in=parametrizacoes_uuids
+                ).values_list("tipo_ocorrencia_id", flat=True)
+            )
+
+        return tipos_ocorrencia
+
+    def _valida_data_duplicada(self, escola, data_formatada, tipos_ocorrencia):
+        if not tipos_ocorrencia:
+            return
+
+        formularios = FormularioDiretor.objects.filter(
+            solicitacao_medicao_inicial__escola=escola,
+            formulario_base__data=data_formatada.date(),
+        ).select_related("formulario_base")
+
+        for formulario in formularios:
+            respostas = formulario.formulario_base.buscar_respostas()
+            if any(
+                resposta.parametrizacao.tipo_ocorrencia_id in tipos_ocorrencia
+                for resposta in respostas
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "datas": [
+                            StringsValidationErrors.DATA_DE_OCORRENCIA_DUPLICADA.value
+                        ]
+                    }
+                )
 
     def create(self, validated_data):
         datas = validated_data.pop("datas")
