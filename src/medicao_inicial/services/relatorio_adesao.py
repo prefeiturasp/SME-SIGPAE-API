@@ -499,6 +499,9 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
     (nome e código EOL), permitindo que o resultado seja paginado com uma escola
     por página.
 
+    Escolas sem resultados (sem dados lançados) são descartadas, evitando a
+    geração de páginas em branco no PDF.
+
     Args:
         query_params (QueryDict): QueryDict contendo os parâmetros da requisição
 
@@ -507,10 +510,11 @@ def obtem_resultados_por_escola(query_params: QueryDict) -> list[dict]:
         ``{"escola": {"nome": str, "codigo_eol": str}, "resultados": dict}``
     """
     escolas_uuid = query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value)
-    return [
+    resultados = [
         obtem_resultados_para_escola(escola, query_params)
         for escola in obtem_escolas_ordenadas(escolas_uuid)
     ]
+    return [resultado for resultado in resultados if resultado["resultados"]]
 
 
 def obtem_tipos_unidades_ordenados(query_params: QueryDict) -> list[TipoUnidadeEscolar]:
@@ -702,6 +706,40 @@ def obtem_resultados_por_data(query_params: QueryDict) -> list[dict]:
         if resultado["resultados"]:
             combinacoes.append(resultado)
     return combinacoes
+
+
+def existe_resultado_disponivel(query_params: QueryDict) -> bool:
+    """
+    Verifica, de forma otimizada, se existe ao menos um resultado de medição
+    compatível com os filtros informados (sem agregar os totais de cada escola/dia).
+
+    Útil para decidir se vale a pena paginar/exportar o relatório, evitando
+    o cálculo completo de `_calcula_resultados` apenas para checar existência.
+
+    Args:
+        query_params (QueryDict): parâmetros da requisição.
+
+    Returns:
+        bool: True se houver ao menos um resultado, False caso contrário.
+    """
+    mes, ano, dia_inicial, dia_final, tipos_alimentacao = _parametros_consulta(
+        query_params
+    )
+    filtros = _cria_filtros(query_params)
+    medicoes = _obtem_medicoes(mes, ano, filtros)
+
+    queryset = ValorMedicao.objects.filter(
+        medicao__in=medicoes,
+        tipo_alimentacao__isnull=False,
+    ).exclude(categoria_medicao__nome__icontains="DIETA")
+
+    if dia_inicial and dia_final:
+        queryset = queryset.filter(dia__gte=dia_inicial, dia__lte=dia_final)
+
+    if tipos_alimentacao:
+        queryset = queryset.filter(tipo_alimentacao__uuid__in=tipos_alimentacao)
+
+    return queryset.exists()
 
 
 def obtem_dias_com_dados(query_params: QueryDict) -> list[str]:
