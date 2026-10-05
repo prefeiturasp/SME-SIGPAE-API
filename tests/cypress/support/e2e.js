@@ -158,3 +158,5 @@ import './commands_api/commands_escola_quantidade_alunos_por_periodo_e_faixa_eta
 import './step_definitions/escola_quantidade_alunos_por_periodo_e_faixa_etaria'
 import './commands_api/commands_escolas_para_filtros'
 import './step_definitions/escolas_para_filtros'
+import './commands_api/commands_escolas_simples'
+import './step_definitions/escolas_simples'
