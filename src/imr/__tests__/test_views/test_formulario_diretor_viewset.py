@@ -4,6 +4,7 @@ import uuid
 import pytest
 from rest_framework import status
 
+from src.dados_comuns.constants import StringsValidationErrors
 from src.imr.models import FormularioOcorrenciasBase, TipoOcorrencia
 
 pytestmark = pytest.mark.django_db
@@ -18,7 +19,9 @@ def test_create_formulario_diretor(
     tipo_ocorrencia_factory,
     parametrizacao_ocorrencia_factory,
 ):
-    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(escola=escola)
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
 
     tipo_resposta_campo_simples = tipo_resposta_modelo_factory(
         nome="RespostaCampoTextoSimples"
@@ -123,7 +126,9 @@ def test_create_formulario_diretor_erro_parametrizacao_uuid(
     tipo_ocorrencia_factory,
     parametrizacao_ocorrencia_factory,
 ):
-    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(escola=escola)
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
 
     tipo_resposta_campo_simples = tipo_resposta_modelo_factory(
         nome="RespostaCampoTextoSimples"
@@ -176,6 +181,85 @@ def test_create_formulario_diretor_erro_parametrizacao_uuid(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {
         "detail": f"ParametrizacaoOcorrencia com o UUID {str(uuid_incorreto)} não foi encontrada"
+    }
+
+
+def test_create_formulario_diretor_data_fora_da_competencia(
+    client_autenticado_diretor_escola,
+    escola,
+    solicitacao_medicao_inicial_factory,
+    tipo_resposta_modelo_factory,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    tipo_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+):
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
+
+    tipo_resposta_campo_simples = tipo_resposta_modelo_factory(
+        nome="RespostaCampoTextoSimples"
+    )
+    tipo_pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory(
+        nome="Campo de Texto Simples", tipo_resposta=tipo_resposta_campo_simples
+    )
+    tipo_ocorrencia = tipo_ocorrencia_factory.create()
+    parametrizacao_ocorrencia = parametrizacao_ocorrencia_factory(
+        tipo_ocorrencia=tipo_ocorrencia,
+        tipo_pergunta=tipo_pergunta,
+        titulo="Qual uniforme faltou?",
+    )
+
+    payload = {
+        "datas": ["07/05/2024", "08/06/2024"],
+        "solicitacao_medicao_inicial": str(solicitacao_medicao_inicial.uuid),
+        "ocorrencias": [
+            {
+                "grupo": 1,
+                "parametrizacao": str(parametrizacao_ocorrencia.uuid),
+                "tipo_ocorrencia": str(tipo_ocorrencia.uuid),
+                "resposta": "calça",
+            },
+        ],
+    }
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "datas": [StringsValidationErrors.DATA_FORA_DA_COMPETENCIA_DA_MEDICAO.value]
+    }
+    assert FormularioOcorrenciasBase.objects.count() == 0
+
+
+def test_create_formulario_diretor_data_formato_invalido(
+    client_autenticado_diretor_escola,
+    escola,
+    solicitacao_medicao_inicial_factory,
+):
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
+
+    payload = {
+        "datas": ["2024-06-07"],
+        "solicitacao_medicao_inicial": str(solicitacao_medicao_inicial.uuid),
+        "ocorrencias": [],
+    }
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "datas": [StringsValidationErrors.DATA_EM_FORMATO_INVALIDO.value]
     }
 
 
