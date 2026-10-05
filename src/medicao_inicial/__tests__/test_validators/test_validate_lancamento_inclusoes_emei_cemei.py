@@ -280,3 +280,48 @@ class TestValidateLancamentoInclusoesEMEICEMEI:
         )
 
         assert lista_erros == []
+
+    def test_nao_duplica_dia_quando_inclusao_aparece_repetida_no_queryset(
+        self,
+        escola_cemei,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        monkeypatch,
+    ):
+        from src.medicao_inicial import validators
+
+        periodo = baker.make("PeriodoEscolar", nome="INTEGRAL")
+        solicitacao, medicao = _cria_solicitacao_e_medicao(escola_cemei, periodo)
+        inclusao = _cria_inclusao_cemei(
+            escola_cemei, periodo, [tipo_alimentacao_refeicao], 5
+        )
+        baker.make(
+            "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+            inclusao_alimentacao_cemei=inclusao,
+            data=datetime.date(int(ANO), int(MES), 6),
+        )
+
+        dias_processados = []
+        buscar_original = validators.buscar_valores_lancamento_inclusoes_emei_cemei
+
+        def buscar_espiao(inclusao_dict, categoria, lista_erros):
+            dias_processados.append(inclusao_dict["dia"])
+            return buscar_original(inclusao_dict, categoria, lista_erros)
+
+        monkeypatch.setattr(
+            validators,
+            "buscar_valores_lancamento_inclusoes_emei_cemei",
+            buscar_espiao,
+        )
+
+        # Simula a duplicação gerada pelos JOINs do queryset em validate_medicao_cemei
+        validate_lancamento_inclusoes_emei_cemei(
+            solicitacao,
+            [],
+            [inclusao, inclusao, inclusao],
+            escola_cemei,
+            categoria_medicao,
+            medicao,
+        )
+
+        assert dias_processados == ["05", "06"]

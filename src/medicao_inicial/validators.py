@@ -1297,44 +1297,66 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
     return erros_unicos(lista_erros)
 
 
+def _get_linhas_da_tabela_inclusao_emei_cemei(solicitacao, escola, qt, medicao):
+    periodo = qt.periodo_escolar
+    if periodo.nome.upper() not in medicao.nome_periodo_grupo.upper():
+        return None
+
+    alimentacoes_permitidas = get_alimentacoes_permitidas(solicitacao, escola, periodo)
+    tipos_alimentacao = qt.tipos_alimentacao.exclude(
+        nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
+    tipos_alimentacao = list(set(tipos_alimentacao.values_list("nome", flat=True)))
+    alimentacoes_permitidas = filtrar_alimentacoes_permitidas_pela_inclusao(
+        tipos_alimentacao, alimentacoes_permitidas
+    )
+    alimentacoes = tipos_alimentacao + alimentacoes_permitidas
+    eh_numero_alunos = periodo not in escola.periodos_escolares(
+        ano=solicitacao.ano, mes=solicitacao.mes
+    )
+    return get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
+
+
+def _get_dias_da_inclusao_emei_cemei(
+    inclusao, solicitacao, linhas_da_tabela, inclusoes_adicionadas
+):
+    dias = []
+    dias_motivos = inclusao.dias_motivos_da_inclusao_cemei.filter(
+        cancelado=False,
+        data__month=solicitacao.mes,
+        data__year=solicitacao.ano,
+    )
+    for dia_motivo in dias_motivos:
+        chave = (str(dia_motivo.data.day).rjust(2, "0"), tuple(linhas_da_tabela))
+        if chave in inclusoes_adicionadas:
+            continue
+        inclusoes_adicionadas.add(chave)
+        dias.append(chave[0])
+    return dias
+
+
 def validate_lancamento_inclusoes_emei_cemei(
     solicitacao, lista_erros, inclusoes, escola, categoria, medicao
 ):
     list_inclusoes = []
+    inclusoes_adicionadas = set()
     for inclusao in inclusoes:
         for qt in inclusao.quantidade_alunos_emei_da_inclusao_cemei.all():
-            periodo = qt.periodo_escolar
-            if periodo.nome.upper() in medicao.nome_periodo_grupo.upper():
-                alimentacoes_permitidas = get_alimentacoes_permitidas(
-                    solicitacao, escola, periodo
+            linhas_da_tabela = _get_linhas_da_tabela_inclusao_emei_cemei(
+                solicitacao, escola, qt, medicao
+            )
+            if not linhas_da_tabela:
+                continue
+            for dia in _get_dias_da_inclusao_emei_cemei(
+                inclusao, solicitacao, linhas_da_tabela, inclusoes_adicionadas
+            ):
+                list_inclusoes.append(
+                    {
+                        "medicao": medicao,
+                        "dia": dia,
+                        "linhas_da_tabela": linhas_da_tabela,
+                    }
                 )
-                tipos_alimentacao = qt.tipos_alimentacao.exclude(
-                    nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
-                )
-                tipos_alimentacao = list(
-                    set(tipos_alimentacao.values_list("nome", flat=True))
-                )
-                alimentacoes_permitidas = filtrar_alimentacoes_permitidas_pela_inclusao(
-                    tipos_alimentacao, alimentacoes_permitidas
-                )
-                alimentacoes = tipos_alimentacao + alimentacoes_permitidas
-                eh_numero_alunos = periodo not in escola.periodos_escolares(
-                    ano=solicitacao.ano, mes=solicitacao.mes
-                )
-                linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
-                dias_motivos = inclusao.dias_motivos_da_inclusao_cemei.filter(
-                    cancelado=False,
-                    data__month=solicitacao.mes,
-                    data__year=solicitacao.ano,
-                )
-                for dia_motivo in dias_motivos:
-                    list_inclusoes.append(
-                        {
-                            "medicao": medicao,
-                            "dia": str(dia_motivo.data.day).rjust(2, "0"),
-                            "linhas_da_tabela": linhas_da_tabela,
-                        }
-                    )
     for inclusao in list_inclusoes:
         lista_erros = buscar_valores_lancamento_inclusoes_emei_cemei(
             inclusao, categoria, lista_erros
