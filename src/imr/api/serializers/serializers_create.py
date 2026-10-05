@@ -659,6 +659,11 @@ class FormularioDiretorManyCreateSerializer(serializers.Serializer):
                 }
             )
 
+        if data_formatada.date() >= datetime.date.today():
+            raise serializers.ValidationError(
+                {"datas": [StringsValidationErrors.DATA_DE_OCORRENCIA_FUTURA.value]}
+            )
+
     def create(self, validated_data):
         datas = validated_data.pop("datas")
         solicitacao_medicao_inicial = validated_data["solicitacao_medicao_inicial"]

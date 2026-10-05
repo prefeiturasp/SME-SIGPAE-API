@@ -978,6 +978,10 @@ class StringsValidationErrors(Enum):
         "medição inicial."
     )
     DATA_EM_FORMATO_INVALIDO = "Data em formato inválido. Utilize o formato DD/MM/AAAA."
+    DATA_DE_OCORRENCIA_FUTURA = (
+        "Não é permitido registrar ocorrência para a data de hoje ou para "
+        "datas futuras."
+    )
     USUARIO_OU_SENHA_INVALIDOS = "Usuário ou senha inválidos"
     USUARIO_NAO_ENCONTRADO = "Usuário não encontrado"
     SEM_AUTORIZACAO_ACESSO = (
