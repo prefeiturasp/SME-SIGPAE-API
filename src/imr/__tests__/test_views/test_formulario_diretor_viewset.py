@@ -299,6 +299,129 @@ def test_create_formulario_diretor_data_de_hoje_ou_futura(
     assert FormularioOcorrenciasBase.objects.count() == 0
 
 
+@freeze_time("2024-06-10")
+def test_create_formulario_diretor_data_duplicada(
+    client_autenticado_diretor_escola,
+    escola,
+    solicitacao_medicao_inicial_factory,
+    tipo_resposta_modelo_factory,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    tipo_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+):
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
+
+    tipo_resposta_campo_simples = tipo_resposta_modelo_factory(
+        nome="RespostaCampoTextoSimples"
+    )
+    tipo_pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory(
+        nome="Campo de Texto Simples", tipo_resposta=tipo_resposta_campo_simples
+    )
+    tipo_ocorrencia = tipo_ocorrencia_factory.create()
+    parametrizacao = parametrizacao_ocorrencia_factory(
+        tipo_ocorrencia=tipo_ocorrencia,
+        tipo_pergunta=tipo_pergunta,
+        titulo="Qual uniforme faltou?",
+    )
+
+    payload = {
+        "datas": ["07/06/2024"],
+        "solicitacao_medicao_inicial": str(solicitacao_medicao_inicial.uuid),
+        "ocorrencias": [
+            {
+                "grupo": 1,
+                "parametrizacao": str(parametrizacao.uuid),
+                "tipo_ocorrencia": str(tipo_ocorrencia.uuid),
+                "resposta": "calça",
+            },
+        ],
+    }
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "datas": [StringsValidationErrors.DATA_DE_OCORRENCIA_DUPLICADA.value]
+    }
+    assert FormularioOcorrenciasBase.objects.count() == 1
+
+
+@freeze_time("2024-06-10")
+def test_create_formulario_diretor_data_igual_tipo_diferente_permitida(
+    client_autenticado_diretor_escola,
+    escola,
+    solicitacao_medicao_inicial_factory,
+    tipo_resposta_modelo_factory,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    tipo_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+):
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
+
+    tipo_resposta_campo_simples = tipo_resposta_modelo_factory(
+        nome="RespostaCampoTextoSimples"
+    )
+    tipo_pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory(
+        nome="Campo de Texto Simples", tipo_resposta=tipo_resposta_campo_simples
+    )
+
+    tipo_ocorrencia_1 = tipo_ocorrencia_factory.create()
+    parametrizacao_1 = parametrizacao_ocorrencia_factory(
+        tipo_ocorrencia=tipo_ocorrencia_1,
+        tipo_pergunta=tipo_pergunta,
+        titulo="Qual uniforme faltou?",
+    )
+    tipo_ocorrencia_2 = tipo_ocorrencia_factory.create()
+    parametrizacao_2 = parametrizacao_ocorrencia_factory(
+        tipo_ocorrencia=tipo_ocorrencia_2,
+        tipo_pergunta=tipo_pergunta,
+        titulo="Qual uniforme faltou?",
+    )
+
+    def montar_payload(tipo_ocorrencia, parametrizacao):
+        return {
+            "datas": ["07/06/2024"],
+            "solicitacao_medicao_inicial": str(solicitacao_medicao_inicial.uuid),
+            "ocorrencias": [
+                {
+                    "grupo": 1,
+                    "parametrizacao": str(parametrizacao.uuid),
+                    "tipo_ocorrencia": str(tipo_ocorrencia.uuid),
+                    "resposta": "calça",
+                },
+            ],
+        }
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(montar_payload(tipo_ocorrencia_1, parametrizacao_1)),
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(montar_payload(tipo_ocorrencia_2, parametrizacao_2)),
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+    assert FormularioOcorrenciasBase.objects.count() == 2
+
+
 def test_formulario_diretor_get_tipos_ocorrencias(
     client_autenticado_diretor_escola,
     edital_factory,
