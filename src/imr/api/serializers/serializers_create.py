@@ -628,6 +628,37 @@ class FormularioDiretorManyCreateSerializer(serializers.Serializer):
     )
     ocorrencias = serializers.ListField(required=True, allow_null=True)
 
+    def validate(self, attrs):
+        solicitacao_medicao_inicial = attrs.get("solicitacao_medicao_inicial")
+        datas = attrs.get("datas") or []
+
+        if solicitacao_medicao_inicial:
+            competencia = (
+                int(solicitacao_medicao_inicial.mes),
+                int(solicitacao_medicao_inicial.ano),
+            )
+            for data in datas:
+                self._valida_data_no_periodo_da_medicao(data, competencia)
+
+        return attrs
+
+    def _valida_data_no_periodo_da_medicao(self, data, competencia):
+        try:
+            data_formatada = datetime.datetime.strptime(data, FORMATO_DATA_BRASILEIRO)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError(
+                {"datas": [StringsValidationErrors.DATA_EM_FORMATO_INVALIDO.value]}
+            )
+
+        if (data_formatada.month, data_formatada.year) != competencia:
+            raise serializers.ValidationError(
+                {
+                    "datas": [
+                        StringsValidationErrors.DATA_FORA_DA_COMPETENCIA_DA_MEDICAO.value
+                    ]
+                }
+            )
+
     def create(self, validated_data):
         datas = validated_data.pop("datas")
         solicitacao_medicao_inicial = validated_data["solicitacao_medicao_inicial"]

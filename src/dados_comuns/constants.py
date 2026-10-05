@@ -973,6 +973,11 @@ class StringsValidationErrors(Enum):
         "É necessario informar o número da requisição ao qual a(s) guia(s) pertece(m)."
     )
     CAMPO_OBRIGATORIO_PARA_O_GRUPO = "Campo obrigatório para o grupo."
+    DATA_FORA_DA_COMPETENCIA_DA_MEDICAO = (
+        "A data da ocorrência deve pertencer ao mês e ano da solicitação de "
+        "medição inicial."
+    )
+    DATA_EM_FORMATO_INVALIDO = "Data em formato inválido. Utilize o formato DD/MM/AAAA."
     USUARIO_OU_SENHA_INVALIDOS = "Usuário ou senha inválidos"
     USUARIO_NAO_ENCONTRADO = "Usuário não encontrado"
     SEM_AUTORIZACAO_ACESSO = (
