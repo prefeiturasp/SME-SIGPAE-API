@@ -16,6 +16,7 @@ django.setup()
 from channels.auth import AuthMiddlewareStack  # noqa
 from channels.routing import ProtocolTypeRouter, URLRouter  # noqa
 from django.core.asgi import get_asgi_application  # noqa
+from sme_sidecar_sdk.integrations.asgi import instrument_asgi_application  # noqa
 
 from src.dados_comuns.urls import ws_urlpatterns  # noqa
 
@@ -31,3 +32,5 @@ application = ProtocolTypeRouter(
         "websocket": AuthMiddlewareStack(URLRouter([*ws_urlpatterns])),
     }
 )
+
+application = instrument_asgi_application(application)
