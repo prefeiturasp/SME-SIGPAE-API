@@ -1322,16 +1322,19 @@ def validate_lancamento_inclusoes_emei_cemei(
                     ano=solicitacao.ano, mes=solicitacao.mes
                 )
                 linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
-                dia_da_inclusao = str(
-                    inclusao.dias_motivos_da_inclusao_cemei.first().data.day
-                ).rjust(2, "0")
-                list_inclusoes.append(
-                    {
-                        "medicao": medicao,
-                        "dia": dia_da_inclusao,
-                        "linhas_da_tabela": linhas_da_tabela,
-                    }
+                dias_motivos = inclusao.dias_motivos_da_inclusao_cemei.filter(
+                    cancelado=False,
+                    data__month=solicitacao.mes,
+                    data__year=solicitacao.ano,
                 )
+                for dia_motivo in dias_motivos:
+                    list_inclusoes.append(
+                        {
+                            "medicao": medicao,
+                            "dia": str(dia_motivo.data.day).rjust(2, "0"),
+                            "linhas_da_tabela": linhas_da_tabela,
+                        }
+                    )
     for inclusao in list_inclusoes:
         lista_erros = buscar_valores_lancamento_inclusoes_emei_cemei(
             inclusao, categoria, lista_erros
