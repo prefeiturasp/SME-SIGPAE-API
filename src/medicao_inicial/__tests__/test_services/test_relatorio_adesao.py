@@ -349,7 +349,7 @@ def test_obtem_resultados_por_escola(
     assert resultados_por_eol[escola2.codigo_eol]["resultados"] == esperado
 
 
-def test_obtem_resultados_por_escola_sem_medicoes_retorna_resultados_vazios(
+def test_obtem_resultados_por_escola_exclui_escolas_sem_medicoes(
     categoria_medicao,
     tipo_alimentacao_refeicao,
     escola,
@@ -390,12 +390,10 @@ def test_obtem_resultados_por_escola_sem_medicoes_retorna_resultados_vazios(
     resultados_por_eol = {
         resultado["escola"]["codigo_eol"]: resultado for resultado in resultados
     }
-    assert set(resultados_por_eol.keys()) == {
-        escola.codigo_eol,
-        escola_sem_medicao.codigo_eol,
-    }
+    assert len(resultados) == 1
+    assert set(resultados_por_eol.keys()) == {escola.codigo_eol}
     assert resultados_por_eol[escola.codigo_eol]["resultados"] != {}
-    assert resultados_por_eol[escola_sem_medicao.codigo_eol]["resultados"] == {}
+    assert escola_sem_medicao.codigo_eol not in resultados_por_eol
 
 
 def test_obtem_resultados_filtra_por_tipos_unidades(
