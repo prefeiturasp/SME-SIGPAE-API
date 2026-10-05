@@ -10,7 +10,7 @@ from src.dados_comuns.constants import (
     DJANGO_EOL_SGP_API_TOKEN,
     DJANGO_EOL_SGP_API_URL,
 )
-from src.dados_comuns.http_client import EOL_SGP_CLIENT_SEM_RAISE, executar_chamada
+from src.dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 from src.escola.models import (
     Escola,
     HistoricoMatriculaAluno,
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         while tentativas < max_tentativas:
             try:
                 response = executar_chamada(
-                    EOL_SGP_CLIENT_SEM_RAISE,
+                    EOL_SGP_CLIENT,
                     "get",
                     f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{cod_eol_escola}/anosLetivos/{ano}",
                     headers=self.headers,

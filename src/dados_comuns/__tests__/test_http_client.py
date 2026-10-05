@@ -1,7 +1,6 @@
 from unittest.mock import Mock
 
 import httpx
-from sme_sidecar_sdk import CircuitOpenError
 
 from src.dados_comuns.http_client import executar_chamada
 
@@ -36,12 +35,3 @@ def test_executar_chamada_retorna_404_sem_levantar_erro():
     result = executar_chamada(client, "get", "https://api/recurso")
 
     assert result is response
-
-
-def test_executar_chamada_retorna_503_quando_circuit_aberto():
-    client = Mock()
-    client.get.side_effect = CircuitOpenError("circuito aberto")
-
-    result = executar_chamada(client, "get", "https://api/recurso")
-
-    assert result.status_code == 503

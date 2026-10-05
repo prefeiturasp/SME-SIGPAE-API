@@ -7,10 +7,7 @@ from django.core.management.base import BaseCommand, CommandParser
 from sme_sidecar_sdk import CircuitOpenError
 
 from ....dados_comuns.constants import DJANGO_EOL_SGP_API_TOKEN, DJANGO_EOL_SGP_API_URL
-from ....dados_comuns.http_client import (
-    EOL_SGP_CLIENT_SEM_RAISE,
-    executar_chamada,
-)
+from ....dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
 from ...models import Aluno, Escola, HistoricoMatriculaAluno
 
 logger = logging.getLogger("sigpae.cmd_registra_historico_matriculas_alunos")
@@ -53,11 +50,7 @@ class Command(BaseCommand):
         try:
             url = f"{DJANGO_EOL_SGP_API_URL}/alunos/{cod_eol_aluno}/turmas/anosLetivos/{ano_letivo}/matriculaTurma/true/tipoTurma/true"
             r = executar_chamada(
-                EOL_SGP_CLIENT_SEM_RAISE,
-                "get",
-                url=url,
-                headers=self.headers,
-                timeout=120,
+                EOL_SGP_CLIENT, "get", url=url, headers=self.headers, timeout=120
             )
             if r.status_code == 200:
                 json = r.json()
