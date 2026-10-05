@@ -1,11 +1,12 @@
 import datetime
 import json
 from calendar import monthrange
+from uuid import UUID
 
 from django.contrib.postgres.aggregates import ArrayAgg
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Count, F, Max, OuterRef, Q, Subquery, Sum
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
@@ -173,7 +174,18 @@ class EscolaSimplissimaViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
 
     @action(detail=False, methods=["GET"], url_path=f"{FILTRO_DRE_UUID}")
     def filtro_por_diretoria_regional(self, request, dre_uuid=None):
-        escolas = Escola.objects.filter(diretoria_regional__uuid=dre_uuid)
+        try:
+            uuid = UUID(str(dre_uuid))
+        except (ValueError, TypeError, AttributeError) as error:
+            raise Http404("UUID invalido.") from error
+
+        # A rota legada por DRE tambem intercepta o detalhe por UUID da escola.
+        escola = self.get_queryset().filter(uuid=uuid).first()
+        if escola is not None:
+            self.check_object_permissions(request, escola)
+            return Response(self.get_serializer(escola).data)
+
+        escolas = Escola.objects.filter(diretoria_regional__uuid=uuid)
         return Response(self.get_serializer(escolas, many=True).data)
 
 
