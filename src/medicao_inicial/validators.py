@@ -150,8 +150,16 @@ def validate_ultimo_dia_mes_letivo(
     if ultimo_dia not in dias_letivos_uteis:
         return lista_erros
 
+    medicoes = instance.medicoes.exclude(grupo__nome__in=EXCLUIR_MEDICOES)
+    if instance.escola.eh_emef_emei_cieja:
+        periodos_regulares = instance.escola.periodos_escolares(
+            ano=ano,
+            mes=mes,
+        )
+        medicoes = medicoes.filter(periodo_escolar__in=periodos_regulares)
+
     dia_str = f"{ultimo_dia:02d}"
-    for medicao in instance.medicoes.exclude(grupo__nome__in=EXCLUIR_MEDICOES):
+    for medicao in medicoes:
         tem_valor = (
             medicao.valores_medicao.filter(dia=dia_str, nome_campo="matriculados")
             .exclude(valor__in=[None, "0"])
