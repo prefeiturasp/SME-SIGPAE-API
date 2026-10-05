@@ -982,6 +982,10 @@ class StringsValidationErrors(Enum):
         "Não é permitido registrar ocorrência para a data de hoje ou para "
         "datas futuras."
     )
+    DATA_DE_OCORRENCIA_DUPLICADA = (
+        "Já existe uma ocorrência registrada para esta data com a mesma "
+        "categoria e tipo de ocorrência."
+    )
     USUARIO_OU_SENHA_INVALIDOS = "Usuário ou senha inválidos"
     USUARIO_NAO_ENCONTRADO = "Usuário não encontrado"
     SEM_AUTORIZACAO_ACESSO = (
