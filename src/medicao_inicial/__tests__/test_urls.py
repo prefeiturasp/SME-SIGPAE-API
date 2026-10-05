@@ -3084,12 +3084,9 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     assert response.status_code == status.HTTP_200_OK
     mock_exporta_pdf.assert_called_once()
     _, kwargs = mock_exporta_pdf.call_args
-    assert len(kwargs["resultados"]) == 2
-    assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
-        NomesParaTesteEscola.EMEF_TESTE.value,
-        "EMEF DOIS",
-    }
-    assert any(r["resultados"] for r in kwargs["resultados"])
+    assert len(kwargs["resultados"]) == 1
+    assert kwargs["resultados"][0]["escola"]["nome"] == NomesParaTesteEscola.EMEF_TESTE.value
+    assert kwargs["resultados"][0]["resultados"]
 
 
 @patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_xlsx.delay")
@@ -3149,12 +3146,9 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     assert response.status_code == status.HTTP_200_OK
     mock_exporta_xlsx.assert_called_once()
     _, kwargs = mock_exporta_xlsx.call_args
-    assert len(kwargs["resultados"]) == 2
-    assert {r["escola"]["nome"] for r in kwargs["resultados"]} == {
-        NomesParaTesteEscola.EMEF_TESTE.value,
-        "EMEF DOIS",
-    }
-    assert any(r["resultados"] for r in kwargs["resultados"])
+    assert len(kwargs["resultados"]) == 1
+    assert kwargs["resultados"][0]["escola"]["nome"] == NomesParaTesteEscola.EMEF_TESTE.value
+    assert kwargs["resultados"][0]["resultados"]
 
 
 @patch("src.medicao_inicial.api.viewsets.exporta_relatorio_adesao_para_xlsx.delay")
