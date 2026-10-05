@@ -952,6 +952,56 @@ class TestCronogramaSemanalViewSet:
         assert "Horário: 08:00 às 16:00" in pdf_text
 
 
+class TestPermissoesDilogQualidade:
+    """O perfil DILOG_QUALIDADE visualiza cronogramas semanais, mas não cria
+    nem edita."""
+
+    def test_lista_cronogramas_semanais(
+        self, client_autenticado_qualidade, cronograma_semanal_fornecedor_ciente
+    ):
+        response = client_autenticado_qualidade.get("/cronogramas-semanais/")
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["count"] == 1
+
+    def test_detalha_cronograma_semanal(
+        self, client_autenticado_qualidade, cronograma_semanal_fornecedor_ciente
+    ):
+        response = client_autenticado_qualidade.get(
+            f"/cronogramas-semanais/{cronograma_semanal_fornecedor_ciente.uuid}/"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json()["uuid"] == str(
+            cronograma_semanal_fornecedor_ciente.uuid
+        )
+
+    def test_lista_cronogramas_mensal_assinados(
+        self, client_autenticado_qualidade, cronograma_ponto_a_ponto_assinado
+    ):
+        response = client_autenticado_qualidade.get(
+            "/cronogramas-semanais/cronogramas-mensal-assinados/"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert str(cronograma_ponto_a_ponto_assinado.uuid) in [
+            item["uuid"] for item in response.json()
+        ]
+
+    def test_nao_pode_criar_rascunho(
+        self, client_autenticado_qualidade, payload_cronograma_semanal_rascunho
+    ):
+        """A visualização foi liberada; a criação continua restrita a
+        DILOG_CRONOGRAMA e COORDENADOR_CODAE_DILOG_LOGISTICA."""
+        response = client_autenticado_qualidade.post(
+            "/cronogramas-semanais/rascunho/",
+            payload_cronograma_semanal_rascunho,
+            content_type="application/json",
+        )
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
 class TestRelatorioCronogramaSemanalFiltros:
     """Filtros do endpoint ``GET /cronogramas-semanais/listagem-relatorio/``."""
 
