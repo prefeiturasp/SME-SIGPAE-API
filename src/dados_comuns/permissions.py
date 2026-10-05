@@ -1700,7 +1700,8 @@ class PermissaoRelatorioRecreioNasFerias(BasePermission):
 
 class PermissaoParaVisualizarCronogramaSemanal(BasePermission):
     """Permissão para visualizar Cronograma Semanal FLV.
-    Apenas os perfis DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA e FORNECEDOR podem acessar.
+    Apenas os perfis DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA,
+    DILOG_QUALIDADE e FORNECEDOR podem acessar.
     """
 
     def has_permission(self, request, view):
@@ -1713,7 +1714,11 @@ class PermissaoParaVisualizarCronogramaSemanal(BasePermission):
             and (
                 isinstance(usuario.vinculo_atual.instituicao, Codae)
                 and usuario.vinculo_atual.perfil.nome
-                in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
+                in [
+                    DILOG_CRONOGRAMA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    DILOG_QUALIDADE,
+                ]
             )
             or usuario.eh_fornecedor
         )
