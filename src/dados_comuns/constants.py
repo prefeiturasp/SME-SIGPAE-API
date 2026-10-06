@@ -1347,6 +1347,7 @@ class StringsVerboseNameModels(Enum):
     JUSTIFICATIVA_DE_SOLICITACAO_PELO_FORNECEDOR = (
         "Justificativa de solicitação pelo fornecedor"
     )
+    JUSTIFICATIVA_REPROVACAO = "Justificativa da Reprovação"
     LINK = "Link"
     LOGRADOURO = "Logradouro"
     LOGS_DE_MATRICULADOS_DIETAS_AUTORIZADAS_ETC_FORAM_SALVOS = (

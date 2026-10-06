@@ -150,7 +150,8 @@ class LogSolicitacoesUsuario(models.Model):
         FICHA_TECNICA_CADASTRADA,
         MEDICAO_CODAE_REABRIU_LANCAMENTO,
         CODAE_MANTEVE_PRODUTO_SUSPENSO,
-    ) = range(117)
+        DOCUMENTO_REPROVADO,
+    ) = range(118)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -339,6 +340,7 @@ class LogSolicitacoesUsuario(models.Model):
         (ESCOLA_ALTEROU_ENCERRAMENTO_INCLUSAO_CONTINUA, "Escola alterou"),
         (MEDICAO_CODAE_REABRIU_LANCAMENTO, "CODAE reabriu lançamento"),
         (CODAE_MANTEVE_PRODUTO_SUSPENSO, "CODAE manteve o produto suspenso"),
+        (DOCUMENTO_REPROVADO, "Documento de Recebimento reprovado"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,
