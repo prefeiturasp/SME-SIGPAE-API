@@ -874,7 +874,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">django.core.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Case</span><span class="p">,</span> <span class="n">IntegerField</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">When</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">django.db.models</span><span class="w"> </span><span class="kn">import</span> <span class="n">Case</span><span class="p">,</span> <span class="n">IntegerField</span><span class="p">,</span> <span class="n">Value</span><span class="p">,</span> <span class="n">When</span><span class="p">,</span> <span class="n">Q</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework</span><span class="w"> </span><span class="kn">import</span> <span class="n">mixins</span><span class="p">,</span> <span class="n">status</span><span class="p">,</span> <span class="n">viewsets</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">action</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">rest_framework.response</span><span class="w"> </span><span class="kn">import</span> <span class="n">Response</span>
@@ -1236,7 +1236,8 @@
                     <span class="p">)</span>
             <span class="n">vinculos</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="n">VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
-                    <span class="n">periodo_escolar__nome__in</span><span class="o">=</span><span class="n">PERIODOS_ESPECIAIS_CEMEI</span><span class="p">,</span>
+                    <span class="n">Q</span><span class="p">(</span><span class="n">periodo_escolar__nome__in</span><span class="o">=</span><span class="n">PERIODOS_ESPECIAIS_CEMEI</span><span class="p">)</span>
+                    <span class="o">|</span> <span class="n">Q</span><span class="p">(</span><span class="n">periodo_escolar__in</span><span class="o">=</span><span class="n">periodos_para_filtrar</span><span class="p">),</span>
                     <span class="n">tipo_unidade_escolar__iniciais__in</span><span class="o">=</span><span class="n">ordem_das_unidades</span><span class="o">.</span><span class="n">keys</span><span class="p">(),</span>
                 <span class="p">)</span>
                 <span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
