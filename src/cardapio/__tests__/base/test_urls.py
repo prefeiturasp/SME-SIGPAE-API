@@ -374,3 +374,180 @@ def test_url_endpoint_vinculos_inclusoes_evento_especifico_cemei(
     assert len(results) > 0
     periodos_nomes = [r["periodo_escolar"]["nome"] for r in results]
     assert "MANHA" in periodos_nomes
+
+
+def _consultar_vinculos_medicao(cliente, escola, considerar_inclusoes=True):
+    parametros = {"ano": 2025, "mes": 5, "escola": str(escola.uuid)}
+    if considerar_inclusoes:
+        parametros["mes_inclusao_continua"] = 5
+    resposta = cliente.get(
+        f"/{ENDPOINT_VINCULOS_ALIMENTACAO}/escola/{escola.uuid}/", parametros
+    )
+    assert resposta.status_code == status.HTTP_200_OK
+    return resposta.json()["results"]
+
+
+@pytest.mark.parametrize("considerar_inclusoes", [False, True])
+def test_url_vinculos_cemei_medicao_sem_inclusao_mantem_periodos_regulares(
+    client_autenticado_vinculo_dre_cardapio,
+    vinculos_cemei_medicao,
+    considerar_inclusoes,
+):
+    resultados = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio,
+        vinculos_cemei_medicao["escola"],
+        considerar_inclusoes,
+    )
+    vinculos = vinculos_cemei_medicao["vinculos_regulares"]
+    assert [resultado["uuid"] for resultado in resultados] == [
+        str(vinculo.uuid) for vinculo in vinculos
+    ]
+    for resultado, vinculo in zip(resultados, vinculos):
+        assert {tipo["uuid"] for tipo in resultado["tipos_alimentacao"]} == {
+            str(tipo.uuid) for tipo in vinculo.tipos_alimentacao.all()
+        }
+
+
+def test_url_vinculos_cemei_medicao_inclusao_autorizada_retorna_noite(
+    client_autenticado_vinculo_dre_cardapio,
+    vinculos_cemei_medicao,
+    inclusao_continua_cemei_medicao,
+):
+    escola = vinculos_cemei_medicao["escola"]
+    resultados_anteriores = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, escola, considerar_inclusoes=False
+    )
+    resultados = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, escola
+    )
+    vinculo_noite = vinculos_cemei_medicao["vinculo_noite"]
+    assert resultados[:-1] == resultados_anteriores
+    assert resultados[-1]["uuid"] == str(vinculo_noite.uuid)
+    assert resultados[-1]["periodo_escolar"]["nome"] == "NOITE"
+    assert (
+        resultados[-1]["tipo_unidade_escolar"]["iniciais"]
+        == TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    )
+    assert resultados[-1]["tipos_alimentacao"][0]["nome"] == "Lanche 4h"
+    assert resultados[-1]["tipos_alimentacao"][0]["uuid"] == str(
+        vinculo_noite.tipos_alimentacao.get().uuid
+    )
+
+
+@pytest.mark.parametrize("nome_periodo", ["MANHA", "TARDE", "INTEGRAL"])
+def test_url_vinculos_cemei_medicao_inclusao_regular_nao_duplica_vinculos(
+    client_autenticado_vinculo_dre_cardapio,
+    vinculos_cemei_medicao,
+    inclusao_continua_cemei_medicao,
+    nome_periodo,
+):
+    quantidade = inclusao_continua_cemei_medicao
+    quantidade.periodo_escolar = PeriodoEscolar.objects.get(nome=nome_periodo)
+    quantidade.save(update_fields=["periodo_escolar"])
+    escola = vinculos_cemei_medicao["escola"]
+    resultados_anteriores = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, escola, considerar_inclusoes=False
+    )
+    resultados = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, escola
+    )
+    assert resultados == resultados_anteriores
+    assert len(resultados) == 4
+    assert len({resultado["uuid"] for resultado in resultados}) == 4
+
+
+@pytest.mark.parametrize(
+    "alteracoes_inclusao, alteracoes_quantidade",
+    [
+        ({"status": "RASCUNHO"}, {}),
+        ({"status": "DRE_VALIDADO"}, {}),
+        ({"status": "CODAE_NEGOU_PEDIDO"}, {}),
+        ({}, {"cancelado": True}),
+        (
+            {
+                "data_inicial": datetime.date(2025, 4, 7),
+                "data_final": datetime.date(2025, 4, 11),
+            },
+            {},
+        ),
+        (
+            {
+                "data_inicial": datetime.date(2025, 6, 2),
+                "data_final": datetime.date(2025, 6, 6),
+            },
+            {},
+        ),
+        ({}, {"encerrado_a_partir_de": datetime.date(2025, 4, 30)}),
+        ({}, {"dias_semana": [5]}),
+    ],
+    ids=[
+        "rascunho",
+        "validada_pela_dre",
+        "negada_pela_codae",
+        "periodo_cancelado",
+        "mes_anterior",
+        "mes_posterior",
+        "encerrada_antes_do_mes",
+        "sem_dia_da_semana_no_intervalo",
+    ],
+)
+def test_url_vinculos_cemei_medicao_inclusao_nao_vigente_nao_retorna_noite(
+    client_autenticado_vinculo_dre_cardapio,
+    vinculos_cemei_medicao,
+    inclusao_continua_cemei_medicao,
+    alteracoes_inclusao,
+    alteracoes_quantidade,
+):
+    quantidade = inclusao_continua_cemei_medicao
+    inclusao = quantidade.inclusao_alimentacao_continua
+    for campo, valor in alteracoes_inclusao.items():
+        setattr(inclusao, campo, valor)
+    inclusao.save()
+    for campo, valor in alteracoes_quantidade.items():
+        setattr(quantidade, campo, valor)
+    quantidade.save()
+    resultados = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, vinculos_cemei_medicao["escola"]
+    )
+    assert [resultado["uuid"] for resultado in resultados] == [
+        str(vinculo.uuid)
+        for vinculo in vinculos_cemei_medicao["vinculos_regulares"]
+    ]
+
+
+def test_url_vinculos_medicao_escola_emef_mantem_tipo_e_vinculos_ativos(
+    client_autenticado_vinculo_dre_cardapio,
+    escola,
+    vinculos_cemei_medicao,
+    inclusao_continua_cemei_medicao,
+):
+    quantidade = inclusao_continua_cemei_medicao
+    inclusao = quantidade.inclusao_alimentacao_continua
+    inclusao.escola = escola
+    inclusao.rastro_escola = escola
+    inclusao.save(update_fields=["escola", "rastro_escola"])
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
+        tipo_unidade_escolar=escola.tipo_unidade,
+        periodo_escolar=quantidade.periodo_escolar,
+    ).update(ativo=False)
+    vinculo_manha = baker.make(
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+        tipo_unidade_escolar=escola.tipo_unidade,
+        periodo_escolar=PeriodoEscolar.objects.get(nome="MANHA"),
+        tipos_alimentacao=list(quantidade.tipos_alimentacao.all()),
+        ativo=True,
+    )
+    resultados_anteriores = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, escola, considerar_inclusoes=False
+    )
+    resultados = _consultar_vinculos_medicao(
+        client_autenticado_vinculo_dre_cardapio, escola
+    )
+    assert resultados == resultados_anteriores
+    assert [resultado["uuid"] for resultado in resultados] == [
+        str(vinculo_manha.uuid)
+    ]
+    assert (
+        resultados[0]["tipo_unidade_escolar"]["iniciais"]
+        == TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
