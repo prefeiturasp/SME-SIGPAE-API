@@ -5359,6 +5359,61 @@ def get_medicoes_por_acao(solicitacao, acao):
         return solicitacao.medicoes.filter(status="MEDICAO_CORRECAO_SOLICITADA")
 
 
+def get_tabelas_lancamentos_dos_valores_medicao(valores_medicao):
+    tabelas_lancamentos = (
+        valores_medicao.order_by("categoria_medicao__nome")
+        .values_list("categoria_medicao__nome", flat=True)
+        .distinct()
+    )
+    tabelas = []
+    for tabela in tabelas_lancamentos:
+        valores_da_tabela = valores_medicao.filter(categoria_medicao__nome=tabela)
+        semanas = valores_da_tabela.values_list("semana", flat=True).distinct()
+        tabela_dict = {"categoria_medicao": tabela, "semanas": []}
+
+        for semana in semanas:
+            dias = valores_da_tabela.filter(semana=semana)
+            dias = list(dias.order_by("dia").values_list("dia", flat=True).distinct())
+            tabela_dict["semanas"].append({"semana": semana, "dias": dias})
+        tabelas.append(tabela_dict)
+    return tabelas
+
+
+def get_tabelas_lancamentos_dos_dias_para_corrigir(medicao):
+    ano = int(medicao.solicitacao_medicao_inicial.ano)
+    mes = int(medicao.solicitacao_medicao_inicial.mes)
+    tabelas = {}
+    for dia_para_corrigir in medicao.dias_para_corrigir.select_related(
+        "categoria_medicao"
+    ):
+        nome_categoria = dia_para_corrigir.categoria_medicao.nome
+        semana = ValorMedicao.get_week_of_month(ano, mes, int(dia_para_corrigir.dia))
+        dia_formatado = str(dia_para_corrigir.dia).zfill(2)
+        tabelas.setdefault(nome_categoria, {}).setdefault(semana, set()).add(
+            dia_formatado
+        )
+
+    return [
+        {
+            "categoria_medicao": nome_categoria,
+            "semanas": [
+                {"semana": str(semana), "dias": sorted(dias)}
+                for semana, dias in sorted(semanas.items())
+            ],
+        }
+        for nome_categoria, semanas in sorted(tabelas.items())
+    ]
+
+
+def get_tabelas_lancamentos_para_correcao(medicao):
+    valores_medicao = medicao.valores_medicao.filter(habilitado_correcao=True).order_by(
+        "semana"
+    )
+    if valores_medicao:
+        return get_tabelas_lancamentos_dos_valores_medicao(valores_medicao)
+    return get_tabelas_lancamentos_dos_dias_para_corrigir(medicao)
+
+
 def criar_log_solicitar_correcao_periodos(user, solicitacao, acao):
     log = dict_informacoes_iniciais(user, acao)
     medicoes = get_medicoes_por_acao(solicitacao, acao)
@@ -5370,34 +5425,13 @@ def criar_log_solicitar_correcao_periodos(user, solicitacao, acao):
         else:
             periodo_nome = medicao.grupo.nome
 
-        alteracoes_dict = {
-            "periodo_escolar": periodo_nome,
-            "justificativa": medicao.logs.last().justificativa,
-            "tabelas_lancamentos": [],
-        }
-        valores_medicao = medicao.valores_medicao.filter(
-            habilitado_correcao=True
-        ).order_by("semana")
-        tabelas_lancamentos = (
-            valores_medicao.order_by("categoria_medicao__nome")
-            .values_list("categoria_medicao__nome", flat=True)
-            .distinct()
+        log["alteracoes"].append(
+            {
+                "periodo_escolar": periodo_nome,
+                "justificativa": medicao.logs.last().justificativa,
+                "tabelas_lancamentos": get_tabelas_lancamentos_para_correcao(medicao),
+            }
         )
-
-        for tabela in tabelas_lancamentos:
-            valores_da_tabela = valores_medicao.filter(categoria_medicao__nome=tabela)
-            semanas = valores_da_tabela.values_list("semana", flat=True).distinct()
-            tabela_dict = {"categoria_medicao": tabela, "semanas": []}
-
-            for semana in semanas:
-                dias = valores_da_tabela.filter(semana=semana)
-                dias = list(
-                    dias.order_by("dia").values_list("dia", flat=True).distinct()
-                )
-                semana_dict = {"semana": semana, "dias": dias}
-                tabela_dict["semanas"].append(semana_dict)
-            alteracoes_dict["tabelas_lancamentos"].append(tabela_dict)
-        log["alteracoes"].append(alteracoes_dict)
     return log
 
 
