@@ -980,6 +980,19 @@ def solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok(
 
 
 @pytest.fixture
+def solicitacao_medicao_inicial_lanche_emergencial_extraordinario(
+    solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok,
+):
+    solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok.lanche_emergencial_extraordinario = (
+        True
+    )
+    solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok.save(
+        update_fields=["lanche_emergencial_extraordinario"]
+    )
+    return solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok
+
+
+@pytest.fixture
 def solicitacao_medicao_inicial_medicao_aprovada_pela_dre_nok(
     solicitacao_medicao_inicial,
 ):

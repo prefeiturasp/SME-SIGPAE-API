@@ -30,6 +30,7 @@ from src.medicao_inicial.models import (
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
+    GrupoMedicao,
     LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
@@ -1452,6 +1453,92 @@ def test_url_codae_solicita_correcao_medicao_erro_403(
     response = client_autenticado_da_escola.patch(
         f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok.uuid}/"
         f"codae-solicita-correcao-medicao/"
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    data = {
+        "justificativa": "<p>TESTE JUSTIFICATIVA</p>",
+        "dias_para_corrigir": [
+            {"dia": "01", "categoria_medicao_uuid": str(categoria_medicao.uuid)},
+            {"dia": "10", "categoria_medicao_uuid": str(categoria_medicao.uuid)},
+        ],
+    }
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data=data,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    solicitacao.refresh_from_db()
+    assert (
+        solicitacao.status
+        == solicitacao.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    )
+
+    medicao_extraordinaria = Medicao.objects.get(
+        solicitacao_medicao_inicial=solicitacao,
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    assert medicao_extraordinaria.status == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
+    assert medicao_extraordinaria.logs.last().justificativa == data["justificativa"]
+    assert DiaParaCorrigir.objects.filter(medicao=medicao_extraordinaria).count() == 2
+    historico = json.loads(solicitacao.historico)
+    assert historico[-1]["acao"] == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
+
+
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_sem_flag(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok,
+):
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Solicitação não possui lanche emergencial extraordinário."
+    }
+
+
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_erro_transicao(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial,
+):
+    solicitacao_medicao_inicial.lanche_emergencial_extraordinario = True
+    solicitacao_medicao_inicial.save(
+        update_fields=["lanche_emergencial_extraordinario"]
+    )
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "Erro de transição de estado:" in response.json()["detail"]
+
+
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_erro_403(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+):
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial_lanche_emergencial_extraordinario.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
@@ -3085,7 +3172,10 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     mock_exporta_pdf.assert_called_once()
     _, kwargs = mock_exporta_pdf.call_args
     assert len(kwargs["resultados"]) == 1
-    assert kwargs["resultados"][0]["escola"]["nome"] == NomesParaTesteEscola.EMEF_TESTE.value
+    assert (
+        kwargs["resultados"][0]["escola"]["nome"]
+        == NomesParaTesteEscola.EMEF_TESTE.value
+    )
     assert kwargs["resultados"][0]["resultados"]
 
 
@@ -3147,7 +3237,10 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     mock_exporta_xlsx.assert_called_once()
     _, kwargs = mock_exporta_xlsx.call_args
     assert len(kwargs["resultados"]) == 1
-    assert kwargs["resultados"][0]["escola"]["nome"] == NomesParaTesteEscola.EMEF_TESTE.value
+    assert (
+        kwargs["resultados"][0]["escola"]["nome"]
+        == NomesParaTesteEscola.EMEF_TESTE.value
+    )
     assert kwargs["resultados"][0]["resultados"]
 
 
@@ -3247,9 +3340,7 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_individual_por_data(
     assert kwargs["nome_arquivo"] == (
         "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.xlsx"
     )
-    assert [
-        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
-    ] == [
+    assert [(item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]] == [
         ("01/08/2026", "EMEI"),
         ("01/08/2026", "CEU EMEI"),
         ("02/08/2026", "EMEI"),
@@ -3369,9 +3460,7 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_individual_por_data(
     assert kwargs["nome_arquivo"] == (
         "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.pdf"
     )
-    assert [
-        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
-    ] == [
+    assert [(item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]] == [
         ("01/08/2026", "Grupo 3 - EMEI, CEU EMEI"),
         ("02/08/2026", "Grupo 3 - EMEI, CEU EMEI"),
     ]
