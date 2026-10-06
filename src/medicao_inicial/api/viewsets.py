@@ -41,6 +41,9 @@ from src.medicao_inicial.services.relatorio_adesao import (
     valida_parametros_periodo_lancamento,
     valida_parametros_resultado_individual_por_data,
 )
+from src.medicao_inicial.services.relatorio_alimentacoes_servidas import (
+    meses_anos_relatorio_alimentacoes_servidas,
+)
 from src.medicao_inicial.utils import process_anexos_from_request
 
 from ...cardapio.base.models import TipoAlimentacao
@@ -57,6 +60,7 @@ from ...dados_comuns.permissions import (
     UsuarioCODAEGabinete,
     UsuarioCODAEGestaoAlimentacao,
     UsuarioCODAENutriManifestacao,
+    UsuarioCODAERelatorios,
     UsuarioDinutreDiretoria,
     UsuarioDiretorEscolaTercTotal,
     UsuarioDiretoriaRegional,
@@ -606,12 +610,31 @@ class SolicitacaoMedicaoInicialViewSet(
             | UsuarioCODAEGestaoAlimentacao
             | UsuarioCODAENutriManifestacao
             | UsuarioCODAEGabinete
+            | UsuarioCODAERelatorios
             | UsuarioDinutreDiretoria
             | UsuarioEmpresaTerceirizada
             | UsuarioSupervisaoNutricao
         ],
     )
     def meses_anos(self, request):
+        """
+        Meses e anos com solicitação de medição.
+
+        ``eh_relatorio_alimentacoes_servidas=true`` devolve apenas meses com
+        medição aprovada pela CODAE no escopo do usuário (DRE ou empresa).
+        ``status`` e ``eh_relatorio_adesao`` não mudam quando esse parâmetro
+        está ausente. O front do relatório de alimentações servidas precisa
+        enviá-lo.
+        """
+        if request.query_params.get("eh_relatorio_alimentacoes_servidas"):
+            return Response(
+                {
+                    "results": meses_anos_relatorio_alimentacoes_servidas(
+                        request.user
+                    )
+                },
+                status=status.HTTP_200_OK,
+            )
         qs_solicitacao_medicao = self._montar_queryset_meses_anos(request)
 
         meses_anos = qs_solicitacao_medicao.values_list(
