@@ -8,7 +8,7 @@ validacao usados pela DRE.
 import datetime
 
 from django.core.exceptions import ValidationError
-from django.db.models import Case, IntegerField, Value, When
+from django.db.models import Case, IntegerField, Value, When, Q
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -342,7 +342,8 @@ class VinculoTipoAlimentacaoViewSet(
                     )
             vinculos = (
                 VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
-                    periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI,
+                    Q(periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI)
+                    | Q(periodo_escolar__in=periodos_para_filtrar),
                     tipo_unidade_escolar__iniciais__in=ordem_das_unidades.keys(),
                 )
                 .annotate(
