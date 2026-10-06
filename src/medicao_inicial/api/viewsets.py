@@ -2306,7 +2306,13 @@ class RelatoriosViewSet(ViewSet):
             return self._relatorio_adesao_por_data(request, query_params)
         if query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value):
             return self._relatorio_adesao_por_escola(request, query_params)
-        return Response(data=obtem_resultados(query_params), status=status.HTTP_200_OK)
+        return Response(
+            data={
+                "resultados": obtem_resultados(query_params),
+                "possui_resultados": existe_resultado_disponivel(query_params),
+            },
+            status=status.HTTP_200_OK,
+        )
 
     def _relatorio_adesao_por_escola(self, request: Request, query_params) -> Response:
         escolas_uuid = query_params.getlist(PayloadVariaveis.ESCOLA_UUID.value)
