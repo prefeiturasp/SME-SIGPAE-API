@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from xworkflows.base import InvalidTransitionError
 
 from src.dados_comuns.constants import (
     ADMINISTRADOR_CODAE_GABINETE,
@@ -635,3 +636,38 @@ def test_documento_recebimento_email_pendentes_aprovacao_ao_atualizar(
     assert nomes_perfis == PERFIS_EMAIL_DOCUMENTOS_PENDENTES_APROVACAO
     assert DILOG_DIRETORIA not in nomes_perfis
     assert ADMINISTRADOR_CODAE_GABINETE not in nomes_perfis
+
+
+def test_documento_recebimento_reprovacao_registra_log_com_justificativa(
+    documento_de_recebimento_factory,
+    django_user_model,
+):
+    usuario = _criar_usuario_fornecedor(django_user_model)
+    documento = documento_de_recebimento_factory(
+        status=DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_ANALISE
+    )
+    justificativa = "Documento não está de acordo com as informações esperadas."
+
+    documento.qualidade_reprova_analise(user=usuario, justificativa=justificativa)
+
+    documento.refresh_from_db()
+    assert documento.status == DocumentoDeRecebimentoWorkflow.REPROVADO
+    log = documento.logs.filter(
+        status_evento=LogSolicitacoesUsuario.DOCUMENTO_REPROVADO
+    ).first()
+    assert log is not None
+    assert log.justificativa == justificativa
+    assert log.usuario == usuario
+
+
+def test_documento_recebimento_reprovado_eh_terminal(
+    documento_de_recebimento_factory,
+    django_user_model,
+):
+    usuario = _criar_usuario_fornecedor(django_user_model)
+    documento = documento_de_recebimento_factory(
+        status=DocumentoDeRecebimentoWorkflow.REPROVADO
+    )
+
+    with pytest.raises(InvalidTransitionError):
+        documento.fornecedor_atualiza(user=usuario)
