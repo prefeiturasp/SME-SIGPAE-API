@@ -121,6 +121,8 @@ from .filters import (
     DiretoriaRegionalFilter,
     EscolaParaFiltrosFilter,
     LogAlunosMatriculadosFaixaEtariaDiaFilter,
+    SubprefeituraFilter,
+    filtrar_lotes_por_escopo,
 )
 from .permissions import PodeEditarFotoAlunoNoSGP, PodeVerFotoAlunoNoSGP
 from .serializers import (
@@ -182,6 +184,17 @@ class EscolaSimplissimaViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSe
 
 
 class EscolaParaFiltrosViewSet(ListModelMixin, GenericViewSet):
+    """
+    Lista não paginada de escolas para filtros de relatórios.
+
+    Parâmetros de lista (chave repetida com colchetes): ``diretoria_regional__uuid[]``,
+    ``lote__uuid[]``, ``subprefeitura__uuid[]``, ``tipo_unidade__uuid[]`` e
+    ``excluir_tipo_unidade__uuid[]``. Valor único sem colchetes: ``diretoria_regional__uuid``,
+    ``lote__uuid``, ``subprefeitura__uuid``, ``tipo_gestao__nome`` e ``tipo_unidade__uuid__in``.
+    Os filtros informados são combinados com E. DRE e Terceirizada recebem apenas
+    escolas do próprio escopo.
+    """
+
     lookup_field = "uuid"
     queryset = (
         Escola.objects.select_related("diretoria_regional", "lote", "tipo_unidade")
@@ -583,10 +596,20 @@ class TipoGestaoViewSet(ReadOnlyModelViewSet):
 
 
 class SubprefeituraViewSet(ReadOnlyModelViewSet):
+    """
+    Lista subprefeituras.
+
+    ``diretoria_regional__uuid`` e ``diretoria_regional__uuid[]`` filtram pelo
+    vínculo já existente com a diretoria regional. Várias DREs não duplicam a
+    subprefeitura. Sem o parâmetro, a lista permanece completa.
+    """
+
     permission_classes = [permissions.AllowAny]
     lookup_field = "uuid"
-    queryset = Subprefeitura.objects.all()
+    queryset = Subprefeitura.objects.prefetch_related("diretoria_regional")
     serializer_class = SubprefeituraSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = SubprefeituraFilter
 
     @action(detail=False, methods=["get"], url_path="lista-completa")
     def lista_completa(self, request):
@@ -628,9 +651,18 @@ class LoteViewSet(ModelViewSet):
 
 
 class LoteSimplesViewSet(ModelViewSet):
+    """
+    Lista lotes com a diretoria regional aninhada (uuid, nome, iniciais).
+
+    DRE enxerga somente os lotes da própria diretoria. Terceirizada enxerga
+    somente os lotes da própria empresa. Os demais perfis não são restringidos.
+    """
+
     lookup_field = "uuid"
     serializer_class = LoteNomeSerializer
-    queryset = Lote.objects.all()
+    queryset = Lote.objects.select_related(
+        "diretoria_regional", "terceirizada", "tipo_gestao"
+    )
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_fields = (
         "uuid",
@@ -638,6 +670,9 @@ class LoteSimplesViewSet(ModelViewSet):
         "terceirizada__uuid",
         "contratos_do_lote__edital__uuid",
     )
+
+    def get_queryset(self):
+        return filtrar_lotes_por_escopo(super().get_queryset(), self.request)
 
 
 class CODAESimplesViewSet(ModelViewSet):
@@ -1027,6 +1062,14 @@ class AlunoViewSet(RetrieveModelMixin, ListModelMixin, GenericViewSet):
 
 
 class FaixaEtariaViewSet(CreateModelMixin, ListModelMixin, GenericViewSet):
+    """
+    Lista faixas etárias ativas.
+
+    Não há vínculo de faixa etária com tipo de unidade, então a lista não
+    recebe filtro por tipo. No relatório de alimentações servidas a faixa só
+    é válida para o Grupo 1 ou o Grupo 2, regra aplicada na validação dos filtros.
+    """
+
     queryset = FaixaEtaria.objects.filter(ativo=True)
 
     def get_serializer_class(self):
@@ -1348,6 +1391,12 @@ class GrupoUnidadeEscolarViewSet(ModelViewSet):
 
     @action(detail=False, methods=["GET"], url_path="por-dre")
     def grupos_por_dre(self, request):
+        """
+        Informa se cada grupo tem escola na DRE indicada em ``dre``.
+
+        Aceita uma única DRE. O relatório de alimentações servidas não consome
+        este endpoint; a tela usa ``GET /grupos-unidade-escolar/``.
+        """
         dre_uuid = request.query_params.get("dre")
         if not dre_uuid:
             return Response(
