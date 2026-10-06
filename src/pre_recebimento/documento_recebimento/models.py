@@ -146,6 +146,9 @@ class DocumentoDeRecebimento(
     correcao_solicitada = models.TextField(
         StringsVerboseNameModels.CORRECAO_SOLICITADA.value, blank=True
     )
+    justificativa_reprovacao = models.TextField(
+        StringsVerboseNameModels.JUSTIFICATIVA_REPROVACAO.value, blank=True
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")

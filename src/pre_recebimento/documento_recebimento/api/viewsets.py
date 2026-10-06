@@ -30,6 +30,7 @@ from src.pre_recebimento.documento_recebimento.api.serializers.serializer_create
     DocumentoDeRecebimentoAtualizacaoSerializer,
     DocumentoDeRecebimentoCorrecaoSerializer,
     DocumentoDeRecebimentoCreateSerializer,
+    DocumentoDeRecebimentoReprovarSerializer,
 )
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     CronogramaRelatorioDocumentosSerializer,
@@ -148,6 +149,23 @@ class DocumentoDeRecebimentoModelViewSet(
                 DocRecebimentoDetalharCodaeSerializer(
                     documento_recebimento_atualizado
                 ).data
+            )
+
+    @action(
+        detail=True,
+        methods=["PATCH"],
+        url_path="reprovar-documentos",
+        permission_classes=(UsuarioEhDilogQualidade,),
+    )
+    def codae_reprova_documentos(self, request, uuid):
+        serializer = DocumentoDeRecebimentoReprovarSerializer(
+            instance=self.get_object(), data=request.data, context={"request": request}
+        )
+
+        if serializer.is_valid(raise_exception=True):
+            documento_reprovado = serializer.save()
+            return Response(
+                DocRecebimentoDetalharCodaeSerializer(documento_reprovado).data
             )
 
     @action(
