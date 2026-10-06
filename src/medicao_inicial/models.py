@@ -610,6 +610,20 @@ class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
 
 
 class GrupoMedicao(Nomeavel, TemChaveExterna, Ativavel):
+    SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS = (
+        "Solicitações de Alimentação Extraordinárias"
+    )
+    COLABORADORES = "Colaboradores"
+    RECREIO_NAS_FERIAS_4_A_14 = "Recreio nas Férias - 4 a 14 anos"
+    RECREIO_NAS_FERIAS_0_A_3 = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
+    RECREIO_NAS_FERIAS = "Recreio nas Férias"
+    INFANTIL_TARDE = "Infantil TARDE"
+    INFANTIL_MANHA = "Infantil MANHA"
+    INFANTIL_INTEGRAL = "Infantil INTEGRAL"
+    ETEC = "ETEC"
+    SOLICITACOES_DE_ALIMENTACAO = "Solicitações de Alimentação"
+    PROGRAMAS_E_PROJETOS = "Programas e Projetos"
+
     class Meta:
         verbose_name = "Grupo de medição"
         verbose_name_plural = "Grupos de medição"
