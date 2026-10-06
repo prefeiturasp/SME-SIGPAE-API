@@ -2,6 +2,23 @@
 
 from django.db import migrations, models
 
+NOME_GRUPO_MEDICAO = "Solicitações de Alimentação Extraordinárias"
+
+
+def inserir_grupo_medicao(apps, schema_editor):
+    GrupoMedicao = apps.get_model("medicao_inicial", "GrupoMedicao")
+
+    GrupoMedicao.objects.get_or_create(
+        nome=NOME_GRUPO_MEDICAO,
+        defaults={"ativo": True},
+    )
+
+
+def remover_grupo_medicao(apps, schema_editor):
+    GrupoMedicao = apps.get_model("medicao_inicial", "GrupoMedicao")
+
+    GrupoMedicao.objects.filter(nome=NOME_GRUPO_MEDICAO).delete()
+
 
 class Migration(migrations.Migration):
 
@@ -21,5 +38,9 @@ class Migration(migrations.Migration):
                 help_text="Solicita a correção do apontamento de Lanche Emergencial em datas excepcionalmente autorizadas pela CODAE.",
                 verbose_name="Lanche Emergencial Extraordinário",
             ),
+        ),
+        migrations.RunPython(
+            inserir_grupo_medicao,
+            remover_grupo_medicao,
         ),
     ]
