@@ -1253,6 +1253,20 @@ class SolicitacaoMedicaoInicialViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+    def get_medicao_lanche_emergencial_extraordinario(self, solicitacao):
+        medicao = solicitacao.get_or_create_medicao_por_periodo_e_ou_grupo(
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        )
+        if (
+            medicao.status
+            == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE
+        ):
+            medicao.status = (
+                SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+            )
+            medicao.save()
+        return medicao
+
     @action(
         detail=True,
         methods=["PATCH"],
@@ -1273,8 +1287,8 @@ class SolicitacaoMedicaoInicialViewSet(
         justificativa = request.data.get("justificativa", "")
         dias_para_corrigir = request.data.get("dias_para_corrigir", [])
         try:
-            medicao = solicitacao_medicao_inicial.get_or_create_medicao_por_periodo_e_ou_grupo(
-                GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+            medicao = self.get_medicao_lanche_emergencial_extraordinario(
+                solicitacao_medicao_inicial
             )
             DiaParaCorrigir.cria_dias_para_corrigir(
                 medicao, request.user, dias_para_corrigir

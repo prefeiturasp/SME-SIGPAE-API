@@ -3974,7 +3974,6 @@ class SolicitacaoMedicaoInicialWorkflow(xwf_models.Workflow):
                 MEDICAO_APROVADA_PELA_CODAE,
                 MEDICAO_APROVADA_PELA_DRE,
                 MEDICAO_CORRIGIDA_PARA_CODAE,
-                MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE,
             ],
             MEDICAO_CORRECAO_SOLICITADA_CODAE,
         ),
