@@ -1480,10 +1480,7 @@ def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario(
     assert response.status_code == status.HTTP_200_OK
 
     solicitacao.refresh_from_db()
-    assert (
-        solicitacao.status
-        == solicitacao.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
-    )
+    assert solicitacao.status == solicitacao.workflow_class.MEDICAO_APROVADA_PELA_DRE
 
     medicao_extraordinaria = Medicao.objects.get(
         solicitacao_medicao_inicial=solicitacao,
@@ -1492,8 +1489,6 @@ def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario(
     assert medicao_extraordinaria.status == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
     assert medicao_extraordinaria.logs.last().justificativa == data["justificativa"]
     assert DiaParaCorrigir.objects.filter(medicao=medicao_extraordinaria).count() == 2
-    historico = json.loads(solicitacao.historico)
-    assert historico[-1]["acao"] == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
 
 
 def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_sem_flag(
@@ -1510,24 +1505,6 @@ def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_sem_flag(
     assert response.json() == {
         "detail": "Solicitação não possui lanche emergencial extraordinário."
     }
-
-
-def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_erro_transicao(
-    client_autenticado_codae_medicao,
-    solicitacao_medicao_inicial,
-):
-    solicitacao_medicao_inicial.lanche_emergencial_extraordinario = True
-    solicitacao_medicao_inicial.save(
-        update_fields=["lanche_emergencial_extraordinario"]
-    )
-    response = client_autenticado_codae_medicao.patch(
-        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial.uuid}/"
-        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
-        content_type="application/json",
-        data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
-    )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert "Erro de transição de estado:" in response.json()["detail"]
 
 
 def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_erro_403(

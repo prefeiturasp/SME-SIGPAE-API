@@ -1296,23 +1296,7 @@ class SolicitacaoMedicaoInicialViewSet(
             medicao.codae_pede_correcao_periodo(
                 user=request.user, justificativa=justificativa
             )
-            solicitacao_medicao_inicial.codae_pede_correcao_medicao(user=request.user)
-            acao = (
-                solicitacao_medicao_inicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
-            )
-            log = criar_log_solicitar_correcao_periodos(
-                request.user, solicitacao_medicao_inicial, acao
-            )
-            if log:
-                if not solicitacao_medicao_inicial.historico:
-                    historico = [log]
-                else:
-                    historico = json.loads(solicitacao_medicao_inicial.historico)
-                    historico.append(log)
-                solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
-            serializer = self.get_serializer(solicitacao_medicao_inicial)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(MedicaoSerializer(medicao).data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
             return Response(
                 dict(detail=f"Erro de transição de estado: {e}"),
