@@ -150,6 +150,14 @@ class SolicitacaoMedicaoInicial(
         blank=True,
         null=True,
     )
+    lanche_emergencial_extraordinario = models.BooleanField(
+        verbose_name="Lanche Emergencial Extraordinário",
+        default=False,
+        help_text=(
+            "Solicita a correção do apontamento de Lanche Emergencial em datas "
+            "excepcionalmente autorizadas pela CODAE."
+        ),
+    )
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
         justificativa = kwargs.get("justificativa", "")
