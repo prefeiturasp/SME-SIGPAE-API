@@ -50,11 +50,35 @@ class TipoAlimentacaoViewSet(viewsets.ModelViewSet):
 
     Utiliza ``TipoAlimentacaoSerializer`` em todas as acoes padrao do
     ``ModelViewSet`` e identifica instancias pelo campo ``uuid``.
+
+    Filtro opcional ``tipo_unidade__uuid`` ou ``tipo_unidade__uuid[]``:
+    restringe aos tipos vinculados ao tipo de unidade escolar por
+    ``VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar`` ativo.
+    Sem o parâmetro, a lista continua completa. O front do relatório de
+    alimentações servidas precisa enviar esse parâmetro para carregar só os
+    tipos aplicáveis. Com o Grupo 1 selecionado, o campo deve ir vazio.
     """
 
     lookup_field = "uuid"
     serializer_class = TipoAlimentacaoSerializer
     queryset = TipoAlimentacao.objects.all()
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        uuids = self._uuids_tipo_unidade()
+        if not uuids:
+            return queryset
+        return queryset.filter(
+            vinculos__tipo_unidade_escolar__uuid__in=uuids,
+            vinculos__ativo=True,
+        ).distinct()
+
+    def _uuids_tipo_unidade(self):
+        params = self.request.query_params
+        uuids = params.getlist("tipo_unidade__uuid[]") or params.getlist(
+            "tipo_unidade__uuid"
+        )
+        return [uuid for uuid in uuids if uuid]
 
 
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarViewSet(viewsets.ModelViewSet):
