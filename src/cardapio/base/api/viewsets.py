@@ -341,7 +341,7 @@ class VinculoTipoAlimentacaoViewSet(
                         )
                     )
             vinculos = (
-             VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
+                VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
                     Q(periodo_escolar__nome__in=PERIODOS_ESPECIAIS_CEMEI)
                     | Q(periodo_escolar__in=periodos_para_filtrar),
                     tipo_unidade_escolar__iniciais__in=ordem_das_unidades.keys(),
