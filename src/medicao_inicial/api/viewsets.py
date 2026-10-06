@@ -28,8 +28,8 @@ from src.medicao_inicial.services.pendencias_acao_dre import (
     anotar_pendencia_acao_dre,
 )
 from src.medicao_inicial.services.relatorio_adesao import (
-    obtem_dias_com_dados,
     existe_resultado_disponivel,
+    obtem_dias_com_dados,
     obtem_escolas_ordenadas,
     obtem_nome_arquivo_relatorio_adesao,
     obtem_resultados,
@@ -89,6 +89,7 @@ from ..models import (
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
+    GrupoMedicao,
     LancheEmergencialDiario,
     Medicao,
     OcorrenciaMedicaoInicial,
@@ -447,18 +448,16 @@ class SolicitacaoMedicaoInicialViewSet(
             qs = qs.filter(**kwargs)
             total_pendentes_acao_dre = 0
             if workflow == status_corrigido_para_codae:
-                total_pendentes_acao_dre = anotar_pendencia_acao_dre(qs).filter(
-                    pendente_acao_dre=True
-                ).count()
+                total_pendentes_acao_dre = (
+                    anotar_pendencia_acao_dre(qs).filter(pendente_acao_dre=True).count()
+                )
             sumario.append(
                 {
                     "status": workflow,
                     "label": self._get_label(workflow),
                     "total": len(qs),
                     "total_pendentes_acao_dre": total_pendentes_acao_dre,
-                    "possui_pendencias_acao_dre": (
-                        total_pendentes_acao_dre > 0
-                    ),
+                    "possui_pendencias_acao_dre": (total_pendentes_acao_dre > 0),
                 }
             )
         return sumario
@@ -473,8 +472,7 @@ class SolicitacaoMedicaoInicialViewSet(
         qs = qs.filter(**kwargs)
         qs = anotar_pendencia_acao_dre(qs)
         somente_pendentes_acao_dre = (
-            request.query_params.get("somente_pendentes_acao_dre", "").lower()
-            == "true"
+            request.query_params.get("somente_pendentes_acao_dre", "").lower() == "true"
         )
         if somente_pendentes_acao_dre:
             qs = qs.filter(pendente_acao_dre=True)
@@ -1232,6 +1230,58 @@ class SolicitacaoMedicaoInicialViewSet(
     def codae_solicita_correcao_medicao(self, request, uuid=None):
         solicitacao_medicao_inicial = self.get_object()
         try:
+            solicitacao_medicao_inicial.codae_pede_correcao_medicao(user=request.user)
+            acao = (
+                solicitacao_medicao_inicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+            )
+            log = criar_log_solicitar_correcao_periodos(
+                request.user, solicitacao_medicao_inicial, acao
+            )
+            if log:
+                if not solicitacao_medicao_inicial.historico:
+                    historico = [log]
+                else:
+                    historico = json.loads(solicitacao_medicao_inicial.historico)
+                    historico.append(log)
+                solicitacao_medicao_inicial.historico = json.dumps(historico)
+                solicitacao_medicao_inicial.save()
+            serializer = self.get_serializer(solicitacao_medicao_inicial)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except InvalidTransitionError as e:
+            return Response(
+                dict(detail=f"Erro de transição de estado: {e}"),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+    @action(
+        detail=True,
+        methods=["PATCH"],
+        url_path="codae-solicita-correcao-lanche-emergencial-extraordinario",
+        permission_classes=[UsuarioCODAEGestaoAlimentacao],
+    )
+    def codae_solicita_correcao_lanche_emergencial_extraordinario(
+        self, request, uuid=None
+    ):
+        solicitacao_medicao_inicial = self.get_object()
+        if not solicitacao_medicao_inicial.lanche_emergencial_extraordinario:
+            return Response(
+                dict(
+                    detail="Solicitação não possui lanche emergencial extraordinário."
+                ),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        justificativa = request.data.get("justificativa", "")
+        dias_para_corrigir = request.data.get("dias_para_corrigir", [])
+        try:
+            medicao = solicitacao_medicao_inicial.get_or_create_medicao_por_periodo_e_ou_grupo(
+                GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+            )
+            DiaParaCorrigir.cria_dias_para_corrigir(
+                medicao, request.user, dias_para_corrigir
+            )
+            medicao.codae_pede_correcao_periodo(
+                user=request.user, justificativa=justificativa
+            )
             solicitacao_medicao_inicial.codae_pede_correcao_medicao(user=request.user)
             acao = (
                 solicitacao_medicao_inicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
