@@ -1,10 +1,13 @@
+import datetime
 from unittest.mock import patch
 
 import pytest
+from model_bakery import baker
 from xworkflows.base import InvalidTransitionError
 
 from src.dados_comuns.constants import (
     ADMINISTRADOR_CODAE_GABINETE,
+    ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_PRODUTO,
     COORDENADOR_CODAE_DILOG_LOGISTICA,
     COORDENADOR_GESTAO_PRODUTO,
@@ -12,6 +15,7 @@ from src.dados_comuns.constants import (
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
     DJANGO_ADMIN_PASSWORD,
+    USUARIO_EMPRESA,
 )
 from src.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario, Notificacao
@@ -671,3 +675,100 @@ def test_documento_recebimento_reprovado_eh_terminal(
 
     with pytest.raises(InvalidTransitionError):
         documento.fornecedor_atualiza(user=usuario)
+
+
+def _criar_usuario_empresa(django_user_model, email, nome):
+    return django_user_model.objects.create_user(
+        username=email,
+        password=DJANGO_ADMIN_PASSWORD,
+        email=email,
+        nome=nome,
+    )
+
+
+def _criar_vinculo_empresa(usuario, empresa, nome_perfil):
+    perfil = baker.make("Perfil", nome=nome_perfil, ativo=True)
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=empresa,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+
+
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_documento_recebimento_reprovacao_envia_email_para_usuarios_da_empresa(
+    mock_enviar_email,
+    documento_de_recebimento_factory,
+    django_user_model,
+):
+    documento = documento_de_recebimento_factory(
+        status=DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_ANALISE
+    )
+    justificativa = "Documento não está de acordo com as informações esperadas."
+    analista = _criar_usuario_fornecedor(django_user_model)
+    admin_empresa = _criar_usuario_empresa(
+        django_user_model, "admin.empresa@test.com", "Admin Empresa"
+    )
+    usuario_empresa = _criar_usuario_empresa(
+        django_user_model, "usuario.empresa@test.com", "Usuario Empresa"
+    )
+    usuario_outra_empresa = _criar_usuario_empresa(
+        django_user_model, "outra.empresa@test.com", "Outra Empresa"
+    )
+    _criar_vinculo_empresa(
+        admin_empresa, documento.cronograma.empresa, ADMINISTRADOR_EMPRESA
+    )
+    _criar_vinculo_empresa(
+        usuario_empresa, documento.cronograma.empresa, USUARIO_EMPRESA
+    )
+    _criar_vinculo_empresa(
+        usuario_outra_empresa, baker.make("Terceirizada"), USUARIO_EMPRESA
+    )
+
+    documento.qualidade_reprova_analise(user=analista, justificativa=justificativa)
+
+    assert mock_enviar_email.call_count == 2
+    chamadas = {
+        call.kwargs["destinatarios"][0]: call.kwargs
+        for call in mock_enviar_email.call_args_list
+    }
+    assert set(chamadas) == {"admin.empresa@test.com", "usuario.empresa@test.com"}
+    kwargs = chamadas["admin.empresa@test.com"]
+    assert kwargs["titulo"] == "DOCUMENTOS DE RECEBIMENTO"
+    assert kwargs["assunto"] == "SIGPAE - Documento(s) de Recebimento (s) Reprovado(s)"
+    assert kwargs["template"] == (
+        "pre_recebimento_email_qualidade_reprova_documento_recebimento.html"
+    )
+    assert (
+        kwargs["contexto_template"]["numero_cronograma"] == documento.cronograma.numero
+    )
+    assert kwargs["contexto_template"]["nome_produto"] == (
+        documento.cronograma.ficha_tecnica.produto.nome
+    )
+    assert kwargs["contexto_template"]["justificativa_reprovacao"] == justificativa
+    assert kwargs["contexto_template"]["nome_usuario"] == "Admin Empresa"
+    assert (
+        chamadas["usuario.empresa@test.com"]["contexto_template"]["nome_usuario"]
+        == "Usuario Empresa"
+    )
+
+
+@patch("src.dados_comuns.fluxo_status.EmailENotificacaoService.enviar_email")
+def test_documento_recebimento_reprovacao_sem_usuarios_na_empresa_nao_envia_email(
+    mock_enviar_email,
+    documento_de_recebimento_factory,
+    django_user_model,
+):
+    documento = documento_de_recebimento_factory(
+        status=DocumentoDeRecebimentoWorkflow.ENVIADO_PARA_ANALISE
+    )
+    analista = _criar_usuario_fornecedor(django_user_model)
+
+    documento.qualidade_reprova_analise(
+        user=analista, justificativa="Fora do esperado."
+    )
+
+    mock_enviar_email.assert_not_called()

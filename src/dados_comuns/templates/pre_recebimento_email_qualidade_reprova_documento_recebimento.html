@@ -1,0 +1,22 @@
+{% extends 'email_base.html' %}
+{% load email_templatetags %}
+
+{% block conteudo%}
+  <p>Olá, {{ nome_usuario }}</p>
+
+  <br/><br/>
+
+  <p><strong>DOCUMENTO(S) DE RECEBIMENTO REPROVADO(S):</strong></p>
+
+  <br/><br/>
+
+  <p><strong>Nº do Cronograma:</strong> {{ numero_cronograma }} <strong>Produto:</strong> {{ nome_produto }}</p>
+
+  <br/><br/>
+
+  <p><strong>Justificativa da reprovação:</strong> {{ justificativa_reprovacao }}</p>
+
+  <br/><br/>
+
+  <p>Contamos com você para que o abastecimento da Rede Municipal de Ensino seja sempre um sucesso!</p>
+{% endblock %}
