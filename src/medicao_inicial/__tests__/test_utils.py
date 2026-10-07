@@ -16,6 +16,7 @@ from src.dados_comuns.constants import (
     FaixasEtarias,
     NomesParaTesteEscola,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -23,7 +24,10 @@ from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDi
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,
+    DiaParaCorrigir,
+    GrupoMedicao,
     SolicitacaoMedicaoInicial,
+    ValorMedicao,
 )
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
@@ -41,6 +45,7 @@ from src.medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     busca_dias_zerados,
+    criar_log_solicitar_correcao_periodos,
     get_eh_dia_letivo,
     get_lista_categorias_campos,
     get_lista_categorias_campos_cei,
@@ -54,6 +59,7 @@ from src.medicao_inicial.utils import (
     get_somatorio_solicitacoes_de_alimentacao,
     get_somatorio_tarde,
     get_somatorio_total_tabela,
+    get_tabelas_lancamentos_para_correcao,
     mapear_dados_existentes,
     obter_instancia_dados,
     processa_reabrir_lancamentos,
@@ -2127,3 +2133,117 @@ class TestProcessaReabrirLancamentos:
             .objects.filter(pk=relatorio_financeiro_cei.pk)
             .exists()
         )
+
+
+def _criar_medicao_extraordinaria(
+    escola, categoria, status, dias=None, com_valores=False
+):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status=status,
+    )
+    for dia in dias or []:
+        baker.make(
+            "DiaParaCorrigir",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia=dia,
+            habilitado_correcao=True,
+        )
+    if com_valores:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia="10",
+            semana="2",
+            nome_campo="lanche_emergencial",
+            valor="5",
+            habilitado_correcao=True,
+        )
+    return solicitacao, medicao
+
+
+def test_get_tabelas_lancamentos_para_correcao_extraordinaria(escola):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    _, medicao = _criar_medicao_extraordinaria(
+        escola, categoria, status, dias=["02", "03", "04"]
+    )
+
+    assert get_tabelas_lancamentos_para_correcao(medicao) == [
+        {
+            "categoria_medicao": CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "semanas": [{"semana": "2", "dias": ["02", "03", "04"]}],
+        }
+    ]
+
+
+def test_get_tabelas_lancamentos_para_correcao_prioriza_valores_habilitados(escola):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    _, medicao = _criar_medicao_extraordinaria(
+        escola, categoria, status, dias=["02"], com_valores=True
+    )
+
+    assert get_tabelas_lancamentos_para_correcao(medicao) == [
+        {
+            "categoria_medicao": CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "semanas": [{"semana": "2", "dias": ["10"]}],
+        }
+    ]
+
+
+def test_get_tabelas_lancamentos_para_correcao_sem_dias_retorna_vazio(escola):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    _, medicao = _criar_medicao_extraordinaria(escola, categoria, status)
+
+    assert get_tabelas_lancamentos_para_correcao(medicao) == []
+
+
+def test_criar_log_solicitar_correcao_periodos_extraordinaria(escola, usuario):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    solicitacao, medicao = _criar_medicao_extraordinaria(
+        escola, categoria, status, dias=["02", "03", "04"]
+    )
+    medicao.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+        usuario=usuario,
+        justificativa="<p>corrige os dias 2, 3 e 4</p>",
+    )
+
+    log = criar_log_solicitar_correcao_periodos(usuario, solicitacao, status)
+
+    assert len(log["alteracoes"]) == 1
+    alteracao = log["alteracoes"][0]
+    assert (
+        alteracao["periodo_escolar"]
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    )
+    assert alteracao["justificativa"] == "<p>corrige os dias 2, 3 e 4</p>"
+    assert alteracao["tabelas_lancamentos"] == [
+        {
+            "categoria_medicao": CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "semanas": [{"semana": "2", "dias": ["02", "03", "04"]}],
+        }
+    ]
