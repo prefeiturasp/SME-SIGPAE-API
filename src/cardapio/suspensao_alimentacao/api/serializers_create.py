@@ -123,7 +123,7 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
         if getattr(escola, "eh_cei", False):  # confirmar se essa é a flag de tipo de escola
             self._validar_duplicidade_cei(escola, suspensoes_alimentacao_array, uuid_atual)
         else:
-            self._validar_duplicidade_padrao(
+            self._validar_duplicidade(
                 escola,
                 quantidades_por_periodo_array,
                 suspensoes_alimentacao_array,
@@ -132,7 +132,7 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
 
         return attrs
 
-    def _validar_duplicidade_padrao(
+    def _validar_duplicidade(
         self, escola, quantidades_por_periodo_array, suspensoes_alimentacao_array, uuid_atual
     ):
         """Valida cada combinação Data + Período + Tipo de Alimentação (EMEF/EMEI)."""
@@ -163,29 +163,6 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
                             "tipos_alimentacao": [str(t) for t in tipos_alimentacao],
                         }
                     )
-
-        if conflitos:
-            raise serializers.ValidationError(
-                {"message": MENSAGEM_DUPLICIDADE, "conflitos": conflitos}
-            )
-
-    def _validar_duplicidade_cei(self, escola, suspensoes_alimentacao_array, uuid_atual):
-        """Fluxo CEI: valida apenas por Data (ignora período/tipo)."""
-        conflitos = []
-
-        for suspensao in suspensoes_alimentacao_array:
-            data = suspensao.get("data")
-
-            qs = GrupoSuspensaoAlimentacao.objects.filter(
-                escola=escola,
-                suspensoes_alimentacao__data=data,
-            ).exclude(status__in=STATUS_QUE_LIBERAM_DUPLICIDADE)
-
-            if uuid_atual:
-                qs = qs.exclude(uuid=uuid_atual)
-
-            if qs.exists():
-                conflitos.append({"data": str(data)})
 
         if conflitos:
             raise serializers.ValidationError(
