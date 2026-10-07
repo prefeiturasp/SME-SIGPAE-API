@@ -2595,6 +2595,91 @@ def test_url_documentos_de_recebimento_analisar_documento(
     )
 
 
+def test_url_documentos_de_recebimento_reprovar_documento(
+    documento_de_recebimento_factory,
+    client_autenticado_qualidade,
+):
+    """Testa a reprovação do documento com justificativa obrigatória."""
+    documento = documento_de_recebimento_factory.create(
+        status=DocumentoDeRecebimento.workflow_class.ENVIADO_PARA_ANALISE
+    )
+    justificativa = "Documento não está de acordo com as informações esperadas."
+
+    response_sem_campo = client_autenticado_qualidade.patch(
+        f"/documentos-de-recebimento/{documento.uuid}/reprovar-documentos/",
+        content_type="application/json",
+        data=json.dumps({}),
+    )
+    assert response_sem_campo.status_code == status.HTTP_400_BAD_REQUEST
+
+    response_justificativa_vazia = client_autenticado_qualidade.patch(
+        f"/documentos-de-recebimento/{documento.uuid}/reprovar-documentos/",
+        content_type="application/json",
+        data=json.dumps({"justificativa_reprovacao": ""}),
+    )
+    assert response_justificativa_vazia.status_code == status.HTTP_400_BAD_REQUEST
+
+    response_reprovado = client_autenticado_qualidade.patch(
+        f"/documentos-de-recebimento/{documento.uuid}/reprovar-documentos/",
+        content_type="application/json",
+        data=json.dumps({"justificativa_reprovacao": justificativa}),
+    )
+
+    documento.refresh_from_db()
+    assert response_reprovado.status_code == status.HTTP_200_OK
+    assert documento.status == DocumentoDeRecebimento.workflow_class.REPROVADO
+    assert documento.justificativa_reprovacao == justificativa
+    assert documento.logs.filter(
+        status_evento=LogSolicitacoesUsuario.DOCUMENTO_REPROVADO,
+        justificativa=justificativa,
+    ).exists()
+
+
+def test_url_documentos_de_recebimento_reprovar_documento_status_invalido(
+    documento_de_recebimento_factory,
+    client_autenticado_qualidade,
+):
+    """Reprovação só é permitida para documentos em análise."""
+    documento = documento_de_recebimento_factory.create(
+        status=DocumentoDeRecebimento.workflow_class.APROVADO
+    )
+
+    response = client_autenticado_qualidade.patch(
+        f"/documentos-de-recebimento/{documento.uuid}/reprovar-documentos/",
+        content_type="application/json",
+        data=json.dumps({"justificativa_reprovacao": "Fora do esperado."}),
+    )
+
+    documento.refresh_from_db()
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert documento.status == DocumentoDeRecebimento.workflow_class.APROVADO
+    assert not documento.logs.filter(
+        status_evento=LogSolicitacoesUsuario.DOCUMENTO_REPROVADO
+    ).exists()
+
+
+def test_url_documentos_de_recebimento_reprovar_documento_sem_permissao(
+    documento_de_recebimento_factory,
+    client_autenticado_fornecedor,
+):
+    """Apenas o perfil DILOG_QUALIDADE pode reprovar o documento."""
+    documento = documento_de_recebimento_factory.create(
+        status=DocumentoDeRecebimento.workflow_class.ENVIADO_PARA_ANALISE
+    )
+
+    response = client_autenticado_fornecedor.patch(
+        f"/documentos-de-recebimento/{documento.uuid}/reprovar-documentos/",
+        content_type="application/json",
+        data=json.dumps({"justificativa_reprovacao": "Fora do esperado."}),
+    )
+
+    documento.refresh_from_db()
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert (
+        documento.status == DocumentoDeRecebimento.workflow_class.ENVIADO_PARA_ANALISE
+    )
+
+
 def test_url_documentos_de_recebimento_fornecedor_corrige(
     documento_de_recebimento_factory,
     client_autenticado_fornecedor,

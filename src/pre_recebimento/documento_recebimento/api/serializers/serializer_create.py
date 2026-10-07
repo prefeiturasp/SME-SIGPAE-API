@@ -222,6 +222,28 @@ class DocumentoDeRecebimentoAnalisarSerializer(
         )
 
 
+class DocumentoDeRecebimentoReprovarSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DocumentoDeRecebimento
+        fields = ("justificativa_reprovacao",)
+        extra_kwargs = {
+            "justificativa_reprovacao": {"required": True, "allow_blank": False}
+        }
+
+    def update(self, instance, validated_data):
+        user = self.context["request"].user
+        justificativa = validated_data["justificativa_reprovacao"]
+        instance.justificativa_reprovacao = justificativa
+        try:
+            instance.qualidade_reprova_analise(user=user, justificativa=justificativa)
+        except InvalidTransitionError as e:
+            raise serializers.ValidationError(
+                f"Erro de transição de estado. O status atual não permite reprovação: {e}"
+            )
+        instance.save()
+        return instance
+
+
 class TipoDeDocumentoDeRecebimentoCorrecaoSerializer(serializers.ModelSerializer):
     tipo_documento = serializers.ChoiceField(
         choices=TipoDeDocumentoDeRecebimento.TIPO_DOC_CHOICES,
