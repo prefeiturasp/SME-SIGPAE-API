@@ -2115,6 +2115,37 @@ class TestProcessaReabrirLancamentos:
             medicao.refresh_from_db()
             assert medicao.status == status_esperado
 
+    def test_deve_reabrir_medicao_extraordinaria(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        grupo = baker.make(
+            "GrupoMedicao",
+            nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+        )
+        medicao_extraordinaria = baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao_medicao_inicial_cei,
+            periodo_escolar=None,
+            grupo=grupo,
+            status="MEDICAO_APROVADA_PELA_CODAE",
+        )
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        medicao_extraordinaria.refresh_from_db()
+        assert (
+            medicao_extraordinaria.status
+            == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+        )
+
     def test_deve_alterar_status_do_relatorio_quando_nao_informa_unidades(
         self,
         relatorio_financeiro_cei,

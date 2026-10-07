@@ -601,6 +601,49 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_com
     ]["valor_total"] == 350
 
 
+def test_url_endpoint_quantidades_alimentacoes_lancadas_extraordinaria(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+        dia="02",
+        semana="2",
+        nome_campo="lanche_emergencial",
+        valor="15",
+    )
+
+    response = client_autenticado_da_escola.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/quantidades-alimentacoes-lancadas-periodo-grupo/"
+        f"?uuid_solicitacao={solicitacao.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resultados = [
+        r
+        for r in response.data["results"]
+        if r["nome_periodo_grupo"] == GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS
+    ]
+    assert len(resultados) == 1
+    assert resultados[0]["valor_total"] == 15
+
+
 def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cei(
     client_autenticado_da_escola_cei,
     solicitacao_medicao_inicial_varios_valores_escola_cei,
