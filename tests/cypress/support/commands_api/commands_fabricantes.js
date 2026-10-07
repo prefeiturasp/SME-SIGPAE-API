@@ -3,7 +3,7 @@
 Cypress.Commands.add('consultar_fabricantes', (uuid) => {
 	cy.request({
 		method: 'GET',
-		url: Cypress.config('baseUrl') + `api/fabricantes/${uuid}/`,
+		url: Cypress.config('baseUrl') + 'api/fabricantes/' + (uuid ? `${uuid}/` : ''),
 		timeout: 60000,
 		headers: {
 			Authorization: 'JWT ' + globalThis.token,
@@ -116,4 +116,10 @@ Cypress.Commands.add('consultar_lista_nomes_unicos', () => {
 		},
 		failOnStatusCode: false,
 	})
+})
+
+Cypress.Commands.add('executar_fabricantes', ({ caminho = '', method = 'GET', body, qs, token = globalThis.token } = {}) => {
+	return cy.request({ method, url: Cypress.config('baseUrl') + 'api/fabricantes/' + caminho,
+		body, qs, headers: token ? { Authorization: 'JWT ' + token } : {},
+		timeout: 60000, failOnStatusCode: false, log: false })
 })
