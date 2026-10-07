@@ -4,15 +4,13 @@ import pytest
 from freezegun import freeze_time
 
 from src.dados_comuns.constants import (
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
@@ -120,7 +118,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.medicao_recreio = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
+            grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS,
         )
 
     def _setup_medicao_colaboradores(self, medicao_factory):
@@ -134,7 +132,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
         self.medicao_solicitacoes = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         )
 
     def _setup_logs_medicao_recreio_alimentacao(self, valor_medicao_factory):
@@ -242,7 +240,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             self.solicitacao_medicao_inicial
         )
         assert any(
-            item.get("periodos") == [GRUPO_RECREIO_NAS_FERIAS] for item in build_tabelas
+            item.get("periodos") == [GrupoMedicao.RECREIO_NAS_FERIAS]
+            for item in build_tabelas
         ), "Nenhum item com periodos=['Recreio nas Férias'] encontrado"
         assert any(
             item.get("periodos") == ["Colaboradores"] for item in build_tabelas
@@ -252,7 +251,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             build_tabelas, "total_refeicoes_pagamento"
         )
         assert dict_total_refeicoes == {
-            GRUPO_RECREIO_NAS_FERIAS: 40,
+            GrupoMedicao.RECREIO_NAS_FERIAS: 40,
             "Colaboradores": 40,
         }
 
@@ -260,7 +259,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             build_tabelas, "total_sobremesas_pagamento"
         )
         assert dict_total_sobremesas == {
-            GRUPO_RECREIO_NAS_FERIAS: 40,
+            GrupoMedicao.RECREIO_NAS_FERIAS: 40,
             "Colaboradores": 44,
         }
 
@@ -350,8 +349,10 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFerias:
             item["periodos"] for item in build_tabelas if item["periodos"]
         ]
         todos_periodos = [p for periodos in periodos_por_tabela for p in periodos]
-        idx_recreio = todos_periodos.index(GRUPO_RECREIO_NAS_FERIAS)
-        idx_solicitacoes = todos_periodos.index(GRUPO_SOLICITACOES_ALIMENTACAO)
+        idx_recreio = todos_periodos.index(GrupoMedicao.RECREIO_NAS_FERIAS)
+        idx_solicitacoes = todos_periodos.index(
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         assert idx_solicitacoes > idx_recreio, (
             f"Solicitações de Alimentação deve vir depois de Recreio nas Férias, "
             f"mas periodos={todos_periodos}"
@@ -531,7 +532,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         self.medicao_recreio = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
+            grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS,
         )
         self.medicao_colaboradores = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
@@ -628,9 +629,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         )
 
         # Sem IMR: refeicao=8 × 4 dias = 32 (repeticao ignorada)
-        assert dict_total_refeicoes[GRUPO_RECREIO_NAS_FERIAS] == 32
+        assert dict_total_refeicoes[GrupoMedicao.RECREIO_NAS_FERIAS] == 32
         # Sem IMR: sobremesa=8 × 4 dias = 32 (repeticao ignorada)
-        assert dict_total_sobremesas[GRUPO_RECREIO_NAS_FERIAS] == 32
+        assert dict_total_sobremesas[GrupoMedicao.RECREIO_NAS_FERIAS] == 32
         # Colaboradores: soma simples (5+5) × 4 = 40
         assert dict_total_refeicoes["Colaboradores"] == 40
         assert dict_total_sobremesas["Colaboradores"] == 40
@@ -687,9 +688,9 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasEMEI:
         )
 
         # Com IMR: min(8 + 6, 10) = 10 × 4 dias = 40
-        assert dict_total_refeicoes[GRUPO_RECREIO_NAS_FERIAS] == 40
+        assert dict_total_refeicoes[GrupoMedicao.RECREIO_NAS_FERIAS] == 40
         # Com IMR: min(8 + 6, 10) = 10 × 4 dias = 40
-        assert dict_total_sobremesas[GRUPO_RECREIO_NAS_FERIAS] == 40
+        assert dict_total_sobremesas[GrupoMedicao.RECREIO_NAS_FERIAS] == 40
         # Colaboradores: soma simples (5+5) × 4 = 40
         assert dict_total_refeicoes["Colaboradores"] == 40
         assert dict_total_sobremesas["Colaboradores"] == 40

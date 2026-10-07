@@ -10,13 +10,13 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_HEADERS_CEI,
     ORDEM_UNIDADES_GRUPO_CEI,
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
@@ -202,7 +202,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str) -> dict:
     filtros = {}
-    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         filtros["grupo__nome"] = periodo
     elif CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
@@ -248,7 +248,7 @@ def processa_periodo_regular(
         return "-"
 
     categoria = CategoriaMedicao.ALIMENTACAO
-    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         categoria = periodo.upper()
 
     soma = _calcula_soma_medicao(medicao, faixa_etaria, categoria, query_params)

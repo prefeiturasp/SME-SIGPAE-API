@@ -8,13 +8,11 @@ import pytest
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emebs import (
     _calcula_soma_medicao,
     _define_filtro,
@@ -50,13 +48,21 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_emebs):
     assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 29
     assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 35
     assert (
-        sum(1 for tupla in colunas if tupla[1] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+        sum(
+            1
+            for tupla in colunas
+            if tupla[1] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
+        == 2
     )
     assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
     assert sum(1 for tupla in colunas if tupla[1] == "TARDE") == 12
     assert sum(1 for tupla in colunas if tupla[1] == "INTEGRAL") == 12
     assert sum(1 for tupla in colunas if tupla[1] == "NOITE") == 6
-    assert sum(1 for tupla in colunas if tupla[1] == GRUPO_PROGRAMAS_E_PROJETOS) == 12
+    assert (
+        sum(1 for tupla in colunas if tupla[1] == GrupoMedicao.PROGRAMAS_E_PROJETOS)
+        == 12
+    )
     assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_A) == 6
     assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_B) == 4
     assert sum(1 for tupla in colunas if tupla[2] == "kit_lanche") == 1
@@ -113,7 +119,7 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emebs):
     )
 
     programas_projetos = _get_lista_alimentacoes(
-        medicoes[4], GRUPO_PROGRAMAS_E_PROJETOS
+        medicoes[4], GrupoMedicao.PROGRAMAS_E_PROJETOS
     )
     assert isinstance(programas_projetos, tuple)
     assert programas_projetos == (
@@ -121,7 +127,9 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_emebs):
         retorno,
     )
 
-    solicitacao = _get_lista_alimentacoes(medicoes[5], GRUPO_SOLICITACOES_ALIMENTACAO)
+    solicitacao = _get_lista_alimentacoes(
+        medicoes[5], GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
     assert isinstance(solicitacao, tuple)
     assert solicitacao == (
         [],
@@ -294,7 +302,10 @@ def test_sort_and_merge():
         },
         "FUNDAMENTAL": {
             "MANHA": refeicoes,
-            GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: [
+                "kit_lanche",
+                "lanche_emergencial",
+            ],
         },
     }
 
@@ -329,7 +340,9 @@ def test_sort_and_merge():
         "sobremesa",
         "total_sobremesas_pagamento",
     ]
-    assert dict_periodos_dietas["FUNDAMENTAL"][GRUPO_SOLICITACOES_ALIMENTACAO] == [
+    assert dict_periodos_dietas["FUNDAMENTAL"][
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    ] == [
         "kit_lanche",
         "lanche_emergencial",
     ]
@@ -372,7 +385,10 @@ def test_generate_columns():
         "INFANTIL": periodos_dietas,
         "FUNDAMENTAL": {
             **periodos_dietas,
-            GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: [
+                "kit_lanche",
+                "lanche_emergencial",
+            ],
         },
     }
     colunas = _generate_columns(dict_periodos_dietas)
@@ -381,7 +397,12 @@ def test_generate_columns():
     assert sum(1 for tupla in colunas if tupla[0] == "INFANTIL") == 11
     assert sum(1 for tupla in colunas if tupla[0] == "FUNDAMENTAL") == 11
     assert (
-        sum(1 for tupla in colunas if tupla[1] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+        sum(
+            1
+            for tupla in colunas
+            if tupla[1] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
+        == 2
     )
     assert sum(1 for tupla in colunas if tupla[1] == "MANHA") == 12
     assert sum(1 for tupla in colunas if tupla[1] == DIETA_ESPECIAL_TIPO_A) == 6
@@ -541,15 +562,18 @@ def test_define_filtro(relatorio_consolidado_xlsx_emebs):
     assert "grupo__nome__in" in dieta_especial
     assert "periodo_escolar__nome__in" in dieta_especial
     assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
-    assert dieta_especial["grupo__nome__in"] == [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
+    assert dieta_especial["grupo__nome__in"] == [
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+        "ETEC",
+    ]
 
     solicitacao = _define_filtro(
-        GRUPO_SOLICITACOES_ALIMENTACAO, dietas_especiais, periodos_escolares
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, dietas_especiais, periodos_escolares
     )
     assert isinstance(solicitacao, dict)
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
-    assert solicitacao["grupo__nome"] == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert solicitacao["grupo__nome"] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
 
 def test_processa_dieta_especial(relatorio_consolidado_xlsx_emebs):
@@ -566,7 +590,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_emebs):
     periodos_escolares = PeriodoEscolar.objects.all().values_list("nome", flat=True)
     filtros = {
         "periodo_escolar__nome__in": periodos_escolares,
-        "grupo__nome__in": [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"],
+        "grupo__nome__in": [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"],
     }
     periodo = DIETA_ESPECIAL_TIPO_A
     total = processa_dieta_especial(
@@ -613,7 +637,7 @@ def test_calcula_soma_medicao_alimentacao(relatorio_consolidado_xlsx_emebs):
     noite = _calcula_soma_medicao(medicoes[2], campo, categoria, turma)
     assert math.isclose(noite, 350.0, rel_tol=1e-9)
 
-    categoria = [GRUPO_SOLICITACOES_ALIMENTACAO.upper()]
+    categoria = [GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO.upper()]
     turma = ["INFANTIL", "FUNDAMENTAL"]
     solicitacao = _calcula_soma_medicao(medicoes[5], "kit_lanche", categoria, turma)
     assert math.isclose(solicitacao, 5.0, rel_tol=1e-9)

@@ -1,10 +1,6 @@
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import (
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
-)
 from src.medicao_inicial.api.filters import (
     ClausulaDeDescontoFilter,
     DiaParaCorrecaoFilter,
@@ -14,10 +10,10 @@ from src.medicao_inicial.api.filters import (
     ValorMedicaoFilter,
 )
 from src.medicao_inicial.models import (
-    GRUPO_RECREIO_NAS_FERIAS,
     GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
     ClausulaDeDesconto,
     DiaParaCorrigir,
+    GrupoMedicao,
     LancheEmergencialDiario,
     ParametrizacaoFinanceira,
     RelatorioFinanceiro,
@@ -40,7 +36,7 @@ def test_dia_para_corrigir_filter_solicitacao(dia_para_corrigir):
 
 def test_dia_para_corrigir_filter_grupo():
     filtro = DiaParaCorrecaoFilter(
-        data={"nome_grupo": GRUPO_SOLICITACOES_ALIMENTACAO},
+        data={"nome_grupo": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO},
         queryset=DiaParaCorrigir.objects.filter(habilitado_correcao=True),
     )
     assert filtro.qs.count() == 0
@@ -61,7 +57,7 @@ def test_valor_medicao_filter_grupo_com_uuid_solicitacao(
     filtro = ValorMedicaoFilter(
         data={
             "uuid_solicitacao_medicao": solicitacao_medicao_inicial_com_grupo.uuid,
-            "nome_grupo": GRUPO_PROGRAMAS_E_PROJETOS,
+            "nome_grupo": GrupoMedicao.PROGRAMAS_E_PROJETOS,
         },
         queryset=ValorMedicao.objects.all(),
     )
@@ -75,7 +71,7 @@ def test_valor_medicao_filter_sem_grupo_retorna_apenas_medicoes_sem_grupo(
     valor_medicao,
     categoria_medicao,
 ):
-    grupo = baker.make("GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS)
+    grupo = baker.make("GrupoMedicao", nome=GrupoMedicao.PROGRAMAS_E_PROJETOS)
     medicao_com_grupo = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao_inicial,
@@ -105,7 +101,7 @@ def test_valor_medicao_filter_normaliza_grupo_legado_recreio_cei(
     escola_cei,
     categoria_medicao,
 ):
-    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
+    grupo_recreio = baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS)
     grupo_recreio_legado = baker.make(
         "GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI
     )
@@ -131,7 +127,7 @@ def test_valor_medicao_filter_normaliza_grupo_legado_recreio_cei(
     filtro = ValorMedicaoFilter(
         data={
             "uuid_solicitacao_medicao": solicitacao.uuid,
-            "nome_grupo": GRUPO_RECREIO_NAS_FERIAS,
+            "nome_grupo": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
         queryset=ValorMedicao.objects.all(),
     )

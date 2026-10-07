@@ -7,7 +7,6 @@ from model_bakery import baker
 from rest_framework import serializers
 
 from src.dados_comuns.constants import (
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
@@ -550,7 +549,7 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
 
     def _setup_grupo_solicitacoes_alimentacao(self):
         grupo, _ = GrupoMedicao.objects.get_or_create(
-            nome=GRUPO_SOLICITACOES_ALIMENTACAO
+            nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
         return grupo
 
@@ -611,7 +610,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
+        medicao = solicitacao.medicoes.get(
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         categoria = CategoriaMedicao.objects.get(
             nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
@@ -676,7 +677,9 @@ class TestCriaValoresKitLancheLancheEmergencialRecreio:
             solicitacao
         )
 
-        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
+        medicao = solicitacao.medicoes.get(
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
         categoria = CategoriaMedicao.objects.get(
             nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
         )

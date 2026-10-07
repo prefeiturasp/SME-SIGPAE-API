@@ -5,13 +5,10 @@ import pytest
 from django.db.utils import IntegrityError
 from model_bakery import baker
 
-from src.dados_comuns.constants import (
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-)
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,
+    GrupoMedicao,
     SolicitacaoMedicaoInicial,
 )
 
@@ -238,10 +235,10 @@ def test_solicitacao_medicao_normaliza_grupo_legado_recreio_nas_ferias_para_cei(
     escola_cei,
     recreio_nas_ferias,
 ):
-    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
+    grupo_recreio = baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS)
     grupo_legado = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+        nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -258,14 +255,14 @@ def test_solicitacao_medicao_normaliza_grupo_legado_recreio_nas_ferias_para_cei(
     )
 
     medicao_normalizada = solicitacao.get_medicao_por_periodo_e_ou_grupo(
-        GRUPO_RECREIO_NAS_FERIAS
+        GrupoMedicao.RECREIO_NAS_FERIAS
     )
 
     medicao.refresh_from_db()
 
     assert medicao_normalizada == medicao
     assert medicao.grupo == grupo_recreio
-    assert medicao.nome_periodo_grupo == GRUPO_RECREIO_NAS_FERIAS
+    assert medicao.nome_periodo_grupo == GrupoMedicao.RECREIO_NAS_FERIAS
 
 
 def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
@@ -274,7 +271,7 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
 ):
     grupo_legado = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+        nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
     )
     solicitacao = baker.make(
         "SolicitacaoMedicaoInicial",
@@ -290,7 +287,7 @@ def test_medicao_mantem_grupo_recreio_com_faixa_etaria_para_cemei(
         periodo_escolar=None,
     )
 
-    assert medicao.nome_periodo_grupo == GRUPO_RECREIO_NAS_FERIAS_0_A_3
+    assert medicao.nome_periodo_grupo == GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3
 
 
 def test_unique_constraint_sem_recreio(escola):

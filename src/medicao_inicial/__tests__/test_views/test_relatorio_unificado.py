@@ -9,7 +9,6 @@ from rest_framework.test import APIClient
 
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
-    GRUPO_RECREIO_NAS_FERIAS,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
@@ -33,7 +32,7 @@ from src.medicao_inicial.fixtures.factories.base_factory import (
 from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     SolicitacaoMedicaoInicialFactory,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.tasks import gera_pdf_relatorio_unificado_async
 from src.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
@@ -438,7 +437,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.call_count == 1
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is True
-        assert GRUPO_RECREIO_NAS_FERIAS in call_kwargs["nome_arquivo"]
+        assert GrupoMedicao.RECREIO_NAS_FERIAS in call_kwargs["nome_arquivo"]
 
     @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
     def test_gera_relatorio_unificado_sem_recreio_nao_passa_flag(
@@ -481,7 +480,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.called
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is False
-        assert GRUPO_RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
+        assert GrupoMedicao.RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
 
     @patch("src.relatorios.relatorios.relatorio_solicitacao_medicao_por_escola_cemei")
     @patch("src.medicao_inicial.api.viewsets.gera_pdf_relatorio_unificado_async.delay")
@@ -637,7 +636,7 @@ class TestGeraRelatorioUnificado:
         assert mock_delay.called
         call_kwargs = mock_delay.call_args.kwargs
         assert call_kwargs["contem_recreio"] is False
-        assert GRUPO_RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
+        assert GrupoMedicao.RECREIO_NAS_FERIAS not in call_kwargs["nome_arquivo"]
         assert len(html_strings_captured) == 1
         assert solicitacao_sem_recreio.uuid in call_kwargs["ids_solicitacoes"]
         assert solicitacao_com_recreio.uuid not in call_kwargs["ids_solicitacoes"]

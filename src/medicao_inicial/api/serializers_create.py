@@ -79,8 +79,6 @@ from ...dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     DIRETOR_UE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     PayloadVariaveis,
@@ -966,7 +964,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             inclusoes_continuas,
             quantidade_dias_mes,
             "Programas/Projetos",
-            GRUPO_PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
         )
         self.cria_valores_medicao_logs_numero_alunos_inclusoes_continuas(
             instance, inclusoes_continuas, quantidade_dias_mes, "ETEC", "ETEC"
@@ -984,7 +982,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     ):
         valores_medicao_a_criar = []
         medicao = self.retorna_medicao_por_nome_grupo(
-            instance, GRUPO_SOLICITACOES_ALIMENTACAO
+            instance, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
         categoria = CategoriaMedicao.objects.get(
             nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
@@ -1300,7 +1298,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             medicao = instance.get_or_create_medicao_por_periodo_e_ou_grupo(
                 medicao_nome
             )
-            if medicao_nome in [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]:
+            if medicao_nome in [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"]:
                 if not medicao.possui_ao_menos_uma_observacao():
                     lista_erros.append(
                         {

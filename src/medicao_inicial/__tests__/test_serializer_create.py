@@ -5,7 +5,6 @@ import pytest
 from model_bakery import baker
 
 from src.dados_comuns.constants import (
-    GRUPO_PROGRAMAS_E_PROJETOS,
     TIPOS_UNIDADE_ESCOLAR,
     StringsValidationErrors,
 )
@@ -336,7 +335,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             nome=CategoriaMedicao.ALIMENTACAO
         )
         grupo_programas, _ = GrupoMedicao.objects.get_or_create(
-            nome=GRUPO_PROGRAMAS_E_PROJETOS
+            nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
         grupo_etec, _ = GrupoMedicao.objects.get_or_create(nome="ETEC")
         return categoria, grupo_programas, grupo_etec
@@ -410,7 +409,9 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             solicitacao
         )
 
-        valores = self._valores_numero_alunos(solicitacao, GRUPO_PROGRAMAS_E_PROJETOS)
+        valores = self._valores_numero_alunos(
+            solicitacao, GrupoMedicao.PROGRAMAS_E_PROJETOS
+        )
         assert valores.count() == 30
         assert self._dias_criados(valores) == {f"{dia:02d}" for dia in range(1, 31)}
         assert all(valor.valor == "15" for valor in valores)
@@ -432,10 +433,10 @@ class TestCriaValoresMedicaoInclusoesContinuas:
 
         assert not Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
         ).exists()
         assert not self._valores_numero_alunos(
-            solicitacao, GRUPO_PROGRAMAS_E_PROJETOS
+            solicitacao, GrupoMedicao.PROGRAMAS_E_PROJETOS
         ).exists()
 
     def test_nao_cria_quando_encerramento_no_ultimo_dia_do_mes_anterior(self):
@@ -455,7 +456,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
 
         assert not Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
         ).exists()
 
     def test_cria_valores_somente_ate_data_encerramento_antecipado_no_mesmo_mes(self):
@@ -472,7 +473,9 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             solicitacao
         )
 
-        valores = self._valores_numero_alunos(solicitacao, GRUPO_PROGRAMAS_E_PROJETOS)
+        valores = self._valores_numero_alunos(
+            solicitacao, GrupoMedicao.PROGRAMAS_E_PROJETOS
+        )
         assert self._dias_criados(valores) == {f"{dia:02d}" for dia in range(1, 11)}
         assert valores.count() == 10
         assert all(valor.valor == "12" for valor in valores)
@@ -490,7 +493,9 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             solicitacao
         )
 
-        valores = self._valores_numero_alunos(solicitacao, GRUPO_PROGRAMAS_E_PROJETOS)
+        valores = self._valores_numero_alunos(
+            solicitacao, GrupoMedicao.PROGRAMAS_E_PROJETOS
+        )
         assert self._dias_criados(valores) == {"01"}
 
     def test_nao_cria_quando_inclusao_nao_autorizada(self):
@@ -505,7 +510,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
 
         assert not Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
         ).exists()
 
     def test_nao_cria_quando_nao_existe_inclusao_continua(self):
@@ -538,7 +543,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
         assert self._dias_criados(valores) == {f"{dia:02d}" for dia in range(1, 16)}
         assert not Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
         ).exists()
 
     def test_etec_nao_cria_medicao_quando_encerrada_antes_do_mes(self):
@@ -588,7 +593,9 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             solicitacao
         )
 
-        valores = self._valores_numero_alunos(solicitacao, GRUPO_PROGRAMAS_E_PROJETOS)
+        valores = self._valores_numero_alunos(
+            solicitacao, GrupoMedicao.PROGRAMAS_E_PROJETOS
+        )
         valores_por_dia = {valor.dia: valor.valor for valor in valores}
         assert valores_por_dia["10"] == "30"
         assert valores_por_dia["11"] == "20"
@@ -601,7 +608,7 @@ class TestCriaValoresMedicaoInclusoesContinuas:
         solicitacao = self._setup_solicitacao(escola)
         self._setup_inclusao_continua(escola, numero_alunos=10)
         categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
-        grupo = GrupoMedicao.objects.get(nome=GRUPO_PROGRAMAS_E_PROJETOS)
+        grupo = GrupoMedicao.objects.get(nome=GrupoMedicao.PROGRAMAS_E_PROJETOS)
         medicao = baker.make(
             "Medicao",
             solicitacao_medicao_inicial=solicitacao,
@@ -650,13 +657,13 @@ class TestCriaValoresMedicaoInclusoesContinuas:
             escola.inclusoes_alimentacao_continua.all(),
             30,
             "Programas/Projetos",
-            GRUPO_PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
         )
 
         assert inclusao.quantidades_periodo.exists()
         assert not Medicao.objects.filter(
             solicitacao_medicao_inicial=solicitacao,
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
         ).exists()
 
     def test_valores_por_dia_respeitam_data_inicial_data_final_e_encerramento(self):

@@ -2,13 +2,10 @@ import pytest
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cemei import (
     _define_filtro,
     _get_lista_alimentacoes,
@@ -33,11 +30,15 @@ def test_get_alimentacoes_por_periodo(
     assert isinstance(colunas, list)
 
     assert (
-        sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS_0_A_3) == 8
+        sum(1 for tupla in colunas if tupla[0] == GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3)
+        == 8
     )
 
     assert (
-        sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS_4_A_14) == 6
+        sum(
+            1 for tupla in colunas if tupla[0] == GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14
+        )
+        == 6
     )
 
     assert (
@@ -83,9 +84,9 @@ def test_get_lista_alimentacoes(
 
     medicao_colaboradores = medicoes.get(grupo__nome="Colaboradores")
 
-    medicao_cei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3)
+    medicao_cei = medicoes.get(grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3)
 
-    medicao_emei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14)
+    medicao_emei = medicoes.get(grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14)
 
     colaboradores = _get_lista_alimentacoes(
         medicao_colaboradores,
@@ -139,9 +140,9 @@ def test_get_lista_alimentacoes_dietas(
 
     medicao_colaboradores = medicoes.get(grupo__nome="Colaboradores")
 
-    medicao_cei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3)
+    medicao_cei = medicoes.get(grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3)
 
-    medicao_emei = medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14)
+    medicao_emei = medicoes.get(grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14)
 
     categoria_dieta_a = DIETA_ESPECIAL_TIPO_A
     categoria_dieta_a_enteral = (
@@ -202,7 +203,7 @@ def test_unificar_dietas():
 
 def test_sort_and_merge():
     periodos = {
-        GRUPO_RECREIO_NAS_FERIAS_4_A_14: [
+        GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14: [
             "sobremesa",
             "refeicao",
             "refeicao",
@@ -221,7 +222,7 @@ def test_sort_and_merge():
         dietas,
     )
 
-    assert resultado[GRUPO_RECREIO_NAS_FERIAS_4_A_14] == [
+    assert resultado[GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14] == [
         "refeicao",
         "sobremesa",
     ]
@@ -303,7 +304,7 @@ def test_processa_periodo_regular_cei(
         solicitacao_recreio_cemei,
         {},
         "refeicao",
-        GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+        GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
     )
 
     assert resultado == 300
@@ -322,7 +323,7 @@ def test_processa_periodo_regular_emei(
         solicitacao_recreio_cemei,
         {},
         "refeicao",
-        GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+        GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
     )
 
     assert resultado == 400
@@ -364,7 +365,7 @@ def test_get_valores_tabela(
         [solicitacao_recreio_cemei],
         [
             (
-                GRUPO_RECREIO_NAS_FERIAS,
+                GrupoMedicao.RECREIO_NAS_FERIAS,
                 "refeicao",
             ),
             (

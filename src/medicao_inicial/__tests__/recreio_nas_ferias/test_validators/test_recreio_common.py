@@ -3,13 +3,10 @@ from rest_framework.serializers import ValidationError
 
 from src.cardapio.base.models import TipoAlimentacao
 from src.dados_comuns.constants import (
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.medicao_inicial.models import ValorMedicao
+from src.medicao_inicial.models import GrupoMedicao, ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
     agrupar_tipos_alimentacao_por_categoria,
     existe_colaborador,
@@ -20,8 +17,8 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_common import (
 )
 
 pytestmark = pytest.mark.django_db
-GRUPO_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
-GRUPO_EMEI = GRUPO_RECREIO_NAS_FERIAS_4_A_14
+GRUPO_CEI = GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3
+GRUPO_EMEI = GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14
 GRUPO_COLABORADORES = "Colaboradores"
 
 
@@ -68,7 +65,7 @@ def test_valida_campo_participantes_recreio_emef(solicitacao_recreio_emef):
         ).first()
     )
     informacoes_participantes = informacoes_participantes = {
-        GRUPO_RECREIO_NAS_FERIAS: participantes.num_inscritos,
+        GrupoMedicao.RECREIO_NAS_FERIAS: participantes.num_inscritos,
         "Colaboradores": participantes.num_colaboradores,
     }
     valida_campo_participantes(solicitacao_recreio_emef, informacoes_participantes)
@@ -159,7 +156,7 @@ def test_valida_campo_participantes_recreio_cei(solicitacao_recreio_cei):
         ).first()
     )
     informacoes_participantes = informacoes_participantes = {
-        GRUPO_RECREIO_NAS_FERIAS: participantes.num_inscritos,
+        GrupoMedicao.RECREIO_NAS_FERIAS: participantes.num_inscritos,
         "Colaboradores": participantes.num_colaboradores,
     }
     valida_campo_participantes(solicitacao_recreio_cei, informacoes_participantes)

@@ -15,10 +15,6 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     DJANGO_ADMIN_PASSWORD,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
     EmailsParaTeste,
@@ -31,7 +27,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.escola.models import Aluno, Lote
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.perfil.models.usuario import Usuario
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
@@ -804,7 +800,7 @@ def recreio_nas_ferias(escola):
 @pytest.fixture
 def solicitacao_medicao_inicial_recreio_nas_ferias(escola, recreio_nas_ferias):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
+    grupo_recreio = baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
     categoria_alimentacao = baker.make(
@@ -1117,7 +1113,7 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cei(
     escola_cei, recreio_nas_ferias_cei
 ):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
-    grupo_recreio = baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
+    grupo_recreio = baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS)
     grupo_colaboradores = baker.make("GrupoMedicao", nome="Colaboradores")
 
     categoria_alimentacao = baker.make(
@@ -1260,15 +1256,15 @@ def solicitacao_medicao_inicial_recreio_nas_ferias_cemei(
 
     grupo_0a3 = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+        nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
     )
     grupo_4a14 = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+        nome=GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
     )
     grupo_solicitacoes = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_SOLICITACOES_ALIMENTACAO,
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
     )
     grupo_colaboradores = baker.make(
         "GrupoMedicao",

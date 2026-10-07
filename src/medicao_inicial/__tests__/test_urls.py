@@ -9,15 +9,6 @@ from rest_framework import status
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
-    GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
@@ -567,8 +558,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         None,
         None,
         None,
-        GRUPO_PROGRAMAS_E_PROJETOS,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "ETEC",
     ]
     assert [r["nome_periodo_grupo"] for r in results] == [
@@ -576,8 +567,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         "TARDE",
         "INTEGRAL",
         "NOITE",
-        GRUPO_PROGRAMAS_E_PROJETOS,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "ETEC",
     ]
 
@@ -609,7 +600,7 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_extraordinaria(
     solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
     grupo = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
     )
     medicao = baker.make(
         "Medicao",
@@ -638,7 +629,8 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_extraordinaria(
     resultados = [
         r
         for r in response.data["results"]
-        if r["nome_periodo_grupo"] == GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS
+        if r["nome_periodo_grupo"]
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
     ]
     assert len(resultados) == 1
     assert resultados[0]["valor_total"] == 15
@@ -747,7 +739,7 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
             [
                 r
                 for r in response.data["results"]
-                if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
+                if r["nome_periodo_grupo"] == GrupoMedicao.INFANTIL_MANHA
             ]
         )
         == 1
@@ -756,12 +748,12 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
         [
             r
             for r in response.data["results"]
-            if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
+            if r["nome_periodo_grupo"] == GrupoMedicao.INFANTIL_MANHA
         ][0]["quantidade_alunos"]
     assert [
         r
         for r in response.data["results"]
-        if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
+        if r["nome_periodo_grupo"] == GrupoMedicao.INFANTIL_MANHA
     ][0]["valor_total"] == 80
 
 
@@ -1571,7 +1563,7 @@ def test_url_endpoint_periodos_grupos_medicao_com_extraordinaria(
     solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
     grupo = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
     )
     baker.make(
         "Medicao",
@@ -1588,8 +1580,8 @@ def test_url_endpoint_periodos_grupos_medicao_com_extraordinaria(
 
     assert response.status_code == status.HTTP_200_OK
     nomes = [r["nome_periodo_grupo"] for r in response.data["results"]]
-    assert GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS in nomes
-    assert nomes[-1] == GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS in nomes
+    assert nomes[-1] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
 
 
 def test_url_escola_corrige_medicao_extraordinaria(
@@ -1601,7 +1593,7 @@ def test_url_escola_corrige_medicao_extraordinaria(
     solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
     grupo = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
     )
     medicao = baker.make(
         "Medicao",
@@ -1651,7 +1643,7 @@ def test_url_codae_aprova_periodo_extraordinaria(
     solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
     grupo = baker.make(
         "GrupoMedicao",
-        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
     )
     medicao = baker.make(
         "Medicao",
@@ -2003,7 +1995,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_programas_projetos = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
     )
     assert (
@@ -2027,7 +2019,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_solicitacoes_alimentacao = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
     )
     assert (
@@ -2270,9 +2262,9 @@ def test_periodos_escola_cemei_com_alunos_emei(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3
     dados = response.data["results"]
-    assert dados[0] == GRUPO_INFANTIL_MANHA
-    assert dados[1] == GRUPO_INFANTIL_TARDE
-    assert dados[2] == GRUPO_INFANTIL_INTEGRAL
+    assert dados[0] == GrupoMedicao.INFANTIL_MANHA
+    assert dados[1] == GrupoMedicao.INFANTIL_TARDE
+    assert dados[2] == GrupoMedicao.INFANTIL_INTEGRAL
 
 
 def test_periodos_permissoes_lancamentos_especiais_mes_ano(
@@ -4599,7 +4591,7 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento_kit_lanche(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert {
         "erro": "Restam dias a serem lançados nos Kit Lanches.",
-        "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+        "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
     } in response.json()
 
 
@@ -4642,11 +4634,11 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -4729,11 +4721,11 @@ def test_url_endpoint_finaliza_medicao_recreio_cei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -4801,7 +4793,7 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
@@ -4809,15 +4801,15 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
         },
     ]
 

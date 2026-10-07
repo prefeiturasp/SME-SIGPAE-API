@@ -5,9 +5,9 @@ import pandas as pd
 from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
 
-from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
@@ -239,7 +239,11 @@ def gera_colunas_alimentacao(
     if headers is None:
         headers = [
             (
-                chave.upper() if chave != GRUPO_SOLICITACOES_ALIMENTACAO else "",
+                (
+                    chave.upper()
+                    if chave != GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+                    else ""
+                ),
                 nomes_campos[valor],
             )
             for chave, valor in colunas

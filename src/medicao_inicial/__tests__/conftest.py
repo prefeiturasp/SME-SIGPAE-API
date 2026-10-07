@@ -16,14 +16,6 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     DJANGO_ADMIN_PASSWORD,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     StringsCaminhoModelos,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
@@ -40,6 +32,7 @@ from src.escola.models import (
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     PermissaoLancamentoEspecial,
     SolicitacaoMedicaoInicial,
@@ -90,7 +83,7 @@ def kit_lanche_2():
 
 @pytest.fixture
 def grupo_programas_e_projetos():
-    return baker.make("GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.PROGRAMAS_E_PROJETOS)
 
 
 @pytest.fixture
@@ -100,27 +93,27 @@ def grupo_etec():
 
 @pytest.fixture
 def grupo_solicitacoes_alimentacao():
-    return baker.make("GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
 
 
 @pytest.fixture
 def grupo_infantil_integral():
-    return baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_INTEGRAL)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.INFANTIL_INTEGRAL)
 
 
 @pytest.fixture
 def grupo_infantil_manha():
-    return baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_MANHA)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.INFANTIL_MANHA)
 
 
 @pytest.fixture
 def grupo_infantil_tarde():
-    return baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_TARDE)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.INFANTIL_TARDE)
 
 
 @pytest.fixture
 def grupo_recreio_nas_ferias():
-    return baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS)
 
 
 @pytest.fixture
@@ -130,12 +123,12 @@ def grupo_colaboradores():
 
 @pytest.fixture
 def grupo_recreio_nas_ferias_0_a_3_anos_e_11_meses():
-    return baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3)
 
 
 @pytest.fixture
 def grupo_recreio_nas_ferias_4_a_14_anos():
-    return baker.make("GrupoMedicao", nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14)
+    return baker.make("GrupoMedicao", nome=GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14)
 
 
 @pytest.fixture
@@ -1277,7 +1270,9 @@ def solicitacao_medicao_inicial_varios_valores_escola_cei(
 
 
 def medicao_infantil_manha(solicitacao_medicao, categoria_medicao):
-    periodo_infantil_manha = baker.make("PeriodoEscolar", nome=GRUPO_INFANTIL_MANHA)
+    periodo_infantil_manha = baker.make(
+        "PeriodoEscolar", nome=GrupoMedicao.INFANTIL_MANHA
+    )
     medicao_infantil_manha = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao_medicao,
@@ -1349,10 +1344,10 @@ def solicitacao_medicao_inicial_com_valores_repeticao(escola, categoria_medicao)
     periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
     periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
     grupo_solicitacoes_alimentacao = baker.make(
-        "GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO
+        "GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     )
     grupo_programas_e_projetos = baker.make(
-        "GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS
+        "GrupoMedicao", nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
     )
     grupo_etec = baker.make("GrupoMedicao", nome="ETEC")
     solicitacao_medicao = baker.make(
@@ -1433,7 +1428,7 @@ def solicitacao_medicao_inicial_dietas(
     periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
     periodo_noite = baker.make("PeriodoEscolar", nome="NOITE")
     grupo_programas_e_projetos = baker.make(
-        "GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS
+        "GrupoMedicao", nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
     )
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola
@@ -1504,7 +1499,7 @@ def medicao_solicitacoes_alimentacao(escola):
     categoria = baker.make(
         "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
     )
-    grupo = baker.make("GrupoMedicao", nome=GRUPO_SOLICITACOES_ALIMENTACAO)
+    grupo = baker.make("GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial", mes=6, ano=2023, escola=escola
     )
@@ -1987,7 +1982,7 @@ def solicitacao_medicao_inicial_teste_salvar_logs_cei(
 def solicitacao_medicao_inicial_com_grupo(escola, categoria_medicao_dieta_a):
     tipo_contagem = baker.make("TipoContagemAlimentacao", nome="Fichas")
     periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
-    grupo = baker.make("GrupoMedicao", nome=GRUPO_PROGRAMAS_E_PROJETOS)
+    grupo = baker.make("GrupoMedicao", nome=GrupoMedicao.PROGRAMAS_E_PROJETOS)
     solicitacao_medicao = baker.make(
         "SolicitacaoMedicaoInicial",
         uuid="bed4d779-2d57-4c5f-bf9c-9b93ddac54d9",
@@ -3492,8 +3487,8 @@ def mock_query_params_excel_emei(solicitacao_relatorio_consolidado_grupo_emei):
 @pytest.fixture
 def mock_colunas():
     return [
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "kit_lanche"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "lanche_emergencial"),
         ("MANHA", "lanche"),
         ("MANHA", "lanche_4h"),
         ("MANHA", "refeicao"),
@@ -4178,8 +4173,8 @@ def mock_query_params_excel_cemei(solicitacao_relatorio_consolidado_grupo_cemei)
 @pytest.fixture
 def mock_colunas_cemei(faixas_etarias_ativas):
     colunas = [
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "kit_lanche"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "lanche_emergencial"),
     ]
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
 
@@ -4191,9 +4186,9 @@ def mock_colunas_cemei(faixas_etarias_ativas):
     colunas.extend(("DIETA ESPECIAL - TIPO B - PARCIAL", faixa) for faixa in faixas)
 
     for periodo in [
-        GRUPO_INFANTIL_INTEGRAL,
-        GRUPO_INFANTIL_MANHA,
-        GRUPO_INFANTIL_TARDE,
+        GrupoMedicao.INFANTIL_INTEGRAL,
+        GrupoMedicao.INFANTIL_MANHA,
+        GrupoMedicao.INFANTIL_TARDE,
     ]:
         for campo in [
             "lanche",
@@ -4579,8 +4574,8 @@ def mock_query_params_excel_emebs(solicitacao_relatorio_consolidado_grupo_emebs)
 @pytest.fixture
 def mock_colunas_emebs():
     colunas = [
-        ("", GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
-        ("", GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
+        ("", GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "lanche_emergencial"),
+        ("", GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "kit_lanche"),
     ]
 
     for turma in ["INFANTIL", "FUNDAMENTAL"]:
@@ -4589,7 +4584,7 @@ def mock_colunas_emebs():
             "TARDE",
             "INTEGRAL",
             "NOITE",
-            GRUPO_PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
         ]:
             if turma == "INFANTIL" and periodo == "NOITE":
                 continue
@@ -4602,7 +4597,10 @@ def mock_colunas_emebs():
                 "sobremesa",
                 "total_sobremesas_pagamento",
             ]:
-                if periodo == GRUPO_PROGRAMAS_E_PROJETOS and campo == "sobremesa":
+                if (
+                    periodo == GrupoMedicao.PROGRAMAS_E_PROJETOS
+                    and campo == "sobremesa"
+                ):
                     continue
                 colunas.append((turma, periodo, campo))
 
@@ -5038,8 +5036,8 @@ def mock_query_params_excel_cieja_cmct(solicitacao_relatorio_consolidado_escola_
 def mock_colunas_cieja():
 
     colunas = [
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "kit_lanche"),
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche_emergencial"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "kit_lanche"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "lanche_emergencial"),
     ]
     for periodo in [
         "MANHA",
@@ -6000,7 +5998,7 @@ def apply_dieta(
         valor = medicao.valores_medicao.get(**filtros)
 
         if is_cemei:
-            is_programa = medicao.grupo.nome == GRUPO_PROGRAMAS_E_PROJETOS
+            is_programa = medicao.grupo.nome == GrupoMedicao.PROGRAMAS_E_PROJETOS
         else:
             is_programa = bool(medicao.grupo)
 
@@ -7717,12 +7715,12 @@ def solicitacao_recreio_emei(
 @pytest.fixture
 def mock_colunas_recreio_emei():
     return [
-        (GRUPO_RECREIO_NAS_FERIAS, "refeicao"),
-        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_refeicao"),
-        (GRUPO_RECREIO_NAS_FERIAS, "total_refeicoes_pagamento"),
-        (GRUPO_RECREIO_NAS_FERIAS, "sobremesa"),
-        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_sobremesa"),
-        (GRUPO_RECREIO_NAS_FERIAS, "total_sobremesas_pagamento"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "refeicao"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "repeticao_refeicao"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "total_refeicoes_pagamento"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "sobremesa"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "repeticao_sobremesa"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "total_sobremesas_pagamento"),
         (DIETA_ESPECIAL_TIPO_A, "refeicao"),
         ("Colaboradores", "refeicao"),
         ("Colaboradores", "repeticao_refeicao"),
@@ -7814,7 +7812,7 @@ def mock_colunas_recreio_cei(faixas_etarias_ativas):
 
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     colunas = []
-    colunas.extend((GRUPO_RECREIO_NAS_FERIAS, faixa) for faixa in faixas)
+    colunas.extend((GrupoMedicao.RECREIO_NAS_FERIAS, faixa) for faixa in faixas)
     colunas.extend((DIETA_ESPECIAL_TIPO_A, faixa) for faixa in faixas)
     for campo in [
         "refeicao",
@@ -7923,12 +7921,12 @@ def mock_query_params_excel_recreio_cei(solicitacao_recreio_cei):
 @pytest.fixture
 def mock_colunas_recreio_emef():
     return [
-        (GRUPO_RECREIO_NAS_FERIAS, "refeicao"),
-        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_refeicao"),
-        (GRUPO_RECREIO_NAS_FERIAS, "total_refeicoes_pagamento"),
-        (GRUPO_RECREIO_NAS_FERIAS, "sobremesa"),
-        (GRUPO_RECREIO_NAS_FERIAS, "repeticao_sobremesa"),
-        (GRUPO_RECREIO_NAS_FERIAS, "total_sobremesas_pagamento"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "refeicao"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "repeticao_refeicao"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "total_refeicoes_pagamento"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "sobremesa"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "repeticao_sobremesa"),
+        (GrupoMedicao.RECREIO_NAS_FERIAS, "total_sobremesas_pagamento"),
         (DIETA_ESPECIAL_TIPO_A, "refeicao"),
         ("Colaboradores", "refeicao"),
         ("Colaboradores", "repeticao_refeicao"),
@@ -7981,7 +7979,7 @@ def mock_colunas_recreio_cemei(faixas_etarias_ativas):
     return (
         [
             (
-                GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+                GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
                 faixa.id,
             )
             for faixa in faixas_etarias_ativas
@@ -7995,19 +7993,19 @@ def mock_colunas_recreio_cemei(faixas_etarias_ativas):
         ]
         + [
             (
-                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+                GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
                 "refeicao",
             ),
             (
-                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+                GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
                 "sobremesa",
             ),
             (
-                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+                GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
                 "total_refeicoes_pagamento",
             ),
             (
-                GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+                GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
                 "total_sobremesas_pagamento",
             ),
             (

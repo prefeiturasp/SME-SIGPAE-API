@@ -35,7 +35,6 @@ from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
 from src.dados_comuns.constants import (
-    GRUPO_PROGRAMAS_E_PROJETOS,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
@@ -74,6 +73,7 @@ from src.inclusao_alimentacao.models import (
     InclusaoAlimentacaoDaCEI,
     InclusaoDeAlimentacaoCEMEI,
 )
+from src.medicao_inicial.models import GrupoMedicao
 from src.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,
 )
@@ -172,7 +172,7 @@ class TestUseCaseTransferenciaLotes:
 
     def _setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
-            nome=GRUPO_PROGRAMAS_E_PROJETOS
+            nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
 
     def _setup_inclusao_continua_programas_projetos(self):

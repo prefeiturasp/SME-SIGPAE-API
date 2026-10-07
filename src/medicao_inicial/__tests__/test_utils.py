@@ -9,9 +9,6 @@ from model_bakery import baker
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
     TIPOS_ALIMENTACAO,
     FaixasEtarias,
     NomesParaTesteEscola,
@@ -255,9 +252,9 @@ def test_build_headers_tabelas_emebs(solicitacao_medicao_inicial_varios_valores_
 
 
 def test_get_nome_periodo():
-    assert get_nome_periodo(GRUPO_INFANTIL_INTEGRAL) == "INTEGRAL"
-    assert get_nome_periodo(GRUPO_INFANTIL_MANHA) == "MANHA"
-    assert get_nome_periodo(GRUPO_INFANTIL_TARDE) == "TARDE"
+    assert get_nome_periodo(GrupoMedicao.INFANTIL_INTEGRAL) == "INTEGRAL"
+    assert get_nome_periodo(GrupoMedicao.INFANTIL_MANHA) == "MANHA"
+    assert get_nome_periodo(GrupoMedicao.INFANTIL_TARDE) == "TARDE"
     assert get_nome_periodo("Fundamental MANHA") == "Fundamental MANHA"
     assert get_nome_periodo("EJA NOITE") == "EJA NOITE"
 

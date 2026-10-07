@@ -10,7 +10,6 @@ from django.template.loader import get_template, render_to_string
 
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    GRUPO_RECREIO_NAS_FERIAS,
     ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS,
     ORDEM_UNIDADES_GRUPO_CEI,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -29,7 +28,11 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.inclusao_alimentacao.models import MotivoInclusaoNormal
-from src.medicao_inicial.models import CategoriaMedicao, SolicitacaoMedicaoInicial
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    GrupoMedicao,
+    SolicitacaoMedicaoInicial,
+)
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -1842,7 +1845,7 @@ def _ajustar_labels_recreio_nas_ferias(tabelas: list, titulo_recreio: str) -> No
     Ajusta in-place os labels de períodos e categorias das tabelas
     conforme o título do recreio nas férias.
     """
-    PERIODO_PARTICIPANTES = GRUPO_RECREIO_NAS_FERIAS
+    PERIODO_PARTICIPANTES = GrupoMedicao.RECREIO_NAS_FERIAS
     PERIODO_COLABORADORES = "Colaboradores"
     CATEGORIA_ALIMENTACAO = CategoriaMedicao.ALIMENTACAO
 

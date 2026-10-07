@@ -6,8 +6,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CEMEI,
@@ -119,7 +117,7 @@ def _get_lista_alimentacoes(
             .values_list("nome_campo", flat=True)
             .distinct()
         )
-        if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
+        if nome_periodo != GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
             lista_alimentacoes += [
                 "total_refeicoes_pagamento",
                 "total_sobremesas_pagamento",
@@ -270,15 +268,16 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str, grupos_medicao: list[str]) -> dict:
     filtros = {}
-    if periodo in [GRUPO_SOLICITACOES_ALIMENTACAO, GRUPO_PROGRAMAS_E_PROJETOS] + list(
-        grupos_medicao
-    ):
+    if periodo in [
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+    ] + list(grupos_medicao):
         filtros["grupo__nome"] = periodo
     elif CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         if "INFANTIL" in periodo:
             filtros["grupo__nome__in"] = grupos_medicao
         elif PROGRAMAS_E_PROJETOS in periodo:
-            filtros["grupo__nome"] = GRUPO_PROGRAMAS_E_PROJETOS
+            filtros["grupo__nome"] = GrupoMedicao.PROGRAMAS_E_PROJETOS
         else:
             filtros["periodo_escolar__nome"] = periodo.split(" - ")[-1]
     else:

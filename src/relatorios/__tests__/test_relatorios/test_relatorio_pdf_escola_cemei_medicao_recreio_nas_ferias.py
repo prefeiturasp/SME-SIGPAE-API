@@ -5,11 +5,9 @@ from freezegun import freeze_time
 from model_bakery import baker
 
 from src.dados_comuns.constants import (
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_ALIMENTACAO,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cemei_recreio_nas_ferias,
 )
@@ -57,12 +55,12 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEMEI:
         self.medicao_0a3 = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+            grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
         )
         self.medicao_4a14 = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+            grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
         )
         self.medicao_colaboradores = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,

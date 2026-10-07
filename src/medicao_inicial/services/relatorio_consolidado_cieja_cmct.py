@@ -9,8 +9,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CIEJA_CMCT,
@@ -18,6 +16,7 @@ from src.dados_comuns.constants import (
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
@@ -142,7 +141,7 @@ def _get_lista_alimentacoes(
         .distinct()
     )
 
-    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
+    if nome_periodo != GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -368,14 +367,14 @@ def _define_filtro(
     """
     filtros = {}
     if periodo in [
-        GRUPO_PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
         "ETEC",
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
-        filtros["grupo__nome__in"] = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
+        filtros["grupo__nome__in"] = [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -458,7 +457,7 @@ def processa_periodo_regular(
 
     categorias = (
         [periodo.upper()]
-        if periodo == GRUPO_SOLICITACOES_ALIMENTACAO
+        if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         else [CategoriaMedicao.ALIMENTACAO]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)

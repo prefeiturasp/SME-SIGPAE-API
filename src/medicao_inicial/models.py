@@ -29,12 +29,6 @@ from ..dados_comuns.behaviors import (
 from ..dados_comuns.constants import (
     CRIADO_EM,
     FORMATO_DATA_BRASILEIRO,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
 )
 from ..dados_comuns.fluxo_status import (
     FluxoRelatorioFinanceiroMedicaoInicial,
@@ -48,7 +42,7 @@ from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias
 
 MODEL_PERIODO_ESCOLAR = StringsCaminhoModelos.MODEL_PERIODOESCOLAR.value
-GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
+GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI = "Recreio nas Férias - de 0 a 3 anos e 11 meses"
 
 
 class TipoSobremesaDoce(TemChaveExterna, CriadoEm, TemAlteradoEm, Nomeavel, Ativavel):
@@ -175,9 +169,9 @@ class SolicitacaoMedicaoInicial(
         if not periodos_escolares:
             return
         grupos_cemei = {
-            "MANHA": GRUPO_INFANTIL_MANHA,
-            "TARDE": GRUPO_INFANTIL_TARDE,
-            "INTEGRAL": GRUPO_INFANTIL_INTEGRAL,
+            "MANHA": GrupoMedicao.INFANTIL_MANHA,
+            "TARDE": GrupoMedicao.INFANTIL_TARDE,
+            "INTEGRAL": GrupoMedicao.INFANTIL_INTEGRAL,
         }
         for periodo_escolar in periodos_escolares:
             if self.escola.eh_cemei:
@@ -345,7 +339,7 @@ class SolicitacaoMedicaoInicial(
     @property
     def get_medicao_programas_e_projetos(self):
         try:
-            return self.medicoes.get(grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS)
+            return self.medicoes.get(grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS)
         except Medicao.DoesNotExist:
             return None
 
@@ -469,7 +463,7 @@ class SolicitacaoMedicaoInicial(
             Caso contrario, False.
         """
         return self.escola.eh_cei_data(self.data_referencia) and nome_grupo in [
-            GRUPO_RECREIO_NAS_FERIAS,
+            GrupoMedicao.RECREIO_NAS_FERIAS,
             GRUPO_RECREIO_NAS_FERIAS_CEMEI_CEI,
         ]
 
@@ -488,7 +482,7 @@ class SolicitacaoMedicaoInicial(
             original sem alteracoes.
         """
         if self._eh_grupo_legado_recreio_nas_ferias_cei(nome_grupo):
-            return GRUPO_RECREIO_NAS_FERIAS
+            return GrupoMedicao.RECREIO_NAS_FERIAS
         return nome_grupo
 
     def _normaliza_medicao_legada_recreio_nas_ferias_cei(self):
@@ -510,7 +504,7 @@ class SolicitacaoMedicaoInicial(
             return None
 
         grupo_padrao = (
-            GrupoMedicao.objects.filter(nome=GRUPO_RECREIO_NAS_FERIAS)
+            GrupoMedicao.objects.filter(nome=GrupoMedicao.RECREIO_NAS_FERIAS)
             .order_by("-id")
             .first()
         )
@@ -666,7 +660,7 @@ class Medicao(
                 self.solicitacao_medicao_inicial.data_referencia
             )
         ):
-            nome_grupo = GRUPO_RECREIO_NAS_FERIAS
+            nome_grupo = GrupoMedicao.RECREIO_NAS_FERIAS
         if self.grupo and self.periodo_escolar:
             nome_periodo_grupo = f"{nome_grupo} - {self.periodo_escolar.nome}"
         elif self.grupo and not self.periodo_escolar:

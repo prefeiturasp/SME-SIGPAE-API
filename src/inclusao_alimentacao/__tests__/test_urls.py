@@ -15,7 +15,6 @@ from ...dados_comuns.constants import (
     DRE_NAO_VALIDA_PEDIDO,
     DRE_VALIDA_PEDIDO,
     ESCOLA_CANCELA,
-    GRUPO_PROGRAMAS_E_PROJETOS,
     SOLICITACOES_DO_USUARIO,
     TERCEIRIZADA_RESPONDE_QUESTIONAMENTO,
     TERCEIRIZADA_TOMOU_CIENCIA,
@@ -901,7 +900,7 @@ def _cria_solicitacao_com_medicao_programas_e_projetos(escola, mes, ano, dias=No
     )
 
     grupo_programas, _ = GrupoMedicao.objects.get_or_create(
-        nome=GRUPO_PROGRAMAS_E_PROJETOS
+        nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
     )
     categoria, _ = CategoriaMedicao.objects.get_or_create(
         nome=CategoriaMedicao.ALIMENTACAO

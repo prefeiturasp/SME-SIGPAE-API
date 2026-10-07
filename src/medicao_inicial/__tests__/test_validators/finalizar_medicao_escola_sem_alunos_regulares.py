@@ -5,14 +5,13 @@ from freezegun import freeze_time
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
-    GRUPO_PROGRAMAS_E_PROJETOS,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.validators import (
     validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
     validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares,
@@ -21,7 +20,7 @@ from src.medicao_inicial.validators import (
 pytestmark = pytest.mark.django_db
 
 
-PROGRAMAS_E_PROJETOS = GRUPO_PROGRAMAS_E_PROJETOS
+PROGRAMAS_E_PROJETOS = GrupoMedicao.PROGRAMAS_E_PROJETOS
 
 
 @freeze_time("2025-09-01")

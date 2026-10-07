@@ -8,14 +8,13 @@ import pytest
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteEscola,
 )
 from src.escola.models import PeriodoEscolar
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cei import (
     _calcula_soma_medicao,
     _define_filtro,
@@ -347,11 +346,11 @@ def test_define_filtro(relatorio_consolidado_xlsx_cei):
     assert "periodo_escolar__nome" in dieta_especial
     assert dieta_especial["periodo_escolar__nome"] == "PARCIAL"
 
-    solicitacao = _define_filtro(GRUPO_SOLICITACOES_ALIMENTACAO)
+    solicitacao = _define_filtro(GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
     assert isinstance(solicitacao, dict)
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
-    assert solicitacao["grupo__nome"] == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert solicitacao["grupo__nome"] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
 
 def test_processa_dieta_especial(relatorio_consolidado_xlsx_cei, faixas_etarias_ativas):
