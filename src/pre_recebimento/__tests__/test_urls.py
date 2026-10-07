@@ -3379,6 +3379,22 @@ def test_ficha_tecnica_retrieve_ok(
     assert response.data == FichaTecnicaDetalharSerializer(ficha_tecnica).data
 
 
+def test_url_dashboard_ficha_tecnica_perfil_dilog_visualizacao(
+    client_autenticado_dilog_visualizacao, ficha_tecnica_factory
+):
+    """DILOG_VISUALIZACAO acessa o dashboard e tem seus status mapeados.
+
+    O perfil precisa estar em ``PERFIS_PERMITIDOS`` e em
+    ``STATUS_POR_PERFIL``.
+    """
+    ficha_tecnica_factory(status=FichaTecnicaDoProdutoWorkflow.APROVADA)
+
+    response = client_autenticado_dilog_visualizacao.get("/ficha-tecnica/dashboard/")
+
+    assert response.status_code == status.HTTP_200_OK
+    assert "results" in response.json()
+
+
 def test_url_dashboard_ficha_tecnica_status_retornados(
     client_autenticado_codae_dilog, ficha_tecnica_factory, django_user_model
 ):
@@ -3640,6 +3656,23 @@ def test_url_ficha_tecnica_rascunho_analise_create(
     assert (
         analises.first().ficha_tecnica == ficha_tecnica_perecivel_enviada_para_analise
     )
+
+
+def test_url_ficha_tecnica_detalhar_com_analise_perfil_dilog_visualizacao(
+    client_autenticado_dilog_visualizacao,
+    ficha_tecnica_perecivel_enviada_para_analise,
+    analise_ficha_tecnica_factory,
+):
+    """DILOG_VISUALIZACAO pode visualizar o Detalhar da ficha técnica"""
+    ficha_tecnica = ficha_tecnica_perecivel_enviada_para_analise
+    analise_ficha_tecnica_factory.create(ficha_tecnica=ficha_tecnica)
+
+    response = client_autenticado_dilog_visualizacao.get(
+        f"/ficha-tecnica/{ficha_tecnica.uuid}/detalhar-com-analise/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json()["uuid"] == str(ficha_tecnica.uuid)
 
 
 def test_url_ficha_tecnica_detalhar_com_analise_ok(
