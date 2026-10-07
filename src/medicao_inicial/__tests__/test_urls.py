@@ -1636,6 +1636,73 @@ def test_url_escola_corrige_medicao_extraordinaria(
     ).exists()
 
 
+def test_url_escola_corrige_medicao_loga_correcao_inicial(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+    baker.make(
+        "DiaParaCorrigir",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+        dia="02",
+    )
+
+    data = [
+        {
+            "dia": "02",
+            "nome_campo": "lanche_emergencial",
+            "valor": "5",
+            "categoria_medicao": categoria_medicao_solicitacoes_alimentacao.id,
+            "tipo_alimentacao": "",
+        }
+    ]
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/medicao/{medicao.uuid}/escola-corrige-medicao/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+
+    solicitacao.refresh_from_db()
+    log_correcao = next(
+        log
+        for log in json.loads(solicitacao.historico)
+        if log["acao"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    alteracao = log_correcao["alteracoes"][0]
+    assert (
+        alteracao["periodo_escolar"]
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    )
+    campos = [
+        campo
+        for tabela in alteracao["tabelas_lancamentos"]
+        for semana in tabela["semanas"]
+        for dia in semana["dias"]
+        for campo in dia["campos"]
+    ]
+    campo_lanche = next(
+        campo for campo in campos if campo["campo_nome"] == "lanche_emergencial"
+    )
+    assert campo_lanche["de"] == ""
+    assert campo_lanche["para"] == "5"
+
+
 def test_url_codae_aprova_periodo_extraordinaria(
     client_autenticado_codae_medicao,
     solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
