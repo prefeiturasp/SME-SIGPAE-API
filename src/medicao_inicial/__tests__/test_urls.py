@@ -2138,13 +2138,16 @@ def test_url_endpoint_relatorio_adesao_sem_periodo_lancamento(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data == {
-        medicao.nome_periodo_grupo: {
-            tipo_alimentacao_refeicao.nome.upper(): {
-                "total_servido": total_servido,
-                "total_frequencia": total_frequencia,
-                "total_adesao": total_adesao,
+        "resultados": {
+            medicao.nome_periodo_grupo: {
+                tipo_alimentacao_refeicao.nome.upper(): {
+                    "total_servido": total_servido,
+                    "total_frequencia": total_frequencia,
+                    "total_adesao": total_adesao,
+                }
             }
-        }
+        },
+        "possui_resultados": True,
     }
 
 
@@ -2200,13 +2203,16 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento(
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data == {
-        medicao.nome_periodo_grupo: {
-            tipo_alimentacao_refeicao.nome.upper(): {
-                "total_servido": total_servido,
-                "total_frequencia": total_frequencia,
-                "total_adesao": total_adesao,
+        "resultados": {
+            medicao.nome_periodo_grupo: {
+                tipo_alimentacao_refeicao.nome.upper(): {
+                    "total_servido": total_servido,
+                    "total_frequencia": total_frequencia,
+                    "total_adesao": total_adesao,
+                }
             }
-        }
+        },
+        "possui_resultados": True,
     }
 
 
