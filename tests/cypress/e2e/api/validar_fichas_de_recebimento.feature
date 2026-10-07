@@ -72,3 +72,7 @@ Funcionalidade: Validar fichas de recebimento
   Cenario: Gerar PDF de ficha de recebimento com sucesso
     Quando gero o PDF de uma ficha de recebimento assinada existente
     Entao a ficha de recebimento retorna um arquivo PDF valido
+
+  Cenario: Validar permissao de cadastro do usuario configurado
+    Quando valido a permissao de cadastro de recebimento do usuario de qualidade
+    Entao o usuario de qualidade pode acessar a validacao de cadastro

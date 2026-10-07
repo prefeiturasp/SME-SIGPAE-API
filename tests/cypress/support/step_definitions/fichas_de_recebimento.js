@@ -70,3 +70,12 @@ Then('a ficha de recebimento retorna um arquivo PDF valido', function () {
 	expect(this.response.body.slice(0, 5), 'assinatura PDF').to.eq('%PDF-')
 	expect(this.response.body.trimEnd().endsWith('%%EOF'), 'marcador final PDF').to.eq(true)
 })
+
+When('valido a permissao de cadastro de recebimento do usuario de qualidade', function () {
+	return autenticar().then(() => cy.executar_fichas_de_recebimento({ method: 'POST', body: { password: Cypress.env('senha') } })).then((response) => { this.response = response })
+})
+Then('o usuario de qualidade pode acessar a validacao de cadastro', function () {
+	expect(this.response.status).to.eq(400)
+	expect(this.response.body).to.have.property('etapa')
+	expect(this.response.body).to.have.property('data_entrega')
+})
