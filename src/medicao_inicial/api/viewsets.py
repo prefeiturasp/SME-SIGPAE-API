@@ -1823,6 +1823,35 @@ class MedicaoViewSet(
                 medicao.solicitacao_medicao_inicial.workflow_class.MEDICAO_CORRIGIDA_PELA_UE
             )
 
+    def get_lookup_valor_medicao(self, medicao, valor_medicao):
+        dia = valor_medicao.get("dia", "")
+        mes = int(medicao.solicitacao_medicao_inicial.mes)
+        ano = int(medicao.solicitacao_medicao_inicial.ano)
+        return {
+            "medicao": medicao,
+            "dia": dia,
+            "semana": ValorMedicao.get_week_of_month(ano, mes, int(dia)),
+            "nome_campo": valor_medicao.get("nome_campo", ""),
+            "categoria_medicao": CategoriaMedicao.objects.filter(
+                id=valor_medicao.get("categoria_medicao", None)
+            ).first(),
+            "tipo_alimentacao": self.get_tipo_alimentacao(valor_medicao),
+            "faixa_etaria": self.get_faixa_etaria(valor_medicao),
+            "infantil_ou_fundamental": valor_medicao.get(
+                "infantil_ou_fundamental", "N/A"
+            ),
+        }
+
+    def prepara_valores_medicao_para_log(self, medicao, data):
+        """Garante o valor anterior (vazio) para que a correção inicial seja logada."""
+        for valor_medicao in data:
+            if not valor_medicao:
+                continue
+            ValorMedicao.objects.get_or_create(
+                **self.get_lookup_valor_medicao(medicao, valor_medicao),
+                defaults={"valor": "", "habilitado_correcao": True},
+            )
+
     @action(
         detail=True,
         methods=["PATCH"],
@@ -1847,6 +1876,7 @@ class MedicaoViewSet(
         ]
         try:
             acao = self.get_nome_acao(medicao, status_codae)
+            self.prepara_valores_medicao_para_log(medicao, request.data)
             log_alteracoes_escola_corrige_periodo(
                 request.user, medicao, acao, request.data
             )
