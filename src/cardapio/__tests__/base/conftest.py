@@ -4,6 +4,9 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.cardapio.base.models import (
+    VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+)
 from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
@@ -11,6 +14,7 @@ from src.dados_comuns.constants import (
     StringsCaminhoModelos,
 )
 from src.escola.models import (
+    AlunosMatriculadosPeriodoEscola,
     Escola,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
@@ -264,4 +268,94 @@ def vinculo_alimentacao_periodo_escolar_ceu_gestao(escolas, periodos_escolares):
 def vinculo_alimentacao_periodo_escolar_emebs(escolas, periodos_escolares):
     return _cria_vinculos(
         TIPOS_UNIDADE_ESCOLAR.EMEBS.value, ["NOITE", "MANHA", "TARDE", "INTEGRAL"]
+    )
+
+
+@pytest.fixture
+def vinculos_cemei_medicao(vinculo_alimentacao_periodo_escolar_cemei, escola):
+    escola_cemei = vinculo_alimentacao_periodo_escolar_cemei
+    escola_cemei.diretoria_regional = escola.diretoria_regional
+    escola_cemei.save(update_fields=["diretoria_regional"])
+    periodo_integral = PeriodoEscolar.objects.get(nome="INTEGRAL")
+    baker.make(
+        AlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_integral,
+        quantidade_alunos=50,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    log = baker.make(
+        LogAlunosMatriculadosPeriodoEscola,
+        escola=escola_cemei,
+        periodo_escolar=periodo_integral,
+        quantidade_alunos=50,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    LogAlunosMatriculadosPeriodoEscola.objects.filter(pk=log.pk).update(
+        criado_em=datetime.datetime(2025, 5, 5, 12, tzinfo=datetime.timezone.utc)
+    )
+    periodo_noite = PeriodoEscolar.objects.get(nome="NOITE")
+    tipo_unidade_emei = Escola.objects.get(
+        tipo_unidade__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value
+    ).tipo_unidade
+    lanche = baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.LANCHE_4H.value)
+    vinculo_noite = baker.make(
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+        periodo_escolar=periodo_noite,
+        tipo_unidade_escolar=tipo_unidade_emei,
+        tipos_alimentacao=[lanche],
+        ativo=True,
+    )
+    baker.make(
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
+        periodo_escolar=periodo_noite,
+        tipo_unidade_escolar=escola.tipo_unidade,
+        tipos_alimentacao=[lanche],
+        ativo=True,
+    )
+    vinculos_regulares = [
+        VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.get(
+            tipo_unidade_escolar__iniciais=iniciais,
+            periodo_escolar__nome=nome,
+        )
+        for iniciais, nome in [
+            (TIPO_UNIDADE_CEI_DIRET, "INTEGRAL"),
+            (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "MANHA"),
+            (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "TARDE"),
+            (TIPOS_UNIDADE_ESCOLAR.EMEI.value, "INTEGRAL"),
+        ]
+    ]
+    return {
+        "escola": escola_cemei,
+        "vinculo_noite": vinculo_noite,
+        "vinculos_regulares": vinculos_regulares,
+    }
+
+
+@pytest.fixture
+def inclusao_continua_cemei_medicao(vinculos_cemei_medicao):
+    escola = vinculos_cemei_medicao["escola"]
+    vinculo = vinculos_cemei_medicao["vinculo_noite"]
+    motivo = baker.make(
+        "MotivoInclusaoContinua", nome="Programas/Projetos Específicos"
+    )
+    inclusao = baker.make(
+        "InclusaoAlimentacaoContinua",
+        escola=escola,
+        rastro_escola=escola,
+        rastro_dre=escola.diretoria_regional,
+        motivo=motivo,
+        status="CODAE_AUTORIZADO",
+        data_inicial=datetime.date(2025, 5, 5),
+        data_final=datetime.date(2025, 5, 9),
+    )
+    return baker.make(
+        "QuantidadePorPeriodo",
+        inclusao_alimentacao_continua=inclusao,
+        periodo_escolar=vinculo.periodo_escolar,
+        tipos_alimentacao=list(vinculo.tipos_alimentacao.all()),
+        numero_alunos=10,
+        dias_semana=[0, 1, 2, 3, 4],
+        cancelado=False,
+        encerrado_a_partir_de=None,
     )
