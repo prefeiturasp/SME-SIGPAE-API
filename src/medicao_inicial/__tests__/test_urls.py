@@ -17,6 +17,7 @@ from src.dados_comuns.constants import (
     GRUPO_RECREIO_NAS_FERIAS_0_A_3,
     GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     GRUPO_SOLICITACOES_ALIMENTACAO,
+    GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
@@ -1518,6 +1519,112 @@ def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_erro_403(
         data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
     )
     assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_url_endpoint_periodos_grupos_medicao_com_extraordinaria(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/periodos-grupos-medicao/?uuid_solicitacao={solicitacao.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    nomes = [r["nome_periodo_grupo"] for r in response.data["results"]]
+    assert GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS in nomes
+    assert nomes[-1] == GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS
+
+
+def test_url_escola_corrige_medicao_extraordinaria(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao,
+    monkeypatch,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+    baker.make(
+        "DiaParaCorrigir",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        dia="02",
+    )
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.api.viewsets.log_alteracoes_escola_corrige_periodo",
+        lambda *args, **kwargs: None,
+    )
+
+    data = [
+        {
+            "dia": "02",
+            "nome_campo": "lanche_emergencial",
+            "valor": "15",
+            "categoria_medicao": categoria_medicao.id,
+            "tipo_alimentacao": "",
+        }
+    ]
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/medicao/{medicao.uuid}/escola-corrige-medicao/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    assert medicao.valores_medicao.filter(
+        nome_campo="lanche_emergencial", dia="02", valor="15"
+    ).exists()
+
+
+def test_url_codae_aprova_periodo_extraordinaria(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GRUPO_SOLICITACOES_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/medicao/{medicao.uuid}/codae-aprova-periodo/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_APROVADA_PELA_CODAE"
 
 
 def test_url_codae_solicita_correcao_ocorrencia(
