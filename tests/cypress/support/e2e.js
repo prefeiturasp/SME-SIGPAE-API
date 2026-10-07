@@ -160,3 +160,6 @@ import './commands_api/commands_escolas_para_filtros'
 import './step_definitions/escolas_para_filtros'
 import './commands_api/commands_escolas_simples'
 import './step_definitions/escolas_simples'
+
+import './commands_api/commands_ficha_tecnica'
+import './step_definitions/ficha_tecnica'
