@@ -5801,10 +5801,30 @@ class FluxoDocumentoDeRecebimento(xwf_models.WorkflowEnabled, models.Model):
     def _qualidade_reprova_analise_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
+            justificativa = kwargs.get("justificativa", "")
             self.salvar_log_transicao(
                 status_evento=LogSolicitacoesUsuario.DOCUMENTO_REPROVADO,
                 usuario=user,
-                justificativa=kwargs.get("justificativa", ""),
+                justificativa=justificativa,
+            )
+            self._envia_email_reprovacao_documentos(justificativa)
+
+    def _envia_email_reprovacao_documentos(self, justificativa):
+        contexto = {
+            "numero_cronograma": self.cronograma.numero,
+            "nome_produto": self.cronograma.ficha_tecnica.produto.nome,
+            "justificativa_reprovacao": justificativa,
+        }
+        usuarios = PartesInteressadasService.usuarios_vinculados_a_empresa_do_objeto(
+            self.cronograma
+        )
+        for usuario in dict.fromkeys(usuarios):
+            EmailENotificacaoService.enviar_email(
+                titulo="DOCUMENTOS DE RECEBIMENTO",
+                assunto="SIGPAE - Documento(s) de Recebimento (s) Reprovado(s)",
+                template="pre_recebimento_email_qualidade_reprova_documento_recebimento.html",
+                contexto_template={**contexto, "nome_usuario": usuario.nome},
+                destinatarios=[usuario.email],
             )
 
     @xworkflows.after_transition("fornecedor_realiza_correcao")
