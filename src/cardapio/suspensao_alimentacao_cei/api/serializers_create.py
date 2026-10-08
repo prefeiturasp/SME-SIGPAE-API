@@ -13,13 +13,6 @@ from src.dados_comuns.validators import (
 from src.escola.models import Escola, PeriodoEscolar
 
 
-MENSAGEM_DUPLICIDADE_CEI = (
-    "Já existe uma Solicitação de Suspensão de Alimentação para a data "
-    "selecionada. Verifique os dados informados."
-)
-
-STATUS_QUE_LIBERAM_DUPLICIDADE = ["RASCUNHO", "ESCOLA_CANCELOU"]
-
 class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
     """Serializa a criação e atualização de suspensões de alimentação de CEI.
 
@@ -68,6 +61,7 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def _validar_duplicidade(self, escola, data):
+        STATUS_QUE_LIBERAM_DUPLICIDADE = ["RASCUNHO", "ESCOLA_CANCELOU"]
         qs = SuspensaoAlimentacaoDaCEI.objects.filter(
             escola=escola, data=data
         ).exclude(status__in=STATUS_QUE_LIBERAM_DUPLICIDADE)
@@ -79,7 +73,7 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
         if qs.exists():
             raise serializers.ValidationError(
                 {
-                    "message": MENSAGEM_DUPLICIDADE_CEI,
+                    "message": "Já existe uma Solicitação de Suspensão de Alimentação para a data selecionada. Verifique os dados informados.",
                     "conflitos": [{"data": str(data)}],
                 }
             )

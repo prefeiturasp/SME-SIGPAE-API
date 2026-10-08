@@ -78,17 +78,6 @@ class QuantidadePorPeriodoSuspensaoAlimentacaoCreateSerializer(
         exclude = ("id", "grupo_suspensao")
 
 
-MENSAGEM_DUPLICIDADE = (
-    "Já existe uma Solicitação de Suspensão de Alimentação para a data, "
-    "período e tipo de alimentação selecionados. Verifique os dados informados."
-)
-
-STATUS_QUE_LIBERAM_DUPLICIDADE = [
-    "RASCUNHO",
-    "ESCOLA_CANCELOU",
-]
-
-
 class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
     """Serializa a criação e atualização de suspensões de alimentação.
 
@@ -137,7 +126,10 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
     ):
         """Valida cada combinação Data + Período + Tipo de Alimentação (EMEF/EMEI)."""
         conflitos = []
-
+        STATUS_QUE_LIBERAM_DUPLICIDADE = [
+            "RASCUNHO",
+            "ESCOLA_CANCELOU",
+        ]
         for suspensao in suspensoes_alimentacao_array:
             data = suspensao.get("data")
 
@@ -166,7 +158,10 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
 
         if conflitos:
             raise serializers.ValidationError(
-                {"message": MENSAGEM_DUPLICIDADE, "conflitos": conflitos}
+                {
+                    "message": "Já existe uma Solicitação de Suspensão de Alimentação para a data, período e tipo de alimentação selecionados. Verifique os dados informados.",
+                    "conflitos": conflitos
+                }
             )
 
     def create(self, validated_data):
