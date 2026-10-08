@@ -12,6 +12,7 @@ from src.dados_comuns.constants import (
     DILOG_ABASTECIMENTO,
     DILOG_CRONOGRAMA,
     DILOG_QUALIDADE,
+    DILOG_VISUALIZACAO,
     DJANGO_ADMIN_PASSWORD,
     EMAIL_TESTE,
     USUARIO_EMPRESA,
@@ -1091,6 +1092,29 @@ def client_autenticado_vinculo_dilog_qualidade(client, django_user_model, codae)
     )
     client.login(username=email, password=password)
     return client, user
+
+
+@pytest.fixture
+def client_autenticado_dilog_visualizacao(client, django_user_model, codae):
+    """Client autenticado com perfil DILOG_VISUALIZACAO vinculado à CODAE."""
+    email = "dilogvisualizacao@test.com"
+    password = DJANGO_ADMIN_PASSWORD
+    user = django_user_model.objects.create_user(
+        username=email, password=password, email=email, registro_funcional="7777777"
+    )
+    perfil_dilog_visualizacao = baker.make(
+        "Perfil", nome=DILOG_VISUALIZACAO, ativo=True
+    )
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=codae,
+        perfil=perfil_dilog_visualizacao,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=password)
+    return client
 
 
 @pytest.fixture

@@ -35,6 +35,7 @@ from ..inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
     MotivoInclusaoNormal,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
 )
 from ..paineis_consolidados.models import SolicitacoesEscola
 from .api.constants import ALIMENTACOES_LANCAMENTOS_ESPECIAIS
@@ -583,13 +584,21 @@ def build_nomes_campos_inclusoes_dietas_emef(escola, categoria, inclusoes, medic
     return nomes_campos
 
 
-def build_nomes_campos_dietas_emei_cemei(medicao, categoria):
+def build_nomes_campos_dietas_emei_cemei(medicao, categoria, inclusoes=None):
     tipos_alimentacao = (
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
             tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar__nome__in=medicao.nome_periodo_grupo.upper().split(),
         ).values_list("tipos_alimentacao__nome", flat=True)
     )
+    if inclusoes is not None:
+        alimentacoes_inclusao = (
+            QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI.objects.filter(
+                inclusao_alimentacao_cemei__in=inclusoes,
+                periodo_escolar__nome__in=medicao.nome_periodo_grupo.upper().split(),
+            ).values_list("tipos_alimentacao__nome", flat=True)
+        )
+        tipos_alimentacao = set(tipos_alimentacao).intersection(alimentacoes_inclusao)
     nomes_campos = ["frequencia"]
     if TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao:
         nomes_campos.append("lanche")
@@ -798,6 +807,7 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
     classificacoes,
     periodo_com_erro,
     valores_medicao_,
+    inclusoes=None,
 ):
     DATA_INDEX = 0
     PERIODO_ESCOLAR_ID_INDEX = 1
@@ -806,7 +816,7 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
     NOME_CAMPO_INDEX = 0
     CATEGORIA_MEDICAO_ID_INDEX = 1
     DIA_ID = 2
-    nomes_campos = build_nomes_campos_dietas_emei_cemei(medicao, categoria)
+    nomes_campos = build_nomes_campos_dietas_emei_cemei(medicao, categoria, inclusoes)
 
     for nome_campo in nomes_campos:
         if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
@@ -1692,6 +1702,7 @@ def get_lista_erros_inclusoes_dietas_emei_cemei(
             classificacoes,
             periodo_com_erro,
             valores_medicao_,
+            inclusoes=inclusoes_,
         )
         if periodo_com_erro:
             lista_erros.append(
