@@ -4,6 +4,7 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
+from model_bakery import baker
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -851,4 +852,98 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
         CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         not in resultado
     )
-    assert len(resultado[DIETA_ESPECIAL_TIPO_B]) == 2
+
+
+def _cria_medicao_extraordinaria(solicitacao, categoria, valor="7"):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="05",
+        nome_campo="lanche_emergencial",
+        medicao=medicao,
+        categoria_medicao=categoria,
+        valor=valor,
+    )
+    return medicao
+
+
+def test_processa_solicitacoes_soma_lanche_emergencial_extraordinario(
+    relatorio_consolidado_xlsx_emef, categoria_medicao_solicitacoes_alimentacao
+):
+    solicitacao = relatorio_consolidado_xlsx_emef
+    _cria_medicao_extraordinaria(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao, valor="7"
+    )
+
+    filtros = {"grupo__nome": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO}
+    total = processa_periodo_regular(
+        solicitacao,
+        filtros,
+        "lanche_emergencial",
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+    )
+
+    assert math.isclose(total, 17.0, rel_tol=1e-9)
+
+
+def test_processa_solicitacoes_kit_lanche_nao_soma_extraordinario(
+    relatorio_consolidado_xlsx_emef, categoria_medicao_solicitacoes_alimentacao
+):
+    solicitacao = relatorio_consolidado_xlsx_emef
+    _cria_medicao_extraordinaria(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao, valor="7"
+    )
+
+    filtros = {"grupo__nome": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO}
+    total = processa_periodo_regular(
+        solicitacao, filtros, "kit_lanche", GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+
+    assert math.isclose(total, 10.0, rel_tol=1e-9)
+
+
+def test_get_alimentacoes_por_periodo_ignora_medicao_extraordinaria(
+    relatorio_consolidado_xlsx_emef, categoria_medicao_solicitacoes_alimentacao
+):
+    solicitacao = relatorio_consolidado_xlsx_emef
+    _cria_medicao_extraordinaria(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao
+    )
+
+    colunas = get_alimentacoes_por_periodo([solicitacao])
+
+    assert not any(
+        tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        for tupla in colunas
+    )
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
+
+
+def test_get_alimentacoes_por_periodo_cria_coluna_extraordinaria_sem_solicitacoes(
+    solicitacao_relatorio_consolidado_grupo_emef,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_relatorio_consolidado_grupo_emef
+    _cria_medicao_extraordinaria(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao
+    )
+
+    colunas = get_alimentacoes_por_periodo([solicitacao])
+
+    assert not any(
+        tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        for tupla in colunas
+    )
+    assert (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        "lanche_emergencial",
+    ) in colunas

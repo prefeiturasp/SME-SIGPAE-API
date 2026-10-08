@@ -1005,3 +1005,46 @@ def test_ajusta_layout_tabela(informacoes_excel_writer_cemei):
     assert sheet["BW3"].fill.fgColor.rgb == "FF198459"
 
     workbook_openpyxl.close()
+
+
+def _cria_medicao_extraordinaria(solicitacao, categoria, valor="7"):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="05",
+        nome_campo="lanche_emergencial",
+        medicao=medicao,
+        categoria_medicao=categoria,
+        valor=valor,
+    )
+    return medicao
+
+
+def test_get_alimentacoes_por_periodo_cria_coluna_extraordinaria_sem_solicitacoes(
+    solicitacao_relatorio_consolidado_grupo_cemei,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_relatorio_consolidado_grupo_cemei
+    _cria_medicao_extraordinaria(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao
+    )
+
+    colunas = get_alimentacoes_por_periodo([solicitacao])
+
+    assert not any(
+        tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        for tupla in colunas
+    )
+    assert (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        "lanche_emergencial",
+    ) in colunas
