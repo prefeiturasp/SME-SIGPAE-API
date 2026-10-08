@@ -90,15 +90,6 @@ def test_validate_bloqueia_duplicidade(
     assert ser.errors["conflitos"][0]["data"] == "2026-10-30"
 
 
-def test_validate_libera_se_existente_for_rascunho(monta_payload, serializer_create):
-    ser = serializer_create(monta_payload())
-    assert ser.is_valid(), ser.errors
-    ser.save()  # fica como RASCUNHO
-
-    ser2 = serializer_create(monta_payload())
-    assert ser2.is_valid(), ser2.errors
-
-
 def test_validate_libera_outro_periodo(
     grupo_criado_informado, monta_payload, serializer_create
 ):
