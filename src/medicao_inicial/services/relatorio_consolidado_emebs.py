@@ -15,6 +15,7 @@ from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
+    eh_medicao_extraordinaria,
     filtra_queryset_pelo_intervalo_de_dias,
     gera_colunas_alimentacao,
     get_lista_dias_periodo,
@@ -32,6 +33,8 @@ def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
+            if eh_medicao_extraordinaria(medicao):
+                continue
             nome_periodo = get_nome_periodo(medicao)
             alimentacoes_infantil, alimentacoes_fundamental = _get_lista_alimentacoes(
                 medicao, nome_periodo, query_params

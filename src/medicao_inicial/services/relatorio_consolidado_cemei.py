@@ -29,7 +29,7 @@ from src.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
     get_categorias_dietas,
-    get_nome_periodo,
+    get_nome_periodo_consolidado,
     get_valores_iniciais,
     todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
@@ -50,7 +50,7 @@ def get_alimentacoes_por_periodo(
     dietas_alimentacoes = {}
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
-            nome_periodo = get_nome_periodo(medicao)
+            nome_periodo = get_nome_periodo_consolidado(medicao)
             lista_alimentacoes = _get_lista_alimentacoes(
                 medicao, nome_periodo, query_params
             )

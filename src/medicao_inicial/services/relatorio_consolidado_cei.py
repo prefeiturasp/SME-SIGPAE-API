@@ -22,6 +22,7 @@ from src.medicao_inicial.models import (
 )
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
+    eh_medicao_extraordinaria,
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
@@ -43,6 +44,8 @@ def get_alimentacoes_por_periodo(
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
+            if eh_medicao_extraordinaria(medicao):
+                continue
             nome_periodo = get_nome_periodo(medicao)
             lista_faixas = _get_faixas_etarias(medicao, query_params)
             periodos_alimentacoes = update_periodos_alimentacoes(

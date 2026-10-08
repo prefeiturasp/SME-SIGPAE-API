@@ -23,11 +23,13 @@ from src.medicao_inicial.models import (
 from src.medicao_inicial.services import relatorio_consolidado_emei_emef
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
+    calcula_soma_medicoes,
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
     get_categorias_dietas,
-    get_nome_periodo,
+    get_medicoes_para_campo_solicitacoes,
+    get_nome_periodo_consolidado,
     get_valores_iniciais,
     todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
@@ -71,8 +73,7 @@ def get_alimentacoes_por_periodo(
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
-
-            nome_periodo = get_nome_periodo(medicao)
+            nome_periodo = get_nome_periodo_consolidado(medicao)
             lista_alimentacoes = _get_lista_alimentacoes(
                 medicao, nome_periodo, query_params
             )
@@ -448,6 +449,11 @@ def processa_periodo_regular(
     Returns:
         float | str: Valor calculado do campo especificado, ou "-" se o valor for None ou não existir.
     """
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
+        medicoes = get_medicoes_para_campo_solicitacoes(solicitacao, campo)
+        soma = calcula_soma_medicoes(medicoes, campo, [periodo.upper()], query_params)
+        return soma if soma is not None else "-"
+
     medicao = solicitacao.medicoes.get(**filtros)
 
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
@@ -455,12 +461,9 @@ def processa_periodo_regular(
             medicao, campo, query_params
         )
 
-    categorias = (
-        [periodo.upper()]
-        if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
-        else [CategoriaMedicao.ALIMENTACAO]
+    soma = _calcula_soma_medicao(
+        medicao, campo, [CategoriaMedicao.ALIMENTACAO], query_params
     )
-    soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
     return soma if soma is not None else "-"
 
 

@@ -6100,13 +6100,19 @@ def build_row_solicitacao(solicitacao, id_tabela):
 
 def get_total_solicitacoes_periodo(solicitacao, nome_campo):
     try:
-        medicao = solicitacao.medicoes.get(grupo__nome__icontains="Solicitações")
-
-        total = sum(
-            int(medicao.valor)
-            for medicao in medicao.valores_medicao.filter(nome_campo=nome_campo)
-            if medicao.valor != "-"
+        total = 0
+        medicoes = solicitacao.medicoes.filter(
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
+        for medicao in medicoes:
+            total += _somar_valores_campo(medicao, nome_campo)
+
+        if nome_campo == "lanche_emergencial":
+            extraordinarias = solicitacao.medicoes.filter(
+                grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+            )
+            for medicao in extraordinarias:
+                total += _somar_valores_campo(medicao, "lanche_emergencial")
     except Exception:
         total = "-"
     return total or "-"
