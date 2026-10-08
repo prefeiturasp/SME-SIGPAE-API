@@ -163,3 +163,6 @@ import './step_definitions/escolas_simples'
 
 import './commands_api/commands_ficha_tecnica'
 import './step_definitions/ficha_tecnica'
+
+import './commands_api/commands_fichas_de_recebimento'
+import './step_definitions/fichas_de_recebimento'

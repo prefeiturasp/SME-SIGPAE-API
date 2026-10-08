@@ -1540,6 +1540,7 @@ class PermissaoParaDashboardFichaTecnica(BasePermission):
         DILOG_QUALIDADE,
         DILOG_ABASTECIMENTO,
         DILOG_CRONOGRAMA,
+        DILOG_VISUALIZACAO,
     ]
 
     def has_permission(self, request, view):
@@ -1565,8 +1566,8 @@ class PermissaoParaVisualizarFichaTecnica(BasePermission):
         DILOG_CRONOGRAMA,
         DILOG_DIRETORIA,
         DILOG_QUALIDADE,
-        DILOG_CRONOGRAMA,
         DILOG_ABASTECIMENTO,
+        DILOG_VISUALIZACAO,
     ]
 
     def has_permission(self, request, view):
