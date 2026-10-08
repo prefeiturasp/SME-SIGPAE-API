@@ -2275,3 +2275,143 @@ def test_criar_log_solicitar_correcao_periodos_extraordinaria(escola, usuario):
             "semanas": [{"semana": "2", "dias": ["02", "03", "04"]}],
         }
     ]
+
+
+def _criar_medicao_lanche_emergencial(solicitacao, nome_grupo, categoria, valor):
+    grupo = baker.make("GrupoMedicao", nome=nome_grupo)
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        categoria_medicao=categoria,
+        dia="02",
+        semana="2",
+        nome_campo="lanche_emergencial",
+        valor=str(valor),
+    )
+    return medicao
+
+
+def _criar_solicitacao_extraordinaria(
+    escola, com_solicitacoes, valor_solicitacoes=3, valor_extraordinaria=7
+):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola
+    )
+    if com_solicitacoes:
+        _criar_medicao_lanche_emergencial(
+            solicitacao,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            categoria,
+            valor_solicitacoes,
+        )
+    _criar_medicao_lanche_emergencial(
+        solicitacao,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+        categoria,
+        valor_extraordinaria,
+    )
+    return solicitacao
+
+
+def _tabela_do_periodo(tabelas, periodo):
+    return next(tabela for tabela in tabelas if tabela["periodos"] == [periodo])
+
+
+def _linha_do_dia(tabela, dia):
+    return next(linha for linha in tabela["valores_campos"] if linha[0] == dia)
+
+
+def test_build_headers_extraordinaria_com_solicitacoes_nao_renderiza_tabela(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(escola, com_solicitacoes=True)
+
+    tabelas = build_headers_tabelas(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS not in periodos
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in periodos
+
+
+def test_build_headers_extraordinaria_sem_solicitacoes_usa_periodo_solicitacoes(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(escola, com_solicitacoes=False)
+
+    tabelas = build_headers_tabelas(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS not in periodos
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    assert tabela["nomes_campos"] == ["solicitado", "consumido"]
+
+
+def test_consumido_soma_solicitacoes_com_extraordinarias(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola, com_solicitacoes=True, valor_solicitacoes=3, valor_extraordinaria=7
+    )
+
+    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    linha = _linha_do_dia(tabela, 2)
+
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert linha[indice_consumido + 1] == "10"
+
+
+def test_consumido_extraordinaria_sem_solicitacoes_e_solicitado_zerado(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola, com_solicitacoes=False, valor_extraordinaria=7
+    )
+
+    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    linha = _linha_do_dia(tabela, 2)
+
+    indice_solicitado = tabela["nomes_campos"].index("solicitado")
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert str(linha[indice_solicitado + 1]) == "0"
+    assert linha[indice_consumido + 1] == "7"
+
+
+def test_build_tabelas_relatorio_medicao_cemei_mescla_extraordinarias(escola_cemei):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola_cemei,
+        com_solicitacoes=True,
+        valor_solicitacoes=3,
+        valor_extraordinaria=7,
+    )
+
+    tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS not in periodos
+
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    linha = _linha_do_dia(tabela, 2)
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert linha[indice_consumido + 1] == "10"
+
+
+def test_somatorio_nao_gera_coluna_extraordinaria_e_mescla_lanche_emergencial(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola, com_solicitacoes=True, valor_solicitacoes=3, valor_extraordinaria=7
+    )
+
+    primeira_tabela, _ = build_tabela_somatorio_body(solicitacao, {}, {})
+
+    assert (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        not in primeira_tabela["header"]
+    )
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in primeira_tabela["header"]
+    linha_lanche = next(
+        linha
+        for linha in primeira_tabela["body"]
+        if linha[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
+    assert linha_lanche[1] == 10
