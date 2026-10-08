@@ -112,3 +112,4 @@ def test_validate_update_ignora_o_proprio_registro(
 ):
     ser = serializer_create(monta_payload(), instance=grupo_criado_informado)
     assert ser.is_valid(), ser.errors
+
