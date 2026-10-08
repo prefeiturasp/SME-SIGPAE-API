@@ -182,7 +182,36 @@ def _solicitacao_tem_medicao_grupo(solicitacao, nome_grupo):
     return solicitacao.medicoes.filter(grupo__nome=nome_grupo).exists()
 
 
-def get_lista_categorias_campos(medicao, tipo_turma=None, grupo_override=None):
+def _get_medicao_extraordinaria(solicitacao):
+    return solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    ).first()
+
+
+def _medicao_tem_campo_solicitacoes(medicao, nome_campo, tipo_turma=None):
+    if medicao is None:
+        return False
+    valores = medicao.valores_medicao.filter(
+        nome_campo=nome_campo,
+        categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+    )
+    if tipo_turma:
+        valores = valores.filter(infantil_ou_fundamental=tipo_turma)
+    return valores.exists()
+
+
+def _medicao_extra_para_headers(medicao, medicao_extraordinaria):
+    """Medição extraordinária usada para completar as colunas de Solicitações."""
+    if medicao_extraordinaria is None or _eh_grupo_extraordinario(medicao):
+        return None
+    if _nome_grupo_medicao(medicao) == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
+        return medicao_extraordinaria
+    return None
+
+
+def get_lista_categorias_campos(
+    medicao, tipo_turma=None, grupo_override=None, medicao_extra=None
+):
     queryset = medicao.valores_medicao
 
     if tipo_turma:
@@ -209,7 +238,9 @@ def get_lista_categorias_campos(medicao, tipo_turma=None, grupo_override=None):
         if (
             CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             "lanche_emergencial",
-        ) in lista_categorias_campos:
+        ) in lista_categorias_campos or _medicao_tem_campo_solicitacoes(
+            medicao_extra, "lanche_emergencial", tipo_turma
+        ):
             lista_ += [
                 (LANCHE_EMERGENCIAL, "solicitado"),
                 (LANCHE_EMERGENCIAL, "consumido"),
@@ -276,13 +307,13 @@ def _get_campos_iniciais_categoria(
 
 
 def build_dict_relacao_categorias_e_campos(
-    medicao, tipo_turma=None, grupo_override=None
+    medicao, tipo_turma=None, grupo_override=None, medicao_extra=None
 ):
     CATEGORIA = 0
     CAMPO = 1
 
     lista_categorias_campos = get_lista_categorias_campos(
-        medicao, tipo_turma, grupo_override
+        medicao, tipo_turma, grupo_override, medicao_extra
     )
     dict_categorias_campos = {}
 
@@ -631,10 +662,12 @@ def build_headers_tabelas(solicitacao, ordem_periodos=None):
     tabelas = [_nova_tabela_vazia()]
 
     indice_atual = 0
+    medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
     for medicao in get_medicoes_para_relatorio_nao_cei(solicitacao, ordem_periodos):
         grupo_override = _grupo_override_medicao(medicao)
+        medicao_extra = _medicao_extra_para_headers(medicao, medicao_extraordinaria)
         dict_categorias_campos = build_dict_relacao_categorias_e_campos(
-            medicao, grupo_override=grupo_override
+            medicao, grupo_override=grupo_override, medicao_extra=medicao_extra
         )
         for categoria in dict_categorias_campos.keys():
             nome_periodo = _nome_periodo_medicao(medicao, grupo_override)
@@ -700,13 +733,15 @@ def build_headers_tabelas_emebs(solicitacao):
 
     indice_atual = 0
 
+    medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
     for medicao in get_medicoes_para_relatorio_nao_cei(
         solicitacao, ORDEM_PERIODOS_GRUPOS
     ):
         grupo_override = _grupo_override_medicao(medicao)
+        medicao_extra = _medicao_extra_para_headers(medicao, medicao_extraordinaria)
         for tipo_turma in TIPOS_TURMAS_EMEBS:
             dict_categorias_campos = build_dict_relacao_categorias_e_campos(
-                medicao, tipo_turma, grupo_override
+                medicao, tipo_turma, grupo_override, medicao_extra
             )
 
             for categoria in dict_categorias_campos.keys():
@@ -1393,12 +1428,14 @@ def build_headers_tabelas_cemei(solicitacao):
     indice_atual = 0
     len_colunas = 0
 
+    medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
     for medicao in get_medicoes_para_relatorio_nao_cei(
         solicitacao, ORDEM_PERIODOS_GRUPOS_CEMEI
     ):
         grupo_override = _grupo_override_medicao(medicao)
+        medicao_extra = _medicao_extra_para_headers(medicao, medicao_extraordinaria)
         dict_categorias_campos = build_dict_relacao_categorias_e_campos_cemei(
-            medicao, grupo_override
+            medicao, grupo_override, medicao_extra
         )
 
         for categoria in dict_categorias_campos.keys():
@@ -1559,12 +1596,14 @@ def _periodo_medicao_tem_faixas_etarias_cemei(medicao) -> bool:
     return False
 
 
-def build_dict_relacao_categorias_e_campos_cemei(medicao, grupo_override=None):
+def build_dict_relacao_categorias_e_campos_cemei(
+    medicao, grupo_override=None, medicao_extra=None
+):
     if _periodo_medicao_tem_faixas_etarias_cemei(medicao):
         dict_categorias_campos = build_dict_relacao_categorias_e_campos_cei(medicao)
     else:
         dict_categorias_campos = build_dict_relacao_categorias_e_campos(
-            medicao, grupo_override=grupo_override
+            medicao, grupo_override=grupo_override, medicao_extra=medicao_extra
         )
     return dict_categorias_campos
 
