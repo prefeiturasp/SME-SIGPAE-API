@@ -2415,3 +2415,44 @@ def test_somatorio_nao_gera_coluna_extraordinaria_e_mescla_lanche_emergencial(es
         if linha[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
     )
     assert linha_lanche[1] == 10
+
+
+def _cria_medicao_extraordinaria_emebs(solicitacao, valor="7"):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    for turma in ["INFANTIL", "FUNDAMENTAL"]:
+        baker.make(
+            "ValorMedicao",
+            dia="05",
+            nome_campo="lanche_emergencial",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            valor=valor,
+            infantil_ou_fundamental=turma,
+        )
+    return medicao
+
+
+def test_build_headers_tabelas_emebs_extraordinaria(
+    solicitacao_medicao_inicial_varios_valores_emebs,
+):
+    solicitacao = solicitacao_medicao_inicial_varios_valores_emebs
+    _cria_medicao_extraordinaria_emebs(solicitacao)
+
+    tabelas = build_headers_tabelas_emebs(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+
+    assert not any("Extraordin" in periodo for periodo in periodos)
+    assert "Solicitações de Alimentação - INFANTIL" in periodos
+    assert "Solicitações de Alimentação - FUNDAMENTAL" in periodos

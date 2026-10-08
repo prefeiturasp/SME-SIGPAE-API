@@ -4,6 +4,7 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
+from model_bakery import baker
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -1157,3 +1158,70 @@ def test_ajusta_layout_tabela_intermediario(informacoes_excel_writer_emebs):
     assert sheet["BN4"].fill.fgColor.rgb == "FF20AA73"
 
     workbook_openpyxl.close()
+
+
+def _cria_medicao_extraordinaria_emebs(solicitacao, categoria, valor="7"):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    for turma in ["INFANTIL", "FUNDAMENTAL"]:
+        baker.make(
+            "ValorMedicao",
+            dia="05",
+            nome_campo="lanche_emergencial",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            valor=valor,
+            infantil_ou_fundamental=turma,
+        )
+    return medicao
+
+
+def test_get_alimentacoes_por_periodo_cria_coluna_extraordinaria_emebs(
+    solicitacao_relatorio_consolidado_grupo_emebs,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_relatorio_consolidado_grupo_emebs
+    _cria_medicao_extraordinaria_emebs(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao
+    )
+
+    colunas = get_alimentacoes_por_periodo([solicitacao])
+
+    assert not any(
+        tupla[1] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        for tupla in colunas
+    )
+    assert (
+        "",
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        "lanche_emergencial",
+    ) in colunas
+
+
+def test_processa_solicitacoes_soma_extraordinario_emebs(
+    solicitacao_relatorio_consolidado_grupo_emebs,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_relatorio_consolidado_grupo_emebs
+    _cria_medicao_extraordinaria_emebs(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao, valor="7"
+    )
+
+    filtros = {"grupo__nome": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO}
+    total = processa_periodo_regular(
+        solicitacao,
+        filtros,
+        "lanche_emergencial",
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        "INFANTIL",
+    )
+
+    assert math.isclose(total, 14.0, rel_tol=1e-9)
