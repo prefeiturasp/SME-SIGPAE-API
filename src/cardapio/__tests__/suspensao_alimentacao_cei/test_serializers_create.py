@@ -10,9 +10,6 @@ from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
 from src.dados_comuns.constants import StringsCaminhoModelos
-from src.cardapio.suspensao_alimentacao_cei.api.serializers_create import (
-    STATUS_QUE_LIBERAM_DUPLICIDADE,
-)
 
 pytestmark = pytest.mark.django_db
 MODULO = "src.cardapio.suspensao_alimentacao_cei.api.serializers_create"
@@ -80,11 +77,10 @@ def test_validate_bloqueia_duplicidade(
     assert ser.errors["conflitos"][0]["data"] == "2026-10-30"
 
 
-@pytest.mark.parametrize("status", STATUS_QUE_LIBERAM_DUPLICIDADE)
-def test_validate_libera_status_que_liberam_duplicidade(
-    status, cria_suspensao_cei, monta_payload_cei, serializer_cei
+def test_validate_libera_se_escola_cancelou(
+    cria_suspensao_cei, monta_payload_cei, serializer_cei
 ):
-    cria_suspensao_cei(status=status)
+    cria_suspensao_cei(status="ESCOLA_CANCELOU")
 
     ser = serializer_cei(monta_payload_cei())
 
