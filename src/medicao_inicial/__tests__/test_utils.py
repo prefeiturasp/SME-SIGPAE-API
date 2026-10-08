@@ -2456,3 +2456,60 @@ def test_build_headers_tabelas_emebs_extraordinaria(
     assert not any("Extraordin" in periodo for periodo in periodos)
     assert "Solicitações de Alimentação - INFANTIL" in periodos
     assert "Solicitações de Alimentação - FUNDAMENTAL" in periodos
+
+
+def test_build_headers_tabelas_emebs_extraordinaria_completa_lanche_emergencial(
+    escola_emebs,
+):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola_emebs
+    )
+    grupo_solicitacoes = baker.make(
+        "GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    medicao_solicitacoes = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_solicitacoes,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_solicitacoes,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="kit_lanche",
+        valor="3",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+    grupo_extra = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao_extra = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_extra,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_extra,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="lanche_emergencial",
+        valor="7",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+
+    tabelas = build_headers_tabelas_emebs(solicitacao)
+    tabela = next(
+        tabela
+        for tabela in tabelas
+        if tabela["periodos"] == ["Solicitações de Alimentação - FUNDAMENTAL"]
+    )
+
+    assert "LANCHE EMERGENCIAL" in tabela["categorias"]
