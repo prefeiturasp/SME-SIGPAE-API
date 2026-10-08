@@ -127,7 +127,6 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
         """Valida cada combinação Data + Período + Tipo de Alimentação (EMEF/EMEI)."""
         conflitos = []
         STATUS_QUE_LIBERAM_DUPLICIDADE = [
-            "RASCUNHO",
             "ESCOLA_CANCELOU",
         ]
         for suspensao in suspensoes_alimentacao_array:

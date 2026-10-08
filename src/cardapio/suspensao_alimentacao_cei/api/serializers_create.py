@@ -61,7 +61,7 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def _validar_duplicidade(self, escola, data):
-        STATUS_QUE_LIBERAM_DUPLICIDADE = ["RASCUNHO", "ESCOLA_CANCELOU"]
+        STATUS_QUE_LIBERAM_DUPLICIDADE = ["ESCOLA_CANCELOU"]
         qs = SuspensaoAlimentacaoDaCEI.objects.filter(
             escola=escola, data=data
         ).exclude(status__in=STATUS_QUE_LIBERAM_DUPLICIDADE)
