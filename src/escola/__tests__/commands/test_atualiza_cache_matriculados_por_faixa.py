@@ -74,6 +74,25 @@ class AtualizaCacheMatriculadosPorFaixaCommandTest(TestCase):
                     data=f"2024-12-{dia}", escola=escola, dia_letivo=True
                 )
 
+    @patch(
+        "src.escola.management.commands.atualiza_cache_matriculados_por_faixa.Command._salvar_matriculados_por_faixa_dia"
+    )
+    @patch(
+        "src.escola.management.commands.atualiza_cache_matriculados_por_faixa.Command._criar_cache_matriculados_por_faixa"
+    )
+    @pytest.mark.django_db
+    def test_command_atualiza_cache_matriculados_por_faixa_filtra_codigo_eol(
+        self, mock_criar_cache, mock_salvar_matriculados
+    ) -> None:
+        """Gera os logs apenas para escolas com codigo EOL >= ao informado."""
+        self.call_command(codigo_eol="400509")
+
+        escolas_processadas = [
+            call_args[0][0] for call_args in mock_criar_cache.call_args_list
+        ]
+        assert self.cci in escolas_processadas
+        assert self.cei_diret not in escolas_processadas
+
     @freeze_time("2024-11-30")
     @pytest.mark.django_db(transaction=True)
     @patch(

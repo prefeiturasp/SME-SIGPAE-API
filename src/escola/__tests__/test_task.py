@@ -177,7 +177,15 @@ def test_nega_solicitacoes_pendentes_autorizacao_vencidas(
 def test_atualiza_cache_matriculados_por_faixa(mock_call_command):
     atualiza_cache_matriculados_por_faixa()
     mock_call_command.assert_called_once_with(
-        "atualiza_cache_matriculados_por_faixa", verbosity=0
+        "atualiza_cache_matriculados_por_faixa", codigo_eol=None, verbosity=0
+    )
+
+
+@patch("django.core.management.call_command")
+def test_atualiza_cache_matriculados_por_faixa_com_codigo_eol(mock_call_command):
+    atualiza_cache_matriculados_por_faixa(codigo_eol="400509")
+    mock_call_command.assert_called_once_with(
+        "atualiza_cache_matriculados_por_faixa", codigo_eol="400509", verbosity=0
     )
 
 

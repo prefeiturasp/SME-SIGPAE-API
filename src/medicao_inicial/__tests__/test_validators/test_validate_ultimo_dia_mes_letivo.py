@@ -2,9 +2,11 @@ import calendar
 import datetime
 
 import pytest
+from django.utils import timezone
 
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     ValorMedicao,
 )
@@ -50,7 +52,9 @@ def _setup_solicitacao(
 def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia, escola=None):
     periodo = periodo_escolar_factory.create(nome="MANHA")
     if escola:
-        _tornar_escola_com_alunos_regulares(escola, periodo)
+        _tornar_escola_com_alunos_regulares(
+            escola, periodo, int(solicitacao.mes), int(solicitacao.ano)
+        )
     medicao = Medicao.objects.create(
         solicitacao_medicao_inicial=solicitacao,
         periodo_escolar=periodo,
@@ -67,8 +71,11 @@ def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia, escola=No
     return medicao
 
 
-def _tornar_escola_com_alunos_regulares(escola, periodo):
-    from src.escola.models import AlunosMatriculadosPeriodoEscola
+def _tornar_escola_com_alunos_regulares(escola, periodo, mes, ano):
+    from src.escola.models import (
+        AlunosMatriculadosPeriodoEscola,
+        LogAlunosMatriculadosPeriodoEscola,
+    )
 
     if not AlunosMatriculadosPeriodoEscola.objects.filter(
         escola=escola, periodo_escolar=periodo
@@ -79,6 +86,17 @@ def _tornar_escola_com_alunos_regulares(escola, periodo):
             quantidade_alunos=10,
             tipo_turma="REGULAR",
         )
+
+    log = LogAlunosMatriculadosPeriodoEscola.objects.create(
+        escola=escola,
+        periodo_escolar=periodo,
+        quantidade_alunos=10,
+        tipo_turma="REGULAR",
+    )
+    data_log = timezone.make_aware(datetime.datetime(ano, mes, 1, 12))
+    LogAlunosMatriculadosPeriodoEscola.objects.filter(pk=log.pk).update(
+        criado_em=data_log
+    )
 
 
 class TestValidateUltimoDiaMesLetivo:
@@ -458,8 +476,8 @@ class TestValidateUltimoDiaMesLetivo:
         )
         periodo_manha = periodo_escolar_factory.create(nome="MANHA")
         periodo_tarde = periodo_escolar_factory.create(nome="TARDE")
-        _tornar_escola_com_alunos_regulares(escola, periodo_manha)
-        _tornar_escola_com_alunos_regulares(escola, periodo_tarde)
+        _tornar_escola_com_alunos_regulares(escola, periodo_manha, mes, ano)
+        _tornar_escola_com_alunos_regulares(escola, periodo_tarde, mes, ano)
         categoria = CategoriaMedicao.objects.create(nome=CategoriaMedicao.ALIMENTACAO)
         for periodo in [periodo_manha, periodo_tarde]:
             medicao = Medicao.objects.create(
@@ -848,3 +866,99 @@ class TestValidateUltimoDiaMesLetivo:
         result = validate_ultimo_dia_mes_letivo(solicitacao, lista_erros)
 
         assert len(result) == 0
+
+    @pytest.mark.parametrize("regular_preenchido", [True, False])
+    def test_periodo_sem_alunos_nao_exige_ultimo_dia(
+        self,
+        solicitacao_medicao_inicial_factory,
+        dia_calendario_factory,
+        periodo_escolar_factory,
+        escola_emei,
+        regular_preenchido,
+    ):
+        mes, ano = 12, 2025
+        ultimo_dia = _ultimo_dia(mes, ano)
+        solicitacao = _setup_solicitacao(
+            solicitacao_medicao_inicial_factory,
+            dia_calendario_factory,
+            escola_emei,
+            mes,
+            ano,
+            ultimo_dia_eh_letivo=True,
+        )
+        medicao_regular = _cria_medicao_e_valores(
+            solicitacao,
+            periodo_escolar_factory,
+            dia=ultimo_dia if regular_preenchido else None,
+            escola=escola_emei,
+        )
+        periodo_evento = periodo_escolar_factory.create(nome="NOITE")
+        medicao_evento = Medicao.objects.create(
+            solicitacao_medicao_inicial=solicitacao,
+            periodo_escolar=periodo_evento,
+        )
+        categoria, _ = CategoriaMedicao.objects.get_or_create(
+            nome=CategoriaMedicao.ALIMENTACAO
+        )
+        ValorMedicao.objects.create(
+            medicao=medicao_evento,
+            categoria_medicao=categoria,
+            dia="20",
+            nome_campo="refeicao",
+            valor="100",
+        )
+
+        erros = validate_ultimo_dia_mes_letivo(solicitacao, [])
+
+        if regular_preenchido:
+            assert erros == []
+        else:
+            assert erros == [
+                {
+                    "periodo_escolar": medicao_regular.nome_periodo_grupo,
+                    "erro": (
+                        "O último dia do mês (31/12) é letivo "
+                        "e não foi preenchido."
+                    ),
+                }
+            ]
+
+    def test_preserva_validacao_de_grupo_cemei(
+        self,
+        solicitacao_medicao_inicial_factory,
+        dia_calendario_factory,
+        periodo_escolar_factory,
+        escola_cemei,
+    ):
+        mes, ano = 12, 2025
+        solicitacao = _setup_solicitacao(
+            solicitacao_medicao_inicial_factory,
+            dia_calendario_factory,
+            escola_cemei,
+            mes,
+            ano,
+            ultimo_dia_eh_letivo=True,
+        )
+        _cria_medicao_e_valores(
+            solicitacao,
+            periodo_escolar_factory,
+            dia=31,
+            escola=escola_cemei,
+        )
+        grupo = GrupoMedicao.objects.create(nome="Infantil MANHA")
+        medicao = Medicao.objects.create(
+            solicitacao_medicao_inicial=solicitacao,
+            grupo=grupo,
+        )
+
+        erros = validate_ultimo_dia_mes_letivo(solicitacao, [])
+
+        assert erros == [
+            {
+                "periodo_escolar": medicao.nome_periodo_grupo,
+                "erro": (
+                    "O último dia do mês (31/12) é letivo "
+                    "e não foi preenchido."
+                ),
+            }
+        ]

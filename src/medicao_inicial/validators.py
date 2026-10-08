@@ -36,6 +36,7 @@ from ..inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
     MotivoInclusaoNormal,
+    QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
 )
 from ..paineis_consolidados.models import SolicitacoesEscola
 from .api.constants import ALIMENTACOES_LANCAMENTOS_ESPECIAIS
@@ -150,8 +151,16 @@ def validate_ultimo_dia_mes_letivo(
     if ultimo_dia not in dias_letivos_uteis:
         return lista_erros
 
+    medicoes = instance.medicoes.exclude(grupo__nome__in=EXCLUIR_MEDICOES)
+    if instance.escola.eh_emef_emei_cieja:
+        periodos_regulares = instance.escola.periodos_escolares(
+            ano=ano,
+            mes=mes,
+        )
+        medicoes = medicoes.filter(periodo_escolar__in=periodos_regulares)
+
     dia_str = f"{ultimo_dia:02d}"
-    for medicao in instance.medicoes.exclude(grupo__nome__in=EXCLUIR_MEDICOES):
+    for medicao in medicoes:
         tem_valor = (
             medicao.valores_medicao.filter(dia=dia_str, nome_campo="matriculados")
             .exclude(valor__in=[None, "0"])
@@ -576,13 +585,21 @@ def build_nomes_campos_inclusoes_dietas_emef(escola, categoria, inclusoes, medic
     return nomes_campos
 
 
-def build_nomes_campos_dietas_emei_cemei(medicao, categoria):
+def build_nomes_campos_dietas_emei_cemei(medicao, categoria, inclusoes=None):
     tipos_alimentacao = (
         VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar.objects.filter(
             tipo_unidade_escolar__iniciais=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
             periodo_escolar__nome__in=medicao.nome_periodo_grupo.upper().split(),
         ).values_list("tipos_alimentacao__nome", flat=True)
     )
+    if inclusoes is not None:
+        alimentacoes_inclusao = (
+            QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI.objects.filter(
+                inclusao_alimentacao_cemei__in=inclusoes,
+                periodo_escolar__nome__in=medicao.nome_periodo_grupo.upper().split(),
+            ).values_list("tipos_alimentacao__nome", flat=True)
+        )
+        tipos_alimentacao = set(tipos_alimentacao).intersection(alimentacoes_inclusao)
     nomes_campos = ["frequencia"]
     if TIPOS_ALIMENTACAO.LANCHE.value in tipos_alimentacao:
         nomes_campos.append("lanche")
@@ -791,6 +808,7 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
     classificacoes,
     periodo_com_erro,
     valores_medicao_,
+    inclusoes=None,
 ):
     DATA_INDEX = 0
     PERIODO_ESCOLAR_ID_INDEX = 1
@@ -799,7 +817,7 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
     NOME_CAMPO_INDEX = 0
     CATEGORIA_MEDICAO_ID_INDEX = 1
     DIA_ID = 2
-    nomes_campos = build_nomes_campos_dietas_emei_cemei(medicao, categoria)
+    nomes_campos = build_nomes_campos_dietas_emei_cemei(medicao, categoria, inclusoes)
 
     for nome_campo in nomes_campos:
         if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
@@ -1261,6 +1279,9 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
             tipos_alimentacao = list(
                 set(tipos_alimentacao.values_list("nome", flat=True))
             )
+            alimentacoes_permitidas = filtrar_alimentacoes_permitidas_pela_inclusao(
+                tipos_alimentacao, alimentacoes_permitidas
+            )
             alimentacoes = tipos_alimentacao + alimentacoes_permitidas
             eh_numero_alunos = periodo.periodo_escolar not in escola.periodos_escolares(
                 ano=solicitacao.ano,
@@ -1286,35 +1307,63 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
     return erros_unicos(lista_erros)
 
 
+def _get_linhas_da_tabela_inclusao_emei_cemei(solicitacao, escola, qt, medicao):
+    periodo = qt.periodo_escolar
+    if periodo.nome.upper() not in medicao.nome_periodo_grupo.upper():
+        return None
+
+    alimentacoes_permitidas = get_alimentacoes_permitidas(solicitacao, escola, periodo)
+    tipos_alimentacao = qt.tipos_alimentacao.exclude(
+        nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
+    tipos_alimentacao = list(set(tipos_alimentacao.values_list("nome", flat=True)))
+    alimentacoes_permitidas = filtrar_alimentacoes_permitidas_pela_inclusao(
+        tipos_alimentacao, alimentacoes_permitidas
+    )
+    alimentacoes = tipos_alimentacao + alimentacoes_permitidas
+    eh_numero_alunos = periodo not in escola.periodos_escolares(
+        ano=solicitacao.ano, mes=solicitacao.mes
+    )
+    return get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
+
+
+def _get_dias_da_inclusao_emei_cemei(
+    inclusao, solicitacao, linhas_da_tabela, inclusoes_adicionadas
+):
+    dias = []
+    dias_motivos = inclusao.dias_motivos_da_inclusao_cemei.filter(
+        cancelado=False,
+        data__month=solicitacao.mes,
+        data__year=solicitacao.ano,
+    )
+    for dia_motivo in dias_motivos:
+        chave = (str(dia_motivo.data.day).rjust(2, "0"), tuple(linhas_da_tabela))
+        if chave in inclusoes_adicionadas:
+            continue
+        inclusoes_adicionadas.add(chave)
+        dias.append(chave[0])
+    return dias
+
+
 def validate_lancamento_inclusoes_emei_cemei(
     solicitacao, lista_erros, inclusoes, escola, categoria, medicao
 ):
     list_inclusoes = []
+    inclusoes_adicionadas = set()
     for inclusao in inclusoes:
         for qt in inclusao.quantidade_alunos_emei_da_inclusao_cemei.all():
-            periodo = qt.periodo_escolar
-            if periodo.nome.upper() in medicao.nome_periodo_grupo.upper():
-                alimentacoes_permitidas = get_alimentacoes_permitidas(
-                    solicitacao, escola, periodo
-                )
-                tipos_alimentacao = qt.tipos_alimentacao.exclude(
-                    nome=TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
-                )
-                tipos_alimentacao = list(
-                    set(tipos_alimentacao.values_list("nome", flat=True))
-                )
-                alimentacoes = tipos_alimentacao + alimentacoes_permitidas
-                eh_numero_alunos = periodo not in escola.periodos_escolares(
-                    ano=solicitacao.ano, mes=solicitacao.mes
-                )
-                linhas_da_tabela = get_linhas_da_tabela(alimentacoes, eh_numero_alunos)
-                dia_da_inclusao = str(
-                    inclusao.dias_motivos_da_inclusao_cemei.first().data.day
-                ).rjust(2, "0")
+            linhas_da_tabela = _get_linhas_da_tabela_inclusao_emei_cemei(
+                solicitacao, escola, qt, medicao
+            )
+            if not linhas_da_tabela:
+                continue
+            for dia in _get_dias_da_inclusao_emei_cemei(
+                inclusao, solicitacao, linhas_da_tabela, inclusoes_adicionadas
+            ):
                 list_inclusoes.append(
                     {
                         "medicao": medicao,
-                        "dia": dia_da_inclusao,
+                        "dia": dia,
                         "linhas_da_tabela": linhas_da_tabela,
                     }
                 )
@@ -1654,6 +1703,7 @@ def get_lista_erros_inclusoes_dietas_emei_cemei(
             classificacoes,
             periodo_com_erro,
             valores_medicao_,
+            inclusoes=inclusoes_,
         )
         if periodo_com_erro:
             lista_erros.append(
@@ -4636,3 +4686,24 @@ def _programas_e_projetos_periodo_zero_emebs_necessita_erro_otimizado(
         return False
 
     return True
+
+
+def filtrar_alimentacoes_permitidas_pela_inclusao(
+    tipos_alimentacao, alimentacoes_permitidas
+):
+    tipos_alimentacao = [nome.lower() for nome in tipos_alimentacao]
+    tipos_permitidos = {
+        "refeição": "refeição" in tipos_alimentacao,
+        "sobremesa": "sobremesa" in tipos_alimentacao,
+        "lanche": any("lanche" in tipo for tipo in tipos_alimentacao),
+    }
+    alimentacoes_filtradas = []
+    for alimentacao in alimentacoes_permitidas:
+        nome = alimentacao.lower()
+        tipo = next(
+            (tipo for tipo in tipos_permitidos if tipo in nome),
+            None,
+        )
+        if tipos_permitidos.get(tipo, True):
+            alimentacoes_filtradas.append(alimentacao)
+    return alimentacoes_filtradas

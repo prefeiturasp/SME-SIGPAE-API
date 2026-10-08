@@ -16,6 +16,7 @@ from ..dados_comuns.constants import (
 from ..dados_comuns.http_client import (
     EOL_PAPA_CLIENT,
     EOL_SGP_CLIENT,
+    EOL_SGP_CLIENT_SEM_RAISE,
     executar_chamada,
 )
 from ..perfil.services.autenticacao_service import AutenticacaoService
@@ -278,7 +279,7 @@ class EOLServicoSGP:
         cls, codigo_eol_ue, ano=datetime.today().year
     ):
         return executar_chamada(
-            EOL_SGP_CLIENT,
+            EOL_SGP_CLIENT_SEM_RAISE,
             "get",
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{codigo_eol_ue}/anosLetivos/{ano}",
             headers=cls.HEADER,
@@ -308,6 +309,8 @@ class EOLServicoSGP:
                     aluno["codigoAluno"]: aluno for aluno in lista_alunos_filtrada
                 }.values()
                 return list(unique_data)
+            elif response.status_code == status.HTTP_404_NOT_FOUND:
+                return []
             else:
                 raise EOLException(
                     f"Erro ao consultar alunos para a escola {codigo_eol_ue}. Status: {response.status_code}"

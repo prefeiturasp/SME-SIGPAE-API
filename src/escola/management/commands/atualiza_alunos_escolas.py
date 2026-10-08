@@ -1,7 +1,6 @@
 import datetime
 import logging
 import timeit
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 import environ
 import httpx
@@ -15,7 +14,7 @@ from src.dados_comuns.constants import (
     DJANGO_EOL_SGP_API_URL,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.dados_comuns.http_client import EOL_SGP_CLIENT, executar_chamada
+from src.dados_comuns.http_client import EOL_SGP_CLIENT_SEM_RAISE, executar_chamada
 from src.dados_comuns.utils import bulk_create_safe, bulk_update_safe
 from src.escola.models import (
     Aluno,
@@ -135,7 +134,7 @@ class Command(BaseCommand):
     def get_response_alunos_por_escola(self, cod_eol_escola, ano_param=None):
         ano = datetime.date.today().year
         return executar_chamada(
-            EOL_SGP_CLIENT,
+            EOL_SGP_CLIENT_SEM_RAISE,
             "get",
             f"{DJANGO_EOL_SGP_API_URL}/alunos/ues/{cod_eol_escola}/anosLetivos/{ano_param or ano}",
             headers=self.headers,
@@ -214,44 +213,30 @@ class Command(BaseCommand):
 
     def _fetch_dados_escola(self, codigo_eol, proximo_ano, index, total):
         """Busca os dados da escola na API e adiciona o código EOL."""
-        try:
-            logger.debug(f"{index + 1}/{total} - Escola EOL {codigo_eol}")
+        logger.debug(f"{index + 1}/{total} - Escola EOL {codigo_eol}")
 
-            dados = self._obtem_alunos_escola(codigo_eol)
-            dados_prox = self._obtem_alunos_escola(codigo_eol, proximo_ano)
+        dados = self._obtem_alunos_escola(codigo_eol)
+        dados_prox = self._obtem_alunos_escola(codigo_eol, proximo_ano)
 
-            registros = []
-            for d in dados or []:
-                d["codigoEolEscola"] = codigo_eol
-                registros.append(d)
-            for d in dados_prox or []:
-                d["codigoEolEscola"] = codigo_eol
-                registros.append(d)
+        registros = []
+        for d in dados or []:
+            d["codigoEolEscola"] = codigo_eol
+            registros.append(d)
+        for d in dados_prox or []:
+            d["codigoEolEscola"] = codigo_eol
+            registros.append(d)
 
-            return registros
-        except Exception as e:
-            logger.error(f"Erro ao buscar dados da escola {codigo_eol}: {e}")
-            return []
+        return registros
 
-    def _coleta_dados_em_paralelo(self, escolas, proximo_ano):
-        """Coleta os dados das escolas em paralelo usando threads."""
+    def _coleta_dados_sequencial(self, escolas, proximo_ano):
+        """Coleta os dados das escolas uma a uma, na ordem."""
         todos_os_registros = []
         total = len(escolas)
         logger.debug(f"Iniciando coleta de dados de {total} escolas...")
 
-        with ThreadPoolExecutor(max_workers=10) as executor:
-            futures = [
-                executor.submit(
-                    self._fetch_dados_escola, codigo_eol, proximo_ano, i, total
-                )
-                for i, codigo_eol in enumerate(escolas)
-            ]
-            for future in as_completed(futures):
-                try:
-                    registros = future.result()
-                    todos_os_registros.extend(registros)
-                except Exception as e:
-                    logger.exception(f"Erro ao processar futuro: {e}")
+        for index, codigo_eol in enumerate(escolas):
+            registros = self._fetch_dados_escola(codigo_eol, proximo_ano, index, total)
+            todos_os_registros.extend(registros)
 
         return todos_os_registros
 
@@ -264,7 +249,7 @@ class Command(BaseCommand):
         )
         proximo_ano = datetime.date.today().year + 1
 
-        todos_os_registros = self._coleta_dados_em_paralelo(escolas, proximo_ano)
+        todos_os_registros = self._coleta_dados_sequencial(escolas, proximo_ano)
         todos_os_registros.sort(
             key=lambda x: (
                 x["codigoAluno"],

@@ -181,3 +181,147 @@ class TestValidateLancamentoInclusoesEMEICEMEI:
         )
 
         assert lista_erros == []
+
+    def test_gera_erro_quando_algum_dia_da_inclusao_no_mes_nao_esta_preenchido(
+        self,
+        escola_cemei,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+    ):
+        periodo = baker.make("PeriodoEscolar", nome="INTEGRAL")
+        solicitacao, medicao = _cria_solicitacao_e_medicao(escola_cemei, periodo)
+        inclusao = _cria_inclusao_cemei(
+            escola_cemei, periodo, [tipo_alimentacao_refeicao], 5
+        )
+        baker.make(
+            "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+            inclusao_alimentacao_cemei=inclusao,
+            data=datetime.date(int(ANO), int(MES), 6),
+        )
+        qt = inclusao.quantidade_alunos_emei_da_inclusao_cemei.get()
+        nome_campos = _get_nome_campos_lancaveis(escola_cemei, solicitacao, qt)
+        _cria_valores(medicao, categoria_medicao, "05", nome_campos)
+
+        lista_erros = validate_lancamento_inclusoes_emei_cemei(
+            solicitacao,
+            [],
+            InclusaoDeAlimentacaoCEMEI.objects.filter(id=inclusao.id),
+            escola_cemei,
+            categoria_medicao,
+            medicao,
+        )
+
+        assert lista_erros == [
+            {
+                "periodo_escolar": medicao.nome_periodo_grupo,
+                "erro": "Restam dias a serem lançados nas alimentações.",
+            }
+        ]
+
+    def test_nao_gera_erro_quando_todos_os_dias_da_inclusao_no_mes_estao_preenchidos(
+        self,
+        escola_cemei,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+    ):
+        periodo = baker.make("PeriodoEscolar", nome="INTEGRAL")
+        solicitacao, medicao = _cria_solicitacao_e_medicao(escola_cemei, periodo)
+        inclusao = _cria_inclusao_cemei(
+            escola_cemei, periodo, [tipo_alimentacao_refeicao], 5
+        )
+        baker.make(
+            "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+            inclusao_alimentacao_cemei=inclusao,
+            data=datetime.date(int(ANO), int(MES), 6),
+        )
+        qt = inclusao.quantidade_alunos_emei_da_inclusao_cemei.get()
+        nome_campos = _get_nome_campos_lancaveis(escola_cemei, solicitacao, qt)
+        _cria_valores(medicao, categoria_medicao, "05", nome_campos)
+        _cria_valores(medicao, categoria_medicao, "06", nome_campos)
+
+        lista_erros = validate_lancamento_inclusoes_emei_cemei(
+            solicitacao,
+            [],
+            InclusaoDeAlimentacaoCEMEI.objects.filter(id=inclusao.id),
+            escola_cemei,
+            categoria_medicao,
+            medicao,
+        )
+
+        assert lista_erros == []
+
+    def test_ignora_dias_da_inclusao_fora_do_mes_da_medicao(
+        self,
+        escola_cemei,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+    ):
+        periodo = baker.make("PeriodoEscolar", nome="INTEGRAL")
+        solicitacao, medicao = _cria_solicitacao_e_medicao(escola_cemei, periodo)
+        inclusao = _cria_inclusao_cemei(
+            escola_cemei, periodo, [tipo_alimentacao_refeicao], 5
+        )
+        baker.make(
+            "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+            inclusao_alimentacao_cemei=inclusao,
+            data=datetime.date(int(ANO), int(MES) + 1, 5),
+        )
+        qt = inclusao.quantidade_alunos_emei_da_inclusao_cemei.get()
+        nome_campos = _get_nome_campos_lancaveis(escola_cemei, solicitacao, qt)
+        _cria_valores(medicao, categoria_medicao, "05", nome_campos)
+
+        lista_erros = validate_lancamento_inclusoes_emei_cemei(
+            solicitacao,
+            [],
+            InclusaoDeAlimentacaoCEMEI.objects.filter(id=inclusao.id),
+            escola_cemei,
+            categoria_medicao,
+            medicao,
+        )
+
+        assert lista_erros == []
+
+    def test_nao_duplica_dia_quando_inclusao_aparece_repetida_no_queryset(
+        self,
+        escola_cemei,
+        categoria_medicao,
+        tipo_alimentacao_refeicao,
+        monkeypatch,
+    ):
+        from src.medicao_inicial import validators
+
+        periodo = baker.make("PeriodoEscolar", nome="INTEGRAL")
+        solicitacao, medicao = _cria_solicitacao_e_medicao(escola_cemei, periodo)
+        inclusao = _cria_inclusao_cemei(
+            escola_cemei, periodo, [tipo_alimentacao_refeicao], 5
+        )
+        baker.make(
+            "DiasMotivosInclusaoDeAlimentacaoCEMEI",
+            inclusao_alimentacao_cemei=inclusao,
+            data=datetime.date(int(ANO), int(MES), 6),
+        )
+
+        dias_processados = []
+        buscar_original = validators.buscar_valores_lancamento_inclusoes_emei_cemei
+
+        def buscar_espiao(inclusao_dict, categoria, lista_erros):
+            dias_processados.append(inclusao_dict["dia"])
+            return buscar_original(inclusao_dict, categoria, lista_erros)
+
+        monkeypatch.setattr(
+            validators,
+            "buscar_valores_lancamento_inclusoes_emei_cemei",
+            buscar_espiao,
+        )
+
+        # Simula a duplicação gerada pelos JOINs do queryset em validate_medicao_cemei
+        validate_lancamento_inclusoes_emei_cemei(
+            solicitacao,
+            [],
+            [inclusao, inclusao, inclusao],
+            escola_cemei,
+            categoria_medicao,
+            medicao,
+        )
+
+        assert dias_processados == ["05", "06"]
