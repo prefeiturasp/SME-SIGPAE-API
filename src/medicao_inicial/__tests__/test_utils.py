@@ -2513,3 +2513,88 @@ def test_build_headers_tabelas_emebs_extraordinaria_completa_lanche_emergencial(
     )
 
     assert "LANCHE EMERGENCIAL" in tabela["categorias"]
+
+
+def _criar_solicitacao_emebs_com_extraordinaria(escola_emebs):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola_emebs
+    )
+    grupo_solicitacoes = baker.make(
+        "GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    medicao_solicitacoes = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_solicitacoes,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_solicitacoes,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="kit_lanche",
+        valor="3",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+    grupo_extra = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao_extra = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_extra,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_extra,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="lanche_emergencial",
+        valor="7",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+    return solicitacao
+
+
+def test_build_tabelas_relatorio_medicao_emebs_mescla_extraordinaria(escola_emebs):
+    solicitacao = _criar_solicitacao_emebs_com_extraordinaria(escola_emebs)
+
+    tabelas = build_tabelas_relatorio_medicao_emebs(solicitacao)
+
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+    assert not any("Extraordin" in periodo for periodo in periodos)
+
+    tabela = next(
+        tabela
+        for tabela in tabelas
+        if tabela["periodos"] == ["Solicitações de Alimentação - FUNDAMENTAL"]
+    )
+    linha = next(linha for linha in tabela["valores_campos"] if linha[0] == 5)
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert linha[indice_consumido + 1] == "7"
+
+
+def test_build_tabela_somatorio_body_emebs_mescla_extraordinaria(escola_emebs):
+    solicitacao = _criar_solicitacao_emebs_com_extraordinaria(escola_emebs)
+
+    primeira_tabela, _ = build_tabela_somatorio_body(
+        solicitacao, {}, {}, ValorMedicao.FUNDAMENTAL
+    )
+
+    assert (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        not in primeira_tabela["header"]
+    )
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in primeira_tabela["header"]
+    linha_lanche = next(
+        linha
+        for linha in primeira_tabela["body"]
+        if linha[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
+    assert linha_lanche[1] == 7

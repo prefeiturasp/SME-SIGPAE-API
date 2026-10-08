@@ -4,6 +4,7 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
+from model_bakery import baker
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -613,3 +614,63 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
         not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_B]) == 2
+
+
+def _cria_medicao_extraordinaria_cieja(solicitacao, categoria, valor="7"):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="05",
+        nome_campo="lanche_emergencial",
+        medicao=medicao,
+        categoria_medicao=categoria,
+        valor=valor,
+    )
+    return medicao
+
+
+def test_get_alimentacoes_por_periodo_ignora_extraordinaria_cieja(
+    relatorio_consolidado_xlsx_cieja,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = relatorio_consolidado_xlsx_cieja
+    _cria_medicao_extraordinaria_cieja(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao
+    )
+
+    colunas = get_alimentacoes_por_periodo([solicitacao])
+
+    assert not any(
+        tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        for tupla in colunas
+    )
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
+
+
+def test_processa_solicitacoes_soma_extraordinario_cieja(
+    relatorio_consolidado_xlsx_cieja,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = relatorio_consolidado_xlsx_cieja
+    _cria_medicao_extraordinaria_cieja(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao, valor="7"
+    )
+
+    filtros = {"grupo__nome": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO}
+    total = processa_periodo_regular(
+        solicitacao,
+        filtros,
+        "lanche_emergencial",
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+    )
+
+    assert math.isclose(total, 12.0, rel_tol=1e-9)
