@@ -15,11 +15,12 @@ from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
-    eh_medicao_extraordinaria,
+    calcula_soma_medicoes,
     filtra_queryset_pelo_intervalo_de_dias,
     gera_colunas_alimentacao,
     get_lista_dias_periodo,
-    get_nome_periodo,
+    get_medicoes_para_campo_solicitacoes,
+    get_nome_periodo_consolidado,
     get_valores_iniciais,
     todas_medicoes_sem_lancamentos,
 )
@@ -33,9 +34,7 @@ def get_alimentacoes_por_periodo(solicitacoes, query_params=None):
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
-            if eh_medicao_extraordinaria(medicao):
-                continue
-            nome_periodo = get_nome_periodo(medicao)
+            nome_periodo = get_nome_periodo_consolidado(medicao)
             alimentacoes_infantil, alimentacoes_fundamental = _get_lista_alimentacoes(
                 medicao, nome_periodo, query_params
             )
@@ -404,19 +403,25 @@ def processa_dieta_especial(
 def processa_periodo_regular(
     solicitacao, filtros, campo, periodo, turma, query_params=None
 ):
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
+        medicoes = get_medicoes_para_campo_solicitacoes(solicitacao, campo)
+        soma = calcula_soma_medicoes(
+            medicoes,
+            campo,
+            [periodo.upper()],
+            query_params,
+            infantil_ou_fundamental=["INFANTIL", "FUNDAMENTAL"],
+        )
+        return soma if soma is not None else "-"
+
     medicao = solicitacao.medicoes.get(**filtros)
 
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
         return _get_total_pagamento(medicao, campo, turma, query_params)
 
-    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
-        categorias = [periodo.upper()]
-        turma = ["INFANTIL", "FUNDAMENTAL"]
-    else:
-        categorias = [CategoriaMedicao.ALIMENTACAO]
-        turma = [turma]
-
-    soma = _calcula_soma_medicao(medicao, campo, categorias, turma, query_params)
+    soma = _calcula_soma_medicao(
+        medicao, campo, [CategoriaMedicao.ALIMENTACAO], [turma], query_params
+    )
     return soma if soma is not None else "-"
 
 

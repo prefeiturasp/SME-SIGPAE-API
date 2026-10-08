@@ -72,18 +72,22 @@ def get_medicoes_para_campo_solicitacoes(
     return solicitacao.medicoes.filter(grupo__nome__in=nomes_grupos)
 
 
-def calcula_soma_medicoes(medicoes, campo, categorias, query_params=None):
+def calcula_soma_medicoes(
+    medicoes, campo, categorias, query_params=None, infantil_ou_fundamental=None
+):
     """Soma o valor de ``campo`` em um conjunto de medições."""
     total = None
     for medicao in medicoes:
-        valor = (
-            filtra_queryset_pelo_intervalo_de_dias(
-                medicao.valores_medicao, query_params
+        valores = filtra_queryset_pelo_intervalo_de_dias(
+            medicao.valores_medicao, query_params
+        ).filter(nome_campo=campo, categoria_medicao__nome__in=categorias)
+        if infantil_ou_fundamental is not None:
+            valores = valores.filter(
+                infantil_ou_fundamental__in=infantil_ou_fundamental
             )
-            .filter(nome_campo=campo, categoria_medicao__nome__in=categorias)
-            .annotate(valor_float=Cast("valor", output_field=FloatField()))
-            .aggregate(total=Sum("valor_float"))["total"]
-        )
+        valor = valores.annotate(
+            valor_float=Cast("valor", output_field=FloatField())
+        ).aggregate(total=Sum("valor_float"))["total"]
         if valor is not None:
             total = (total or 0) + valor
     return total

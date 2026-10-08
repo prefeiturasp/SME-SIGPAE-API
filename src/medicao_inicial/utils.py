@@ -522,12 +522,13 @@ def _nome_periodo_medicao(medicao, grupo_override=None):
     return grupo_nome
 
 
-def _nome_periodo_medicao_turma(medicao, tipo_turma):
-    if not medicao.grupo:
+def _nome_periodo_medicao_turma(medicao, tipo_turma, grupo_override=None):
+    grupo_nome = _nome_grupo_medicao(medicao, grupo_override)
+    if not grupo_nome:
         return f"{medicao.periodo_escolar.nome} - {tipo_turma}"
     if medicao.periodo_escolar:
-        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
-    return f"{medicao.grupo.nome} - {tipo_turma}"
+        return f"{grupo_nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
+    return f"{grupo_nome} - {tipo_turma}"
 
 
 def _processa_categoria_emebs(
@@ -699,14 +700,19 @@ def build_headers_tabelas_emebs(solicitacao):
 
     indice_atual = 0
 
-    for medicao in get_medicoes_ordenadas(solicitacao, ORDEM_PERIODOS_GRUPOS):
+    for medicao in get_medicoes_para_relatorio_nao_cei(
+        solicitacao, ORDEM_PERIODOS_GRUPOS
+    ):
+        grupo_override = _grupo_override_medicao(medicao)
         for tipo_turma in TIPOS_TURMAS_EMEBS:
             dict_categorias_campos = build_dict_relacao_categorias_e_campos(
-                medicao, tipo_turma
+                medicao, tipo_turma, grupo_override
             )
 
             for categoria in dict_categorias_campos.keys():
-                nome_periodo = _nome_periodo_medicao_turma(medicao, tipo_turma)
+                nome_periodo = _nome_periodo_medicao_turma(
+                    medicao, tipo_turma, grupo_override
+                )
                 tabelas, indice_atual = _processa_categoria_emebs(
                     tabelas,
                     indice_atual,
@@ -1928,12 +1934,19 @@ def contador_frequencia_total_cei(
     return total if total else 0
 
 
-def _soma_valores_medicao_grupo(solicitacao, nome_grupo, dia, nome_campo):
-    valores = solicitacao.medicoes.filter(
-        grupo__nome=nome_grupo,
-        valores_medicao__dia=f"{dia:02d}",
-        valores_medicao__nome_campo=nome_campo,
-    ).values_list("valores_medicao__valor", flat=True)
+def _soma_valores_medicao_grupo(
+    solicitacao, nome_grupo, dia, nome_campo, tipo_turma=None
+):
+    filtros = {
+        "grupo__nome": nome_grupo,
+        "valores_medicao__dia": f"{dia:02d}",
+        "valores_medicao__nome_campo": nome_campo,
+    }
+    if tipo_turma is not None:
+        filtros["valores_medicao__infantil_ou_fundamental"] = tipo_turma
+    valores = solicitacao.medicoes.filter(**filtros).values_list(
+        "valores_medicao__valor", flat=True
+    )
     total = 0
     for valor in valores:
         try:
@@ -1944,7 +1957,7 @@ def _soma_valores_medicao_grupo(solicitacao, nome_grupo, dia, nome_campo):
 
 
 def popula_campo_consumido_solicitacoes_alimentacao(
-    solicitacao, dia, campo, categoria_corrente, valores_dia
+    solicitacao, dia, campo, categoria_corrente, valores_dia, tipo_turma=None
 ):
     if campo != "consumido":
         return
@@ -1954,7 +1967,11 @@ def popula_campo_consumido_solicitacoes_alimentacao(
         else "kit_lanche"
     )
     total = _soma_valores_medicao_grupo(
-        solicitacao, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, dia, nome_campo
+        solicitacao,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        dia,
+        nome_campo,
+        tipo_turma,
     )
     if categoria_corrente == LANCHE_EMERGENCIAL:
         total += _soma_valores_medicao_grupo(
@@ -1962,6 +1979,7 @@ def popula_campo_consumido_solicitacoes_alimentacao(
             GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
             dia,
             "lanche_emergencial",
+            tipo_turma,
         )
     valores_dia += [str(total)]
 
@@ -2817,6 +2835,11 @@ def popula_tabelas_emebs(solicitacao, tabelas):
     return tabelas
 
 
+def _turma_do_periodo_emebs(periodo_corrente):
+    partes = periodo_corrente.split(" - ")
+    return partes[1] if len(partes) > 1 else None
+
+
 def popula_valores_campos(
     solicitacao,
     tabela,
@@ -2920,7 +2943,12 @@ def popula_valores_campos(
                 kits_lanches,
             )
             popula_campo_consumido_solicitacoes_alimentacao(
-                solicitacao, dia, campo, categoria_corrente, valores_dia
+                solicitacao,
+                dia,
+                campo,
+                categoria_corrente,
+                valores_dia,
+                _turma_do_periodo_emebs(periodo_corrente),
             )
 
             if campo not in [
