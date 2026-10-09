@@ -232,6 +232,355 @@ def test_gera_relatorio_consolidado_xlsx_emef_com_filtro_de_datas(
     )
 
 
+def test_gera_relatorio_consolidado_xlsx_emef_com_filtro_de_datas_sem_registro(
+    relatorio_consolidado_xlsx_emef, mock_query_params_excel_emef
+):
+    solicitacoes = [relatorio_consolidado_xlsx_emef.uuid]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
+    query_params = {
+        **mock_query_params_excel_emef,
+        "data_inicial": "2025-04-01",
+        "data_final": "2025-04-02",
+    }
+
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, query_params, contem_recreio=False
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_emef.mes}-{ relatorio_consolidado_xlsx_emef.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL IPIRANGA - 1 - EMEF - 01/04/2025 A 02/04/2025",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        DIETA_ESPECIAL_TIPO_A,
+        None,
+        None,
+        DIETA_ESPECIAL_TIPO_B,
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        None,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        "Total de Refeições para Pagamento",
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        "Total de Sobremesas para Pagamento",
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+    )
+    assert rows[5] == (
+        TIPOS_UNIDADE_ESCOLAR.EMEF.value,
+        "123456",
+        NomesParaTesteEscola.EMEF_TESTE.value,
+        "-",
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        8,
+        8,
+        4,
+        4,
+        4,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        0,
+        50,
+        50,
+        50,
+        50,
+        50,
+        50,
+        8,
+        8,
+        4,
+        4,
+        4,
+    )
+
+
+def test_gera_relatorio_consolidado_xlsx_emei_com_filtro_de_datas_sem_registro(
+    relatorio_consolidado_xlsx_emei, mock_query_params_excel_emei
+):
+    solicitacoes = [relatorio_consolidado_xlsx_emei.uuid]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
+    query_params = {
+        **mock_query_params_excel_emei,
+        "data_inicial": "2025-04-01",
+        "data_final": "2025-04-02",
+    }
+
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, query_params, contem_recreio=False
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_emei.mes}-{ relatorio_consolidado_xlsx_emei.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEI - 01/04/2025 A 02/04/2025",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        DIETA_ESPECIAL_TIPO_A,
+        None,
+        None,
+        DIETA_ESPECIAL_TIPO_B,
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        None,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        "Total de Refeições para Pagamento",
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        "Total de Sobremesas para Pagamento",
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+    )
+    assert rows[5] == (
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        "987654",
+        NomesParaTesteEscola.EMEI_TESTE.value,
+        "-",
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        16,
+        16,
+        8,
+        8,
+        8,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        0,
+        60,
+        60,
+        60,
+        60,
+        60,
+        60,
+        16,
+        16,
+        8,
+        8,
+        8,
+    )
+
+
+def test_gera_relatorio_consolidado_xlsx_cieja_cmct_com_filtro_de_datas_sem_registro(
+    relatorio_consolidado_xlsx_cieja, mock_query_params_excel_cieja_cmct
+):
+    solicitacoes = [relatorio_consolidado_xlsx_cieja.uuid]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CIEJA.value]
+    query_params = {
+        **mock_query_params_excel_cieja_cmct,
+        "data_inicial": "2025-04-01",
+        "data_final": "2025-04-01",
+    }
+
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes, tipos_unidade, query_params, contem_recreio=False
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { relatorio_consolidado_xlsx_cieja.mes}-{ relatorio_consolidado_xlsx_cieja.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[1] == (
+        "ABRIL/2025 - DIRETORIA REGIONAL TESTE -  - CIEJA - 01/04/2025 A 01/04/2025",
+        *([None] * 22),
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        None,
+        "MANHA",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "TARDE",
+        None,
+        None,
+        None,
+        None,
+        None,
+        "PROGRAMAS E PROJETOS",
+        None,
+        DIETA_ESPECIAL_TIPO_A,
+        None,
+        None,
+        DIETA_ESPECIAL_TIPO_B,
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        None,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        "Total de Refeições para Pagamento",
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        "Total de Sobremesas para Pagamento",
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        "Total de Refeições para Pagamento",
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        "Total de Sobremesas para Pagamento",
+        "Total de Refeições para Pagamento",
+        "Total de Sobremesas para Pagamento",
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.LANCHE.value,
+        TIPOS_ALIMENTACAO.LANCHE_4H.value,
+    )
+    assert rows[5] == (
+        TIPOS_UNIDADE_ESCOLAR.CIEJA.value,
+        "111329",
+        "CIEJA TESTE",
+        "-",
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        0,
+        0,
+        16,
+        16,
+        8,
+        8,
+        8,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        0,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        30,
+        0,
+        0,
+        16,
+        16,
+        8,
+        8,
+        8,
+    )
+
+
 def test_gera_relatorio_consolidado_xlsx_emei(
     relatorio_consolidado_xlsx_emei, mock_query_params_excel_emei
 ):
@@ -2694,6 +3043,366 @@ def test_gera_relatorio_consolidado_xlsx_recreio_emei(
         280,
         280,
         560,
+    )
+
+
+def test_gera_relatorio_consolidado_xlsx_recreio_emei_com_filtro_de_datas(
+    solicitacao_recreio_emei, mock_query_params_excel_recreio_emei
+):
+    solicitacoes = [solicitacao_recreio_emei.uuid]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.EMEI.value]
+    query_params = {
+        **mock_query_params_excel_recreio_emei,
+        "data_inicial": "2025-12-10",
+        "data_final": "2025-12-11",
+    }
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes,
+        tipos_unidade,
+        query_params,
+        contem_recreio=True,
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { solicitacao_recreio_emei.mes}-{ solicitacao_recreio_emei.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[0] == (
+        "Relatório de Totalização da Medição Inicial do Serviço de Fornecimento da Alimentação Escolar",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[1] == (
+        "RECREIO NAS FÉRIAS - DEZEMBRO/2025 - DIRETORIA REGIONAL TESTE - LOTE 1 - EMEI - 10/12/2025 A 11/12/2025",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[2] == (
+        None,
+        None,
+        None,
+        "ALIMENTAÇÕES ALUNOS PARTICIPANTES",
+        None,
+        None,
+        None,
+        None,
+        None,
+        DIETA_ESPECIAL_TIPO_A,
+        "COLABORADORES",
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[3] == (
+        "Tipo",
+        "Cód. EOL",
+        "Unidade Escolar",
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        "Repetição de Refeição",
+        "Total de Refeições para Pagamento",
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        "Repetição de Sobremesa",
+        "Total de Sobremesas para Pagamento",
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        TIPOS_ALIMENTACAO.REFEICAO.value,
+        "Repetição de Refeição",
+        "Total de Refeições para Pagamento",
+        TIPOS_ALIMENTACAO.SOBREMESA.value,
+        "Repetição de Sobremesa",
+        "Total de Sobremesas para Pagamento",
+    )
+    assert rows[4] == (
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[5] == (
+        TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        "987654",
+        NomesParaTesteEscola.EMEI_TESTE.value,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        2,
+        40,
+        40,
+        80,
+        40,
+        40,
+        80,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        2,
+        40,
+        40,
+        80,
+        40,
+        40,
+        80,
+    )
+
+
+def test_gera_relatorio_consolidado_xlsx_recreio_cei_com_filtro_de_datas(
+    solicitacao_recreio_cei, mock_query_params_excel_recreio_cei
+):
+    solicitacoes = [solicitacao_recreio_cei.uuid]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEI.value]
+    query_params = {
+        **mock_query_params_excel_recreio_cei,
+        "data_inicial": "2025-12-10",
+        "data_final": "2025-12-11",
+    }
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes,
+        tipos_unidade,
+        query_params,
+        contem_recreio=True,
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { solicitacao_recreio_cei.mes}-{ solicitacao_recreio_cei.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[1] == (
+        "RECREIO NAS FÉRIAS - DEZEMBRO/2025 - DIRETORIA REGIONAL TESTE -  - CEI - 10/12/2025 A 11/12/2025",
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+    assert rows[5] == (
+        TIPO_UNIDADE_CEI_DIRET,
+        "765432",
+        NomesParaTesteEscola.CEI_DIRET_TESTE.value,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        40,
+        40,
+        80,
+        40,
+        40,
+        80,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        24,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        40,
+        40,
+        80,
+        40,
+        40,
+        80,
+    )
+
+
+def test_gera_relatorio_consolidado_xlsx_recreio_cemei_com_filtro_de_datas(
+    solicitacao_recreio_cemei, mock_query_params_excel_recreio_cemei
+):
+    solicitacoes = [solicitacao_recreio_cemei.uuid]
+    tipos_unidade = [TIPOS_UNIDADE_ESCOLAR.CEMEI.value]
+    query_params = {
+        **mock_query_params_excel_recreio_cemei,
+        "data_inicial": "2025-12-10",
+        "data_final": "2025-12-11",
+    }
+    arquivo = gera_relatorio_consolidado_xlsx(
+        solicitacoes,
+        tipos_unidade,
+        query_params,
+        contem_recreio=True,
+    )
+    assert isinstance(arquivo, bytes)
+    excel_buffer = BytesIO(arquivo)
+
+    workbook = load_workbook(filename=excel_buffer)
+    nome_aba = f"Relatório Consolidado { solicitacao_recreio_cemei.mes}-{ solicitacao_recreio_cemei.ano}"
+    assert nome_aba in workbook.sheetnames
+    sheet = workbook[nome_aba]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    assert rows[1] == (
+        "RECREIO NAS FÉRIAS - DEZEMBRO/2025 - DIRETORIA REGIONAL TESTE - LOTE 2 - CEMEI - 10/12/2025 A 11/12/2025",
+        *([None] * 31),
+    )
+    assert rows[5] == (
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        "543210",
+        NomesParaTesteEscola.CEMEI_TESTE.value,
+        22,
+        22,
+        22,
+        22,
+        22,
+        22,
+        22,
+        22,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        2,
+        30,
+        30,
+        60,
+        30,
+        30,
+        60,
+    )
+    assert rows[6] == (
+        "TOTAL",
+        None,
+        None,
+        22,
+        22,
+        22,
+        22,
+        22,
+        22,
+        22,
+        22,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        4,
+        180,
+        180,
+        180,
+        180,
+        180,
+        180,
+        2,
+        30,
+        30,
+        60,
+        30,
+        30,
+        60,
     )
 
 
