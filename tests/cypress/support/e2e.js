@@ -166,3 +166,6 @@ import './step_definitions/ficha_tecnica'
 
 import './commands_api/commands_fichas_de_recebimento'
 import './step_definitions/fichas_de_recebimento'
+
+import './commands_api/commands_grupos_inclusao_alimentacao_normal'
+import './step_definitions/grupos_inclusao_alimentacao_normal'

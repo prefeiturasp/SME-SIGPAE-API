@@ -8,6 +8,7 @@ from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
 from src.dados_comuns.constants import StringsCaminhoModelos
+from src.escola.models import LISTA_TIPOS_UNIDADES
 
 pytestmark = pytest.mark.django_db
 
@@ -72,3 +73,34 @@ def test_grupo_suspensao_alimentacao_serializer(grupo_suspensao_alimentacao_para
     assert grupo_suspensao_updated.quantidades_por_periodo.count() == 2
     assert grupo_suspensao_updated.suspensoes_alimentacao.count() == 1
     assert isinstance(grupo_suspensao_updated, GrupoSuspensaoAlimentacao)
+
+
+def test_validate_aceita_sem_duplicidade(monta_payload, serializer_create):
+    ser = serializer_create(monta_payload())
+    assert ser.is_valid(), ser.errors
+
+
+def test_validate_bloqueia_duplicidade(
+    grupo_criado_informado, monta_payload, serializer_create
+):
+    ser = serializer_create(monta_payload())
+    assert not ser.is_valid()
+    assert "message" in ser.errors
+    assert "conflitos" in ser.errors
+    assert ser.errors["conflitos"][0]["data"] == "2026-10-30"
+
+
+def test_validate_libera_outro_periodo(
+    grupo_criado_informado, monta_payload, serializer_create
+):
+    outro_periodo = baker.make("PeriodoEscolar")
+    ser = serializer_create(monta_payload(periodo=outro_periodo))
+    assert ser.is_valid(), ser.errors
+
+
+def test_validate_update_ignora_o_proprio_registro(
+    grupo_criado_informado, monta_payload, serializer_create
+):
+    ser = serializer_create(monta_payload(), instance=grupo_criado_informado)
+    assert ser.is_valid(), ser.errors
+

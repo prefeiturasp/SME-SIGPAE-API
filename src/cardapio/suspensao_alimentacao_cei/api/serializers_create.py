@@ -57,7 +57,26 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
         nao_pode_ser_no_passado(data)
         deve_pedir_com_antecedencia(data)
         deve_ser_no_mesmo_ano_corrente(data)
+        self._validar_duplicidade(attrs["escola"], data)
         return attrs
+
+    def _validar_duplicidade(self, escola, data):
+        STATUS_QUE_LIBERAM_DUPLICIDADE = ["ESCOLA_CANCELOU"]
+        qs = SuspensaoAlimentacaoDaCEI.objects.filter(
+            escola=escola, data=data
+        ).exclude(status__in=STATUS_QUE_LIBERAM_DUPLICIDADE)
+
+        uuid_atual = getattr(self.instance, "uuid", None)
+        if uuid_atual:
+            qs = qs.exclude(uuid=uuid_atual)
+
+        if qs.exists():
+            raise serializers.ValidationError(
+                {
+                    "message": "Já existe uma Solicitação de Suspensão de Alimentação para a data selecionada. Verifique os dados informados.",
+                    "conflitos": [{"data": str(data)}],
+                }
+            )
 
     def create(self, validated_data):
         """Cria uma solicitação de suspensão de CEI com os períodos escolares.
