@@ -7,8 +7,6 @@ from django.db.models import Q, QuerySet
 from workalendar.america import BrazilSaoPauloCity
 
 from src.dados_comuns.constants import (
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
@@ -17,6 +15,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
+from src.medicao_inicial.models import GrupoMedicao
 
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
@@ -125,8 +124,8 @@ def erros_unicos(lista_erros):
 
 EXCLUIR_MEDICOES = [
     "ETEC",
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
+    GrupoMedicao.PROGRAMAS_E_PROJETOS,
+    GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
 ]
 
 
@@ -2562,7 +2561,7 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
         ValorMedicao.objects.filter(
             medicao__solicitacao_medicao_inicial=solicitacao,
             nome_campo="kit_lanche",
-            medicao__grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
+            medicao__grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
             dia__in=dias_kit_lanche,
         )
         .order_by("dia")
@@ -2573,7 +2572,7 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
     if len(valores_da_medicao) != len(dias_kit_lanche):
         lista_erros.append(
             {
-                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+                "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Kit Lanches.",
             }
         )
@@ -2616,7 +2615,7 @@ def validate_lanche_emergencial(solicitacao, lista_erros):
         ValorMedicao.objects.filter(
             medicao__solicitacao_medicao_inicial=solicitacao,
             nome_campo="lanche_emergencial",
-            medicao__grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO,
+            medicao__grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
             dia__in=dias_lanche_emergencial,
         )
         .order_by("dia")
@@ -2627,7 +2626,7 @@ def validate_lanche_emergencial(solicitacao, lista_erros):
     if len(valores_da_medicao) != len(dias_lanche_emergencial):
         lista_erros.append(
             {
-                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+                "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
             }
         )
@@ -3297,7 +3296,7 @@ def validate_solicitacoes_programas_e_projetos(solicitacao, lista_erros):
         lista_erros,
         inclusoes,
         medicao_programas_projetos,
-        GRUPO_PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
         True,
     )
 
@@ -3320,7 +3319,7 @@ def _validate_solicitacoes_programas_e_projetos_emei_cemei(
             lista_erros,
             inclusoes,
             medicao,
-            GRUPO_PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
             True,
         )
 
@@ -3365,7 +3364,7 @@ def validate_cemei_evento_especifico_programas(solicitacao, medicao, lista_erros
     if periodo_com_erro:
         lista_erros.append(
             {
-                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
+                "periodo_escolar": GrupoMedicao.PROGRAMAS_E_PROJETOS,
                 "erro": "Restam dias a serem lançados nas alimentações.",
             }
         )
@@ -3524,7 +3523,7 @@ def valida_medicao_programas_e_projetos_inexistente_escola_sem_alunos_regulares(
     if not medicao_programas_projetos:
         lista_erros.append(
             {
-                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
+                "periodo_escolar": GrupoMedicao.PROGRAMAS_E_PROJETOS,
                 "erro": "Restam dias a serem lançados nas alimentações.",
             }
         )
@@ -3544,7 +3543,7 @@ def validate_solicitacoes_programas_e_projetos_escola_sem_alunos_regulares(
         lista_erros,
         inclusoes,
         medicao_programas_projetos,
-        GRUPO_PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
         valida_dietas=True,
         escola_sem_alunos_regulares=True,
         eh_emebs=False,
@@ -3562,7 +3561,7 @@ def validate_solicitacoes_programas_e_projetos_emebs(solicitacao, lista_erros):
         lista_erros,
         inclusoes,
         medicao_programas_projetos,
-        GRUPO_PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
         True,
         False,
         True,
@@ -4186,12 +4185,12 @@ def validate_lanches_emergenciais_diarios(
 
     try:
         medicao_solicitacoes_alimentacao = solicitacao.medicoes.get(
-            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
     except Medicao.DoesNotExist:
         lista_erros.append(
             {
-                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+                "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
             }
         )
@@ -4208,7 +4207,7 @@ def validate_lanches_emergenciais_diarios(
     if not todos_lanches_emergencias_lancados:
         lista_erros.append(
             {
-                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+                "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 "erro": "Restam dias a serem lançados nos Lanches Emergenciais.",
             }
         )
@@ -4323,7 +4322,7 @@ def valida_programas_e_projetos_periodos_zero(
             if _deve_adicionar_erro(valor_programas, observacoes_programas, dia):
                 lista_erros.append(
                     {
-                        "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
+                        "periodo_escolar": GrupoMedicao.PROGRAMAS_E_PROJETOS,
                         "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
                     }
                 )
@@ -4538,7 +4537,7 @@ def valida_programas_e_projetos_periodos_zero_emebs(
                 ):
                     lista_erros.append(
                         {
-                            "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
+                            "periodo_escolar": GrupoMedicao.PROGRAMAS_E_PROJETOS,
                             "erro": "Avaliar lançamentos de dias sem frequencia nos demais períodos.",
                         }
                     )

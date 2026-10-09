@@ -10,7 +10,7 @@ from django.template.defaultfilters import title as django_title
 
 from src.dados_comuns.utils import numero_com_agrupador_de_milhar_e_decimal
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.produto.constants import RELATORIO_RECLAMACOES_PRODUTOS
 
 from ...cardapio.suspensao_alimentacao.models import (
@@ -878,9 +878,9 @@ def get_colspan(periodo):
         "TOTAL": 1,
         "NOITE": 1,
         "ETEC": 1,
-        constants.GRUPO_INFANTIL_INTEGRAL: 1,
-        constants.GRUPO_INFANTIL_MANHA: 1,
-        constants.GRUPO_INFANTIL_TARDE: 1,
+        GrupoMedicao.INFANTIL_INTEGRAL: 1,
+        GrupoMedicao.INFANTIL_MANHA: 1,
+        GrupoMedicao.INFANTIL_TARDE: 1,
         "ALIMENTAÇÕES PARA ALUNOS PARTICIPANTES": 1,
         "DIETA TIPO A": 1,
         "DIETA ENTERAL / REST. DE AMINOÁCIDOS": 1,
@@ -898,9 +898,9 @@ def get_nome_header(nome):
         "NOITE": "NOITE/EJA",
         ClassificacaoDieta.TIPO_A.upper(): "DIETAS TIPO A / ENTERAL / REST. DE AMINOÁCIDOS",
         ClassificacaoDieta.TIPO_B.upper(): "DIETAS TIPO B",
-        constants.GRUPO_INFANTIL_INTEGRAL: "INTEGRAL",
-        constants.GRUPO_INFANTIL_MANHA: "MANHÃ",
-        constants.GRUPO_INFANTIL_TARDE: "TARDE",
+        GrupoMedicao.INFANTIL_INTEGRAL: "INTEGRAL",
+        GrupoMedicao.INFANTIL_MANHA: "MANHÃ",
+        GrupoMedicao.INFANTIL_TARDE: "TARDE",
     }
 
     return nomes.get(nome, nome.upper())
@@ -1160,7 +1160,7 @@ def remove_style(value):
 def nomes_relatorio_correcao_medicao(nome):
     nomes = {
         "MANHA": "Manhã",
-        constants.GRUPO_INFANTIL_MANHA: "Infantil Manhã",
+        GrupoMedicao.INFANTIL_MANHA: "Infantil Manhã",
         "NOITE": "Noturno - EJA",
         "INTERMEDIARIO": "Intermediário",
         "ETEC": "ETEC",

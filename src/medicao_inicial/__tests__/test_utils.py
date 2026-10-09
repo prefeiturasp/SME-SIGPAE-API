@@ -9,13 +9,11 @@ from model_bakery import baker
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
     TIPOS_ALIMENTACAO,
     FaixasEtarias,
     NomesParaTesteEscola,
 )
+from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
@@ -23,7 +21,10 @@ from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDi
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,
+    DiaParaCorrigir,
+    GrupoMedicao,
     SolicitacaoMedicaoInicial,
+    ValorMedicao,
 )
 from src.medicao_inicial.utils import (
     atualiza_alunos_periodo_parcial,
@@ -41,6 +42,7 @@ from src.medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
     busca_dias_zerados,
+    criar_log_solicitar_correcao_periodos,
     get_eh_dia_letivo,
     get_lista_categorias_campos,
     get_lista_categorias_campos_cei,
@@ -54,6 +56,7 @@ from src.medicao_inicial.utils import (
     get_somatorio_solicitacoes_de_alimentacao,
     get_somatorio_tarde,
     get_somatorio_total_tabela,
+    get_tabelas_lancamentos_para_correcao,
     mapear_dados_existentes,
     obter_instancia_dados,
     processa_reabrir_lancamentos,
@@ -249,9 +252,9 @@ def test_build_headers_tabelas_emebs(solicitacao_medicao_inicial_varios_valores_
 
 
 def test_get_nome_periodo():
-    assert get_nome_periodo(GRUPO_INFANTIL_INTEGRAL) == "INTEGRAL"
-    assert get_nome_periodo(GRUPO_INFANTIL_MANHA) == "MANHA"
-    assert get_nome_periodo(GRUPO_INFANTIL_TARDE) == "TARDE"
+    assert get_nome_periodo(GrupoMedicao.INFANTIL_INTEGRAL) == "INTEGRAL"
+    assert get_nome_periodo(GrupoMedicao.INFANTIL_MANHA) == "MANHA"
+    assert get_nome_periodo(GrupoMedicao.INFANTIL_TARDE) == "TARDE"
     assert get_nome_periodo("Fundamental MANHA") == "Fundamental MANHA"
     assert get_nome_periodo("EJA NOITE") == "EJA NOITE"
 
@@ -2109,6 +2112,37 @@ class TestProcessaReabrirLancamentos:
             medicao.refresh_from_db()
             assert medicao.status == status_esperado
 
+    def test_deve_reabrir_medicao_extraordinaria(
+        self,
+        relatorio_financeiro_cei,
+        solicitacao_medicao_inicial_cei,
+        usuario,
+    ):
+        grupo = baker.make(
+            "GrupoMedicao",
+            nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+        )
+        medicao_extraordinaria = baker.make(
+            "Medicao",
+            solicitacao_medicao_inicial=solicitacao_medicao_inicial_cei,
+            periodo_escolar=None,
+            grupo=grupo,
+            status="MEDICAO_APROVADA_PELA_CODAE",
+        )
+
+        processa_reabrir_lancamentos(
+            relatorio_financeiro=relatorio_financeiro_cei,
+            unidades_educacionais=[],
+            solicitacoes_periodo=[solicitacao_medicao_inicial_cei],
+            usuario=usuario,
+        )
+
+        medicao_extraordinaria.refresh_from_db()
+        assert (
+            medicao_extraordinaria.status
+            == SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_DRE
+        )
+
     def test_deve_alterar_status_do_relatorio_quando_nao_informa_unidades(
         self,
         relatorio_financeiro_cei,
@@ -2127,3 +2161,440 @@ class TestProcessaReabrirLancamentos:
             .objects.filter(pk=relatorio_financeiro_cei.pk)
             .exists()
         )
+
+
+def _criar_medicao_extraordinaria(
+    escola, categoria, status, dias=None, com_valores=False
+):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status=status,
+    )
+    for dia in dias or []:
+        baker.make(
+            "DiaParaCorrigir",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia=dia,
+            habilitado_correcao=True,
+        )
+    if com_valores:
+        baker.make(
+            "ValorMedicao",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            dia="10",
+            semana="2",
+            nome_campo="lanche_emergencial",
+            valor="5",
+            habilitado_correcao=True,
+        )
+    return solicitacao, medicao
+
+
+def test_get_tabelas_lancamentos_para_correcao_extraordinaria(escola):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    _, medicao = _criar_medicao_extraordinaria(
+        escola, categoria, status, dias=["02", "03", "04"]
+    )
+
+    assert get_tabelas_lancamentos_para_correcao(medicao) == [
+        {
+            "categoria_medicao": CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "semanas": [{"semana": "2", "dias": ["02", "03", "04"]}],
+        }
+    ]
+
+
+def test_get_tabelas_lancamentos_para_correcao_prioriza_valores_habilitados(escola):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    _, medicao = _criar_medicao_extraordinaria(
+        escola, categoria, status, dias=["02"], com_valores=True
+    )
+
+    assert get_tabelas_lancamentos_para_correcao(medicao) == [
+        {
+            "categoria_medicao": CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "semanas": [{"semana": "2", "dias": ["10"]}],
+        }
+    ]
+
+
+def test_get_tabelas_lancamentos_para_correcao_sem_dias_retorna_vazio(escola):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    _, medicao = _criar_medicao_extraordinaria(escola, categoria, status)
+
+    assert get_tabelas_lancamentos_para_correcao(medicao) == []
+
+
+def test_criar_log_solicitar_correcao_periodos_extraordinaria(escola, usuario):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE
+    solicitacao, medicao = _criar_medicao_extraordinaria(
+        escola, categoria, status, dias=["02", "03", "04"]
+    )
+    medicao.salvar_log_transicao(
+        status_evento=LogSolicitacoesUsuario.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+        usuario=usuario,
+        justificativa="<p>corrige os dias 2, 3 e 4</p>",
+    )
+
+    log = criar_log_solicitar_correcao_periodos(usuario, solicitacao, status)
+
+    assert len(log["alteracoes"]) == 1
+    alteracao = log["alteracoes"][0]
+    assert (
+        alteracao["periodo_escolar"]
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    )
+    assert alteracao["justificativa"] == "<p>corrige os dias 2, 3 e 4</p>"
+    assert alteracao["tabelas_lancamentos"] == [
+        {
+            "categoria_medicao": CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            "semanas": [{"semana": "2", "dias": ["02", "03", "04"]}],
+        }
+    ]
+
+
+def _criar_medicao_lanche_emergencial(solicitacao, nome_grupo, categoria, valor):
+    grupo = baker.make("GrupoMedicao", nome=nome_grupo)
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        categoria_medicao=categoria,
+        dia="02",
+        semana="2",
+        nome_campo="lanche_emergencial",
+        valor=str(valor),
+    )
+    return medicao
+
+
+def _criar_solicitacao_extraordinaria(
+    escola, com_solicitacoes, valor_solicitacoes=3, valor_extraordinaria=7
+):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola
+    )
+    if com_solicitacoes:
+        _criar_medicao_lanche_emergencial(
+            solicitacao,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            categoria,
+            valor_solicitacoes,
+        )
+    _criar_medicao_lanche_emergencial(
+        solicitacao,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+        categoria,
+        valor_extraordinaria,
+    )
+    return solicitacao
+
+
+def _tabela_do_periodo(tabelas, periodo):
+    return next(tabela for tabela in tabelas if tabela["periodos"] == [periodo])
+
+
+def _linha_do_dia(tabela, dia):
+    return next(linha for linha in tabela["valores_campos"] if linha[0] == dia)
+
+
+def test_build_headers_extraordinaria_com_solicitacoes_nao_renderiza_tabela(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(escola, com_solicitacoes=True)
+
+    tabelas = build_headers_tabelas(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS not in periodos
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in periodos
+
+
+def test_build_headers_extraordinaria_sem_solicitacoes_usa_periodo_solicitacoes(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(escola, com_solicitacoes=False)
+
+    tabelas = build_headers_tabelas(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS not in periodos
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    assert tabela["nomes_campos"] == ["solicitado", "consumido"]
+
+
+def test_consumido_soma_solicitacoes_com_extraordinarias(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola, com_solicitacoes=True, valor_solicitacoes=3, valor_extraordinaria=7
+    )
+
+    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    linha = _linha_do_dia(tabela, 2)
+
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert linha[indice_consumido + 1] == "10"
+
+
+def test_consumido_extraordinaria_sem_solicitacoes_e_solicitado_zerado(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola, com_solicitacoes=False, valor_extraordinaria=7
+    )
+
+    tabelas = build_tabelas_relatorio_medicao(solicitacao)
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    linha = _linha_do_dia(tabela, 2)
+
+    indice_solicitado = tabela["nomes_campos"].index("solicitado")
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert str(linha[indice_solicitado + 1]) == "0"
+    assert linha[indice_consumido + 1] == "7"
+
+
+def test_build_tabelas_relatorio_medicao_cemei_mescla_extraordinarias(escola_cemei):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola_cemei,
+        com_solicitacoes=True,
+        valor_solicitacoes=3,
+        valor_extraordinaria=7,
+    )
+
+    tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS not in periodos
+
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+    linha = _linha_do_dia(tabela, 2)
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert linha[indice_consumido + 1] == "10"
+
+
+def test_somatorio_nao_gera_coluna_extraordinaria_e_mescla_lanche_emergencial(escola):
+    solicitacao = _criar_solicitacao_extraordinaria(
+        escola, com_solicitacoes=True, valor_solicitacoes=3, valor_extraordinaria=7
+    )
+
+    primeira_tabela, _ = build_tabela_somatorio_body(solicitacao, {}, {})
+
+    assert (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        not in primeira_tabela["header"]
+    )
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in primeira_tabela["header"]
+    linha_lanche = next(
+        linha
+        for linha in primeira_tabela["body"]
+        if linha[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
+    assert linha_lanche[1] == 10
+
+
+def _cria_medicao_extraordinaria_emebs(solicitacao, valor="7"):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    for turma in ["INFANTIL", "FUNDAMENTAL"]:
+        baker.make(
+            "ValorMedicao",
+            dia="05",
+            nome_campo="lanche_emergencial",
+            medicao=medicao,
+            categoria_medicao=categoria,
+            valor=valor,
+            infantil_ou_fundamental=turma,
+        )
+    return medicao
+
+
+def test_build_headers_tabelas_emebs_extraordinaria(
+    solicitacao_medicao_inicial_varios_valores_emebs,
+):
+    solicitacao = solicitacao_medicao_inicial_varios_valores_emebs
+    _cria_medicao_extraordinaria_emebs(solicitacao)
+
+    tabelas = build_headers_tabelas_emebs(solicitacao)
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+
+    assert not any("Extraordin" in periodo for periodo in periodos)
+    assert "Solicitações de Alimentação - INFANTIL" in periodos
+    assert "Solicitações de Alimentação - FUNDAMENTAL" in periodos
+
+
+def test_build_headers_tabelas_emebs_extraordinaria_completa_lanche_emergencial(
+    escola_emebs,
+):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola_emebs
+    )
+    grupo_solicitacoes = baker.make(
+        "GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    medicao_solicitacoes = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_solicitacoes,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_solicitacoes,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="kit_lanche",
+        valor="3",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+    grupo_extra = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao_extra = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_extra,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_extra,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="lanche_emergencial",
+        valor="7",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+
+    tabelas = build_headers_tabelas_emebs(solicitacao)
+    tabela = next(
+        tabela
+        for tabela in tabelas
+        if tabela["periodos"] == ["Solicitações de Alimentação - FUNDAMENTAL"]
+    )
+
+    assert "LANCHE EMERGENCIAL" in tabela["categorias"]
+
+
+def _criar_solicitacao_emebs_com_extraordinaria(escola_emebs):
+    categoria = baker.make(
+        "CategoriaMedicao", nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola_emebs
+    )
+    grupo_solicitacoes = baker.make(
+        "GrupoMedicao", nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    medicao_solicitacoes = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_solicitacoes,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_solicitacoes,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="kit_lanche",
+        valor="3",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+    grupo_extra = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao_extra = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo_extra,
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao_extra,
+        categoria_medicao=categoria,
+        dia="05",
+        nome_campo="lanche_emergencial",
+        valor="7",
+        infantil_ou_fundamental="FUNDAMENTAL",
+    )
+    return solicitacao
+
+
+def test_build_tabelas_relatorio_medicao_emebs_mescla_extraordinaria(escola_emebs):
+    solicitacao = _criar_solicitacao_emebs_com_extraordinaria(escola_emebs)
+
+    tabelas = build_tabelas_relatorio_medicao_emebs(solicitacao)
+
+    periodos = [periodo for tabela in tabelas for periodo in tabela["periodos"]]
+    assert not any("Extraordin" in periodo for periodo in periodos)
+
+    tabela = next(
+        tabela
+        for tabela in tabelas
+        if tabela["periodos"] == ["Solicitações de Alimentação - FUNDAMENTAL"]
+    )
+    linha = next(linha for linha in tabela["valores_campos"] if linha[0] == 5)
+    indice_consumido = tabela["nomes_campos"].index("consumido")
+    assert linha[indice_consumido + 1] == "7"
+
+
+def test_build_tabela_somatorio_body_emebs_mescla_extraordinaria(escola_emebs):
+    solicitacao = _criar_solicitacao_emebs_com_extraordinaria(escola_emebs)
+
+    primeira_tabela, _ = build_tabela_somatorio_body(
+        solicitacao, {}, {}, ValorMedicao.FUNDAMENTAL
+    )
+
+    assert (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        not in primeira_tabela["header"]
+    )
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in primeira_tabela["header"]
+    linha_lanche = next(
+        linha
+        for linha in primeira_tabela["body"]
+        if linha[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
+    )
+    assert linha_lanche[1] == 7

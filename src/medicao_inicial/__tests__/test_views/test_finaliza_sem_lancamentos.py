@@ -9,8 +9,6 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
 from src.dados_comuns.constants import (
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     StringsValidationErrors,
 )
@@ -87,7 +85,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
 
     def setup_motivos_inclusao_continua(self):
         self.motivo_programas_projetos = MotivoInclusaoContinuaFactory.create(
-            nome=GRUPO_PROGRAMAS_E_PROJETOS
+            nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
         self.motivo_etec = MotivoInclusaoContinuaFactory.create(nome="ETEC")
 
@@ -128,10 +126,10 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
 
     def setup_grupos_medicao(self):
         self.grupo_programas_projetos = self.get_or_create_grupo(
-            GRUPO_PROGRAMAS_E_PROJETOS
+            GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
         self.grupo_solicitacoes_alimentacao = self.get_or_create_grupo(
-            GRUPO_SOLICITACOES_ALIMENTACAO
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
 
     def setup_medicao_programas_projetos_com_observacao(self):
@@ -192,7 +190,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
+                "periodo_escolar": GrupoMedicao.PROGRAMAS_E_PROJETOS,
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             }
         ]
@@ -239,11 +237,11 @@ class TestUseCaseFinalizaMedicaoSemLancamentos:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+                "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 "erro": "Existem solicitações de alimentações no período. Não é possível finalizar sem lançamentos.",
             },
             {
-                "periodo_escolar": GRUPO_PROGRAMAS_E_PROJETOS,
+                "periodo_escolar": GrupoMedicao.PROGRAMAS_E_PROJETOS,
                 "erro": "Existem solicitações de alimentações no período, adicione ao menos uma justificativa para finalizar",
             },
         ]

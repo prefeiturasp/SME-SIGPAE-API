@@ -23,14 +23,6 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     FORMATO_DATA_BRASILEIRO,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     MAX_COLUNAS,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
@@ -83,6 +75,7 @@ from src.kit_lanche.models import SolicitacaoKitLancheUnificada
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     RelatorioFinanceiro,
     SolicitacaoMedicaoInicial,
@@ -164,7 +157,61 @@ def process_anexos_from_request(request):
     return anexos_processados
 
 
-def get_lista_categorias_campos(medicao, tipo_turma=None):
+def _eh_grupo_extraordinario(medicao) -> bool:
+    return bool(
+        medicao.grupo
+        and medicao.grupo.nome
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    )
+
+
+def _nome_grupo_medicao(medicao, grupo_override=None):
+    if grupo_override:
+        return grupo_override
+    return medicao.grupo.nome if medicao.grupo else None
+
+
+def _grupo_override_medicao(medicao):
+    """Extraordinárias são exibidas como Solicitações de Alimentação no relatório."""
+    if _eh_grupo_extraordinario(medicao):
+        return GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    return None
+
+
+def _solicitacao_tem_medicao_grupo(solicitacao, nome_grupo):
+    return solicitacao.medicoes.filter(grupo__nome=nome_grupo).exists()
+
+
+def _get_medicao_extraordinaria(solicitacao):
+    return solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    ).first()
+
+
+def _medicao_tem_campo_solicitacoes(medicao, nome_campo, tipo_turma=None):
+    if medicao is None:
+        return False
+    valores = medicao.valores_medicao.filter(
+        nome_campo=nome_campo,
+        categoria_medicao__nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
+    )
+    if tipo_turma:
+        valores = valores.filter(infantil_ou_fundamental=tipo_turma)
+    return valores.exists()
+
+
+def _medicao_extra_para_headers(medicao, medicao_extraordinaria):
+    """Medição extraordinária usada para completar as colunas de Solicitações."""
+    if medicao_extraordinaria is None or _eh_grupo_extraordinario(medicao):
+        return None
+    if _nome_grupo_medicao(medicao) == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
+        return medicao_extraordinaria
+    return None
+
+
+def get_lista_categorias_campos(
+    medicao, tipo_turma=None, grupo_override=None, medicao_extra=None
+):
     queryset = medicao.valores_medicao
 
     if tipo_turma:
@@ -184,12 +231,16 @@ def get_lista_categorias_campos(medicao, tipo_turma=None):
             .distinct()
         )
     )
-    if medicao.grupo and medicao.grupo.nome == GRUPO_SOLICITACOES_ALIMENTACAO:
+    if _nome_grupo_medicao(medicao, grupo_override) == (
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    ):
         lista_ = []
         if (
             CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO,
             "lanche_emergencial",
-        ) in lista_categorias_campos:
+        ) in lista_categorias_campos or _medicao_tem_campo_solicitacoes(
+            medicao_extra, "lanche_emergencial", tipo_turma
+        ):
             lista_ += [
                 (LANCHE_EMERGENCIAL, "solicitado"),
                 (LANCHE_EMERGENCIAL, "consumido"),
@@ -229,17 +280,19 @@ def get_lista_categorias_campos_cei(medicao):
     return lista_categorias_campos
 
 
-def _get_campos_iniciais_categoria(categoria: str, medicao) -> list:
+def _get_campos_iniciais_categoria(
+    categoria: str, medicao, grupo_override=None
+) -> list:
     """Retorna os campos iniciais de uma categoria conforme o tipo de medição."""
-    GRUPOS_PROGRAMAS = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
-    GRUPOS_RECREIO = [GRUPO_RECREIO_NAS_FERIAS, "Colaboradores"]
+    GRUPOS_PROGRAMAS = [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"]
+    GRUPOS_RECREIO = [GrupoMedicao.RECREIO_NAS_FERIAS, "Colaboradores"]
 
     if "DIETA" in categoria:
         return ["aprovadas"]
 
-    grupo_nome = medicao.grupo.nome if medicao.grupo else None
+    grupo_nome = _nome_grupo_medicao(medicao, grupo_override)
 
-    if grupo_nome == GRUPO_SOLICITACOES_ALIMENTACAO:
+    if grupo_nome == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         return []
     if grupo_nome in GRUPOS_PROGRAMAS:
         return ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]
@@ -253,11 +306,15 @@ def _get_campos_iniciais_categoria(categoria: str, medicao) -> list:
     return ["matriculados", "total_refeicoes_pagamento", "total_sobremesas_pagamento"]
 
 
-def build_dict_relacao_categorias_e_campos(medicao, tipo_turma=None):
+def build_dict_relacao_categorias_e_campos(
+    medicao, tipo_turma=None, grupo_override=None, medicao_extra=None
+):
     CATEGORIA = 0
     CAMPO = 1
 
-    lista_categorias_campos = get_lista_categorias_campos(medicao, tipo_turma)
+    lista_categorias_campos = get_lista_categorias_campos(
+        medicao, tipo_turma, grupo_override, medicao_extra
+    )
     dict_categorias_campos = {}
 
     for categoria_campo in lista_categorias_campos:
@@ -266,7 +323,7 @@ def build_dict_relacao_categorias_e_campos(medicao, tipo_turma=None):
 
         if categoria not in dict_categorias_campos:
             dict_categorias_campos[categoria] = _get_campos_iniciais_categoria(
-                categoria, medicao
+                categoria, medicao, grupo_override
             )
 
         dict_categorias_campos[categoria].append(campo)
@@ -487,20 +544,22 @@ def _nova_tabela_vazia():
     }
 
 
-def _nome_periodo_medicao(medicao):
-    if not medicao.grupo:
+def _nome_periodo_medicao(medicao, grupo_override=None):
+    grupo_nome = _nome_grupo_medicao(medicao, grupo_override)
+    if not grupo_nome:
         return medicao.periodo_escolar.nome
     if medicao.periodo_escolar:
-        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-    return medicao.grupo.nome
+        return f"{grupo_nome} - {medicao.periodo_escolar.nome}"
+    return grupo_nome
 
 
-def _nome_periodo_medicao_turma(medicao, tipo_turma):
-    if not medicao.grupo:
+def _nome_periodo_medicao_turma(medicao, tipo_turma, grupo_override=None):
+    grupo_nome = _nome_grupo_medicao(medicao, grupo_override)
+    if not grupo_nome:
         return f"{medicao.periodo_escolar.nome} - {tipo_turma}"
     if medicao.periodo_escolar:
-        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
-    return f"{medicao.grupo.nome} - {tipo_turma}"
+        return f"{grupo_nome} - {medicao.periodo_escolar.nome} - {tipo_turma}"
+    return f"{grupo_nome} - {tipo_turma}"
 
 
 def _processa_categoria_emebs(
@@ -579,16 +638,39 @@ def _adiciona_categoria_na_tabela_atual(
     )
 
 
+def get_medicoes_para_relatorio_nao_cei(solicitacao, ordem_campos):
+    """Ordena as medições para relatórios não-CEI.
+
+    Quando a medição de Solicitações de Alimentação existe, a de
+    Solicitações de Alimentação Extraordinárias é omitida (suas quantidades
+    são mescladas na coluna consumido). Quando não existe, a extraordinária
+    é mantida e renderizada como a tabela de Solicitações de Alimentação.
+    """
+    medicoes = get_medicoes_ordenadas(solicitacao, ordem_campos)
+    if _solicitacao_tem_medicao_grupo(
+        solicitacao, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    ):
+        return [
+            medicao for medicao in medicoes if not _eh_grupo_extraordinario(medicao)
+        ]
+    return medicoes
+
+
 def build_headers_tabelas(solicitacao, ordem_periodos=None):
     if ordem_periodos is None:
         ordem_periodos = ORDEM_PERIODOS_GRUPOS
     tabelas = [_nova_tabela_vazia()]
 
     indice_atual = 0
-    for medicao in get_medicoes_ordenadas(solicitacao, ordem_periodos):
-        dict_categorias_campos = build_dict_relacao_categorias_e_campos(medicao)
+    medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
+    for medicao in get_medicoes_para_relatorio_nao_cei(solicitacao, ordem_periodos):
+        grupo_override = _grupo_override_medicao(medicao)
+        medicao_extra = _medicao_extra_para_headers(medicao, medicao_extraordinaria)
+        dict_categorias_campos = build_dict_relacao_categorias_e_campos(
+            medicao, grupo_override=grupo_override, medicao_extra=medicao_extra
+        )
         for categoria in dict_categorias_campos.keys():
-            nome_periodo = _nome_periodo_medicao(medicao)
+            nome_periodo = _nome_periodo_medicao(medicao, grupo_override)
             if (
                 len(tabelas[indice_atual]["nomes_campos"])
                 + len(dict_categorias_campos[categoria])
@@ -651,14 +733,21 @@ def build_headers_tabelas_emebs(solicitacao):
 
     indice_atual = 0
 
-    for medicao in get_medicoes_ordenadas(solicitacao, ORDEM_PERIODOS_GRUPOS):
+    medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
+    for medicao in get_medicoes_para_relatorio_nao_cei(
+        solicitacao, ORDEM_PERIODOS_GRUPOS
+    ):
+        grupo_override = _grupo_override_medicao(medicao)
+        medicao_extra = _medicao_extra_para_headers(medicao, medicao_extraordinaria)
         for tipo_turma in TIPOS_TURMAS_EMEBS:
             dict_categorias_campos = build_dict_relacao_categorias_e_campos(
-                medicao, tipo_turma
+                medicao, tipo_turma, grupo_override, medicao_extra
             )
 
             for categoria in dict_categorias_campos.keys():
-                nome_periodo = _nome_periodo_medicao_turma(medicao, tipo_turma)
+                nome_periodo = _nome_periodo_medicao_turma(
+                    medicao, tipo_turma, grupo_override
+                )
                 tabelas, indice_atual = _processa_categoria_emebs(
                     tabelas,
                     indice_atual,
@@ -1339,19 +1428,18 @@ def build_headers_tabelas_cemei(solicitacao):
     indice_atual = 0
     len_colunas = 0
 
-    for medicao in get_medicoes_ordenadas(solicitacao, ORDEM_PERIODOS_GRUPOS_CEMEI):
-        dict_categorias_campos = build_dict_relacao_categorias_e_campos_cemei(medicao)
+    medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
+    for medicao in get_medicoes_para_relatorio_nao_cei(
+        solicitacao, ORDEM_PERIODOS_GRUPOS_CEMEI
+    ):
+        grupo_override = _grupo_override_medicao(medicao)
+        medicao_extra = _medicao_extra_para_headers(medicao, medicao_extraordinaria)
+        dict_categorias_campos = build_dict_relacao_categorias_e_campos_cemei(
+            medicao, grupo_override, medicao_extra
+        )
 
         for categoria in dict_categorias_campos.keys():
-            nome_periodo = (
-                medicao.periodo_escolar.nome
-                if not medicao.grupo
-                else (
-                    f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-                    if medicao.periodo_escolar
-                    else medicao.grupo.nome
-                )
-            )
+            nome_periodo = _nome_periodo_medicao(medicao, grupo_override)
             faixas_etarias = tabelas[indice_atual]["faixas_etarias"]
             len_faixas = sum(2 if faixa != "total" else 1 for faixa in faixas_etarias)
 
@@ -1439,7 +1527,10 @@ def build_headers_tabelas_cemei(solicitacao):
 
 
 def _nome_periodo_recreio_4_14(nome_periodo):
-    return "4 a 14" in nome_periodo or nome_periodo == GRUPO_RECREIO_NAS_FERIAS_4_A_14
+    return (
+        "4 a 14" in nome_periodo
+        or nome_periodo == GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14
+    )
 
 
 def adiciona_valores_header(
@@ -1505,11 +1596,15 @@ def _periodo_medicao_tem_faixas_etarias_cemei(medicao) -> bool:
     return False
 
 
-def build_dict_relacao_categorias_e_campos_cemei(medicao):
+def build_dict_relacao_categorias_e_campos_cemei(
+    medicao, grupo_override=None, medicao_extra=None
+):
     if _periodo_medicao_tem_faixas_etarias_cemei(medicao):
         dict_categorias_campos = build_dict_relacao_categorias_e_campos_cei(medicao)
     else:
-        dict_categorias_campos = build_dict_relacao_categorias_e_campos(medicao)
+        dict_categorias_campos = build_dict_relacao_categorias_e_campos(
+            medicao, grupo_override=grupo_override, medicao_extra=medicao_extra
+        )
     return dict_categorias_campos
 
 
@@ -1613,9 +1708,9 @@ def popula_campo_participantes(
 
 def get_nome_periodo(periodo_corrente):
     if periodo_corrente in [
-        GRUPO_INFANTIL_INTEGRAL,
-        GRUPO_INFANTIL_MANHA,
-        GRUPO_INFANTIL_TARDE,
+        GrupoMedicao.INFANTIL_INTEGRAL,
+        GrupoMedicao.INFANTIL_MANHA,
+        GrupoMedicao.INFANTIL_TARDE,
     ]:
         periodo = periodo_corrente.split(" ")[1]
     else:
@@ -1696,9 +1791,9 @@ def popula_campo_aprovadas(
                 data__year=solicitacao.ano,
                 classificacao__nome__in=classificacoes_nomes,
             )
-            if periodo in [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]:
+            if periodo in [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"]:
                 logs_dietas = logs_dietas.filter(periodo_escolar=None)
-            elif periodo in [GRUPO_RECREIO_NAS_FERIAS, "Colaboradores"]:
+            elif periodo in [GrupoMedicao.RECREIO_NAS_FERIAS, "Colaboradores"]:
                 pass
             else:
                 logs_dietas = logs_dietas.filter(periodo_escolar__nome=periodo)
@@ -1769,14 +1864,17 @@ def popula_campos_preenchidos_pela_escola(
         medicoes = solicitacao.medicoes.all()
         if periodo in [
             "ETEC",
-            GRUPO_SOLICITACOES_ALIMENTACAO,
-            GRUPO_PROGRAMAS_E_PROJETOS,
-            GRUPO_INFANTIL_INTEGRAL,
-            GRUPO_INFANTIL_MANHA,
-            GRUPO_INFANTIL_TARDE,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.INFANTIL_INTEGRAL,
+            GrupoMedicao.INFANTIL_MANHA,
+            GrupoMedicao.INFANTIL_TARDE,
         ]:
             medicao = medicoes.get(grupo__nome=periodo)
-        elif periodo.startswith(GRUPO_RECREIO_NAS_FERIAS) or periodo == "Colaboradores":
+        elif (
+            periodo.startswith(GrupoMedicao.RECREIO_NAS_FERIAS)
+            or periodo == "Colaboradores"
+        ):
             medicao = medicoes.get(grupo__nome=periodo)
         else:
             medicao = _get_medicao_por_periodo(medicoes, periodo)
@@ -1821,15 +1919,18 @@ def contador_frequencia_diaria_cei(
         periodo = tabela["periodos"][indice_periodo]
         medicoes = solicitacao.medicoes.all()
 
-        if periodo.startswith(GRUPO_RECREIO_NAS_FERIAS) or periodo == "Colaboradores":
+        if (
+            periodo.startswith(GrupoMedicao.RECREIO_NAS_FERIAS)
+            or periodo == "Colaboradores"
+        ):
             medicao = medicoes.get(grupo__nome=periodo)
         elif periodo in [
             "ETEC",
-            GRUPO_SOLICITACOES_ALIMENTACAO,
-            GRUPO_PROGRAMAS_E_PROJETOS,
-            GRUPO_INFANTIL_INTEGRAL,
-            GRUPO_INFANTIL_MANHA,
-            GRUPO_INFANTIL_TARDE,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.INFANTIL_INTEGRAL,
+            GrupoMedicao.INFANTIL_MANHA,
+            GrupoMedicao.INFANTIL_TARDE,
         ]:
             medicao = medicoes.get(grupo__nome=periodo)
         else:
@@ -1872,24 +1973,54 @@ def contador_frequencia_total_cei(
     return total if total else 0
 
 
-def popula_campo_consumido_solicitacoes_alimentacao(
-    solicitacao, dia, campo, categoria_corrente, valores_dia
+def _soma_valores_medicao_grupo(
+    solicitacao, nome_grupo, dia, nome_campo, tipo_turma=None
 ):
-    if campo == "consumido":
+    filtros = {
+        "grupo__nome": nome_grupo,
+        "valores_medicao__dia": f"{dia:02d}",
+        "valores_medicao__nome_campo": nome_campo,
+    }
+    if tipo_turma is not None:
+        filtros["valores_medicao__infantil_ou_fundamental"] = tipo_turma
+    valores = solicitacao.medicoes.filter(**filtros).values_list(
+        "valores_medicao__valor", flat=True
+    )
+    total = 0
+    for valor in valores:
         try:
-            medicao = solicitacao.medicoes.get(grupo__nome__icontains="Solicitações")
-            nome_campo = (
-                "lanche_emergencial"
-                if categoria_corrente == LANCHE_EMERGENCIAL
-                else "kit_lanche"
-            )
-            valores_dia += [
-                medicao.valores_medicao.get(
-                    dia=f"{dia:02d}", nome_campo=nome_campo
-                ).valor
-            ]
-        except Exception:
-            valores_dia += ["0"]
+            total += int(valor)
+        except (TypeError, ValueError):
+            continue
+    return total
+
+
+def popula_campo_consumido_solicitacoes_alimentacao(
+    solicitacao, dia, campo, categoria_corrente, valores_dia, tipo_turma=None
+):
+    if campo != "consumido":
+        return
+    nome_campo = (
+        "lanche_emergencial"
+        if categoria_corrente == LANCHE_EMERGENCIAL
+        else "kit_lanche"
+    )
+    total = _soma_valores_medicao_grupo(
+        solicitacao,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        dia,
+        nome_campo,
+        tipo_turma,
+    )
+    if categoria_corrente == LANCHE_EMERGENCIAL:
+        total += _soma_valores_medicao_grupo(
+            solicitacao,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+            dia,
+            "lanche_emergencial",
+            tipo_turma,
+        )
+    valores_dia += [str(total)]
 
 
 def get_indice(indexes_refeicao, indice_periodo):
@@ -2305,6 +2436,11 @@ def popula_campo_solicitado(
 ):
     if campo != "solicitado":
         return
+    if not _solicitacao_tem_medicao_grupo(
+        solicitacao, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    ):
+        valores_dia += ["0"]
+        return
     try:
         valores_dia = popula_solicitado_total_lanche_emergencial(
             categoria_corrente, alteracoes_lanche_emergencial, valores_dia, dia
@@ -2680,7 +2816,7 @@ def popula_tabelas(solicitacao, tabelas):
 
         eh_recreio = bool(
             set(tabela.get("periodos", []))
-            & {GRUPO_RECREIO_NAS_FERIAS, "Colaboradores"}
+            & {GrupoMedicao.RECREIO_NAS_FERIAS, "Colaboradores"}
         )
         dias = dias_recreio if (eh_recreio and dias_recreio) else dias_no_mes
 
@@ -2736,6 +2872,11 @@ def popula_tabelas_emebs(solicitacao, tabelas):
             tabela["valores_campos"] += [valores_dia]
             tabela["dias_letivos"] += [eh_dia_letivo if not dia == "Total" else False]
     return tabelas
+
+
+def _turma_do_periodo_emebs(periodo_corrente):
+    partes = periodo_corrente.split(" - ")
+    return partes[1] if len(partes) > 1 else None
 
 
 def popula_valores_campos(
@@ -2841,7 +2982,12 @@ def popula_valores_campos(
                 kits_lanches,
             )
             popula_campo_consumido_solicitacoes_alimentacao(
-                solicitacao, dia, campo, categoria_corrente, valores_dia
+                solicitacao,
+                dia,
+                campo,
+                categoria_corrente,
+                valores_dia,
+                _turma_do_periodo_emebs(periodo_corrente),
             )
 
             if campo not in [
@@ -3350,7 +3496,7 @@ def popula_total_faixas(
 
 def _get_medicao_por_periodo(medicoes, periodo: str):
     if periodo.startswith("Colaboradores") or periodo.startswith(
-        GRUPO_RECREIO_NAS_FERIAS
+        GrupoMedicao.RECREIO_NAS_FERIAS
     ):
         return medicoes.get(grupo__nome=periodo)
     return medicoes.get(periodo_escolar__nome=periodo, grupo=None)
@@ -3548,7 +3694,9 @@ def build_tabelas_relatorio_medicao_cei(solicitacao):
 
 
 def build_tabelas_relatorio_medicao_cei_recreio_nas_ferias(solicitacao):
-    medicao_recreio = solicitacao.medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS)
+    medicao_recreio = solicitacao.medicoes.get(
+        grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS
+    )
     medicao_colaboradores = solicitacao.medicoes.filter(
         grupo__nome="Colaboradores"
     ).first()
@@ -3832,7 +3980,7 @@ def get_somatorio_manha(
 ):
     try:
         if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
-            medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_INFANTIL_MANHA)
+            medicao = solicitacao.medicoes.get(grupo__nome=GrupoMedicao.INFANTIL_MANHA)
         else:
             medicao = solicitacao.medicoes.get(
                 periodo_escolar__nome="MANHA",
@@ -3867,7 +4015,7 @@ def get_somatorio_tarde(
 ):
     try:
         if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
-            medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_INFANTIL_TARDE)
+            medicao = solicitacao.medicoes.get(grupo__nome=GrupoMedicao.INFANTIL_TARDE)
         else:
             medicao = solicitacao.medicoes.get(
                 periodo_escolar__nome="TARDE", grupo=None
@@ -3901,7 +4049,9 @@ def get_somatorio_integral(
 ):
     try:
         if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
-            medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_INFANTIL_INTEGRAL)
+            medicao = solicitacao.medicoes.get(
+                grupo__nome=GrupoMedicao.INFANTIL_INTEGRAL
+            )
         else:
             medicao = solicitacao.medicoes.get(
                 periodo_escolar__nome="INTEGRAL", grupo=None
@@ -3934,7 +4084,9 @@ def get_somatorio_programas_e_projetos(
     campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
 ):
     try:
-        medicoes = solicitacao.medicoes.filter(grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS)
+        medicoes = solicitacao.medicoes.filter(
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
+        )
         somatorio_programas_e_projetos = 0
         for medicao in medicoes:
             qs_values = medicao.valores_medicao.filter(
@@ -3962,16 +4114,35 @@ def get_somatorio_programas_e_projetos(
     return somatorio_programas_e_projetos
 
 
+def _somar_valores_campo(medicao, campo):
+    total = 0
+    valores = medicao.valores_medicao.filter(nome_campo=campo).values_list(
+        "valor", flat=True
+    )
+    for valor in valores:
+        try:
+            total += int(valor)
+        except (TypeError, ValueError):
+            continue
+    return total
+
+
 def get_somatorio_solicitacoes_de_alimentacao(campo, solicitacao):
-    try:
-        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO)
-        values = medicao.valores_medicao.filter(nome_campo=campo)
-        somatorio_solicitacoes_de_alimentacao = sum([int(v.valor) for v in values])
-        if somatorio_solicitacoes_de_alimentacao == 0:
-            somatorio_solicitacoes_de_alimentacao = 0
-    except Exception:
-        somatorio_solicitacoes_de_alimentacao = 0
-    return somatorio_solicitacoes_de_alimentacao
+    somatorio = 0
+    medicoes = solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    )
+    for medicao in medicoes:
+        somatorio += _somar_valores_campo(medicao, campo)
+
+    if campo == "lanche_emergencial":
+        extraordinarias = solicitacao.medicoes.filter(
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        )
+        for medicao in extraordinarias:
+            somatorio += _somar_valores_campo(medicao, "lanche_emergencial")
+
+    return somatorio
 
 
 def get_somatorio_total_tabela(valores_somatorios_tabela):
@@ -4101,7 +4272,7 @@ def get_somatorio_recreio_nas_ferias(
     campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas
 ):
     try:
-        medicao = solicitacao.medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS)
+        medicao = solicitacao.medicoes.get(grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS)
         values = medicao.valores_medicao.filter(
             categoria_medicao__nome=CHAVE_ALIMENTACAO_REGULAR, nome_campo=campo
         )
@@ -4180,80 +4351,87 @@ def build_tabela_somatorio_header(
     return primeira_tabela_header, segunda_tabela_header
 
 
-def build_tabela_somatorio_body(
-    solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
-):
-    campos_tipos_alimentacao = []
-    primeira_tabela_header = []
-    segunda_tabela_header = []
-
-    ORDEM_PERIODOS_CEMEI = {
-        GRUPO_INFANTIL_INTEGRAL: 1,
-        GRUPO_INFANTIL_MANHA: 2,
-        GRUPO_INFANTIL_TARDE: 3,
-        GRUPO_SOLICITACOES_ALIMENTACAO: 4,
-    }
-
-    ordem_periodos = (
-        ORDEM_PERIODOS_CEMEI
-        if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia)
-        else ORDEM_PERIODOS_GRUPOS
+def _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao):
+    queryset = (
+        medicao.valores_medicao.filter(infantil_ou_fundamental=tipo_turma)
+        if tipo_turma is not None
+        else medicao.valores_medicao
     )
+    campos = (
+        queryset.exclude(
+            nome_campo__in=[
+                "observacoes",
+                "dietas_autorizadas",
+                "frequencia",
+                "matriculados",
+                "participantes",
+                "numero_de_alunos",
+                "repeticao_refeicao",
+                "repeticao_sobremesa",
+                "2_lanche_4h",
+                "2_lanche_5h",
+                "2_refeicao_1_oferta",
+                "repeticao_2_refeicao",
+                "2_sobremesa_1_oferta",
+                "repeticao_2_sobremesa",
+            ]
+        )
+        .values_list("nome_campo", flat=True)
+        .distinct()
+    )
+    [
+        campos_tipos_alimentacao.append(campo)
+        for campo in campos
+        if campo not in campos_tipos_alimentacao
+    ]
 
+
+def _selecionar_medicoes_somatorio(solicitacao, ordem_periodos):
+    todas_medicoes = list(solicitacao.medicoes.all())
     medicoes = sorted(
         [
             medicao
-            for medicao in solicitacao.medicoes.all()
+            for medicao in todas_medicoes
             if medicao.nome_periodo_grupo in list(ordem_periodos)
+            and not _eh_grupo_extraordinario(medicao)
         ],
         key=lambda k: ordem_periodos[k.nome_periodo_grupo],
     )
-
-    for medicao in medicoes:
-        primeira_tabela_header, segunda_tabela_header = build_tabela_somatorio_header(
-            medicao,
-            primeira_tabela_header,
-            segunda_tabela_header,
-            CHAVE_ALIMENTACAO_REGULAR,
-        )
-        queryset = (
-            medicao.valores_medicao.filter(infantil_ou_fundamental=tipo_turma)
-            if tipo_turma is not None
-            else medicao.valores_medicao
-        )
-
-        campos = (
-            queryset.exclude(
-                nome_campo__in=[
-                    "observacoes",
-                    "dietas_autorizadas",
-                    "frequencia",
-                    "matriculados",
-                    "participantes",
-                    "numero_de_alunos",
-                    "repeticao_refeicao",
-                    "repeticao_sobremesa",
-                    "2_lanche_4h",
-                    "2_lanche_5h",
-                    "2_refeicao_1_oferta",
-                    "repeticao_2_refeicao",
-                    "2_sobremesa_1_oferta",
-                    "repeticao_2_sobremesa",
-                ]
-            )
-            .values_list("nome_campo", flat=True)
-            .distinct()
-        )
-        [
-            campos_tipos_alimentacao.append(campo)
-            for campo in campos
-            if campo not in campos_tipos_alimentacao
-        ]
-    campos_tipos_alimentacao = [
-        campo for campo in ORDEM_CAMPOS if campo in campos_tipos_alimentacao
+    medicoes_extraordinarias = [
+        medicao for medicao in todas_medicoes if _eh_grupo_extraordinario(medicao)
     ]
-    primeira_tabela_somatorio = {"header": primeira_tabela_header, "body": []}
-    segunda_tabela_somatorio = {"header": segunda_tabela_header, "body": []}
+    tem_periodo_solicitacoes = any(
+        medicao.nome_periodo_grupo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        for medicao in medicoes
+    )
+    return medicoes, medicoes_extraordinarias, tem_periodo_solicitacoes
+
+
+def _obter_ordem_periodos_somatorio(solicitacao):
+    ordem_periodos_cemei = {
+        GrupoMedicao.INFANTIL_INTEGRAL: 1,
+        GrupoMedicao.INFANTIL_MANHA: 2,
+        GrupoMedicao.INFANTIL_TARDE: 3,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: 4,
+    }
+    if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
+        return ordem_periodos_cemei
+    return ORDEM_PERIODOS_GRUPOS
+
+
+def _ordenar_campos_somatorio(campos_tipos_alimentacao):
+    return [campo for campo in ORDEM_CAMPOS if campo in campos_tipos_alimentacao]
+
+
+def _montar_corpo_somatorio(
+    primeira_tabela_somatorio,
+    segunda_tabela_somatorio,
+    campos_tipos_alimentacao,
+    solicitacao,
+    dict_total_refeicoes,
+    dict_total_sobremesas,
+    tipo_turma,
+):
     for tipo_alimentacao in campos_tipos_alimentacao:
         primeira_tabela_somatorio, segunda_tabela_somatorio = somatorio_periodo(
             tipo_alimentacao,
@@ -4264,6 +4442,54 @@ def build_tabela_somatorio_body(
             segunda_tabela_somatorio,
             tipo_turma,
         )
+    return primeira_tabela_somatorio, segunda_tabela_somatorio
+
+
+def build_tabela_somatorio_body(
+    solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
+):
+    campos_tipos_alimentacao = []
+    primeira_tabela_header = []
+    segunda_tabela_header = []
+
+    ordem_periodos = _obter_ordem_periodos_somatorio(solicitacao)
+
+    (
+        medicoes,
+        medicoes_extraordinarias,
+        tem_periodo_solicitacoes,
+    ) = _selecionar_medicoes_somatorio(solicitacao, ordem_periodos)
+
+    for medicao in medicoes:
+        primeira_tabela_header, segunda_tabela_header = build_tabela_somatorio_header(
+            medicao,
+            primeira_tabela_header,
+            segunda_tabela_header,
+            CHAVE_ALIMENTACAO_REGULAR,
+        )
+        _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao)
+
+    if medicoes_extraordinarias and not tem_periodo_solicitacoes:
+        primeira_tabela_header.append(GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO)
+
+    for medicao in medicoes_extraordinarias:
+        _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao)
+
+    campos_tipos_alimentacao = _ordenar_campos_somatorio(campos_tipos_alimentacao)
+    primeira_tabela_somatorio = {"header": primeira_tabela_header, "body": []}
+    segunda_tabela_somatorio = {"header": segunda_tabela_header, "body": []}
+    (
+        primeira_tabela_somatorio,
+        segunda_tabela_somatorio,
+    ) = _montar_corpo_somatorio(
+        primeira_tabela_somatorio,
+        segunda_tabela_somatorio,
+        campos_tipos_alimentacao,
+        solicitacao,
+        dict_total_refeicoes,
+        dict_total_sobremesas,
+        tipo_turma,
+    )
     primeira_tabela_somatorio, segunda_tabela_somatorio = adiciona_nomes_header(
         primeira_tabela_somatorio,
         segunda_tabela_somatorio,
@@ -4396,13 +4622,13 @@ def build_tabela_somatorio_recreio_nas_ferias(
     solicitacao, dict_total_refeicoes, dict_total_sobremesas
 ):
     medicao_recreio = solicitacao.medicoes.filter(
-        grupo__nome=GRUPO_RECREIO_NAS_FERIAS
+        grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS
     ).first()
     medicao_colaboradores = solicitacao.medicoes.filter(
         grupo__nome="Colaboradores"
     ).first()
     medicao_solicitacoes = solicitacao.medicoes.filter(
-        grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     ).first()
 
     campos_alimentacao = [
@@ -4500,7 +4726,7 @@ def get_somatorio_dietas(
         medicao = solicitacao.medicoes.get(
             periodo_escolar__nome=periodo, grupo__nome=grupo
         )
-        eh_recreio = grupo in [GRUPO_RECREIO_NAS_FERIAS, "Colaboradores"]
+        eh_recreio = grupo in [GrupoMedicao.RECREIO_NAS_FERIAS, "Colaboradores"]
         values = medicao.valores_medicao.filter(
             categoria_medicao__nome__icontains=tipo_dieta,
             nome_campo=campo,
@@ -4611,8 +4837,8 @@ def somatorio_periodo_dietas(
 
     for periodo in primeira_tabela_somatorio["header"]:
         if periodo in [
-            GRUPO_PROGRAMAS_E_PROJETOS,
-            GRUPO_RECREIO_NAS_FERIAS,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.RECREIO_NAS_FERIAS,
             "Colaboradores",
         ]:
             somatorio_dieta = get_somatorio_dietas(
@@ -4714,13 +4940,13 @@ def somatorio_periodo(
         "MANHA": get_somatorio_manha,
         "TARDE": get_somatorio_tarde,
         "INTEGRAL": get_somatorio_integral,
-        GRUPO_PROGRAMAS_E_PROJETOS: get_somatorio_programas_e_projetos,
-        GRUPO_SOLICITACOES_ALIMENTACAO: get_somatorio_solicitacoes_de_alimentacao,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS: get_somatorio_programas_e_projetos,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: get_somatorio_solicitacoes_de_alimentacao,
         "NOITE": get_somatorio_noite_eja,
         "INTERMEDIARIO": get_somatorio_intermediario_eja,
         "VESPERTINO": get_somatorio_vespertino_eja,
         "ETEC": get_somatorio_etec,
-        GRUPO_RECREIO_NAS_FERIAS: get_somatorio_recreio_nas_ferias,
+        GrupoMedicao.RECREIO_NAS_FERIAS: get_somatorio_recreio_nas_ferias,
         "Colaboradores": get_somatorio_colaboradores,
     }
 
@@ -4978,13 +5204,13 @@ def _adicionar_solicitacoes_colab(linhas, medicao_solicitacoes):
 
 def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
     medicao_0a3 = solicitacao.medicoes.filter(
-        grupo__nome=GRUPO_RECREIO_NAS_FERIAS_0_A_3
+        grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3
     ).first()
     medicao_4a14 = solicitacao.medicoes.filter(
-        grupo__nome=GRUPO_RECREIO_NAS_FERIAS_4_A_14
+        grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14
     ).first()
     medicao_solicitacoes = solicitacao.medicoes.filter(
-        grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     ).first()
     medicao_colaboradores = solicitacao.medicoes.filter(
         grupo__nome="Colaboradores"
@@ -5012,7 +5238,7 @@ def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
         linhas_colab = _build_linhas_colab_somatorio(medicao_colaboradores)
 
         if medicao_solicitacoes:
-            header_colab += [GRUPO_SOLICITACOES_ALIMENTACAO]
+            header_colab += [GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO]
             linhas_colab = _adicionar_solicitacoes_colab(
                 linhas_colab, medicao_solicitacoes
             )
@@ -5177,7 +5403,9 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
 
 
 def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
-    medicao_recreio = solicitacao.medicoes.get(grupo__nome=GRUPO_RECREIO_NAS_FERIAS)
+    medicao_recreio = solicitacao.medicoes.get(
+        grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS
+    )
     medicao_colaboradores = solicitacao.medicoes.filter(
         grupo__nome="Colaboradores"
     ).first()
@@ -5359,6 +5587,61 @@ def get_medicoes_por_acao(solicitacao, acao):
         return solicitacao.medicoes.filter(status="MEDICAO_CORRECAO_SOLICITADA")
 
 
+def get_tabelas_lancamentos_dos_valores_medicao(valores_medicao):
+    tabelas_lancamentos = (
+        valores_medicao.order_by("categoria_medicao__nome")
+        .values_list("categoria_medicao__nome", flat=True)
+        .distinct()
+    )
+    tabelas = []
+    for tabela in tabelas_lancamentos:
+        valores_da_tabela = valores_medicao.filter(categoria_medicao__nome=tabela)
+        semanas = valores_da_tabela.values_list("semana", flat=True).distinct()
+        tabela_dict = {"categoria_medicao": tabela, "semanas": []}
+
+        for semana in semanas:
+            dias = valores_da_tabela.filter(semana=semana)
+            dias = list(dias.order_by("dia").values_list("dia", flat=True).distinct())
+            tabela_dict["semanas"].append({"semana": semana, "dias": dias})
+        tabelas.append(tabela_dict)
+    return tabelas
+
+
+def get_tabelas_lancamentos_dos_dias_para_corrigir(medicao):
+    ano = int(medicao.solicitacao_medicao_inicial.ano)
+    mes = int(medicao.solicitacao_medicao_inicial.mes)
+    tabelas = {}
+    for dia_para_corrigir in medicao.dias_para_corrigir.select_related(
+        "categoria_medicao"
+    ):
+        nome_categoria = dia_para_corrigir.categoria_medicao.nome
+        semana = ValorMedicao.get_week_of_month(ano, mes, int(dia_para_corrigir.dia))
+        dia_formatado = str(dia_para_corrigir.dia).zfill(2)
+        tabelas.setdefault(nome_categoria, {}).setdefault(semana, set()).add(
+            dia_formatado
+        )
+
+    return [
+        {
+            "categoria_medicao": nome_categoria,
+            "semanas": [
+                {"semana": str(semana), "dias": sorted(dias)}
+                for semana, dias in sorted(semanas.items())
+            ],
+        }
+        for nome_categoria, semanas in sorted(tabelas.items())
+    ]
+
+
+def get_tabelas_lancamentos_para_correcao(medicao):
+    valores_medicao = medicao.valores_medicao.filter(habilitado_correcao=True).order_by(
+        "semana"
+    )
+    if valores_medicao:
+        return get_tabelas_lancamentos_dos_valores_medicao(valores_medicao)
+    return get_tabelas_lancamentos_dos_dias_para_corrigir(medicao)
+
+
 def criar_log_solicitar_correcao_periodos(user, solicitacao, acao):
     log = dict_informacoes_iniciais(user, acao)
     medicoes = get_medicoes_por_acao(solicitacao, acao)
@@ -5370,34 +5653,13 @@ def criar_log_solicitar_correcao_periodos(user, solicitacao, acao):
         else:
             periodo_nome = medicao.grupo.nome
 
-        alteracoes_dict = {
-            "periodo_escolar": periodo_nome,
-            "justificativa": medicao.logs.last().justificativa,
-            "tabelas_lancamentos": [],
-        }
-        valores_medicao = medicao.valores_medicao.filter(
-            habilitado_correcao=True
-        ).order_by("semana")
-        tabelas_lancamentos = (
-            valores_medicao.order_by("categoria_medicao__nome")
-            .values_list("categoria_medicao__nome", flat=True)
-            .distinct()
+        log["alteracoes"].append(
+            {
+                "periodo_escolar": periodo_nome,
+                "justificativa": medicao.logs.last().justificativa,
+                "tabelas_lancamentos": get_tabelas_lancamentos_para_correcao(medicao),
+            }
         )
-
-        for tabela in tabelas_lancamentos:
-            valores_da_tabela = valores_medicao.filter(categoria_medicao__nome=tabela)
-            semanas = valores_da_tabela.values_list("semana", flat=True).distinct()
-            tabela_dict = {"categoria_medicao": tabela, "semanas": []}
-
-            for semana in semanas:
-                dias = valores_da_tabela.filter(semana=semana)
-                dias = list(
-                    dias.order_by("dia").values_list("dia", flat=True).distinct()
-                )
-                semana_dict = {"semana": semana, "dias": dias}
-                tabela_dict["semanas"].append(semana_dict)
-            alteracoes_dict["tabelas_lancamentos"].append(tabela_dict)
-        log["alteracoes"].append(alteracoes_dict)
     return log
 
 
@@ -5879,7 +6141,7 @@ def build_row_solicitacao(solicitacao, id_tabela):
 
     campos_categorias_segunda_tabela = [
         {
-            "categoria": GRUPO_PROGRAMAS_E_PROJETOS,
+            "categoria": GrupoMedicao.PROGRAMAS_E_PROJETOS,
             "campos": ["lanche_4h", "lanche", "refeicao", "sobremesa"],
         },
         {"categoria": "ETEC", "campos": ["lanche_4h", "refeicao", "sobremesa"]},
@@ -5905,13 +6167,19 @@ def build_row_solicitacao(solicitacao, id_tabela):
 
 def get_total_solicitacoes_periodo(solicitacao, nome_campo):
     try:
-        medicao = solicitacao.medicoes.get(grupo__nome__icontains="Solicitações")
-
-        total = sum(
-            int(medicao.valor)
-            for medicao in medicao.valores_medicao.filter(nome_campo=nome_campo)
-            if medicao.valor != "-"
+        total = 0
+        medicoes = solicitacao.medicoes.filter(
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
+        for medicao in medicoes:
+            total += _somar_valores_campo(medicao, nome_campo)
+
+        if nome_campo == "lanche_emergencial":
+            extraordinarias = solicitacao.medicoes.filter(
+                grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+            )
+            for medicao in extraordinarias:
+                total += _somar_valores_campo(medicao, "lanche_emergencial")
     except Exception:
         total = "-"
     return total or "-"
@@ -7046,7 +7314,10 @@ def busca_dias_zerados(solicitacao: SolicitacaoMedicaoInicial) -> dict:
         )
     )
     medicoes_regulares = medicoes_regulares.exclude(
-        grupo__nome__in=(GRUPO_PROGRAMAS_E_PROJETOS, GRUPO_SOLICITACOES_ALIMENTACAO)
+        grupo__nome__in=(
+            GrupoMedicao.PROGRAMAS_E_PROJETOS,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+        )
     ).prefetch_related("valores_medicao__categoria_medicao")
     periodos_lancados = [
         (

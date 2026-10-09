@@ -7,11 +7,10 @@ from model_bakery import baker
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_RECREIO_NAS_FERIAS,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao,
@@ -65,7 +64,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
         self.medicao_recreio = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
             periodo_escolar=None,
-            grupo__nome=GRUPO_RECREIO_NAS_FERIAS,
+            grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS,
         )
         self.medicao_colaboradores = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao,
@@ -170,7 +169,8 @@ class TestUseCaseRelatorioPDFMedicaoEscolaRecreioNasFeriasCEI:
         build_tabelas = build_tabelas_relatorio_medicao(self.solicitacao)
 
         assert any(
-            item.get("periodos") == [GRUPO_RECREIO_NAS_FERIAS] for item in build_tabelas
+            item.get("periodos") == [GrupoMedicao.RECREIO_NAS_FERIAS]
+            for item in build_tabelas
         )
         assert any(item.get("periodos") == ["Colaboradores"] for item in build_tabelas)
 

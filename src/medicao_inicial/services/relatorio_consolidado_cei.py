@@ -10,18 +10,19 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     ORDEM_HEADERS_CEI,
     ORDEM_UNIDADES_GRUPO_CEI,
 )
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
+    eh_medicao_extraordinaria,
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
@@ -43,6 +44,8 @@ def get_alimentacoes_por_periodo(
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
+            if eh_medicao_extraordinaria(medicao):
+                continue
             nome_periodo = get_nome_periodo(medicao)
             lista_faixas = _get_faixas_etarias(medicao, query_params)
             periodos_alimentacoes = update_periodos_alimentacoes(
@@ -202,7 +205,7 @@ def _processa_periodo_campo(
 
 def _define_filtro(periodo: str) -> dict:
     filtros = {}
-    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         filtros["grupo__nome"] = periodo
     elif CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in periodo:
         if "INTEGRAL" in periodo or "PARCIAL" in periodo:
@@ -248,7 +251,7 @@ def processa_periodo_regular(
         return "-"
 
     categoria = CategoriaMedicao.ALIMENTACAO
-    if periodo == GRUPO_SOLICITACOES_ALIMENTACAO:
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         categoria = periodo.upper()
 
     soma = _calcula_soma_medicao(medicao, faixa_etaria, categoria, query_params)

@@ -9,8 +9,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS_RECREIO,
     ORDEM_HEADERS_RECREIO_EMEI_EMEF,
@@ -19,6 +17,7 @@ from src.dados_comuns.constants import (
 )
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
@@ -176,7 +175,7 @@ def _get_lista_alimentacoes(
         .distinct()
     )
 
-    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
+    if nome_periodo != GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -415,7 +414,7 @@ def _processa_periodo_campo(
     filtros = {}
     try:
         if grupo in dietas_especiais:
-            filtros["grupo__nome"] = GRUPO_RECREIO_NAS_FERIAS
+            filtros["grupo__nome"] = GrupoMedicao.RECREIO_NAS_FERIAS
             total = processa_dieta_especial(
                 solicitacao, filtros, campo, grupo, query_params
             )
@@ -554,7 +553,7 @@ def processa_grupos_recreio(
 
     categorias = (
         [grupo.upper()]
-        if grupo == GRUPO_SOLICITACOES_ALIMENTACAO
+        if grupo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         else [CategoriaMedicao.ALIMENTACAO]
     )
     soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)

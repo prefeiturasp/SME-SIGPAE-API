@@ -3,9 +3,10 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS, StringsCaminhoModelos
+from src.dados_comuns.constants import StringsCaminhoModelos
 from src.escola.models import DiaSuspensaoAtividades
 from src.medicao_inicial.models import (
+    GrupoMedicao,
     Medicao,
     ValorMedicao,
 )
@@ -438,7 +439,8 @@ def _setup_programas_e_projetos(
     _criar_edital_e_contrato_para_escola(escola)
     _criar_dia_letivo(escola, DIA_SUSPENSO)
     motivo = baker.make(
-        "inclusao_alimentacao.MotivoInclusaoContinua", nome=GRUPO_PROGRAMAS_E_PROJETOS
+        "inclusao_alimentacao.MotivoInclusaoContinua",
+        nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
     )
     inclusao = baker.make(
         "inclusao_alimentacao.InclusaoAlimentacaoContinua",

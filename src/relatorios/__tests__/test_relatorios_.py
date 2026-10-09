@@ -8,10 +8,10 @@ from model_bakery import baker
 
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
-    GRUPO_INFANTIL_INTEGRAL,
     TIPOS_UNIDADE_ESCOLAR,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.medicao_inicial.models import GrupoMedicao
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
@@ -31,6 +31,7 @@ from ..relatorios import (
     get_pdf_cronograma,
     get_pdf_ficha_recebimento,
     get_pdf_ficha_tecnica,
+    get_pdf_relatorio_solicitacao_alteracao_cronograma,
     get_total_por_periodo,
     obter_justificativa_dieta,
     obter_relatorio_da_unidade,
@@ -40,7 +41,6 @@ from ..relatorios import (
     relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias,
     relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias,
     relatorio_suspensao_de_alimentacao,
-    get_pdf_relatorio_solicitacao_alteracao_cronograma,
 )
 
 pytestmark = pytest.mark.django_db
@@ -187,7 +187,7 @@ def test_relatorio_dieta_especial_protocolo_cancelada(
 def test_get_total_por_periodo_unico_periodo():
     tabelas = [
         {
-            "periodos": [GRUPO_INFANTIL_INTEGRAL],
+            "periodos": [GrupoMedicao.INFANTIL_INTEGRAL],
             "nomes_campos": [
                 "matriculados",
                 "frequencia",
@@ -219,16 +219,16 @@ def test_get_total_por_periodo_unico_periodo():
         }
     ]
     total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
-    assert total_refeicao == {GRUPO_INFANTIL_INTEGRAL: 80}
+    assert total_refeicao == {GrupoMedicao.INFANTIL_INTEGRAL: 80}
 
     total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
-    assert total_sobremesa == {GRUPO_INFANTIL_INTEGRAL: 110}
+    assert total_sobremesa == {GrupoMedicao.INFANTIL_INTEGRAL: 110}
 
 
 def test_get_total_por_periodo_multiplos_periodos():
     tabelas = [
         {
-            "periodos": ["PARCIAL", GRUPO_INFANTIL_INTEGRAL],
+            "periodos": ["PARCIAL", GrupoMedicao.INFANTIL_INTEGRAL],
             "nomes_campos": [
                 "matriculados",
                 "frequencia",
@@ -265,10 +265,10 @@ def test_get_total_por_periodo_multiplos_periodos():
         }
     ]
     total_refeicao = get_total_por_periodo(tabelas, "total_refeicoes_pagamento", True)
-    assert total_refeicao == {GRUPO_INFANTIL_INTEGRAL: 80}
+    assert total_refeicao == {GrupoMedicao.INFANTIL_INTEGRAL: 80}
 
     total_sobremesa = get_total_por_periodo(tabelas, "total_sobremesas_pagamento", True)
-    assert total_sobremesa == {GRUPO_INFANTIL_INTEGRAL: 110}
+    assert total_sobremesa == {GrupoMedicao.INFANTIL_INTEGRAL: 110}
 
 
 def test_relatorio_dieta_especial_protocolo_alteracao_ue(

@@ -5,8 +5,6 @@ from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns.constants import (
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_TARDE,
     TIPOS_UNIDADE_ESCOLAR,
     PayloadVariaveis,
 )
@@ -16,7 +14,7 @@ from src.medicao_inicial.api.viewsets import (
     DescontoFinanceiroViewSet,
     SolicitacaoMedicaoInicialViewSet,
 )
-from src.medicao_inicial.models import DescontoFinanceiro
+from src.medicao_inicial.models import DescontoFinanceiro, GrupoMedicao
 
 pytestmark = pytest.mark.django_db
 
@@ -199,7 +197,7 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
 
     response = view.periodos_escola_cemei_com_alunos_emei(mock_request)
 
-    resposta_sem_integral = {"results": [GRUPO_INFANTIL_TARDE, "Infantil MANHÃ"]}
+    resposta_sem_integral = {"results": [GrupoMedicao.INFANTIL_TARDE, "Infantil MANHÃ"]}
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data == resposta_sem_integral
@@ -243,7 +241,11 @@ def test_periodos_escola_cemei_com_alunos_emei(mock_request, escola_cemei):
 
     assert response.status_code == status.HTTP_200_OK
     assert response.data == {
-        "results": [GRUPO_INFANTIL_TARDE, GRUPO_INFANTIL_INTEGRAL, "Infantil MANHÃ"]
+        "results": [
+            GrupoMedicao.INFANTIL_TARDE,
+            GrupoMedicao.INFANTIL_INTEGRAL,
+            "Infantil MANHÃ",
+        ]
     }
 
 

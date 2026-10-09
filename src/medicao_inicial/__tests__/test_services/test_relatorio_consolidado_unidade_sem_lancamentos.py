@@ -7,13 +7,12 @@ import pytest
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
 from src.escola.models import PeriodoEscolar
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _calcula_soma_medicao,
     _define_filtro,
@@ -43,7 +42,12 @@ def test_get_alimentacoes_por_periodo(solicitacao_sem_lancamento):
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_A) == 0
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_B) == 0
     assert (
-        sum(1 for tupla in colunas if tupla[0] == GRUPO_SOLICITACOES_ALIMENTACAO) == 0
+        sum(
+            1
+            for tupla in colunas
+            if tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
+        == 0
     )
 
     assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 0
@@ -233,7 +237,7 @@ def test_sort_and_merge():
         "total_sobremesas_pagamento",
     ]
 
-    assert GRUPO_SOLICITACOES_ALIMENTACAO not in dict_periodos_dietas
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO not in dict_periodos_dietas
 
 
 def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
@@ -267,7 +271,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_sem_lancamento):
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         solicitacao_sem_lancamento,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "kit_lanche",
         valores_iniciais,
         dietas_especiais,
@@ -327,12 +331,12 @@ def test_define_filtro(solicitacao_sem_lancamento):
     assert dieta_especial["periodo_escolar__nome"] == DIETA_ESPECIAL_TIPO_A
 
     solicitacao = _define_filtro(
-        GRUPO_SOLICITACOES_ALIMENTACAO, dietas_especiais, periodos_escolares
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, dietas_especiais, periodos_escolares
     )
     assert isinstance(solicitacao, dict)
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
-    assert solicitacao["grupo__nome"] == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert solicitacao["grupo__nome"] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
 
 def test_get_total_pagamento_unidade_emef(solicitacao_sem_lancamento):
@@ -358,7 +362,7 @@ def test_processa_dieta_especial(solicitacao_sem_lancamento):
     total = processa_dieta_especial(solicitacao_sem_lancamento, filtros, campo, periodo)
     assert total == "-"
 
-    periodo = GRUPO_SOLICITACOES_ALIMENTACAO
+    periodo = GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
     total = processa_dieta_especial(solicitacao_sem_lancamento, filtros, campo, periodo)

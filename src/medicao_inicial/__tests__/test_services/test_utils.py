@@ -7,18 +7,13 @@ from openpyxl import load_workbook
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteEscola,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.utils import (
     generate_columns,
     gera_colunas_alimentacao,
@@ -38,7 +33,7 @@ def test_get_nome_periodo_emei_emef(
 ):
     periodo = get_nome_periodo(medicao_grupo_solicitacao_alimentacao[0])
     assert isinstance(periodo, str)
-    assert periodo == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
     periodo_manha = get_nome_periodo(medicao_grupo_alimentacao[0])
     assert isinstance(periodo_manha, str)
@@ -84,23 +79,23 @@ def test_get_nome_periodo_cemei(relatorio_consolidado_xlsx_cemei):
 
     integral = get_nome_periodo(medicoes[2])
     assert isinstance(integral, str)
-    assert integral == GRUPO_INFANTIL_INTEGRAL
+    assert integral == GrupoMedicao.INFANTIL_INTEGRAL
 
     manha = get_nome_periodo(medicoes[3])
     assert isinstance(manha, str)
-    assert manha == GRUPO_INFANTIL_MANHA
+    assert manha == GrupoMedicao.INFANTIL_MANHA
 
     tarde = get_nome_periodo(medicoes[4])
     assert isinstance(tarde, str)
-    assert tarde == GRUPO_INFANTIL_TARDE
+    assert tarde == GrupoMedicao.INFANTIL_TARDE
 
     programas_e_projetos = get_nome_periodo(medicoes[5])
     assert isinstance(programas_e_projetos, str)
-    assert programas_e_projetos == GRUPO_PROGRAMAS_E_PROJETOS
+    assert programas_e_projetos == GrupoMedicao.PROGRAMAS_E_PROJETOS
 
     solicitacao = get_nome_periodo(medicoes[6])
     assert isinstance(solicitacao, str)
-    assert solicitacao == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert solicitacao == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
 
 def test_get_nome_periodo_emebs(relatorio_consolidado_xlsx_emebs):
@@ -127,11 +122,11 @@ def test_get_nome_periodo_emebs(relatorio_consolidado_xlsx_emebs):
 
     programas_projetos = get_nome_periodo(medicoes[4])
     assert isinstance(programas_projetos, str)
-    assert programas_projetos == GRUPO_PROGRAMAS_E_PROJETOS
+    assert programas_projetos == GrupoMedicao.PROGRAMAS_E_PROJETOS
 
     solicitacao = get_nome_periodo(medicoes[5])
     assert isinstance(solicitacao, str)
-    assert solicitacao == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert solicitacao == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
 
 def test_update_periodos_alimentacoes(faixas_etarias_ativas):
@@ -162,45 +157,45 @@ def test_update_periodos_alimentacoes(faixas_etarias_ativas):
     assert periodos_alimentacoes["PARCIAL"] == lista_faixas
 
     periodos_alimentacoes = update_periodos_alimentacoes(
-        periodos_alimentacoes, GRUPO_INFANTIL_INTEGRAL, lista_alimentacoes
+        periodos_alimentacoes, GrupoMedicao.INFANTIL_INTEGRAL, lista_alimentacoes
     )
     assert isinstance(periodos_alimentacoes, dict)
-    assert GRUPO_INFANTIL_INTEGRAL in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes[GRUPO_INFANTIL_INTEGRAL] == lista_alimentacoes
+    assert GrupoMedicao.INFANTIL_INTEGRAL in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes[GrupoMedicao.INFANTIL_INTEGRAL] == lista_alimentacoes
 
     periodos_alimentacoes = update_periodos_alimentacoes(
-        periodos_alimentacoes, GRUPO_INFANTIL_MANHA, lista_alimentacoes
+        periodos_alimentacoes, GrupoMedicao.INFANTIL_MANHA, lista_alimentacoes
     )
     assert isinstance(periodos_alimentacoes, dict)
-    assert GRUPO_INFANTIL_MANHA in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes[GRUPO_INFANTIL_MANHA] == lista_alimentacoes
+    assert GrupoMedicao.INFANTIL_MANHA in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes[GrupoMedicao.INFANTIL_MANHA] == lista_alimentacoes
 
     periodos_alimentacoes = update_periodos_alimentacoes(
-        periodos_alimentacoes, GRUPO_INFANTIL_TARDE, lista_alimentacoes
+        periodos_alimentacoes, GrupoMedicao.INFANTIL_TARDE, lista_alimentacoes
     )
     assert isinstance(periodos_alimentacoes, dict)
-    assert GRUPO_INFANTIL_TARDE in periodos_alimentacoes.keys()
-    assert periodos_alimentacoes[GRUPO_INFANTIL_TARDE] == lista_alimentacoes
+    assert GrupoMedicao.INFANTIL_TARDE in periodos_alimentacoes.keys()
+    assert periodos_alimentacoes[GrupoMedicao.INFANTIL_TARDE] == lista_alimentacoes
 
     periodos_alimentacoes = update_periodos_alimentacoes(
         periodos_alimentacoes,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         lista_alimentacoes_solicitacao,
     )
     assert isinstance(periodos_alimentacoes, dict)
-    assert GRUPO_SOLICITACOES_ALIMENTACAO in periodos_alimentacoes.keys()
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in periodos_alimentacoes.keys()
     assert (
-        periodos_alimentacoes[GRUPO_SOLICITACOES_ALIMENTACAO]
+        periodos_alimentacoes[GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO]
         == lista_alimentacoes_solicitacao
     )
     assert set(
         [
             "INTEGRAL",
             "PARCIAL",
-            GRUPO_INFANTIL_INTEGRAL,
-            GRUPO_INFANTIL_MANHA,
-            GRUPO_INFANTIL_TARDE,
-            GRUPO_SOLICITACOES_ALIMENTACAO,
+            GrupoMedicao.INFANTIL_INTEGRAL,
+            GrupoMedicao.INFANTIL_MANHA,
+            GrupoMedicao.INFANTIL_TARDE,
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         ]
     ).issubset(periodos_alimentacoes.keys())
 
@@ -333,9 +328,9 @@ def test_update_dietas_alimentacoes():
 def test_generate_columns(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
     dict_periodos_dietas = {
-        GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
         "INTEGRAL": faixas,
-        GRUPO_INFANTIL_MANHA: [
+        GrupoMedicao.INFANTIL_MANHA: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -350,11 +345,16 @@ def test_generate_columns(faixas_etarias_ativas):
     assert isinstance(colunas, list)
     assert len(colunas) == 21
     assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 8
-    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_INFANTIL_MANHA) == 6
+    assert sum(1 for tupla in colunas if tupla[0] == GrupoMedicao.INFANTIL_MANHA) == 6
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_A) == 3
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_B) == 2
     assert (
-        sum(1 for tupla in colunas if tupla[0] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+        sum(
+            1
+            for tupla in colunas
+            if tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
+        == 2
     )
 
     assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
@@ -747,7 +747,7 @@ def test_gera_colunas_alimentacao_emebs(
 
     headers = []
     for turma, chave, valor in mock_colunas_emebs:
-        if chave == GRUPO_SOLICITACOES_ALIMENTACAO:
+        if chave == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
             headers.append(("", "", NOMES_CAMPOS[valor]))
         else:
             headers.append((turma, chave.upper(), NOMES_CAMPOS[valor]))
@@ -967,7 +967,7 @@ def test_gera_colunas_alimentacao_sem_registro_nao_gera_keyerror():
     arquivo = BytesIO()
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
     colunas = [
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "lanche"),
         ("MANHA", "Sem registro"),
     ]
     linhas = [["EMEF", "123", "Escola", 10, "-"]]

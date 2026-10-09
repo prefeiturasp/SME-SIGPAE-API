@@ -9,8 +9,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     NOMES_CAMPOS,
     ORDEM_CAMPOS,
     ORDEM_HEADERS_CIEJA_CMCT,
@@ -18,17 +16,20 @@ from src.dados_comuns.constants import (
 from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
 from src.medicao_inicial.services import relatorio_consolidado_emei_emef
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (
+    calcula_soma_medicoes,
     filtra_queryset_pelo_intervalo_de_dias,
     generate_columns,
     gera_colunas_alimentacao,
     get_categorias_dietas,
-    get_nome_periodo,
+    get_medicoes_para_campo_solicitacoes,
+    get_nome_periodo_consolidado,
     get_valores_iniciais,
     todas_medicoes_sem_lancamentos,
     update_dietas_alimentacoes,
@@ -72,8 +73,7 @@ def get_alimentacoes_por_periodo(
 
     for solicitacao in solicitacoes:
         for medicao in solicitacao.medicoes.all():
-
-            nome_periodo = get_nome_periodo(medicao)
+            nome_periodo = get_nome_periodo_consolidado(medicao)
             lista_alimentacoes = _get_lista_alimentacoes(
                 medicao, nome_periodo, query_params
             )
@@ -142,7 +142,7 @@ def _get_lista_alimentacoes(
         .distinct()
     )
 
-    if nome_periodo != GRUPO_SOLICITACOES_ALIMENTACAO:
+    if nome_periodo != GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
         lista_alimentacoes += [
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
@@ -368,14 +368,14 @@ def _define_filtro(
     """
     filtros = {}
     if periodo in [
-        GRUPO_PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
         "ETEC",
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
     ]:
         filtros["grupo__nome"] = periodo
     elif periodo in dietas_especiais:
         filtros["periodo_escolar__nome__in"] = periodos_escolares
-        filtros["grupo__nome__in"] = [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
+        filtros["grupo__nome__in"] = [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"]
     else:
         filtros["periodo_escolar__nome"] = periodo
     return filtros
@@ -449,6 +449,11 @@ def processa_periodo_regular(
     Returns:
         float | str: Valor calculado do campo especificado, ou "-" se o valor for None ou não existir.
     """
+    if periodo == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO:
+        medicoes = get_medicoes_para_campo_solicitacoes(solicitacao, campo)
+        soma = calcula_soma_medicoes(medicoes, campo, [periodo.upper()], query_params)
+        return soma if soma is not None else "-"
+
     medicao = solicitacao.medicoes.get(**filtros)
 
     if campo in ["total_refeicoes_pagamento", "total_sobremesas_pagamento"]:
@@ -456,12 +461,9 @@ def processa_periodo_regular(
             medicao, campo, query_params
         )
 
-    categorias = (
-        [periodo.upper()]
-        if periodo == GRUPO_SOLICITACOES_ALIMENTACAO
-        else [CategoriaMedicao.ALIMENTACAO]
+    soma = _calcula_soma_medicao(
+        medicao, campo, [CategoriaMedicao.ALIMENTACAO], query_params
     )
-    soma = _calcula_soma_medicao(medicao, campo, categorias, query_params)
     return soma if soma is not None else "-"
 
 

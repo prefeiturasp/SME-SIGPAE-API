@@ -9,14 +9,13 @@ from openpyxl import load_workbook
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteEscola,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_excel import (
     _formata_filtros,
     _formata_total_geral,
@@ -1709,7 +1708,7 @@ def test_gera_relatorio_consolidado_xlsx_cemei_unifica_dieta_enteral_programas_e
     categoria_medicao_dieta_a_enteral_aminoacidos,
 ):
     medicao_programas_e_projetos = relatorio_consolidado_xlsx_cemei.medicoes.get(
-        grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
+        grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
     )
     baker.make(
         "ValorMedicao",

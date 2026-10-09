@@ -8,14 +8,13 @@ import pytest
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_RECREIO_NAS_FERIAS,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteEscola,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_cei import (
     _calcula_soma_medicao,
     _get_lista_alimentacoes,
@@ -37,7 +36,9 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_cei, faixas_etarias_at
     colunas = get_alimentacoes_por_periodo([solicitacao_recreio_cei])
     assert isinstance(colunas, list)
     assert len(colunas) == 22
-    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS) == 8
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == GrupoMedicao.RECREIO_NAS_FERIAS) == 8
+    )
     assert sum(1 for tupla in colunas if tupla[0] == "INTEGRAL") == 0
     assert sum(1 for tupla in colunas if tupla[0] == "PARCIAL") == 0
     assert sum(1 for tupla in colunas if tupla[0] == "MANHA") == 0
@@ -115,7 +116,7 @@ def test_sort_and_merge(faixas_etarias_ativas):
     faixas = [faixa.id for faixa in faixas_etarias_ativas]
 
     periodos_alimentacoes = {
-        GRUPO_RECREIO_NAS_FERIAS: faixas,
+        GrupoMedicao.RECREIO_NAS_FERIAS: faixas,
         "Colaboradores": [
             "lanche",
             "lanche_4h",
@@ -131,9 +132,9 @@ def test_sort_and_merge(faixas_etarias_ativas):
     dict_periodos_dietas = _sort_and_merge(periodos_alimentacoes, dietas_alimentacoes)
     assert isinstance(dict_periodos_dietas, dict)
 
-    assert GRUPO_RECREIO_NAS_FERIAS in dict_periodos_dietas
-    assert len(dict_periodos_dietas[GRUPO_RECREIO_NAS_FERIAS]) == 8
-    assert dict_periodos_dietas[GRUPO_RECREIO_NAS_FERIAS] == faixas
+    assert GrupoMedicao.RECREIO_NAS_FERIAS in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GrupoMedicao.RECREIO_NAS_FERIAS]) == 8
+    assert dict_periodos_dietas[GrupoMedicao.RECREIO_NAS_FERIAS] == faixas
 
     assert "Colaboradores" in dict_periodos_dietas
     assert len(dict_periodos_dietas["Colaboradores"]) == 4
@@ -200,7 +201,7 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
 
     recreio = _processa_periodo_campo(
         solicitacao_recreio_cei,
-        GRUPO_RECREIO_NAS_FERIAS,
+        GrupoMedicao.RECREIO_NAS_FERIAS,
         faixas_etarias_ativas[0].id,
         valores_iniciais,
     )
@@ -231,7 +232,7 @@ def test_processa_periodo_campo(solicitacao_recreio_cei, faixas_etarias_ativas):
 
 
 def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas):
-    filtros = {"grupo__nome": GRUPO_RECREIO_NAS_FERIAS}
+    filtros = {"grupo__nome": GrupoMedicao.RECREIO_NAS_FERIAS}
     periodo = DIETA_ESPECIAL_TIPO_A
     faixa_etaria = faixas_etarias_ativas[2].id
     total = processa_dieta_especial(
@@ -249,8 +250,8 @@ def test_processa_dieta_especial(solicitacao_recreio_cei, faixas_etarias_ativas)
 
 
 def test_processa_grupos_recreio(solicitacao_recreio_cei, faixas_etarias_ativas):
-    periodo = GRUPO_RECREIO_NAS_FERIAS
-    filtros = {"grupo__nome": GRUPO_RECREIO_NAS_FERIAS}
+    periodo = GrupoMedicao.RECREIO_NAS_FERIAS
+    filtros = {"grupo__nome": GrupoMedicao.RECREIO_NAS_FERIAS}
     faixa_etaria = faixas_etarias_ativas[0].id
     total = processa_grupos_recreio(
         solicitacao_recreio_cei, filtros, faixa_etaria, periodo

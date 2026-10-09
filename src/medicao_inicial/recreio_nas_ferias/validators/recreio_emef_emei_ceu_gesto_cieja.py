@@ -4,11 +4,12 @@ from datetime import timedelta
 
 from django.db.models import QuerySet
 
-from src.dados_comuns.constants import GRUPO_RECREIO_NAS_FERIAS, TIPOS_ALIMENTACAO
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import Escola
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
     ValorMedicao,
@@ -55,7 +56,7 @@ def cria_valores_medicao_participantes_emef_emei_cieja_ceugestao(
     ).first()
 
     informacoes_participantes = {
-        GRUPO_RECREIO_NAS_FERIAS: participantes.num_inscritos,
+        GrupoMedicao.RECREIO_NAS_FERIAS: participantes.num_inscritos,
     }
     if existe_colaborador(participantes):
         informacoes_participantes["Colaboradores"] = participantes.num_colaboradores
@@ -87,7 +88,7 @@ def cria_valores_medicao_participantes_dietas_autorizadas_emef_emei_cieja_ceuges
         data__range=[inicio_recreio, fim_recreio],
     )
     cria_valores_medicao_dietas_autorizadas_do_recreio(
-        instance, logs_do_recreio, GRUPO_RECREIO_NAS_FERIAS
+        instance, logs_do_recreio, GrupoMedicao.RECREIO_NAS_FERIAS
     )
 
 
@@ -228,7 +229,7 @@ def validate_lancamento_alimentacoes_medicao_recreio(
     )
     tipos_alimentacao_map = agrupar_tipos_alimentacao_por_categoria(tipos_alimentacao)
     informacoes_alimentacao = {
-        GRUPO_RECREIO_NAS_FERIAS: tipos_alimentacao_map.get("Inscritos", [])
+        GrupoMedicao.RECREIO_NAS_FERIAS: tipos_alimentacao_map.get("Inscritos", [])
     }
     if existe_colaborador(participantes):
         informacoes_alimentacao["Colaboradores"] = tipos_alimentacao_map.get(
@@ -281,7 +282,7 @@ def validate_lancamento_dietas_medicao_recreio(
     recreio = solicitacao.recreio_nas_ferias
     categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
     medicao_recreio = solicitacao.medicoes.filter(
-        grupo__nome=GRUPO_RECREIO_NAS_FERIAS
+        grupo__nome=GrupoMedicao.RECREIO_NAS_FERIAS
     ).first()
 
     dias_letivos = [

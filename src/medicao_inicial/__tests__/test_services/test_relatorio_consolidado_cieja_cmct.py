@@ -4,17 +4,16 @@ from io import BytesIO
 import openpyxl
 import pandas as pd
 import pytest
+from model_bakery import baker
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import PeriodoEscolar
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cieja_cmct import (
     _calcula_soma_medicao,
     _define_filtro,
@@ -43,9 +42,17 @@ def test_get_alimentacoes_por_periodo(relatorio_consolidado_xlsx_cieja):
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_A) == 3
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_B) == 2
     assert (
-        sum(1 for tupla in colunas if tupla[0] == GRUPO_SOLICITACOES_ALIMENTACAO) == 2
+        sum(
+            1
+            for tupla in colunas
+            if tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+        )
+        == 2
     )
-    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_PROGRAMAS_E_PROJETOS) == 3
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == GrupoMedicao.PROGRAMAS_E_PROJETOS)
+        == 3
+    )
 
     assert sum(1 for tupla in colunas if tupla[1] == "kit_lanche") == 1
     assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
@@ -251,13 +258,13 @@ def test_get_lista_alimentacoes(relatorio_consolidado_xlsx_cieja):
     ]
 
     lista_alimentacoes_solicitacao = _get_lista_alimentacoes(
-        medicao_solicitacao, GRUPO_SOLICITACOES_ALIMENTACAO
+        medicao_solicitacao, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     )
     assert isinstance(lista_alimentacoes_solicitacao, list)
     assert lista_alimentacoes_solicitacao == ["kit_lanche", "lanche_emergencial"]
 
     lista_alimentacoes_programa_projetos = _get_lista_alimentacoes(
-        medicao_programas_projetos, GRUPO_PROGRAMAS_E_PROJETOS
+        medicao_programas_projetos, GrupoMedicao.PROGRAMAS_E_PROJETOS
     )
     assert isinstance(lista_alimentacoes_programa_projetos, list)
     assert lista_alimentacoes_programa_projetos == [
@@ -306,7 +313,7 @@ def test_sort_and_merge():
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
         ],
-        GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
     }
     dietas_alimentacoes = {
         DIETA_ESPECIAL_TIPO_A: ["lanche", "lanche_4h", "refeicao"],
@@ -338,9 +345,9 @@ def test_sort_and_merge():
         "total_sobremesas_pagamento",
     ]
 
-    assert GRUPO_SOLICITACOES_ALIMENTACAO in dict_periodos_dietas
-    assert len(dict_periodos_dietas[GRUPO_SOLICITACOES_ALIMENTACAO]) == 2
-    assert dict_periodos_dietas[GRUPO_SOLICITACOES_ALIMENTACAO] == [
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO]) == 2
+    assert dict_periodos_dietas[GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO] == [
         "kit_lanche",
         "lanche_emergencial",
     ]
@@ -377,7 +384,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cieja,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "kit_lanche",
         valores_iniciais,
         dietas_especiais,
@@ -416,7 +423,7 @@ def test_processa_periodo_campo_unidade(relatorio_consolidado_xlsx_cieja):
 
     pp_lanche = _processa_periodo_campo(
         relatorio_consolidado_xlsx_cieja,
-        GRUPO_PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
         "lanche_4h",
         valores_iniciais,
         dietas_especiais,
@@ -456,15 +463,18 @@ def test_define_filtro(relatorio_consolidado_xlsx_cieja):
     assert "periodo_escolar__nome__in" in dieta_especial
     assert "grupo__nome__in" in dieta_especial
     assert dieta_especial["periodo_escolar__nome__in"] == periodos_escolares
-    assert dieta_especial["grupo__nome__in"] == [GRUPO_PROGRAMAS_E_PROJETOS, "ETEC"]
+    assert dieta_especial["grupo__nome__in"] == [
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+        "ETEC",
+    ]
 
     solicitacao = _define_filtro(
-        GRUPO_SOLICITACOES_ALIMENTACAO, dietas_especiais, periodos_escolares
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, dietas_especiais, periodos_escolares
     )
     assert isinstance(solicitacao, dict)
     assert "periodo_escolar__nome" not in solicitacao
     assert "grupo__nome" in solicitacao
-    assert solicitacao["grupo__nome"] == GRUPO_SOLICITACOES_ALIMENTACAO
+    assert solicitacao["grupo__nome"] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
 
 
 def test_processa_dieta_especial(relatorio_consolidado_xlsx_cieja):
@@ -476,7 +486,7 @@ def test_processa_dieta_especial(relatorio_consolidado_xlsx_cieja):
     )
     assert total == "-"
 
-    periodo = GRUPO_SOLICITACOES_ALIMENTACAO
+    periodo = GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
     total = processa_dieta_especial(
@@ -503,7 +513,7 @@ def test_processa_periodo_regular(relatorio_consolidado_xlsx_cieja):
     )
     assert math.isclose(total, 150.0, rel_tol=1e-9)
 
-    periodo = GRUPO_SOLICITACOES_ALIMENTACAO
+    periodo = GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
     total = processa_periodo_regular(
@@ -604,3 +614,63 @@ def test_unificar_dietas_tipo_a_sem_dietas_do_tipo_a():
         not in resultado
     )
     assert len(resultado[DIETA_ESPECIAL_TIPO_B]) == 2
+
+
+def _cria_medicao_extraordinaria_cieja(solicitacao, categoria, valor="7"):
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="05",
+        nome_campo="lanche_emergencial",
+        medicao=medicao,
+        categoria_medicao=categoria,
+        valor=valor,
+    )
+    return medicao
+
+
+def test_get_alimentacoes_por_periodo_ignora_extraordinaria_cieja(
+    relatorio_consolidado_xlsx_cieja,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = relatorio_consolidado_xlsx_cieja
+    _cria_medicao_extraordinaria_cieja(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao
+    )
+
+    colunas = get_alimentacoes_por_periodo([solicitacao])
+
+    assert not any(
+        tupla[0] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+        for tupla in colunas
+    )
+    assert sum(1 for tupla in colunas if tupla[1] == "lanche_emergencial") == 1
+
+
+def test_processa_solicitacoes_soma_extraordinario_cieja(
+    relatorio_consolidado_xlsx_cieja,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = relatorio_consolidado_xlsx_cieja
+    _cria_medicao_extraordinaria_cieja(
+        solicitacao, categoria_medicao_solicitacoes_alimentacao, valor="7"
+    )
+
+    filtros = {"grupo__nome": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO}
+    total = processa_periodo_regular(
+        solicitacao,
+        filtros,
+        "lanche_emergencial",
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
+    )
+
+    assert math.isclose(total, 12.0, rel_tol=1e-9)

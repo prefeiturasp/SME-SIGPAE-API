@@ -1,12 +1,10 @@
 import pytest
 
 from src.dados_comuns.constants import (
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.medicao_inicial.models import ValorMedicao
+from src.medicao_inicial.models import GrupoMedicao, ValorMedicao
 from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
     buscar_alimentacoes_recreio_cemei,
     buscar_erro_por_periodo,
@@ -19,8 +17,8 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_cemei import (
 from utility.carga_dados.perfil.importa_dados import Q
 
 pytestmark = pytest.mark.django_db
-GRUPO_CEI = GRUPO_RECREIO_NAS_FERIAS_0_A_3
-GRUPO_EMEI = GRUPO_RECREIO_NAS_FERIAS_4_A_14
+GRUPO_CEI = GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3
+GRUPO_EMEI = GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14
 GRUPO_COLABORADORES = "Colaboradores"
 
 

@@ -5,7 +5,6 @@ from freezegun import freeze_time
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_PROGRAMAS_E_PROJETOS,
     TIPOS_ALIMENTACAO,
     TIPOS_GESTAO,
 )
@@ -13,7 +12,7 @@ from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.dias_letivos.models import DiaLetivoSIGPAE
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body,
     build_tabelas_relatorio_medicao,
@@ -146,7 +145,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         log_solicitacoes_usuario_factory,
     ):
         self.motivo_inclusao_continua = motivo_inclusao_continua_factory.create(
-            nome=GRUPO_PROGRAMAS_E_PROJETOS
+            nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
         self.inclusao_continua = inclusao_alimentacao_continua_factory.create(
             escola=self.escola_cmct,
@@ -256,7 +255,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         self.medicao_programas_projetos = medicao_factory.create(
             solicitacao_medicao_inicial=self.solicitacao_medicao_inicial,
             periodo_escolar=None,
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
         )
 
     def _setup_logs_medicao_inclusao_continua(
@@ -368,7 +367,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
             item.get("periodos") == ["NOITE"] for item in build_tabelas
         ), "Nenhum item com periodos=['NOITE'] encontrado"
         assert any(
-            item.get("periodos") == [GRUPO_PROGRAMAS_E_PROJETOS]
+            item.get("periodos") == [GrupoMedicao.PROGRAMAS_E_PROJETOS]
             for item in build_tabelas
         ), "Nenhum item com periodos=['Programas e Projetos'] encontrado"
 
@@ -377,7 +376,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         )
         assert dict_total_refeicoes == {
             "NOITE": 0,
-            GRUPO_PROGRAMAS_E_PROJETOS: 0,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS: 0,
             "TARDE": 100,
         }
 
@@ -387,7 +386,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
         assert dict_total_sobremesas == {
             "TARDE": 0,
             "NOITE": 100,
-            GRUPO_PROGRAMAS_E_PROJETOS: 300,
+            GrupoMedicao.PROGRAMAS_E_PROJETOS: 300,
         }
 
         primeira_tabela_somatorio, segunda_tabela_somatorio = (
@@ -401,7 +400,7 @@ class TestUseCaseRelatorioPDFMedicaoEscolaSemAlunosRegulares:
             "header": [
                 "TIPOS DE ALIMENTAÇÃO",
                 "TARDE",
-                GRUPO_PROGRAMAS_E_PROJETOS,
+                GrupoMedicao.PROGRAMAS_E_PROJETOS,
                 "TOTAL",
             ],
             "body": [

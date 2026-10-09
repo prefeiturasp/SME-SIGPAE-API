@@ -5,9 +5,9 @@ import pandas as pd
 from django.db.models import FloatField, Sum
 from django.db.models.functions import Cast
 
-from src.dados_comuns.constants import GRUPO_SOLICITACOES_ALIMENTACAO
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
@@ -36,6 +36,61 @@ def get_nome_periodo(medicao: Medicao) -> str:
             else medicao.grupo.nome
         )
     )
+
+
+def eh_medicao_extraordinaria(medicao: Medicao) -> bool:
+    """Indica se a medição pertence ao grupo de Solicitações Extraordinárias."""
+    return bool(
+        medicao.grupo
+        and medicao.grupo.nome
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    )
+
+
+def get_nome_periodo_consolidado(medicao: Medicao) -> str:
+    """Período da medição no consolidado.
+
+    A medição extraordinária é exibida sob o período de Solicitações de
+    Alimentação (para que o lanche emergencial seja somado/coluna criada).
+    """
+    if eh_medicao_extraordinaria(medicao):
+        return GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+    return get_nome_periodo(medicao)
+
+
+def get_medicoes_para_campo_solicitacoes(
+    solicitacao: SolicitacaoMedicaoInicial, campo: str
+):
+    """Medições de Solicitações de Alimentação para o campo informado.
+
+    O lanche emergencial extraordinário é somado ao lanche emergencial
+    regular, portanto a medição extraordinária também é retornada.
+    """
+    nomes_grupos = [GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO]
+    if campo == "lanche_emergencial":
+        nomes_grupos.append(GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS)
+    return solicitacao.medicoes.filter(grupo__nome__in=nomes_grupos)
+
+
+def calcula_soma_medicoes(
+    medicoes, campo, categorias, query_params=None, infantil_ou_fundamental=None
+):
+    """Soma o valor de ``campo`` em um conjunto de medições."""
+    total = None
+    for medicao in medicoes:
+        valores = filtra_queryset_pelo_intervalo_de_dias(
+            medicao.valores_medicao, query_params
+        ).filter(nome_campo=campo, categoria_medicao__nome__in=categorias)
+        if infantil_ou_fundamental is not None:
+            valores = valores.filter(
+                infantil_ou_fundamental__in=infantil_ou_fundamental
+            )
+        valor = valores.annotate(
+            valor_float=Cast("valor", output_field=FloatField())
+        ).aggregate(total=Sum("valor_float"))["total"]
+        if valor is not None:
+            total = (total or 0) + valor
+    return total
 
 
 def update_periodos_alimentacoes(
@@ -240,7 +295,11 @@ def gera_colunas_alimentacao(
         nomes_campos = {**(nomes_campos or {}), "Sem registro": ""}
         headers = [
             (
-                chave.upper() if chave != GRUPO_SOLICITACOES_ALIMENTACAO else "",
+                (
+                    chave.upper()
+                    if chave != GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
+                    else ""
+                ),
                 nomes_campos[valor],
             )
             for chave, valor in colunas

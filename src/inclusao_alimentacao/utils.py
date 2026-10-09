@@ -9,9 +9,9 @@ import datetime
 
 from django.db.models import Q
 
-from src.dados_comuns.constants import GRUPO_PROGRAMAS_E_PROJETOS
 from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.inclusao_alimentacao.models import QuantidadePorPeriodo
+from src.medicao_inicial.models import GrupoMedicao
 
 
 def quantidade_periodo_possui_dia_ativo_no_mes(
@@ -76,7 +76,7 @@ def medicao_programas_e_projetos_do_mes(escola, ano, mes):
         solicitacao_medicao_inicial__ano=str(ano),
         solicitacao_medicao_inicial__mes__in={f"{mes:02d}", str(mes)},
         solicitacao_medicao_inicial__recreio_nas_ferias__isnull=True,
-        grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS,
+        grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS,
     ).first()
 
 
@@ -177,6 +177,4 @@ def remove_medicao_programas_e_projetos_se_inclusao_inativa(
     medicao = medicao_programas_e_projetos_do_mes(
         escola, encerrado_a_partir_de.year, encerrado_a_partir_de.month
     )
-    exclui_valores_inativos_mes_encerramento(
-        medicao, inclusao, encerrado_a_partir_de
-    )
+    exclui_valores_inativos_mes_encerramento(medicao, inclusao, encerrado_a_partir_de)

@@ -9,14 +9,6 @@ from rest_framework import status
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
-    GRUPO_INFANTIL_INTEGRAL,
-    GRUPO_INFANTIL_MANHA,
-    GRUPO_INFANTIL_TARDE,
-    GRUPO_PROGRAMAS_E_PROJETOS,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_RECREIO_NAS_FERIAS_0_A_3,
-    GRUPO_RECREIO_NAS_FERIAS_4_A_14,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
@@ -30,6 +22,7 @@ from src.medicao_inicial.models import (
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
+    GrupoMedicao,
     LancheEmergencialDiario,
     Medicao,
     ParametrizacaoFinanceira,
@@ -565,8 +558,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         None,
         None,
         None,
-        GRUPO_PROGRAMAS_E_PROJETOS,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "ETEC",
     ]
     assert [r["nome_periodo_grupo"] for r in results] == [
@@ -574,8 +567,8 @@ def test_url_endpoint_periodos_grupos_medicao(
         "TARDE",
         "INTEGRAL",
         "NOITE",
-        GRUPO_PROGRAMAS_E_PROJETOS,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "ETEC",
     ]
 
@@ -597,6 +590,50 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_com
     assert [r for r in response.data["results"] if r["nome_periodo_grupo"] == "MANHA"][
         0
     ]["valor_total"] == 350
+
+
+def test_url_endpoint_quantidades_alimentacoes_lancadas_extraordinaria(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+        dia="02",
+        semana="2",
+        nome_campo="lanche_emergencial",
+        valor="15",
+    )
+
+    response = client_autenticado_da_escola.get(
+        "/medicao-inicial/solicitacao-medicao-inicial/quantidades-alimentacoes-lancadas-periodo-grupo/"
+        f"?uuid_solicitacao={solicitacao.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    resultados = [
+        r
+        for r in response.data["results"]
+        if r["nome_periodo_grupo"]
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    ]
+    assert len(resultados) == 1
+    assert resultados[0]["valor_total"] == 15
 
 
 def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cei(
@@ -702,7 +739,7 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
             [
                 r
                 for r in response.data["results"]
-                if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
+                if r["nome_periodo_grupo"] == GrupoMedicao.INFANTIL_MANHA
             ]
         )
         == 1
@@ -711,12 +748,12 @@ def test_url_endpoint_quantidades_alimentacoes_lancadas_periodo_grupo_escola_cem
         [
             r
             for r in response.data["results"]
-            if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
+            if r["nome_periodo_grupo"] == GrupoMedicao.INFANTIL_MANHA
         ][0]["quantidade_alunos"]
     assert [
         r
         for r in response.data["results"]
-        if r["nome_periodo_grupo"] == GRUPO_INFANTIL_MANHA
+        if r["nome_periodo_grupo"] == GrupoMedicao.INFANTIL_MANHA
     ][0]["valor_total"] == 80
 
 
@@ -1456,6 +1493,242 @@ def test_url_codae_solicita_correcao_medicao_erro_403(
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    data = {
+        "justificativa": "<p>TESTE JUSTIFICATIVA</p>",
+        "dias_para_corrigir": [
+            {"dia": "01", "categoria_medicao_uuid": str(categoria_medicao.uuid)},
+            {"dia": "10", "categoria_medicao_uuid": str(categoria_medicao.uuid)},
+        ],
+    }
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data=data,
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+
+    solicitacao.refresh_from_db()
+    assert solicitacao.status == solicitacao.workflow_class.MEDICAO_APROVADA_PELA_DRE
+
+    medicao_extraordinaria = Medicao.objects.get(
+        solicitacao_medicao_inicial=solicitacao,
+        grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    assert medicao_extraordinaria.status == "MEDICAO_CORRECAO_SOLICITADA_CODAE"
+    assert medicao_extraordinaria.logs.last().justificativa == data["justificativa"]
+    assert DiaParaCorrigir.objects.filter(medicao=medicao_extraordinaria).count() == 2
+
+
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_sem_flag(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok,
+):
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json() == {
+        "detail": "Solicitação não possui lanche emergencial extraordinário."
+    }
+
+
+def test_url_codae_solicita_correcao_lanche_emergencial_extraordinario_erro_403(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+):
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/solicitacao-medicao-inicial/{solicitacao_medicao_inicial_lanche_emergencial_extraordinario.uuid}/"
+        f"codae-solicita-correcao-lanche-emergencial-extraordinario/",
+        content_type="application/json",
+        data={"justificativa": "<p>x</p>", "dias_para_corrigir": []},
+    )
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_url_endpoint_periodos_grupos_medicao_com_extraordinaria(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+
+    response = client_autenticado_codae_medicao.get(
+        f"/medicao-inicial/solicitacao-medicao-inicial/periodos-grupos-medicao/?uuid_solicitacao={solicitacao.uuid}",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    nomes = [r["nome_periodo_grupo"] for r in response.data["results"]]
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS in nomes
+    assert nomes[-1] == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+
+
+def test_url_escola_corrige_medicao_extraordinaria(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao,
+    monkeypatch,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+    baker.make(
+        "DiaParaCorrigir",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao,
+        dia="02",
+    )
+
+    monkeypatch.setattr(
+        "src.medicao_inicial.api.viewsets.log_alteracoes_escola_corrige_periodo",
+        lambda *args, **kwargs: None,
+    )
+
+    data = [
+        {
+            "dia": "02",
+            "nome_campo": "lanche_emergencial",
+            "valor": "15",
+            "categoria_medicao": categoria_medicao.id,
+            "tipo_alimentacao": "",
+        }
+    ]
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/medicao/{medicao.uuid}/escola-corrige-medicao/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    assert medicao.valores_medicao.filter(
+        nome_campo="lanche_emergencial", dia="02", valor="15"
+    ).exists()
+
+
+def test_url_escola_corrige_medicao_loga_correcao_inicial(
+    client_autenticado_da_escola,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+    categoria_medicao_solicitacoes_alimentacao,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+    baker.make(
+        "DiaParaCorrigir",
+        medicao=medicao,
+        categoria_medicao=categoria_medicao_solicitacoes_alimentacao,
+        dia="02",
+    )
+
+    data = [
+        {
+            "dia": "02",
+            "nome_campo": "lanche_emergencial",
+            "valor": "5",
+            "categoria_medicao": categoria_medicao_solicitacoes_alimentacao.id,
+            "tipo_alimentacao": "",
+        }
+    ]
+    response = client_autenticado_da_escola.patch(
+        f"/medicao-inicial/medicao/{medicao.uuid}/escola-corrige-medicao/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+
+    solicitacao.refresh_from_db()
+    log_correcao = next(
+        log
+        for log in json.loads(solicitacao.historico)
+        if log["acao"] == "MEDICAO_CORRIGIDA_PARA_CODAE"
+    )
+    alteracao = log_correcao["alteracoes"][0]
+    assert (
+        alteracao["periodo_escolar"]
+        == GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS
+    )
+    campos = [
+        campo
+        for tabela in alteracao["tabelas_lancamentos"]
+        for semana in tabela["semanas"]
+        for dia in semana["dias"]
+        for campo in dia["campos"]
+    ]
+    campo_lanche = next(
+        campo for campo in campos if campo["campo_nome"] == "lanche_emergencial"
+    )
+    assert campo_lanche["de"] == ""
+    assert campo_lanche["para"] == "5"
+
+
+def test_url_codae_aprova_periodo_extraordinaria(
+    client_autenticado_codae_medicao,
+    solicitacao_medicao_inicial_lanche_emergencial_extraordinario,
+):
+    solicitacao = solicitacao_medicao_inicial_lanche_emergencial_extraordinario
+    grupo = baker.make(
+        "GrupoMedicao",
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=None,
+        grupo=grupo,
+        status="MEDICAO_CORRECAO_SOLICITADA_CODAE",
+    )
+
+    response = client_autenticado_codae_medicao.patch(
+        f"/medicao-inicial/medicao/{medicao.uuid}/codae-aprova-periodo/",
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response.data["status"] == "MEDICAO_APROVADA_PELA_CODAE"
+
+
 def test_url_codae_solicita_correcao_ocorrencia(
     client_autenticado_vinculo_nutrimanifestacao,
     anexo_ocorrencia_medicao_inicial_status_aprovado_dre,
@@ -1789,7 +2062,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_programas_projetos = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome=GRUPO_PROGRAMAS_E_PROJETOS
+            grupo__nome=GrupoMedicao.PROGRAMAS_E_PROJETOS
         )
     )
     assert (
@@ -1813,7 +2086,7 @@ def test_finaliza_medicao_inicial_salva_logs(
 
     medicao_solicitacoes_alimentacao = (
         solicitacao_medicao_inicial_teste_salvar_logs.medicoes.get(
-            grupo__nome=GRUPO_SOLICITACOES_ALIMENTACAO
+            grupo__nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
     )
     assert (
@@ -2056,9 +2329,9 @@ def test_periodos_escola_cemei_com_alunos_emei(
     assert response.status_code == status.HTTP_200_OK
     assert len(response.data["results"]) == 3
     dados = response.data["results"]
-    assert dados[0] == GRUPO_INFANTIL_MANHA
-    assert dados[1] == GRUPO_INFANTIL_TARDE
-    assert dados[2] == GRUPO_INFANTIL_INTEGRAL
+    assert dados[0] == GrupoMedicao.INFANTIL_MANHA
+    assert dados[1] == GrupoMedicao.INFANTIL_TARDE
+    assert dados[2] == GrupoMedicao.INFANTIL_INTEGRAL
 
 
 def test_periodos_permissoes_lancamentos_especiais_mes_ano(
@@ -3091,7 +3364,10 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_com_escolas(
     mock_exporta_pdf.assert_called_once()
     _, kwargs = mock_exporta_pdf.call_args
     assert len(kwargs["resultados"]) == 1
-    assert kwargs["resultados"][0]["escola"]["nome"] == NomesParaTesteEscola.EMEF_TESTE.value
+    assert (
+        kwargs["resultados"][0]["escola"]["nome"]
+        == NomesParaTesteEscola.EMEF_TESTE.value
+    )
     assert kwargs["resultados"][0]["resultados"]
 
 
@@ -3153,7 +3429,10 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_com_escolas(
     mock_exporta_xlsx.assert_called_once()
     _, kwargs = mock_exporta_xlsx.call_args
     assert len(kwargs["resultados"]) == 1
-    assert kwargs["resultados"][0]["escola"]["nome"] == NomesParaTesteEscola.EMEF_TESTE.value
+    assert (
+        kwargs["resultados"][0]["escola"]["nome"]
+        == NomesParaTesteEscola.EMEF_TESTE.value
+    )
     assert kwargs["resultados"][0]["resultados"]
 
 
@@ -3253,9 +3532,7 @@ def test_url_endpoint_relatorio_adesao_exportar_xlsx_individual_por_data(
     assert kwargs["nome_arquivo"] == (
         "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.xlsx"
     )
-    assert [
-        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
-    ] == [
+    assert [(item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]] == [
         ("01/08/2026", "EMEI"),
         ("01/08/2026", "CEU EMEI"),
         ("02/08/2026", "EMEI"),
@@ -3375,9 +3652,7 @@ def test_url_endpoint_relatorio_adesao_exportar_pdf_individual_por_data(
     assert kwargs["nome_arquivo"] == (
         "Relatório de Adesão das Alimentações Servidas - EMEI, CEU EMEI - 08/2026.pdf"
     )
-    assert [
-        (item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]
-    ] == [
+    assert [(item["data"], item["tipo_unidade"]) for item in kwargs["resultados"]] == [
         ("01/08/2026", "Grupo 3 - EMEI, CEU EMEI"),
         ("02/08/2026", "Grupo 3 - EMEI, CEU EMEI"),
     ]
@@ -4383,7 +4658,7 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento_kit_lanche(
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert {
         "erro": "Restam dias a serem lançados nos Kit Lanches.",
-        "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+        "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
     } in response.json()
 
 
@@ -4426,11 +4701,11 @@ def test_url_endpoint_finaliza_medicao_recreio_emef_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -4513,11 +4788,11 @@ def test_url_endpoint_finaliza_medicao_recreio_cei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS,
         },
     ]
 
@@ -4585,7 +4860,7 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
     erros_esperados = [
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
@@ -4593,15 +4868,15 @@ def test_url_endpoint_finaliza_medicao_recreio_cemei_falta_lancamento(
         },
         {
             "erro": "Restam dias a serem lançados nas alimentações.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_4_A_14,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_4_A_14,
         },
         {
             "erro": "Restam dias a serem lançados nas dietas.",
-            "periodo_escolar": GRUPO_RECREIO_NAS_FERIAS_0_A_3,
+            "periodo_escolar": GrupoMedicao.RECREIO_NAS_FERIAS_0_A_3,
         },
     ]
 

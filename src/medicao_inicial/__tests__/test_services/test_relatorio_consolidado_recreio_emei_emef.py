@@ -8,13 +8,11 @@ import pytest
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_RECREIO_NAS_FERIAS,
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_recreio_emei_emef import (
     _calcula_soma_medicao,
     _get_lista_alimentacoes,
@@ -40,7 +38,9 @@ def test_get_alimentacoes_por_periodo(solicitacao_recreio_emei):
     colunas = get_alimentacoes_por_periodo([solicitacao_recreio_emei], {})
     assert isinstance(colunas, list)
     assert len(colunas) == 13
-    assert sum(1 for tupla in colunas if tupla[0] == GRUPO_RECREIO_NAS_FERIAS) == 6
+    assert (
+        sum(1 for tupla in colunas if tupla[0] == GrupoMedicao.RECREIO_NAS_FERIAS) == 6
+    )
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_A) == 1
     assert sum(1 for tupla in colunas if tupla[0] == DIETA_ESPECIAL_TIPO_B) == 0
     assert sum(1 for tupla in colunas if tupla[0] == "Colaboradores") == 6
@@ -223,7 +223,7 @@ def test_get_lista_alimentacoes(solicitacao_recreio_emei):
     ]
 
     lista_alimentacoes_recreio = _get_lista_alimentacoes(
-        medicao_recreio_nas_ferias, GRUPO_RECREIO_NAS_FERIAS, {}
+        medicao_recreio_nas_ferias, GrupoMedicao.RECREIO_NAS_FERIAS, {}
     )
     assert isinstance(lista_alimentacoes_recreio, list)
     assert lista_alimentacoes_recreio == [
@@ -236,7 +236,7 @@ def test_get_lista_alimentacoes(solicitacao_recreio_emei):
     ]
 
     lista_alimentacoes_solicitacao = _get_lista_alimentacoes(
-        medicao_recreio_nas_ferias, GRUPO_SOLICITACOES_ALIMENTACAO, {}
+        medicao_recreio_nas_ferias, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, {}
     )
     assert isinstance(lista_alimentacoes_solicitacao, list)
     assert lista_alimentacoes_solicitacao == [
@@ -293,7 +293,7 @@ def test_get_lista_alimentacoes_dietas(solicitacao_recreio_emei):
 
 def test_sort_and_merge():
     periodos_alimentacoes = {
-        GRUPO_RECREIO_NAS_FERIAS: [
+        GrupoMedicao.RECREIO_NAS_FERIAS: [
             "lanche",
             "lanche_4h",
             "refeicao",
@@ -301,7 +301,7 @@ def test_sort_and_merge():
             "total_refeicoes_pagamento",
             "total_sobremesas_pagamento",
         ],
-        GRUPO_SOLICITACOES_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO: ["kit_lanche", "lanche_emergencial"],
     }
     dietas_alimentacoes = {
         DIETA_ESPECIAL_TIPO_A: ["lanche", "lanche_4h", "refeicao"],
@@ -322,9 +322,9 @@ def test_sort_and_merge():
     assert len(dict_periodos_dietas[DIETA_ESPECIAL_TIPO_B]) == 2
     assert dict_periodos_dietas[DIETA_ESPECIAL_TIPO_B] == ["lanche", "lanche_4h"]
 
-    assert GRUPO_RECREIO_NAS_FERIAS in dict_periodos_dietas
-    assert len(dict_periodos_dietas[GRUPO_RECREIO_NAS_FERIAS]) == 6
-    assert dict_periodos_dietas[GRUPO_RECREIO_NAS_FERIAS] == [
+    assert GrupoMedicao.RECREIO_NAS_FERIAS in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GrupoMedicao.RECREIO_NAS_FERIAS]) == 6
+    assert dict_periodos_dietas[GrupoMedicao.RECREIO_NAS_FERIAS] == [
         "lanche",
         "lanche_4h",
         "refeicao",
@@ -333,9 +333,9 @@ def test_sort_and_merge():
         "total_sobremesas_pagamento",
     ]
 
-    assert GRUPO_SOLICITACOES_ALIMENTACAO in dict_periodos_dietas
-    assert len(dict_periodos_dietas[GRUPO_SOLICITACOES_ALIMENTACAO]) == 2
-    assert dict_periodos_dietas[GRUPO_SOLICITACOES_ALIMENTACAO] == [
+    assert GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO in dict_periodos_dietas
+    assert len(dict_periodos_dietas[GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO]) == 2
+    assert dict_periodos_dietas[GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO] == [
         "lanche_emergencial",
         "kit_lanche",
     ]
@@ -353,7 +353,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
 
     recreio_refeicao = _processa_periodo_campo(
         solicitacao_recreio_emei,
-        GRUPO_RECREIO_NAS_FERIAS,
+        GrupoMedicao.RECREIO_NAS_FERIAS,
         "refeicao",
         valores_iniciais,
         dietas_especiais,
@@ -370,7 +370,7 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         solicitacao_recreio_emei,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "kit_lanche",
         valores_iniciais,
         dietas_especiais,
@@ -407,19 +407,19 @@ def test_processa_periodo_campo_unidade_emei(solicitacao_recreio_emei):
 
 
 def test_processa_dieta_especial(solicitacao_recreio_emei):
-    grupo = GRUPO_RECREIO_NAS_FERIAS
+    grupo = GrupoMedicao.RECREIO_NAS_FERIAS
     filtros = {"grupo__nome": grupo}
     campo = "refeicao"
     total = processa_dieta_especial(solicitacao_recreio_emei, filtros, campo, grupo, {})
     assert total == "-"
 
-    grupo = GRUPO_SOLICITACOES_ALIMENTACAO
+    grupo = GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     filtros = {"grupo__nome": grupo}
     campo = "kit_lanche"
     total = processa_dieta_especial(solicitacao_recreio_emei, filtros, campo, grupo, {})
     assert total == "-"
 
-    grupo = GRUPO_RECREIO_NAS_FERIAS
+    grupo = GrupoMedicao.RECREIO_NAS_FERIAS
     filtros = {"grupo__nome": grupo}
     periodo = DIETA_ESPECIAL_TIPO_A
     campo = "refeicao"
@@ -430,7 +430,7 @@ def test_processa_dieta_especial(solicitacao_recreio_emei):
 
 
 def test_processa_grupos_recreio(solicitacao_recreio_emei):
-    periodo = GRUPO_RECREIO_NAS_FERIAS
+    periodo = GrupoMedicao.RECREIO_NAS_FERIAS
     filtros = {"grupo__nome": periodo}
     campo = "refeicao"
     total = processa_grupos_recreio(
@@ -446,7 +446,7 @@ def test_processa_grupos_recreio(solicitacao_recreio_emei):
     )
     assert total == pytest.approx(280.0)
 
-    periodo = GRUPO_SOLICITACOES_ALIMENTACAO
+    periodo = GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
     filtros = {"grupo__nome": periodo}
     campo = "kit_lanche"
     with pytest.raises(Exception):
@@ -709,7 +709,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
 
     recreio_refeicao = _processa_periodo_campo(
         solicitacao_recreio_emef,
-        GRUPO_RECREIO_NAS_FERIAS,
+        GrupoMedicao.RECREIO_NAS_FERIAS,
         "refeicao",
         valores_iniciais,
         dietas_especiais,
@@ -726,7 +726,7 @@ def test_processa_periodo_campo_unidade_emef(solicitacao_recreio_emef):
 
     solicitacao_kit_lanche = _processa_periodo_campo(
         solicitacao_recreio_emef,
-        GRUPO_SOLICITACOES_ALIMENTACAO,
+        GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
         "kit_lanche",
         valores_iniciais,
         dietas_especiais,

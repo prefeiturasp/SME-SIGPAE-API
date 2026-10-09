@@ -10,7 +10,6 @@ from openpyxl.worksheet.worksheet import Worksheet
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
-    GRUPO_RECREIO_NAS_FERIAS,
     NOMES_CAMPOS,
     ORDEM_CAMPOS_RECREIO,
     ORDEM_HEADERS_RECREIO_CEI,
@@ -18,6 +17,7 @@ from src.dados_comuns.constants import (
 from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    GrupoMedicao,
     Medicao,
     SolicitacaoMedicaoInicial,
 )
@@ -326,7 +326,7 @@ def _processa_periodo_campo(
     filtros = {}
     try:
         if CategoriaMedicao.CATEGORIA_CONTEM_DIETA_ESPECIAL in grupo:
-            filtros["grupo__nome"] = GRUPO_RECREIO_NAS_FERIAS
+            filtros["grupo__nome"] = GrupoMedicao.RECREIO_NAS_FERIAS
             total = processa_dieta_especial(
                 solicitacao, filtros, campo, grupo, query_params
             )

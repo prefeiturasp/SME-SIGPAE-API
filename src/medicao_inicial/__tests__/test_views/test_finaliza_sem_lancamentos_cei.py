@@ -8,7 +8,6 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
 from src.dados_comuns.constants import (
-    GRUPO_SOLICITACOES_ALIMENTACAO,
     TIPOS_ALIMENTACAO,
 )
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
@@ -66,7 +65,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentosCEI:
 
     def setup_grupos_medicao(self):
         self.grupo_solicitacoes_alimentacao = self.get_or_create_grupo(
-            GRUPO_SOLICITACOES_ALIMENTACAO
+            GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
 
     def setup_kit_lanche(self, escola_cei):
@@ -115,7 +114,7 @@ class TestUseCaseFinalizaMedicaoSemLancamentosCEI:
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert response.json() == [
             {
-                "periodo_escolar": GRUPO_SOLICITACOES_ALIMENTACAO,
+                "periodo_escolar": GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO,
                 "erro": "Existem solicitações de alimentações no período. Não é possível finalizar sem lançamentos.",
             }
         ]

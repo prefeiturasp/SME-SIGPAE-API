@@ -8,7 +8,6 @@ from src.dados_comuns.behaviors import (
     TemChaveExterna,
 )
 from src.dados_comuns.constants import (
-    GRUPO_RECREIO_NAS_FERIAS,
     TIPOS_UNIDADE_ESCOLAR,
 )
 from src.escola.models import Escola, Lote
@@ -21,7 +20,7 @@ class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
     class Meta:
         ordering = ["-alterado_em"]
-        verbose_name = GRUPO_RECREIO_NAS_FERIAS
+        verbose_name = "Recreio nas Férias"
         verbose_name_plural = "Recreios nas Férias"
 
     def __str__(self):
