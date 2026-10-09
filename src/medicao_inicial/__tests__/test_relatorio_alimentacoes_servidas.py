@@ -168,7 +168,7 @@ def _base(django_user_model):
 
 def _payload(base, **extras):
     dados = {
-        "mes": "12_2023",
+        "meses": ["12_2023"],
         "dres": [str(base["dre"].uuid)],
         "lotes": [],
         "subprefeituras": [],
@@ -202,7 +202,7 @@ def test_validacao_combinacao_valida(django_user_model):
 
     validado = validar_filtros_relatorio_alimentacoes_servidas(dados, base["usuario"])
 
-    assert validado["mes"] == "12_2023"
+    assert validado["meses"] == ["12_2023"]
     assert validado["dres"] == [base["dre"].uuid]
 
 
@@ -213,17 +213,11 @@ def test_validacao_terceirizada_respeita_escopo_e_rejeita_fornecedor(django_user
     erros = _erros(_payload(base, dres=[str(base["outra_dre"].uuid)]), usuario)
     assert "escopo" in str(erros["dres"])
 
-    validado = validar_filtros_relatorio_alimentacoes_servidas(
-        _payload(base), usuario
-    )
+    validado = validar_filtros_relatorio_alimentacoes_servidas(_payload(base), usuario)
     assert validado["dres"] == [base["dre"].uuid]
 
-    fornecedor = baker.make(
-        "Terceirizada", tipo_servico=Terceirizada.FORNECEDOR
-    )
-    usuario_fornecedor = _usuario(
-        django_user_model, fornecedor, ADMINISTRADOR_EMPRESA
-    )
+    fornecedor = baker.make("Terceirizada", tipo_servico=Terceirizada.FORNECEDOR)
+    usuario_fornecedor = _usuario(django_user_model, fornecedor, ADMINISTRADOR_EMPRESA)
     sem_permissao = _erros(_payload(base), usuario_fornecedor)
     assert "permissão" in str(sem_permissao["usuario"])
 
@@ -240,20 +234,18 @@ def test_validacao_rejeita_escola(django_user_model):
 
 def test_validacao_mes_invalido_e_fora_do_escopo(django_user_model):
     base = _base(django_user_model)
-    formato = _erros(_payload(base, mes="13_2023"), base["usuario"])
-    assert "MM_AAAA" in str(formato["mes"])
+    formato = _erros(_payload(base, meses=["13_2023"]), base["usuario"])
+    assert "MM_AAAA" in str(formato["meses"])
 
-    inexistente = _erros(_payload(base, mes="01_2020"), base["usuario"])
-    assert "não permitido" in str(inexistente["mes"])
+    inexistente = _erros(_payload(base, meses=["01_2020"]), base["usuario"])
+    assert "não permitido" in str(inexistente["meses"])
 
 
 def test_validacao_dre_lote_e_subprefeitura(django_user_model):
     base = _base(django_user_model)
     usuario_dre = _usuario(django_user_model, base["dre"], "COGESTOR_DRE")
 
-    dre_fora = _erros(
-        _payload(base, dres=[str(base["outra_dre"].uuid)]), usuario_dre
-    )
+    dre_fora = _erros(_payload(base, dres=[str(base["outra_dre"].uuid)]), usuario_dre)
     assert "escopo" in str(dre_fora["dres"])
 
     lote_outra_dre = _erros(
@@ -302,9 +294,7 @@ def test_validacao_tipos_de_grupos_diferentes_e_subconjunto(django_user_model):
 def test_validacao_unidade_incompativel(django_user_model):
     base = _base(django_user_model)
     gestao_mista = baker.make("TipoGestao", nome=TIPOS_GESTAO.MISTA.value)
-    escola_mista = _escola(
-        base["dre"], base["lote"], base["tipo_a"], gestao_mista
-    )
+    escola_mista = _escola(base["dre"], base["lote"], base["tipo_a"], gestao_mista)
 
     erros = _erros(
         _payload(base, unidades_educacionais=[str(escola_mista.uuid)]),
@@ -377,7 +367,9 @@ def test_validacao_periodo(django_user_model):
         ),
         base["usuario"],
     )
-    assert "não coincide" in str(fora["periodo_lancamento_de"])
+    assert "dentro de um mês de referência selecionado" in str(
+        fora["periodo_lancamento_de"]
+    )
 
     invertido = _erros(
         _payload(
@@ -396,9 +388,7 @@ def test_validacao_periodo(django_user_model):
     assert "juntos" in str(so_de["periodo_lancamento_de"])
 
 
-def test_meses_anos_escopo_e_parametros_antigos(
-    client, django_user_model
-):
+def test_meses_anos_escopo_e_parametros_antigos(client, django_user_model):
     base = _base(django_user_model)
     escola_outra = _escola(
         base["outra_dre"],
@@ -407,7 +397,9 @@ def test_meses_anos_escopo_e_parametros_antigos(
         base["gestao"],
     )
     _solicitacao(escola_outra, "11", "2023")
-    _solicitacao(base["escola"], "10", "2023", "MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE")
+    _solicitacao(
+        base["escola"], "10", "2023", "MEDICAO_EM_ABERTO_PARA_PREENCHIMENTO_UE"
+    )
     recreio = baker.make(
         "RecreioNasFerias",
         titulo="Recreio",
