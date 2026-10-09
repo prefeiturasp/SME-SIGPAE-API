@@ -1,9 +1,23 @@
 """Filtros do Relatório de Alimentações Servidas.
 
 Este módulo valida o conjunto de filtros da tela e calcula os meses de
-referência permitidos. Não gera arquivo, não consulta o corpo do relatório
-e não dispara exportação: a história de exportação deve reutilizar
-``validar_filtros_relatorio_alimentacoes_servidas``.
+referência permitidos. A exportação Excel lê a query string com
+``filtros_exportacao_relatorio_alimentacoes_servidas``, que aplica esta
+mesma validação. A consulta e o arquivo ficam em
+``relatorio_alimentacoes_servidas_dados`` e
+``relatorio_alimentacoes_servidas_excel``.
+
+Query string da exportação
+    Listas no formato do Axios, com a chave repetida e colchetes
+    (``dres[]=a&dres[]=b``), como em ``relatorio-adesao/exportar-xlsx/``.
+    A chave sem colchetes também é aceita. Parâmetro ausente significa
+    "sem restrição" dentro dos demais filtros.
+
+Meses de referência
+    ``meses`` é uma lista obrigatória (``meses[]=11_2023&meses[]=12_2023``),
+    cada item no formato ``MM_AAAA``. Duplicados são descartados e a lista
+    validada sai em ordem cronológica. Cada mês precisa estar entre os meses
+    permitidos para o usuário.
 
 Meses permitidos
     Solicitações com status ``MEDICAO_APROVADA_PELA_CODAE``, no escopo do
@@ -24,8 +38,8 @@ Escopo
 
 Período
     ``periodo_lancamento_de`` e ``periodo_lancamento_ate`` vão juntos ou ficam
-    ambos vazios. As duas datas precisam cair no mês de referência, com De
-    anterior ou igual a Até.
+    ambos vazios. Cada data precisa cair em algum dos meses selecionados
+    (podem ser meses diferentes), com De anterior ou igual a Até.
 
 Faixa etária
     Não existe vínculo de faixa com tipo de unidade. A faixa só é aceita quando
@@ -56,7 +70,11 @@ from src.dados_comuns.constants import (
     USUARIO_EMPRESA,
     USUARIO_RELATORIOS,
 )
-from src.escola.api.filters import dres_no_escopo, instituicao_da_requisicao_usuario
+from src.escola.api.filters import (
+    dres_no_escopo,
+    instituicao_da_requisicao_usuario,
+    uuids_de_lista,
+)
 from src.escola.models import (
     Codae,
     DiretoriaRegional,
@@ -88,7 +106,11 @@ PERFIS_CODAE_AUTORIZADOS = frozenset(
 
 PERFIS_EMPRESA_AUTORIZADOS = frozenset({ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA})
 
-MENSAGEM_MES_FORMATO = "mes deve estar no formato MM_AAAA"
+MENSAGEM_MESES_OBRIGATORIO = "Selecione ao menos um mês de referência."
+MENSAGEM_MES_FORMATO = "Cada mês de referência deve estar no formato MM_AAAA."
+MENSAGEM_DATA_FORA_DOS_MESES = (
+    "A data deve estar dentro de um mês de referência selecionado"
+)
 
 
 def usuario_autorizado_relatorio_alimentacoes_servidas(usuario):
@@ -126,6 +148,44 @@ def validar_filtros_relatorio_alimentacoes_servidas(dados, usuario):
     )
     serializer.is_valid(raise_exception=True)
     return serializer.validated_data
+
+
+CAMPOS_LISTA = (
+    "meses",
+    "dres",
+    "lotes",
+    "subprefeituras",
+    "tipos_unidades",
+    "unidades_educacionais",
+    "tipos_alimentacao",
+    "faixas_etarias",
+)
+CAMPOS_TEXTO = ("periodo_lancamento_de", "periodo_lancamento_ate")
+
+
+def dados_da_query_string(query_params):
+    """Converte a query string do front no payload do serializer."""
+    dados = {
+        campo: query_params.get(campo)
+        for campo in CAMPOS_TEXTO
+        if query_params.get(campo) is not None
+    }
+    for campo in CAMPOS_LISTA:
+        uuids = uuids_de_lista(query_params, f"{campo}[]", campo)
+        if uuids:
+            dados[campo] = uuids
+    return dados
+
+
+def filtros_exportacao_relatorio_alimentacoes_servidas(query_params, usuario):
+    """Valida a query string e devolve filtros serializáveis em JSON."""
+    validados = validar_filtros_relatorio_alimentacoes_servidas(
+        dados_da_query_string(query_params), usuario
+    )
+    return {
+        campo: [str(item) for item in valor] if isinstance(valor, list) else valor
+        for campo, valor in validados.items()
+    }
 
 
 def solicitacoes_aprovadas_no_escopo(usuario):
@@ -184,28 +244,30 @@ def _validar_usuario(usuario):
     if usuario_autorizado_relatorio_alimentacoes_servidas(usuario):
         return
     raise serializers.ValidationError(
-        {
-            "usuario": "Usuário sem permissão para o relatório de alimentações servidas."
-        }
+        {"usuario": "Usuário sem permissão para o relatório de alimentações servidas."}
     )
 
 
-def _validar_formato_mes(valor):
-    if not valor:
+def _validar_meses(valores, usuario):
+    """Devolve os pares (mes, ano) sem duplicados, em ordem cronológica."""
+    if not valores:
+        raise serializers.ValidationError({"meses": MENSAGEM_MESES_OBRIGATORIO})
+    pares = {_interpretar_mes(*_partir_mes(valor)) for valor in valores}
+    permitidos = meses_permitidos(usuario)
+    if not pares <= permitidos:
         raise serializers.ValidationError(
-            {"mes": "É necessário informar o mês de referência."}
+            {"meses": "Mês de referência não permitido para consulta."}
         )
-    mes_txt, ano_txt = _partir_mes(valor)
-    return _interpretar_mes(mes_txt, ano_txt)
+    return sorted(pares, key=lambda par: (par[1], par[0]))
 
 
 def _partir_mes(valor):
     texto = "" if valor is None else str(valor)
     if "_" not in texto:
-        raise serializers.ValidationError({"mes": MENSAGEM_MES_FORMATO})
+        raise serializers.ValidationError({"meses": MENSAGEM_MES_FORMATO})
     mes_txt, ano_txt = texto.split("_", 1)
     if len(mes_txt) != 2 or len(ano_txt) != 4:
-        raise serializers.ValidationError({"mes": MENSAGEM_MES_FORMATO})
+        raise serializers.ValidationError({"meses": MENSAGEM_MES_FORMATO})
     return mes_txt, ano_txt
 
 
@@ -214,17 +276,10 @@ def _interpretar_mes(mes_txt, ano_txt):
         mes = int(mes_txt)
         ano = int(ano_txt)
     except ValueError:
-        raise serializers.ValidationError({"mes": MENSAGEM_MES_FORMATO})
+        raise serializers.ValidationError({"meses": MENSAGEM_MES_FORMATO})
     if not 1 <= mes <= 12:
-        raise serializers.ValidationError({"mes": MENSAGEM_MES_FORMATO})
+        raise serializers.ValidationError({"meses": MENSAGEM_MES_FORMATO})
     return mes, ano
-
-
-def _validar_mes_permitido(mes, ano, usuario):
-    if (mes, ano) not in meses_permitidos(usuario):
-        raise serializers.ValidationError(
-            {"mes": "Mês de referência não permitido para consulta."}
-        )
 
 
 def _lista(dados, chave):
@@ -233,8 +288,7 @@ def _lista(dados, chave):
 
 def _validar_regras(dados, usuario):
     _validar_usuario(usuario)
-    mes, ano = _validar_formato_mes(dados.get("mes"))
-    _validar_mes_permitido(mes, ano, usuario)
+    meses = _validar_meses(dados.get("meses"), usuario)
     dres = _lista(dados, "dres")
     lotes = _lista(dados, "lotes")
     subprefeituras = _lista(dados, "subprefeituras")
@@ -251,9 +305,12 @@ def _validar_regras(dados, usuario):
         tipos_unidades,
         usuario,
     )
-    _validar_tipos_alimentacao(_lista(dados, "tipos_alimentacao"), grupo, tipos_unidades)
+    _validar_tipos_alimentacao(
+        _lista(dados, "tipos_alimentacao"), grupo, tipos_unidades
+    )
     _validar_faixas(_lista(dados, "faixas_etarias"), grupo)
-    _validar_periodo(dados, mes, ano)
+    _validar_periodo(dados, meses)
+    return meses
 
 
 def _validar_dres(dres, usuario):
@@ -472,7 +529,7 @@ def _validar_faixas(uuids, grupo):
         raise serializers.ValidationError({"faixas_etarias": "Faixa etária inválida."})
 
 
-def _validar_periodo(dados, mes, ano):
+def _validar_periodo(dados, meses):
     data_de = dados.get("periodo_lancamento_de") or ""
     data_ate = dados.get("periodo_lancamento_ate") or ""
     if bool(data_de) != bool(data_ate):
@@ -489,8 +546,8 @@ def _validar_periodo(dados, mes, ano):
     inicio = _parse_data(data_de, "periodo_lancamento_de")
     fim = _parse_data(data_ate, "periodo_lancamento_ate")
     _validar_ordem_periodo(inicio, fim)
-    _validar_data_no_mes(inicio, mes, ano, "periodo_lancamento_de")
-    _validar_data_no_mes(fim, mes, ano, "periodo_lancamento_ate")
+    _validar_data_nos_meses(inicio, meses, "periodo_lancamento_de")
+    _validar_data_nos_meses(fim, meses, "periodo_lancamento_ate")
 
 
 def _validar_ordem_periodo(data_de, data_ate):
@@ -517,16 +574,9 @@ def _parse_data(valor, campo):
         )
 
 
-def _validar_data_no_mes(data, mes, ano, campo):
-    if (data.month, data.year) != (mes, ano):
-        raise serializers.ValidationError(
-            {
-                campo: (
-                    f"O mês/ano de '{campo}' ({data.month:02}/{data.year}) "
-                    f"não coincide com 'mes' ({mes:02}_{ano})."
-                )
-            }
-        )
+def _validar_data_nos_meses(data, meses, campo):
+    if (data.month, data.year) not in meses:
+        raise serializers.ValidationError({campo: MENSAGEM_DATA_FORA_DOS_MESES})
 
 
 _ERRO_UUID = {"invalid": "Informe um UUID válido."}
@@ -551,17 +601,19 @@ def _campo_uuids(obrigatorio=False):
 class FiltrosRelatorioAlimentacoesServidasSerializer(serializers.Serializer):
     """Valida o formulário do Relatório de Alimentações Servidas.
 
-    Não está ligado a um endpoint nesta história. A exportação futura deve
-    instanciar este serializer, ou chamar
+    Usado por ``relatorio-alimentacoes-servidas/exportar-xlsx/`` por meio de
     ``validar_filtros_relatorio_alimentacoes_servidas``, com o usuário em
     ``context['usuario']``.
     """
 
-    mes = serializers.CharField(
+    meses = serializers.ListField(
+        child=serializers.CharField(),
+        allow_empty=False,
         error_messages={
-            "required": "É necessário informar o mês de referência.",
-            "blank": "É necessário informar o mês de referência.",
-        }
+            "required": MENSAGEM_MESES_OBRIGATORIO,
+            "empty": MENSAGEM_MESES_OBRIGATORIO,
+            "not_a_list": MENSAGEM_MESES_OBRIGATORIO,
+        },
     )
     dres = _campo_uuids(obrigatorio=True)
     lotes = _campo_uuids()
@@ -578,5 +630,6 @@ class FiltrosRelatorioAlimentacoesServidasSerializer(serializers.Serializer):
     )
 
     def validate(self, attrs):
-        _validar_regras(attrs, self.context.get("usuario"))
+        meses = _validar_regras(attrs, self.context.get("usuario"))
+        attrs["meses"] = [f"{mes:02d}_{ano}" for mes, ano in meses]
         return attrs
