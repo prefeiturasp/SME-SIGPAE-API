@@ -967,7 +967,7 @@ def test_gera_colunas_alimentacao_sem_registro_nao_gera_keyerror():
     arquivo = BytesIO()
     writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
     colunas = [
-        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche"),
+        (GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO, "lanche"),
         ("MANHA", "Sem registro"),
     ]
     linhas = [["EMEF", "123", "Escola", 10, "-"]]
