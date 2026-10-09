@@ -3,11 +3,10 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from src.dados_comuns.constants import GRUPO_INFANTIL_INTEGRAL
 from src.dieta_especial.logs_models.models import LogQuantidadeDietasAutorizadas
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.inclusao_alimentacao.models import InclusaoDeAlimentacaoCEMEI
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.validators import (
     validate_lancamento_dietas_emei_cemei,
     validate_lancamento_inclusoes_dietas_emei_cemei,
@@ -125,7 +124,7 @@ def cenario_dietas_cemei(
         mes=f"{DATA_INCLUSAO.month:02d}",
         ano=str(DATA_INCLUSAO.year),
     )
-    grupo = baker.make("GrupoMedicao", nome=GRUPO_INFANTIL_INTEGRAL)
+    grupo = baker.make("GrupoMedicao", nome=GrupoMedicao.INFANTIL_INTEGRAL)
     medicao = baker.make(
         "Medicao",
         solicitacao_medicao_inicial=solicitacao,
@@ -187,12 +186,16 @@ def cenario_dietas_cemei(
 def test_inclusao_sem_lanche_4h_nao_exige_campo_bloqueado(cenario_dietas_cemei):
     cenario = cenario_dietas_cemei
 
-    assert not cenario["medicao"].valores_medicao.filter(nome_campo="lanche_4h").exists()
+    assert (
+        not cenario["medicao"].valores_medicao.filter(nome_campo="lanche_4h").exists()
+    )
     assert _validar_inclusoes(cenario) == []
 
 
 @pytest.mark.parametrize("nome_campo", ["frequencia", "lanche"])
-def test_inclusao_sem_campo_obrigatorio_continua_bloqueada(cenario_dietas_cemei, nome_campo):
+def test_inclusao_sem_campo_obrigatorio_continua_bloqueada(
+    cenario_dietas_cemei, nome_campo
+):
     cenario = cenario_dietas_cemei
     cenario["medicao"].valores_medicao.filter(nome_campo=nome_campo).delete()
 
@@ -329,7 +332,9 @@ def test_dia_regular_continua_exigindo_lanche_4h_do_vinculo(cenario_dietas_cemei
     ids=["enteral"],
 )
 @pytest.mark.parametrize("autoriza_refeicao", [True, False])
-def test_dieta_enteral_exige_refeicao_somente_quando_autorizada(cenario_dietas_cemei, autoriza_refeicao):
+def test_dieta_enteral_exige_refeicao_somente_quando_autorizada(
+    cenario_dietas_cemei, autoriza_refeicao
+):
     cenario = cenario_dietas_cemei
     if not autoriza_refeicao:
         cenario["quantidade"].tipos_alimentacao.remove(cenario["refeicao"])

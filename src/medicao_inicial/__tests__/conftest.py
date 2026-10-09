@@ -976,6 +976,10 @@ def solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok(
 def solicitacao_medicao_inicial_lanche_emergencial_extraordinario(
     solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok,
 ):
+    GrupoMedicao.objects.get_or_create(
+        nome=GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS,
+        defaults={"ativo": True},
+    )
     solicitacao_medicao_inicial_medicao_aprovada_pela_dre_ok.lanche_emergencial_extraordinario = (
         True
     )
