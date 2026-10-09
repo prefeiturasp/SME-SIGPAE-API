@@ -2,6 +2,7 @@ from io import BytesIO
 
 import pandas as pd
 import pytest
+from openpyxl import load_workbook
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
@@ -960,3 +961,28 @@ def test_todas_medicoes_sem_lancamentos_retorna_true(solicitacao_sem_lancamento)
 def test_todas_medicoes_sem_lancamentos_retorna_false(solicitacao_recreio_emef):
     sem_lancamento = todas_medicoes_sem_lancamentos(solicitacao_recreio_emef)
     assert sem_lancamento is False
+
+
+def test_gera_colunas_alimentacao_sem_registro_nao_gera_keyerror():
+    arquivo = BytesIO()
+    writer = pd.ExcelWriter(arquivo, engine="xlsxwriter")
+    colunas = [
+        (GRUPO_SOLICITACOES_ALIMENTACAO, "lanche"),
+        ("MANHA", "Sem registro"),
+    ]
+    linhas = [["EMEF", "123", "Escola", 10, "-"]]
+    nomes_campos = {"lanche": "Lanche"}
+
+    df = gera_colunas_alimentacao("aba", colunas, linhas, writer, nomes_campos)
+    writer.close()
+
+    workbook = load_workbook(BytesIO(arquivo.getvalue()))
+    sheet = workbook["aba"]
+    rows = list(sheet.iter_rows(values_only=True))
+
+    linha_headers = next(row for row in rows if row[0] == "Tipo")
+    assert linha_headers[3] == "Lanche"
+    assert linha_headers[4] in (None, "")
+
+    linha_dados = next(row for row in rows if row[0] == "EMEF")
+    assert linha_dados[4] == "-"
