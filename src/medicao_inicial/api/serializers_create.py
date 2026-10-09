@@ -462,6 +462,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_alimentacoes_medicao_emebs(
             instance, lista_erros
         )
+        lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lancamento_inclusoes(instance, lista_erros, True)
         lista_erros = validate_lancamento_dietas_emebs(instance, lista_erros)
         lista_erros = validate_lancamento_inclusoes_dietas_emef_emebs(
