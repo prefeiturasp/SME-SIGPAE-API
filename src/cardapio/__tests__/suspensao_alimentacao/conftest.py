@@ -1,10 +1,14 @@
 import datetime
+from types import SimpleNamespace
 
 import pytest
 from model_bakery import baker
 
 from src.cardapio.suspensao_alimentacao.api.serializers import (
     SuspensaoAlimentacaoSerializer,
+)
+from src.cardapio.suspensao_alimentacao.api.serializers_create import (
+    GrupoSuspensaoAlimentacaoCreateSerializer,
 )
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
@@ -154,3 +158,81 @@ def grupo_suspensao_alimentacao_escola_cancelou(grupo_suspensao_alimentacao):
 @pytest.fixture
 def motivo_suspensao_alimentacao():
     return baker.make(MotivoSuspensao, nome="Não vai ter aula")
+
+
+@pytest.fixture
+def contexto_request():
+    usuario = baker.make("perfil.Usuario")
+    return {"request": SimpleNamespace(user=usuario)}
+
+
+@pytest.fixture
+def periodo_escolar_suspensao():
+    return baker.make("PeriodoEscolar")
+
+
+@pytest.fixture
+def tipo_alimentacao_suspensao():
+    return baker.make("TipoAlimentacao")
+
+
+@pytest.fixture
+def dados_base(
+    escola,
+    motivo_suspensao_alimentacao,
+    periodo_escolar_suspensao,
+    tipo_alimentacao_suspensao,
+):
+    return {
+        "escola": escola,
+        "periodo": periodo_escolar_suspensao,
+        "tipo": tipo_alimentacao_suspensao,
+        "motivo": motivo_suspensao_alimentacao,
+    }
+
+
+@pytest.fixture
+def monta_payload(dados_base):
+    """Factory: devolve o payload; aceita sobrescrever campos de dados_base e a data."""
+
+    def _monta(data="30/10/2026", **overrides):
+        d = {**dados_base, **overrides}
+        return {
+            "escola": str(d["escola"].uuid),
+            "quantidades_por_periodo": [
+                {
+                    "numero_alunos": "1",
+                    "periodo_escolar": str(d["periodo"].uuid),
+                    "tipos_alimentacao": [str(d["tipo"].uuid)],
+                }
+            ],
+            "suspensoes_alimentacao": [
+                {"data": data, "motivo": str(d["motivo"].uuid), "outro_motivo": ""}
+            ],
+        }
+
+    return _monta
+
+
+@pytest.fixture
+def serializer_create(contexto_request):
+    """Factory: cria o serializer já com o contexto."""
+
+    def _cria(data, instance=None):
+        return GrupoSuspensaoAlimentacaoCreateSerializer(
+            instance=instance, data=data, context=contexto_request
+        )
+
+    return _cria
+
+
+@pytest.fixture
+def grupo_criado_informado(monta_payload, serializer_create):
+    ser = serializer_create(monta_payload())
+    assert ser.is_valid(), ser.errors
+    grupo = ser.save()
+    # RASCUNHO libera duplicidade; INFORMADO bloqueia
+    GrupoSuspensaoAlimentacao.objects.filter(pk=grupo.pk).update(
+        status=InformativoPartindoDaEscolaWorkflow.INFORMADO
+    )
+    return grupo
