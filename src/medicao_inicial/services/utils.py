@@ -237,6 +237,7 @@ def gera_colunas_alimentacao(
             ("", "Unidade Escolar"),
         ]
     if headers is None:
+        nomes_campos = {**(nomes_campos or {}), "Sem registro": ""}
         headers = [
             (
                 chave.upper() if chave != GRUPO_SOLICITACOES_ALIMENTACAO else "",
