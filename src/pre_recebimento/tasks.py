@@ -35,6 +35,7 @@ from src.pre_recebimento.cronograma_semanal.api.relatorio_cronograma_semanal_exc
 from src.pre_recebimento.ficha_tecnica.api.relatorio_fichas_tecnicas_excel import (
     gera_relatorio_fichas_tecnicas_xlsx,
 )
+from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.relatorios.utils import html_to_pdf_file
 
 logger = logging.getLogger(__name__)
@@ -656,9 +657,15 @@ def importa_feriados_para_interrupcoes_programadas():
 def avisa_empresa_sobre_etapa_programada_proxima():
     data_alvo = datetime.date.today() + datetime.timedelta(days=3)
 
-    etapas = EtapasDoCronograma.objects.filter(
-        data_programada=data_alvo, cronograma__status="ASSINADO_CODAE"
-    ).select_related("cronograma__empresa")
+    etapas = (
+        EtapasDoCronograma.objects.filter(
+            data_programada=data_alvo, cronograma__status="ASSINADO_CODAE"
+        )
+        .exclude(
+            cronograma__ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_FLV
+        )
+        .select_related("cronograma__empresa")
+    )
 
     for etapa in etapas:
         cronograma = etapa.cronograma
