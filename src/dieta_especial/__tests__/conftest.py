@@ -2392,3 +2392,50 @@ def solicitacao_dieta_especial_log_inativada(
 def orientacoes_html():
     html = """<figure class="table"><table style="border-style:none;"><tbody><tr><td style="background-color:silver;border-color:windowtext;border-width:1.0pt;padding:0cm 5.4pt;width:359.75pt;"><p style="text-align:center;"><span style="color:black;"><strong>Alimento</strong></span></p></td><td style="background-color:silver;border-bottom-style:solid;border-color:windowtext;border-left-style:none;border-right-style:solid;border-top-style:solid;border-width:1.0pt;padding:0cm 5.4pt;width:286.75pt;"><p style="text-align:center;"><span style="color:black;"><strong>Alimento Substituto</strong></span></p></td></tr></tbody></table></figure>"""
     return {"de": html, "para": "<p>Substituições da Dieta</p>" + html}
+
+
+@pytest.fixture
+def protocolo_padrao_para_pdf(db):
+    with freeze_time("2026-05-07 10:00:00"):
+        protocolo = baker.make(
+            "ProtocoloPadraoDietaEspecial",
+            nome_protocolo="ALERGIA A CAMARÃO",
+            orientacoes_gerais=(
+                "<p>Primeira orientação do protocolo.<br>"
+                "Segunda linha da orientação.</p>"
+                "<p><strong>Orientação em destaque.</strong></p>"
+            ),
+            status="NAO_LIBERADO",
+            historico=None,
+        )
+
+    edital_segundo = baker.make("Edital", numero="02/2026")
+    edital_primeiro = baker.make("Edital", numero="01/2026")
+    protocolo.editais.add(edital_segundo, edital_primeiro)
+    baker.make("Edital", numero="99/2026")
+
+    alimento_isento = baker.make("dieta_especial.Alimento", nome="UVA")
+    baker.make(
+        "SubstituicaoAlimentoProtocoloPadrao",
+        protocolo_padrao=protocolo,
+        alimento=alimento_isento,
+        tipo="I",
+    )
+    alimento = baker.make("dieta_especial.Alimento", nome="ABACATE")
+    substituicao = baker.make(
+        "SubstituicaoAlimentoProtocoloPadrao",
+        protocolo_padrao=protocolo,
+        alimento=alimento,
+        tipo="S",
+    )
+    for nome in ("SUBSTITUTO ALIMENTAR A", "SUBSTITUTO ALIMENTAR B"):
+        substituto = baker.make("dieta_especial.Alimento", nome=nome)
+        baker.make(
+            "AlimentoSubstituto",
+            substituicao_alimento_protocolo_padrao=substituicao,
+            alimento=substituto,
+        )
+    produto = baker.make("Produto", nome="PRODUTO SUBSTITUTO CADASTRADO")
+    substituicao.substitutos.add(produto)
+
+    return protocolo

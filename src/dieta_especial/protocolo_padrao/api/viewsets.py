@@ -8,7 +8,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from src.dados_comuns.constants import PayloadVariaveis
+from src.dados_comuns.constants import (
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    PayloadVariaveis,
+)
 from src.dieta_especial.protocolo_padrao.api.serializers import (
     ProtocoloPadraoDietaEspecialSerializer,
     ProtocoloPadraoDietaEspecialSimplesSerializer,
@@ -21,6 +24,8 @@ from ....terceirizada.models import Contrato, Edital
 from ...solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ..models import ProtocoloPadraoDietaEspecial
 from .pagination import ProtocoloPadraoPagination
+
+from src.dieta_especial.tasks import gerar_pdf_protocolo_padrao_async
 
 
 class ProtocoloPadraoDietaEspecialViewSet(ModelViewSet):
@@ -195,3 +200,17 @@ class ProtocoloPadraoDietaEspecialViewSet(ModelViewSet):
                 {"results": "É necessário selecionar um Edital."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(detail=True, methods=["GET"], url_path="exportar-pdf")
+    def relatorio_protocolo_padrao_pdf(self, request, uuid=None):
+        protocolo = self.get_object()
+        usuario = request.user.get_username()
+        gerar_pdf_protocolo_padrao_async.delay(
+            user=usuario,
+            nome_arquivo="relatorio_protocolo_padrao.pdf",
+            params={"protocolo_uuid": str(protocolo.uuid)},
+        )
+        return Response(
+            {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO},
+            status=status.HTTP_200_OK,
+        )
