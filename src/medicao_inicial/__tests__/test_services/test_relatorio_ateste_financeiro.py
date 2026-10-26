@@ -888,6 +888,7 @@ CHAVES_RESPOSTA_ATUAL = {
     "legenda",
     "tabelas",
     "mes_ano",
+    "possui_reajuste",
 }
 
 GRUPOS = {
@@ -1238,3 +1239,142 @@ class TestCalculosRelatorioConsolidado:
         dados = com_calculos.json()
         dados.pop("calculos")
         assert dados == sem_calculos.json()
+
+
+def _reajustes(parametrizacao):
+    return ParametrizacaoFinanceiraTabelaValor.objects.filter(
+        tabela__parametrizacao_financeira=parametrizacao,
+        tipo_valor__nome="REAJUSTE",
+    )
+
+
+@pytest.mark.django_db
+class TestPossuiReajuste:
+    def test_false_sem_reajustes_cadastrados(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).delete()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        assert response.json()["possui_reajuste"] is False
+
+    @pytest.mark.parametrize("valor", ["0", "0,00", "0.00", ""])
+    def test_false_quando_reajustes_sao_zero(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+        valor,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor=valor)
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        assert response.json()["possui_reajuste"] is False
+
+    def test_false_com_nulos_e_zeros_combinados(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        reajustes = list(_reajustes(parametrizacao_financeira_emei))
+        for reajuste, valor in zip(reajustes, ["", "0", "0,00", "0.00"]):
+            reajuste.valor = valor
+            reajuste.save()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.json()["possui_reajuste"] is False
+
+    def test_true_quando_um_reajuste_e_diferente_de_zero(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        reajustes = list(_reajustes(parametrizacao_financeira_emei))
+        for reajuste in reajustes:
+            reajuste.valor = "0"
+            reajuste.save()
+        reajustes[0].valor = "0,16"
+        reajustes[0].save()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        dados = response.json()
+        assert dados["possui_reajuste"] is True
+        assert isinstance(dados["possui_reajuste"], bool)
+        assert CHAVES_RESPOSTA_ATUAL <= set(dados)
+        assert any(
+            valor["valor"] == "0,16"
+            for tabela in dados["tabelas"]
+            for valor in tabela["valores"]
+            if valor["tipo_valor"] == "REAJUSTE"
+        )
+
+    def test_true_quando_reajuste_e_negativo(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor="0")
+        reajuste = _reajustes(parametrizacao_financeira_emei).first()
+        reajuste.valor = "-0,16"
+        reajuste.save()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.json()["possui_reajuste"] is True
+
+    def test_ignora_unitario_e_acrescimo(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor="0")
+        ParametrizacaoFinanceiraTabelaValor.objects.filter(
+            tabela__parametrizacao_financeira=parametrizacao_financeira_emei,
+            tipo_valor__nome__in=["UNITARIO", "ACRESCIMO"],
+        ).update(valor="12,50")
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.json()["possui_reajuste"] is False
+
+    def test_ignora_reajuste_de_outro_lote_e_grupo(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+        parametrizacao_financeira_cei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor="0")
+        _reajustes(parametrizacao_financeira_cei).update(valor="9,54")
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        assert response.json()["possui_reajuste"] is False

@@ -18,7 +18,10 @@ from src.dados_comuns.constants import (
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
-from src.medicao_inicial.models import CategoriaMedicao
+from src.medicao_inicial.models import (
+    CategoriaMedicao,
+    ParametrizacaoFinanceiraTabelaValor,
+)
 from src.medicao_inicial.utils import (
     calcula_totais_consumo_por_grupo,
     normalizar_nome_campo,
@@ -125,6 +128,15 @@ def obter_config_grupo(grupo_nome):
             return config
 
     return grupos_relatorio["DEFAULT"]
+
+
+def parametrizacao_possui_reajuste(parametrizacao):
+    """Indica se a parametrização tem algum reajuste diferente de zero."""
+    valores = ParametrizacaoFinanceiraTabelaValor.objects.filter(
+        tabela__parametrizacao_financeira=parametrizacao,
+        tipo_valor__nome="REAJUSTE",
+    ).values_list("valor", flat=True)
+    return any(to_decimal_safe(valor) != 0 for valor in valores)
 
 
 def montar_relatorio_calculado(relatorio_financeiro, parametrizacao):

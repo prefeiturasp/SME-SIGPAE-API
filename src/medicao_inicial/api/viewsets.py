@@ -51,6 +51,7 @@ from src.medicao_inicial.services.relatorio_alimentacoes_servidas_dados import (
 )
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
+    parametrizacao_possui_reajuste,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
 
@@ -2801,7 +2802,8 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
 
         Returns:
             Response: Resposta HTTP contendo os dados da parametrização
-                financeira, o UUID do lote e o mês/ano de referência.
+                financeira, o UUID do lote, o mês/ano de referência e
+                ``possui_reajuste``.
 
         Raises:
             Exception: Retorna HTTP 400 caso ocorra um erro durante o
@@ -2843,6 +2845,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 **DadosParametrizacaoFinanceiraSerializer(parametrizacao).data,
                 "lote": parametrizacao.lote.uuid,
                 "mes_ano": f"{relatorio_financeiro.mes}_{relatorio_financeiro.ano}",
+                "possui_reajuste": parametrizacao_possui_reajuste(parametrizacao),
             }
 
             if request.query_params.get("incluir_calculos", "").lower() == "true":
