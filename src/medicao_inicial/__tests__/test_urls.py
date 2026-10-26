@@ -5114,3 +5114,60 @@ def test_url_endpoint_relatorio_reabrir_lancamentos(
     assert response.json() == {
         "detail": "As solicitações das unidades selecionadas foram reabertas para lançamento."
     }
+
+
+@pytest.mark.django_db
+def test_reabrir_lancamentos_restringe_solicitacao_ao_lote_e_a_dre(
+    client_autenticado_codae_medicao,
+    relatorio_financeiro_emei,
+    solicitacao_relatorio_consolidado_grupo_emei,
+    solicitacao_escola_ceuemei,
+    solicitacao_relatorio_consolidado_grupo_emef,
+):
+    relatorio_financeiro_emei.mes = solicitacao_relatorio_consolidado_grupo_emei.mes
+    relatorio_financeiro_emei.ano = solicitacao_relatorio_consolidado_grupo_emei.ano
+    relatorio_financeiro_emei.save()
+
+    grupo = relatorio_financeiro_emei.grupo_unidade_escolar
+    grupo.tipos_unidades.add(
+        solicitacao_relatorio_consolidado_grupo_emei.escola.tipo_unidade,
+        solicitacao_relatorio_consolidado_grupo_emef.escola.tipo_unidade,
+    )
+
+    escola_outro_lote = solicitacao_escola_ceuemei.escola
+    escola_outro_lote.diretoria_regional = (
+        relatorio_financeiro_emei.lote.diretoria_regional
+    )
+    escola_outro_lote.save()
+
+    url = (
+        "/medicao-inicial/relatorio-financeiro/reabrir-lancamentos/"
+        f"{relatorio_financeiro_emei.uuid}/"
+    )
+    response = client_autenticado_codae_medicao.put(
+        url,
+        content_type="application/json",
+        data=json.dumps(
+            {
+                "unidades_educacionais": [
+                    str(solicitacao_relatorio_consolidado_grupo_emei.escola.uuid),
+                    str(escola_outro_lote.uuid),
+                    str(solicitacao_relatorio_consolidado_grupo_emef.escola.uuid),
+                ]
+            }
+        ),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    solicitacao_relatorio_consolidado_grupo_emei.refresh_from_db()
+    solicitacao_escola_ceuemei.refresh_from_db()
+    solicitacao_relatorio_consolidado_grupo_emef.refresh_from_db()
+    assert (
+        solicitacao_relatorio_consolidado_grupo_emei.status
+        == solicitacao_relatorio_consolidado_grupo_emei.workflow_class.MEDICAO_APROVADA_PELA_DRE
+    )
+    status_codae = (
+        solicitacao_escola_ceuemei.workflow_class.MEDICAO_APROVADA_PELA_CODAE
+    )
+    assert solicitacao_escola_ceuemei.status == status_codae
+    assert solicitacao_relatorio_consolidado_grupo_emef.status == status_codae

@@ -2919,7 +2919,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
 
         Localiza o relatório financeiro pelo UUID e identifica as
         solicitações de medição aprovadas pela CODAE no mês e ano de
-        referência do relatório.
+        referência do relatório, restritas ao lote desse relatório.
 
         As solicitações são posteriormente filtradas pelas unidades
         educacionais informadas na requisição, quando houver. O
@@ -2970,6 +2970,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             filtros_relatorio = {
                 "mes": relatorio_financeiro.mes,
                 "ano": relatorio_financeiro.ano,
+                "escola__lote": relatorio_financeiro.lote,
                 "status": SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
             }
 
