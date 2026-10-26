@@ -12,6 +12,7 @@ from src.dados_comuns.helper_planilha_modelo import (
 )
 from src.imr.models import (
     CategoriaOcorrencia,
+    FormularioDiretor,
     OcorrenciaNaoSeAplica,
     TipoGravidade,
     TipoPenalidade,
@@ -303,6 +304,87 @@ def buscar_respostas_diretor(formularios_base_ids):
         respostas_encontradas.append((resposta, resposta.tipo_ocorrencia, detalhe))
 
     return respostas_encontradas
+
+
+def _valor_resposta_para_edicao(resposta):
+    if isinstance(resposta, OcorrenciaNaoSeAplica):
+        return resposta.descricao
+
+    valor = resposta.resposta
+
+    if resposta._meta.get_field("resposta").is_relation:
+        return valor.uuid
+
+    if isinstance(valor, list):
+        return [data.strftime(FORMATO_DATA_BRASILEIRO) for data in valor]
+
+    return valor
+
+
+def obter_ocorrencia_diretor(formulario, tipo_ocorrencia, grupo):
+    respostas = [
+        {
+            **detalhe,
+            "resposta": _valor_resposta_para_edicao(resposta),
+        }
+        for resposta, tipo, detalhe in buscar_respostas_diretor(
+            [formulario.formulario_base_id]
+        )
+        if tipo.pk == tipo_ocorrencia.pk and resposta.grupo == grupo
+    ]
+
+    if not respostas:
+        return None
+
+    respostas.sort(key=lambda resposta: (resposta["posicao"] or 0, resposta["titulo"]))
+
+    return {
+        "uuid": formulario.uuid,
+        "solicitacao_medicao_inicial": formulario.solicitacao_medicao_inicial.uuid,
+        "data": formulario.formulario_base.data,
+        "categoria": tipo_ocorrencia.categoria,
+        "tipo_ocorrencia": tipo_ocorrencia.uuid,
+        "titulo": tipo_ocorrencia.titulo,
+        "descricao": tipo_ocorrencia.descricao,
+        "grupo": grupo,
+        "respostas": respostas,
+    }
+
+
+def _solicitacao_possui_ocorrencias(solicitacao_medicao_inicial):
+    formularios = FormularioDiretor.objects.filter(
+        solicitacao_medicao_inicial=solicitacao_medicao_inicial
+    )
+    return bool(listar_ocorrencias_diretor(formularios))
+
+
+def excluir_ocorrencia_diretor(formulario, tipo_ocorrencia, grupo):
+    form_base = formulario.formulario_base
+
+    for resposta in form_base.buscar_respostas():
+        if (
+            resposta.parametrizacao.tipo_ocorrencia_id == tipo_ocorrencia.pk
+            and resposta.grupo == grupo
+        ):
+            resposta.delete()
+
+    OcorrenciaNaoSeAplica.objects.filter(
+        formulario_base=form_base,
+        tipo_ocorrencia=tipo_ocorrencia,
+        grupo=grupo,
+    ).delete()
+
+    if (
+        not form_base.buscar_respostas()
+        and not form_base.respostas_nao_se_aplica.exists()
+    ):
+        form_base.delete()
+
+    solicitacao_medicao_inicial = formulario.solicitacao_medicao_inicial
+
+    if not _solicitacao_possui_ocorrencias(solicitacao_medicao_inicial):
+        solicitacao_medicao_inicial.com_ocorrencias = False
+        solicitacao_medicao_inicial.save(update_fields=["com_ocorrencias"])
 
 
 def listar_ocorrencias_diretor(formularios):
