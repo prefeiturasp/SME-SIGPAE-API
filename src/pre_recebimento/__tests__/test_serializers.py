@@ -378,11 +378,12 @@ def test_etapas_cronograma_ficha_recebimento_quantidade_recebida_soma_veiculos(
     ).data
     fichas_por_uuid = {str(f["uuid"]): f for f in data["fichas_recebimento"]}
 
-    assert float(fichas_por_uuid[str(ficha.uuid)]["quantidade_recebida"]) == 250.0
-    assert (
-        float(fichas_por_uuid[str(ficha_com_ocorrencia.uuid)]["quantidade_recebida"])
-        == 50.0
-    )
+    assert float(
+        fichas_por_uuid[str(ficha.uuid)]["quantidade_recebida"]
+    ) == pytest.approx(250.0)
+    assert float(
+        fichas_por_uuid[str(ficha_com_ocorrencia.uuid)]["quantidade_recebida"]
+    ) == pytest.approx(50.0)
 
 
 def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
