@@ -16,6 +16,7 @@ from src.cardapio.suspensao_alimentacao.models import (
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.fluxo_status import InformativoPartindoDaEscolaWorkflow
 
 
@@ -192,11 +193,18 @@ def dados_base(
 
 
 @pytest.fixture
-def monta_payload(dados_base):
+def data_suspensao():
+    """Data que atende às regras de negócio (não passada e do ano corrente)."""
+    return datetime.date.today()
+
+
+@pytest.fixture
+def monta_payload(dados_base, data_suspensao):
     """Factory: devolve o payload; aceita sobrescrever campos de dados_base e a data."""
 
-    def _monta(data="30/10/2026", **overrides):
+    def _monta(data=None, **overrides):
         d = {**dados_base, **overrides}
+        data_formatada = (data or data_suspensao).strftime(FORMATO_DATA_BRASILEIRO)
         return {
             "escola": str(d["escola"].uuid),
             "quantidades_por_periodo": [
@@ -207,7 +215,11 @@ def monta_payload(dados_base):
                 }
             ],
             "suspensoes_alimentacao": [
-                {"data": data, "motivo": str(d["motivo"].uuid), "outro_motivo": ""}
+                {
+                    "data": data_formatada,
+                    "motivo": str(d["motivo"].uuid),
+                    "outro_motivo": "",
+                }
             ],
         }
 

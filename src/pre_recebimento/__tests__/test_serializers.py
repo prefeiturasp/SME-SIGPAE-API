@@ -378,11 +378,12 @@ def test_etapas_cronograma_ficha_recebimento_quantidade_recebida_soma_veiculos(
     ).data
     fichas_por_uuid = {str(f["uuid"]): f for f in data["fichas_recebimento"]}
 
-    assert float(fichas_por_uuid[str(ficha.uuid)]["quantidade_recebida"]) == 250.0
-    assert (
-        float(fichas_por_uuid[str(ficha_com_ocorrencia.uuid)]["quantidade_recebida"])
-        == 50.0
-    )
+    assert float(
+        fichas_por_uuid[str(ficha.uuid)]["quantidade_recebida"]
+    ) == pytest.approx(250.0)
+    assert float(
+        fichas_por_uuid[str(ficha_com_ocorrencia.uuid)]["quantidade_recebida"]
+    ) == pytest.approx(50.0)
 
 
 def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
@@ -522,6 +523,7 @@ def test_ficha_tecnica_listagem_serializer_campo_programa(ficha_tecnica_factory)
 
     assert "programa" in serializer.data
     assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
+    assert "categoria" in serializer.data
 
 
 def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory):
@@ -729,6 +731,7 @@ def test_ficha_tecnica_simples_serializer_expoe_ponto_a_ponto():
     dados = FichaTecnicaSimplesSerializer(ficha_tecnica).data
 
     assert dados["ponto_a_ponto"] is True
+    assert dados["categoria"] == FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS
     assert "flv_ponto_a_ponto" not in dados
 
 
