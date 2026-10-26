@@ -5117,7 +5117,7 @@ def test_url_endpoint_relatorio_reabrir_lancamentos(
 
 
 @pytest.mark.django_db
-def test_reabrir_lancamentos_restringe_solicitacao_ao_lote_e_a_dre(
+def test_reabrir_lancamentos_todos_restringe_ao_lote_mes_e_ano(
     client_autenticado_codae_medicao,
     relatorio_financeiro_emei,
     solicitacao_relatorio_consolidado_grupo_emei,
@@ -5140,6 +5140,15 @@ def test_reabrir_lancamentos_restringe_solicitacao_ao_lote_e_a_dre(
     )
     escola_outro_lote.save()
 
+    escola_outro_periodo = solicitacao_relatorio_consolidado_grupo_emef.escola
+    escola_outro_periodo.lote = relatorio_financeiro_emei.lote
+    escola_outro_periodo.diretoria_regional = (
+        relatorio_financeiro_emei.lote.diretoria_regional
+    )
+    escola_outro_periodo.save()
+    solicitacao_relatorio_consolidado_grupo_emef.mes = "05"
+    solicitacao_relatorio_consolidado_grupo_emef.save()
+
     url = (
         "/medicao-inicial/relatorio-financeiro/reabrir-lancamentos/"
         f"{relatorio_financeiro_emei.uuid}/"
@@ -5147,15 +5156,7 @@ def test_reabrir_lancamentos_restringe_solicitacao_ao_lote_e_a_dre(
     response = client_autenticado_codae_medicao.put(
         url,
         content_type="application/json",
-        data=json.dumps(
-            {
-                "unidades_educacionais": [
-                    str(solicitacao_relatorio_consolidado_grupo_emei.escola.uuid),
-                    str(escola_outro_lote.uuid),
-                    str(solicitacao_relatorio_consolidado_grupo_emef.escola.uuid),
-                ]
-            }
-        ),
+        data=json.dumps({"unidades_educacionais": []}),
     )
 
     assert response.status_code == status.HTTP_200_OK
