@@ -3,6 +3,7 @@ import datetime
 import pytest
 from django.core.exceptions import ValidationError
 
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.dieta_especial.solicitacao_dieta_especial.services.historico_protocolo import (
     _compara_alergias,
@@ -250,14 +251,17 @@ def test_atualiza_historico_protocolo_somente_informacoes_adicionais(
 
 
 def test_compara_data_de_termino(solicitacao_historico_atualizacao_protocolo):
-    data_termino = "2026-10-25"
+    data_termino = datetime.date.today() + datetime.timedelta(days=30)
     comparacao = _compara_data_de_termino(
-        solicitacao_historico_atualizacao_protocolo, data_termino
+        solicitacao_historico_atualizacao_protocolo, data_termino.isoformat()
     )
 
     assert isinstance(comparacao, dict)
     assert comparacao["de"] == "Sem data término"
-    assert comparacao["para"] == "Com data de término 25/10/2026"
+    assert (
+        comparacao["para"]
+        == f"Com data de término {data_termino.strftime(FORMATO_DATA_BRASILEIRO)}"
+    )
 
 
 def test_compara_data_de_termino_nao_enviada(
