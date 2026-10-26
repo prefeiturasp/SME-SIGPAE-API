@@ -1,0 +1,96 @@
+{% load static %}
+{% load sass_tags %}
+{% load safe_html_tags %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Protocolo Padrão de Dieta Especial</title>
+  <link rel="stylesheet" href="{% sass_src 'css/recebimento/cabecalho.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/custom_bootstrap.scss' %}" type="text/css">
+  <link rel="stylesheet" href="{% sass_src 'css/protocolo_padrao_dieta_especial.scss' %}" type="text/css">
+</head>
+<body class="protocolo-padrao-dieta-especial">
+  <header class="header">
+    <section class="titulo-e-logo flex-between">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="Prefeitura de São Paulo">
+      <h1 class="titulo">SISTEMA GESTÃO DO PROGRAMA DE ALIMENTAÇÃO ESCOLAR</h1>
+    </section>
+    <section>
+      <h2 class="subtitulo">PROTOCOLO PADRÃO DE DIETA ESPECIAL</h2>
+    </section>
+  </header>
+
+  <div class="rodape-data-geracao">
+    Documento gerado em {% now "d/m/Y" %} às {% now "H:i" %}
+  </div>
+
+  <main>
+    <section class="secao">
+      <h2>Nome do Protocolo Padrão</h2>
+      <p class="nome-protocolo">{{ nome_protocolo }}</p>
+    </section>
+
+    <section class="secao">
+      <h2>Orientações Gerais</h2>
+      <div class="orientacoes-gerais">{{ orientacoes_gerais|safe_content }}</div>
+    </section>
+
+    <section class="secao">
+      <h2>Lista de Substituições</h2>
+      <table class="tabela-substituicoes">
+        <colgroup>
+          <col class="coluna-alimento">
+          <col class="coluna-tipo">
+          <col class="coluna-substitutos">
+        </colgroup>
+        <thead>
+          <tr>
+            <th scope="col">Alimento</th>
+            <th scope="col">Isenção/Substituição</th>
+            <th scope="col">Alimento/Ingrediente</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for substituicao in substituicoes %}
+            <tr>
+              <td>{{ substituicao.alimento.nome|default:"" }}</td>
+              <td>{{ substituicao.get_tipo_display }}</td>
+              <td>
+                <ul class="lista-substitutos">
+                  {% for alimento in substituicao.alimentos_substitutos.all %}
+                    <li>{{ alimento.nome }}</li>
+                  {% endfor %}
+                  {% for produto in substituicao.substitutos.all %}
+                    <li>{{ produto.nome }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="3">Nenhuma substituição cadastrada.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="secao">
+      <h2>Editais</h2>
+      <ul class="lista-editais">
+        {% for edital in editais %}
+          <li>{{ edital.numero }}</li>
+        {% empty %}
+          <li>Nenhum edital vinculado.</li>
+        {% endfor %}
+      </ul>
+    </section>
+
+    <section class="ultima-atualizacao">
+      <h2>Data da última atualização</h2>
+      <p>{{ data_ultima_atualizacao }}</p>
+    </section>
+  </main>
+</body>
+</html>
