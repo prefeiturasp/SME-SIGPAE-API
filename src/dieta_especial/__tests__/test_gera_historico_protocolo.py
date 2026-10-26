@@ -1,3 +1,5 @@
+import datetime
+
 import pytest
 from django.core.exceptions import ValidationError
 
@@ -278,7 +280,10 @@ def test_atualiza_historico_protocolo_somente_data_termino(
     assert isinstance(html, str)
     assert "Data de término" in html
     assert "Sem data término" in html
-    assert "Com data de término 25/10/2026" in html
+    data_termino = datetime.date.fromisoformat(
+        mock_request_codae_atualiza_protocolo["data_termino"]
+    )
+    assert f"Com data de término {data_termino.strftime('%d/%m/%Y')}" in html
 
 
 def test_compara_substituicoes(

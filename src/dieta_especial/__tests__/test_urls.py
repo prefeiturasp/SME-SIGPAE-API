@@ -1316,7 +1316,13 @@ def test_codae_atualiza_protocolo(
 
     assert "Data de término" in justificativa
     assert "Sem data término" in justificativa
-    assert "Com data de término 25/10/2026" in justificativa
+    data_termino = datetime.date.fromisoformat(
+        mock_request_codae_atualiza_protocolo["data_termino"]
+    )
+    assert (
+        f"Com data de término {data_termino.strftime(FORMATO_DATA_BRASILEIRO)}"
+        in justificativa
+    )
 
     assert "Substituições de Alimentos" in justificativa
     assert justificativa.count("SUBSTITUIR") == 4
