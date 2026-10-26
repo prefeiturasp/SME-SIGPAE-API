@@ -1,5 +1,6 @@
 from datetime import datetime
 from decimal import ROUND_HALF_UP, Decimal
+from typing import Any
 
 from num2words import num2words
 
@@ -19,9 +20,11 @@ from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDi
 from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.utils import (
+    calcula_totais_consumo_por_grupo,
     normalizar_nome_campo,
     to_decimal_safe,
 )
+from src.relatorios.templatetags.index import decimal_br
 
 ORDEM_PRIORIDADE = {
     TIPOS_ALIMENTACAO.REFEICAO.value.upper(): 0,
@@ -32,6 +35,64 @@ ORDEM_PRIORIDADE = {
     TIPOS_ALIMENTACAO.LANCHE_4H.value.upper(): 3,
     "KIT LANCHE": 99,
 }
+
+
+CENTAVOS = Decimal("0.01")
+CEM = Decimal("100")
+CHAVE_CALCULO = "calculo"
+CHAVE_CABECALHO = "cabecalho"
+
+
+def arredonda_centavos(valor: Decimal) -> Decimal:
+    return valor.quantize(CENTAVOS, rounding=ROUND_HALF_UP)
+
+
+def calcula_linha_alimentacao(
+    valor_unitario: Decimal, valor_reajuste: Decimal, numero_atendimentos: Any
+) -> dict[str, Decimal]:
+    atendimentos = to_decimal_safe(numero_atendimentos)
+    unitario_reajustado = valor_unitario + valor_reajuste
+
+    return {
+        "valor_total_unitario": arredonda_centavos(atendimentos * valor_unitario),
+        "valor_total_reajuste": arredonda_centavos(atendimentos * valor_reajuste),
+        "valor_unitario_reajustado": arredonda_centavos(unitario_reajustado),
+        "valor_total": arredonda_centavos(atendimentos * unitario_reajustado),
+    }
+
+
+def calcula_linha_dieta(
+    valor_unitario: Decimal, percentual_acrescimo: Decimal, numero_consumo: Any
+) -> dict[str, Decimal]:
+    consumo = to_decimal_safe(numero_consumo)
+    unitario_total = valor_unitario * (1 + (percentual_acrescimo / CEM))
+
+    return {
+        "valor_unitario_total": arredonda_centavos(unitario_total),
+        "valor_total": arredonda_centavos(consumo * unitario_total),
+    }
+
+
+def serializa_relatorio_calculado(dados: Any) -> Any:
+    if isinstance(dados, Decimal):
+        return decimal_br(arredonda_centavos(dados))
+
+    if isinstance(dados, dict):
+        if CHAVE_CALCULO in dados:
+            dados = {
+                **{k: v for k, v in dados.items() if k != CHAVE_CALCULO},
+                **dados[CHAVE_CALCULO],
+            }
+        return {
+            chave: serializa_relatorio_calculado(valor)
+            for chave, valor in dados.items()
+            if chave != CHAVE_CABECALHO
+        }
+
+    if isinstance(dados, (list, tuple)):
+        return [serializa_relatorio_calculado(item) for item in dados]
+
+    return dados
 
 
 def obter_config_grupo(grupo_nome):
@@ -64,6 +125,39 @@ def obter_config_grupo(grupo_nome):
             return config
 
     return grupos_relatorio["DEFAULT"]
+
+
+def montar_relatorio_calculado(relatorio_financeiro, parametrizacao):
+    """Monta os cálculos por linha do Ateste Financeiro.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+        parametrizacao (Model): Parametrização financeira vigente.
+
+    Returns:
+        dict: Estrutura do relatório com valores monetários em string pt-BR.
+    """
+    config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
+
+    kwargs_consumo = {}
+    if config["tipo_calculo"]:
+        kwargs_consumo["tipo_calculo"] = config["tipo_calculo"]
+
+    totais_consumo = calcula_totais_consumo_por_grupo(
+        relatorio_financeiro.lote,
+        relatorio_financeiro.grupo_unidade_escolar,
+        relatorio_financeiro.mes,
+        relatorio_financeiro.ano,
+        **kwargs_consumo,
+    )
+
+    relatorio = config["builder"](
+        relatorio_financeiro,
+        parametrizacao.tabelas.all(),
+        totais_consumo,
+    )
+
+    return serializa_relatorio_calculado(relatorio)
 
 
 def _buscar_valor_por_faixa(valores, faixa_uuid, tipo):
@@ -166,7 +260,7 @@ def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
 
     return {
         "quantidade": int(quantidade),
-        "valor": valor.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP),
+        "valor": arredonda_centavos(valor),
         "valor_extenso": num2words(valor, lang="pt_BR", to="currency"),
     }
 
@@ -264,6 +358,9 @@ def _build_tabela_alimentacao_cei(tabelas, faixas_etarias, totais_consumo):
                     "total_unitario": total_unitario,
                     "numero_atendimentos": int(numero_atendimentos),
                     "valor_total": valor_total,
+                    CHAVE_CALCULO: calcula_linha_alimentacao(
+                        valor_unitario, valor_reajuste, numero_atendimentos
+                    ),
                 }
             )
 
@@ -333,6 +430,9 @@ def _build_tabela_dieta_cei(tabelas, faixas_etarias, totais_consumo, tipo_dieta)
                     "total_unitario": total_unitario,
                     "numero_consumo": int(numero_consumo),
                     "valor_total": valor_total,
+                    CHAVE_CALCULO: calcula_linha_dieta(
+                        valor_unitario, valor_acrescimo, numero_consumo
+                    ),
                 }
             )
 
@@ -511,6 +611,9 @@ def _build_tabela_alimentacao_emei(
                 "total_unitario": total_unitario,
                 "numero_atendimentos": int(numero_atendimentos),
                 "valor_total": valor_total,
+                CHAVE_CALCULO: calcula_linha_alimentacao(
+                    valor_unitario, valor_reajuste, numero_atendimentos
+                ),
             }
         )
 
@@ -604,6 +707,9 @@ def _build_tabela_dieta_emei(
                 "total_unitario": total_unitario,
                 "numero_consumo": int(numero_consumo),
                 "valor_total": valor_total,
+                CHAVE_CALCULO: calcula_linha_dieta(
+                    valor_unitario, valor_acrescimo, numero_consumo
+                ),
             }
         )
 
