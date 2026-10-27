@@ -16,13 +16,13 @@ class EscolaAbertaViewSet(
 
     def get_queryset(self):
         return EscolaAberta.objects.prefetch_related(
-            "unidades_participantes__lote",
             "unidades_participantes__unidade_educacional",
             "unidades_participantes__tipos_alimentacao",
+            "unidades_participantes__lote__diretoria_regional",
         )
 
     def get_serializer_class(self):
-        if self.action in ("create", "update"):
+        if self.action in ("create", "update", "partial_update"):
             return EscolaAbertaCreateSerializer
         return EscolaAbertaReadSerializer
 
