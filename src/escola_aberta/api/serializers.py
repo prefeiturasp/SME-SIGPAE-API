@@ -38,7 +38,7 @@ class RecorrenciaSerializer(serializers.Serializer):
         return attrs
 
 
-class UnidadeParticipanteInputSerializer(serializers.Serializer):
+class EscolaAbertaUnidadeParticipanteCreateSerializer(serializers.Serializer):
     lote = serializers.UUIDField()
     unidade_educacional = serializers.UUIDField()
     tipos_alimentacao = serializers.ListField(
@@ -51,7 +51,7 @@ class UnidadeParticipanteInputSerializer(serializers.Serializer):
 
 class EscolaAbertaCreateSerializer(serializers.Serializer):
     recorrencias = RecorrenciaSerializer()
-    unidades_participantes = UnidadeParticipanteInputSerializer(
+    unidades_participantes = EscolaAbertaUnidadeParticipanteCreateSerializer(
         many=True, allow_empty=False
     )
 
@@ -111,7 +111,7 @@ class EscolaAbertaCreateSerializer(serializers.Serializer):
                 escola_aberta=escola_aberta,
                 lote=lotes[u["lote"]],
                 unidade_educacional=escolas[u["unidade_educacional"]],
-                num_participantes=u.get("num_participantes"),
+                num_participantes=u["num_participantes"],
             )
             unidade.tipos_alimentacao.set(
                 [alimentos[a] for a in set(u["tipos_alimentacao"])]
@@ -147,12 +147,20 @@ class EscolaAbertaCreateSerializer(serializers.Serializer):
         return instance
 
 
-class UnidadeParticipanteReadSerializer(serializers.ModelSerializer):
+class EscolaAbertaUnidadeParticipanteReadSerializer(serializers.ModelSerializer):
     lote = serializers.UUIDField(source="lote.uuid")
-    lote_nome = serializers.CharField(source="lote.nome")
+    lote_nome = serializers.SerializerMethodField()
     unidade_educacional = serializers.UUIDField(source="unidade_educacional.uuid")
     unidade_educacional_nome = serializers.CharField(source="unidade_educacional.nome")
     tipos_alimentacao = serializers.SerializerMethodField()
+
+    def get_lote_nome(self, obj):
+        lote = obj.lote
+        iniciais = lote.diretoria_regional.iniciais
+        return f"{lote.nome} - {iniciais}" if iniciais else lote.nome
+
+    def get_tipos_alimentacao(self, obj):
+        return [{"uuid": t.uuid, "nome": t.nome} for t in obj.tipos_alimentacao.all()]
 
     class Meta:
         model = EscolaAbertaUnidadeParticipante
@@ -166,14 +174,11 @@ class UnidadeParticipanteReadSerializer(serializers.ModelSerializer):
             "tipos_alimentacao",
         )
 
-    def get_tipos_alimentacao(self, obj):
-        return [{"uuid": t.uuid, "nome": t.nome} for t in obj.tipos_alimentacao.all()]
-
 
 class EscolaAbertaReadSerializer(serializers.ModelSerializer):
     data_inicial = serializers.DateField(format="%d/%m/%Y")
     data_final = serializers.DateField(format="%d/%m/%Y")
-    unidades_participantes = UnidadeParticipanteReadSerializer(many=True)
+    unidades_participantes = EscolaAbertaUnidadeParticipanteReadSerializer(many=True)
 
     class Meta:
         model = EscolaAberta
