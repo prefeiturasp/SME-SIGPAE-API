@@ -1,26 +1,37 @@
+import calendar
+import datetime
+import re
 from decimal import Decimal
 
 import pytest
 from model_bakery import baker
+from rest_framework import status
 
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
+    StringsParametrizacaoFinanceiraTabela,
 )
 from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,
+    ParametrizacaoFinanceiraTabelaValor,
     TipoValorParametrizacaoFinanceira,
 )
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
+    arredonda_centavos,
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
     build_relatorio_financeiro_grupo_emebs,
     build_relatorio_financeiro_grupo_emei,
+    calcula_linha_alimentacao,
+    calcula_linha_dieta,
+    serializa_relatorio_calculado,
 )
 from src.medicao_inicial.utils import normalizar_nome_campo
 from src.relatorios.relatorios import gerar_relatorio_ateste_financeiro
+from src.relatorios.templatetags.index import decimal_br
 from src.relatorios.utils import extrair_texto_de_pdf
 
 TEMPLATE_HTML_CEI = "relatorio_financeiro/relatorio_ateste_financeiro_grupo_cei.html"
@@ -747,3 +758,623 @@ class TestRelatorioAtesteFinanceiroEmeiLancheEmergencialExtraordinarias:
             == self.QUANTIDADE_EXTRAORDINARIAS
         )
         assert depois["valor_total"] - antes["valor_total"] == Decimal("25.00")
+
+
+class TestCalculosLinhaAtesteFinanceiro:
+    def test_alimentacao_exemplo_manual(self):
+        resultado = calcula_linha_alimentacao(Decimal("9.54"), Decimal("0.16"), 5)
+
+        assert resultado == {
+            "valor_total_unitario": Decimal("47.70"),
+            "valor_total_reajuste": Decimal("0.80"),
+            "valor_unitario_reajustado": Decimal("9.70"),
+            "valor_total": Decimal("48.50"),
+        }
+
+    def test_alimentacao_sem_reajuste_e_sem_atendimentos(self):
+        resultado = calcula_linha_alimentacao(Decimal("9.54"), Decimal("0"), 0)
+
+        assert resultado["valor_total_unitario"] == Decimal("0.00")
+        assert resultado["valor_total_reajuste"] == Decimal("0.00")
+        assert resultado["valor_unitario_reajustado"] == Decimal("9.54")
+        assert resultado["valor_total"] == Decimal("0.00")
+
+    def test_alimentacao_aceita_quantidade_float_inteira(self):
+        resultado = calcula_linha_alimentacao(Decimal("9.54"), Decimal("0.16"), 2237.0)
+
+        assert resultado["valor_total"] == Decimal("21698.90")
+
+    def test_dieta_exemplo_manual(self):
+        resultado = calcula_linha_dieta(Decimal("10.00"), Decimal("12.5"), 4)
+
+        assert resultado == {
+            "valor_unitario_total": Decimal("11.25"),
+            "valor_total": Decimal("45.00"),
+        }
+
+    def test_dieta_sem_acrescimo(self):
+        resultado = calcula_linha_dieta(Decimal("9.54"), Decimal("0"), 5)
+
+        assert resultado["valor_unitario_total"] == Decimal("9.54")
+        assert resultado["valor_total"] == Decimal("47.70")
+
+    def test_dieta_nao_arredonda_valor_intermediario(self):
+        resultado = calcula_linha_dieta(Decimal("9.54"), Decimal("12.5"), 5)
+
+        assert resultado["valor_unitario_total"] == Decimal("10.73")
+        assert resultado["valor_total"] == Decimal("53.66")
+
+    @pytest.mark.parametrize(
+        "valor,esperado",
+        [
+            (Decimal("0.125"), Decimal("0.13")),
+            (Decimal("0.135"), Decimal("0.14")),
+            (Decimal("2.675"), Decimal("2.68")),
+            (Decimal("1.004"), Decimal("1.00")),
+            (Decimal("1.005"), Decimal("1.01")),
+        ],
+    )
+    def test_arredonda_centavos_half_up(self, valor, esperado):
+        assert arredonda_centavos(valor) == esperado
+
+    @pytest.mark.parametrize(
+        "valor,esperado",
+        [
+            (Decimal("0"), "0,00"),
+            (Decimal("9.54"), "9,54"),
+            (Decimal("47.7"), "47,70"),
+            (Decimal("1234.56"), "1.234,56"),
+            (Decimal("2000"), "2.000,00"),
+            (Decimal("1234567.891"), "1.234.567,89"),
+            (Decimal("0.125"), "0,13"),
+        ],
+    )
+    def test_decimal_br_apos_arredondar(self, valor, esperado):
+        assert decimal_br(arredonda_centavos(valor)) == esperado
+
+    def test_serializa_relatorio_calculado_mescla_calculo_e_formata_pt_br(self):
+        relatorio = {
+            "cabecalho": {"data_geracao": "01/01/2026"},
+            "alimentacao": {
+                "linhas": [
+                    {
+                        "tipo": "LANCHE",
+                        "valor_unitario": Decimal("9.54"),
+                        "valor_total": Decimal("48.5000"),
+                        "numero_atendimentos": 5,
+                        "calculo": {"valor_total": Decimal("48.50")},
+                    }
+                ],
+                "total_atendimentos": 5,
+                "valor_total": Decimal("1234.5"),
+            },
+        }
+
+        resultado = serializa_relatorio_calculado(relatorio)
+
+        assert "cabecalho" not in resultado
+        linha = resultado["alimentacao"]["linhas"][0]
+        assert "calculo" not in linha
+        assert linha == {
+            "tipo": "LANCHE",
+            "valor_unitario": "9,54",
+            "valor_total": "48,50",
+            "numero_atendimentos": 5,
+        }
+        assert resultado["alimentacao"]["total_atendimentos"] == 5
+        assert resultado["alimentacao"]["valor_total"] == "1.234,50"
+
+
+URL_RELATORIO_CONSOLIDADO = (
+    "/medicao-inicial/relatorio-financeiro/relatorio-consolidado/{uuid}/"
+)
+URL_TOTAIS_CONSUMO = (
+    "/medicao-inicial/solicitacao-medicao-inicial/totais-atendimento-consumo/"
+)
+
+REGEX_VALOR_PT_BR = re.compile(r"^\d{1,3}(\.\d{3})*,\d{2}$")
+
+UNITARIO = "9,54"
+REAJUSTE = "0,16"
+ACRESCIMO = "12,50"
+
+CHAVES_RESPOSTA_ATUAL = {
+    "uuid",
+    "edital",
+    "lote",
+    "grupo_unidade_escolar",
+    "data_inicial",
+    "data_final",
+    "legenda",
+    "tabelas",
+    "mes_ano",
+    "possui_reajuste",
+}
+
+GRUPOS = {
+    "grupo_1_cei": dict(
+        relatorio="relatorio_financeiro_cei",
+        parametrizacao="parametrizacao_financeira_cei",
+        consumo="relatorio_consolidado_xlsx_cei",
+        tipo_calculo="faixa_etaria",
+        fixtures_extras=["faixas_etarias_ativas"],
+    ),
+    "grupo_2_cemei": dict(
+        relatorio="relatorio_financeiro_cemei",
+        parametrizacao="parametrizacao_financeira_cemei",
+        consumo="relatorio_consolidado_xlsx_cemei",
+        tipo_calculo=None,
+        fixtures_extras=["faixas_etarias_ativas", "vinculo_alimentacao_cemei"],
+    ),
+    "grupo_3_emei": dict(
+        relatorio="relatorio_financeiro_emei",
+        parametrizacao="parametrizacao_financeira_emei",
+        consumo="relatorio_consolidado_xlsx_emei",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_emei"],
+    ),
+    "grupo_4_emef": dict(
+        relatorio="relatorio_financeiro_emef",
+        parametrizacao="parametrizacao_financeira_emef",
+        consumo="relatorio_consolidado_xlsx_emef",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_emef"],
+    ),
+    "grupo_5_emebs": dict(
+        relatorio="relatorio_financeiro_emebs",
+        parametrizacao="parametrizacao_financeira_emebs",
+        consumo="relatorio_consolidado_xlsx_emebs",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_emebs"],
+    ),
+    "grupo_6_cieja_cmct": dict(
+        relatorio="relatorio_financeiro_cieja",
+        parametrizacao="parametrizacao_financeira_cieja",
+        consumo="relatorio_consolidado_xlsx_cieja",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_cieja"],
+    ),
+}
+
+
+def _alinha_relatorio_a_solicitacao(relatorio, parametrizacao, solicitacao):
+    relatorio.mes = solicitacao.mes
+    relatorio.ano = solicitacao.ano
+
+    escola = solicitacao.escola
+    if escola.lote.diretoria_regional_id is None:
+        escola.lote = relatorio.lote
+    tipos_do_grupo = relatorio.grupo_unidade_escolar.tipos_unidades
+    if not tipos_do_grupo.filter(pk=escola.tipo_unidade_id).exists():
+        escola.tipo_unidade = tipos_do_grupo.get(iniciais=escola.tipo_unidade.iniciais)
+    escola.save()
+
+    relatorio.lote = escola.lote
+    relatorio.save()
+
+    ano = int(solicitacao.ano)
+    mes = int(solicitacao.mes)
+    parametrizacao.lote = solicitacao.escola.lote
+    parametrizacao.data_inicial = datetime.date(ano, mes, 1)
+    parametrizacao.data_final = datetime.date(
+        ano, mes, calendar.monthrange(ano, mes)[1]
+    )
+    parametrizacao.save()
+
+
+@pytest.fixture(params=list(GRUPOS))
+def contexto_grupo(request):
+    spec = GRUPOS[request.param]
+    for nome_fixture in spec["fixtures_extras"]:
+        request.getfixturevalue(nome_fixture)
+
+    relatorio = request.getfixturevalue(spec["relatorio"])
+    parametrizacao = request.getfixturevalue(spec["parametrizacao"])
+    solicitacao = request.getfixturevalue(spec["consumo"])
+    _alinha_relatorio_a_solicitacao(relatorio, parametrizacao, solicitacao)
+
+    return {
+        "nome": request.param,
+        "spec": spec,
+        "relatorio": relatorio,
+        "parametrizacao": parametrizacao,
+    }
+
+
+def _aplica_valores_pt_br(parametrizacao):
+    valores = ParametrizacaoFinanceiraTabelaValor.objects.filter(
+        tabela__parametrizacao_financeira=parametrizacao
+    )
+    valores.filter(tipo_valor__nome="UNITARIO").update(valor=UNITARIO)
+    valores.filter(tipo_valor__nome="REAJUSTE").update(valor=REAJUSTE)
+    valores.filter(tipo_valor__nome="ACRESCIMO").update(valor=ACRESCIMO)
+
+
+def _tipos_valor_por_tabela(tabelas):
+    alimentacoes, dietas = [], []
+    for tabela in tabelas:
+        tipos = {valor["tipo_valor"] for valor in tabela["valores"]}
+        if tabela["nome"].startswith(
+            StringsParametrizacaoFinanceiraTabela.ALIMENTACOES.value
+        ):
+            alimentacoes.append(tipos)
+        else:
+            dietas.append(tipos)
+    return alimentacoes, dietas
+
+
+def _get_consolidado(client, relatorio, **params):
+    return client.get(
+        URL_RELATORIO_CONSOLIDADO.format(uuid=relatorio.uuid),
+        data=params,
+        content_type="application/json",
+    )
+
+
+def _get_totais(client, contexto):
+    relatorio = contexto["relatorio"]
+    params = {
+        "mes": relatorio.mes,
+        "ano": relatorio.ano,
+        "grupo_unidade_escolar": relatorio.grupo_unidade_escolar.uuid,
+        "lote": relatorio.lote.uuid,
+    }
+    if contexto["spec"]["tipo_calculo"]:
+        params["tipo_calculo"] = contexto["spec"]["tipo_calculo"]
+    return client.get(URL_TOTAIS_CONSUMO, data=params, format="json")
+
+
+def _numeros_folha(dados):
+    if isinstance(dados, dict):
+        for valor in dados.values():
+            yield from _numeros_folha(valor)
+    elif isinstance(dados, list):
+        for valor in dados:
+            yield from _numeros_folha(valor)
+    elif isinstance(dados, (int, float)) and not isinstance(dados, bool):
+        yield dados
+
+
+def _linhas(calculos, tabela):
+    blocos = [calculos]
+    if "cei" in calculos:
+        blocos = [calculos["cei"], calculos["emei"]]
+    elif "infantil" in calculos:
+        blocos = [calculos["infantil"], calculos["fundamental"]]
+    return [linha for bloco in blocos for linha in bloco[tabela]["linhas"]]
+
+
+def _quantidade(linha):
+    return linha.get("numero_atendimentos", linha.get("numero_consumo"))
+
+
+def _pt_br(valor: Decimal) -> str:
+    return decimal_br(arredonda_centavos(valor))
+
+
+@pytest.mark.django_db
+class TestContratoRelatorioConsolidado:
+    def test_retorna_unitario_reajuste_acrescimo_como_string_pt_br(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        _aplica_valores_pt_br(contexto_grupo["parametrizacao"])
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, contexto_grupo["relatorio"]
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        dados = response.json()
+        assert set(dados.keys()) == CHAVES_RESPOSTA_ATUAL
+
+        alimentacoes, dietas = _tipos_valor_por_tabela(dados["tabelas"])
+        assert alimentacoes and dietas
+        assert all({"UNITARIO", "REAJUSTE"} <= tipos for tipos in alimentacoes)
+        assert all({"UNITARIO", "ACRESCIMO"} <= tipos for tipos in dietas)
+
+        esperado_por_tipo = {
+            "UNITARIO": UNITARIO,
+            "REAJUSTE": REAJUSTE,
+            "ACRESCIMO": ACRESCIMO,
+        }
+        for tabela in dados["tabelas"]:
+            for valor in tabela["valores"]:
+                assert isinstance(valor["valor"], str)
+                assert REGEX_VALOR_PT_BR.match(valor["valor"])
+                assert valor["valor"] == esperado_por_tipo[valor["tipo_valor"]]
+
+    def test_nao_altera_formato_de_milhar_pt_br(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        ParametrizacaoFinanceiraTabelaValor.objects.filter(
+            tabela__parametrizacao_financeira=contexto_grupo["parametrizacao"],
+            tipo_valor__nome="UNITARIO",
+        ).update(valor="2.000,00")
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, contexto_grupo["relatorio"]
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        valores = {
+            valor["valor"]
+            for tabela in response.json()["tabelas"]
+            for valor in tabela["valores"]
+            if valor["tipo_valor"] == "UNITARIO"
+        }
+        assert valores == {"2.000,00"}
+
+    def test_sem_incluir_calculos_nao_tem_chave_calculos(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        for valor in ("", "false", "0"):
+            params = {"incluir_calculos": valor} if valor else {}
+            response = _get_consolidado(
+                client_autenticado_codae_medicao, contexto_grupo["relatorio"], **params
+            )
+
+            assert response.status_code == status.HTTP_200_OK, response.json()
+            assert "calculos" not in response.json()
+
+
+@pytest.mark.django_db
+class TestContratoTotaisAtendimentoConsumo:
+    def test_retorna_quantitativos_inteiros_por_grupo(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        response = _get_totais(client_autenticado_codae_medicao, contexto_grupo)
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        dados = response.json()
+
+        quantidades = list(_numeros_folha(dados))
+        assert quantidades
+        assert all(float(q).is_integer() for q in quantidades), dados
+
+        nome = contexto_grupo["nome"]
+        if nome == "grupo_1_cei":
+            assert dados["ALIMENTAÇÃO - INTEGRAL"]
+            assert dados["ALIMENTAÇÃO - PARCIAL"]
+            assert dados["DIETA ESPECIAL - TIPO A - INTEGRAL"]
+            assert dados["DIETA ESPECIAL - TIPO B - PARCIAL"]
+        elif nome == "grupo_2_cemei":
+            assert set(dados) == {"TIPO", "FAIXA"}
+            assert dados["FAIXA"]["ALIMENTAÇÃO - INTEGRAL"]
+            assert dados["FAIXA"]["DIETA ESPECIAL - TIPO A - PARCIAL"]
+            assert dados["TIPO"][CategoriaMedicao.ALIMENTACAO]["total_lanche_4h"] > 0
+            assert dados["TIPO"][DIETA_ESPECIAL_TIPO_A]["lanche_4h"] > 0
+            assert dados["TIPO"][DIETA_ESPECIAL_TIPO_B]["lanche_4h"] > 0
+        elif nome == "grupo_5_emebs":
+            for turma in ("INFANTIL", "FUNDAMENTAL"):
+                bloco = dados[turma]
+                assert bloco[CategoriaMedicao.ALIMENTACAO]["total_lanche_4h"] > 0
+                assert bloco[DIETA_ESPECIAL_TIPO_A]["lanche_4h"] > 0
+                assert bloco[DIETA_ESPECIAL_TIPO_B]["lanche_4h"] > 0
+        else:
+            assert dados[CategoriaMedicao.ALIMENTACAO]["total_lanche_4h"] > 0
+            assert dados[DIETA_ESPECIAL_TIPO_A]["lanche_4h"] > 0
+            assert dados[DIETA_ESPECIAL_TIPO_B]["lanche_4h"] > 0
+
+
+@pytest.mark.django_db
+class TestCalculosRelatorioConsolidado:
+    def test_alimentacao_bate_com_calculo_manual(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        _aplica_valores_pt_br(contexto_grupo["parametrizacao"])
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao,
+            contexto_grupo["relatorio"],
+            incluir_calculos="true",
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        dados = response.json()
+        assert CHAVES_RESPOSTA_ATUAL <= set(dados)
+        assert "cabecalho" not in dados["calculos"]
+
+        linhas = _linhas(dados["calculos"], "alimentacao")
+        com_consumo = [linha for linha in linhas if _quantidade(linha) > 0]
+        assert com_consumo
+
+        unitario, reajuste = Decimal("9.54"), Decimal("0.16")
+        linhas_verificadas = 0
+        for linha in com_consumo:
+            if linha["valor_unitario"] != "9,54":
+                continue
+            atendimentos = Decimal(_quantidade(linha))
+            assert linha["valor_reajuste"] == "0,16"
+            assert linha["valor_total_unitario"] == _pt_br(atendimentos * unitario)
+            assert linha["valor_total_reajuste"] == _pt_br(atendimentos * reajuste)
+            assert linha["valor_unitario_reajustado"] == "9,70"
+            assert linha["valor_total"] == _pt_br(atendimentos * (unitario + reajuste))
+            linhas_verificadas += 1
+        assert linhas_verificadas > 0
+
+    def test_dieta_bate_com_calculo_manual(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        _aplica_valores_pt_br(contexto_grupo["parametrizacao"])
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao,
+            contexto_grupo["relatorio"],
+            incluir_calculos="true",
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        calculos = response.json()["calculos"]
+
+        unitario = Decimal("9.54")
+        unitario_total = unitario * (1 + Decimal("12.5") / 100)
+        linhas_verificadas = 0
+        for tabela in ("dieta_a", "dieta_b"):
+            linhas = _linhas(calculos, tabela)
+            assert linhas
+            for linha in linhas:
+                if linha["valor_unitario"] != "9,54":
+                    assert linha["valor_total"] == "0,00"
+                    continue
+                atendimentos = Decimal(_quantidade(linha))
+                assert linha["valor_acrescimo"] == "12,50"
+                assert linha["valor_unitario_total"] == _pt_br(unitario_total)
+                assert linha["valor_total"] == _pt_br(atendimentos * unitario_total)
+                linhas_verificadas += 1
+
+        assert linhas_verificadas > 0
+
+    def test_nao_altera_demais_campos(
+        self, client_autenticado_codae_medicao, contexto_grupo
+    ):
+        relatorio = contexto_grupo["relatorio"]
+
+        sem_calculos = _get_consolidado(client_autenticado_codae_medicao, relatorio)
+        com_calculos = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio, incluir_calculos="true"
+        )
+
+        assert sem_calculos.status_code == status.HTTP_200_OK
+        assert com_calculos.status_code == status.HTTP_200_OK
+        dados = com_calculos.json()
+        dados.pop("calculos")
+        assert dados == sem_calculos.json()
+
+
+def _reajustes(parametrizacao):
+    return ParametrizacaoFinanceiraTabelaValor.objects.filter(
+        tabela__parametrizacao_financeira=parametrizacao,
+        tipo_valor__nome="REAJUSTE",
+    )
+
+
+@pytest.mark.django_db
+class TestPossuiReajuste:
+    def test_false_sem_reajustes_cadastrados(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).delete()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        assert response.json()["possui_reajuste"] is False
+
+    @pytest.mark.parametrize("valor", ["0", "0,00", "0.00", ""])
+    def test_false_quando_reajustes_sao_zero(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+        valor,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor=valor)
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        assert response.json()["possui_reajuste"] is False
+
+    def test_false_com_nulos_e_zeros_combinados(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        reajustes = list(_reajustes(parametrizacao_financeira_emei))
+        for reajuste, valor in zip(reajustes, ["", "0", "0,00", "0.00"]):
+            reajuste.valor = valor
+            reajuste.save()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.json()["possui_reajuste"] is False
+
+    def test_true_quando_um_reajuste_e_diferente_de_zero(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        reajustes = list(_reajustes(parametrizacao_financeira_emei))
+        for reajuste in reajustes:
+            reajuste.valor = "0"
+            reajuste.save()
+        reajustes[0].valor = "0,16"
+        reajustes[0].save()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        dados = response.json()
+        assert dados["possui_reajuste"] is True
+        assert isinstance(dados["possui_reajuste"], bool)
+        assert CHAVES_RESPOSTA_ATUAL <= set(dados)
+        assert any(
+            valor["valor"] == "0,16"
+            for tabela in dados["tabelas"]
+            for valor in tabela["valores"]
+            if valor["tipo_valor"] == "REAJUSTE"
+        )
+
+    def test_true_quando_reajuste_e_negativo(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor="0")
+        reajuste = _reajustes(parametrizacao_financeira_emei).first()
+        reajuste.valor = "-0,16"
+        reajuste.save()
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.json()["possui_reajuste"] is True
+
+    def test_ignora_unitario_e_acrescimo(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor="0")
+        ParametrizacaoFinanceiraTabelaValor.objects.filter(
+            tabela__parametrizacao_financeira=parametrizacao_financeira_emei,
+            tipo_valor__nome__in=["UNITARIO", "ACRESCIMO"],
+        ).update(valor="12,50")
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.json()["possui_reajuste"] is False
+
+    def test_ignora_reajuste_de_outro_lote_e_grupo(
+        self,
+        client_autenticado_codae_medicao,
+        relatorio_financeiro_emei,
+        parametrizacao_financeira_emei,
+        parametrizacao_financeira_cei,
+    ):
+        _reajustes(parametrizacao_financeira_emei).update(valor="0")
+        _reajustes(parametrizacao_financeira_cei).update(valor="9,54")
+
+        response = _get_consolidado(
+            client_autenticado_codae_medicao, relatorio_financeiro_emei
+        )
+
+        assert response.status_code == status.HTTP_200_OK, response.json()
+        assert response.json()["possui_reajuste"] is False

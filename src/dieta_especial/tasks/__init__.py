@@ -16,6 +16,9 @@ from src.dieta_especial.tasks.relatorio_historico_logs_xlsx import (
 from src.dieta_especial.tasks.relatorio_pdf import (
     gera_pdf_relatorio_dieta_especial_async,
 )
+from src.dieta_especial.tasks.relatorio_protocolo_padrao_pdf import (
+    gerar_pdf_protocolo_padrao_async,
+)
 from src.dieta_especial.tasks.relatorio_recreio_nas_ferias_pdf import (
     gera_pdf_relatorio_recreio_nas_ferias_async,
 )
@@ -38,6 +41,7 @@ __all__ = [
     "gera_pdf_relatorio_historico_dietas_especiais_async",
     "gera_xlsx_relatorio_historico_dietas_especiais_async",
     "gera_pdf_relatorio_dieta_especial_async",
+    "gerar_pdf_protocolo_padrao_async",
     "gera_pdf_relatorio_dietas_especiais_terceirizadas_async",
     "gera_xlsx_relatorio_dietas_especiais_terceirizadas_async",
     "gera_pdf_relatorio_recreio_nas_ferias_async",

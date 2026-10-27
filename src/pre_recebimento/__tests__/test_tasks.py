@@ -10,8 +10,10 @@ from openpyxl import load_workbook
 
 from src.dados_comuns.models import CentralDeDownload
 from src.pre_recebimento.cronograma_entrega.models import (
+    EtapasDoCronograma,
     InterrupcaoProgramadaEntrega,
 )
+from src.pre_recebimento.ficha_tecnica.models import FichaTecnicaDoProduto
 from src.pre_recebimento.tasks import (
     _aplicar_estilos_leve_leite,
     _criar_linha_base_excel,
@@ -302,8 +304,6 @@ class TestAvisaEmpresaEtapaProgramadaProxima:
         mock_envia,
         cronograma_assinado_perfil_dilog,
     ):
-        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
-
         data_alvo = date(2025, 1, 13)
         data_incorreta = date(2025, 1, 14)
         etapa1 = baker.make(
@@ -341,8 +341,6 @@ class TestAvisaEmpresaEtapaProgramadaProxima:
     def test_nao_envia_para_cronogramas_nao_assinados(
         self, mock_partes_service, mock_render, mock_envia
     ):
-        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
-
         cronograma_rascunho = baker.make("Cronograma", status="RASCUNHO")
         baker.make(
             EtapasDoCronograma,
@@ -368,8 +366,6 @@ class TestAvisaEmpresaEtapaProgramadaProxima:
         mock_envia,
         cronograma_assinado_perfil_dilog,
     ):
-        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
-
         baker.make(
             EtapasDoCronograma,
             cronograma=cronograma_assinado_perfil_dilog,
@@ -380,6 +376,82 @@ class TestAvisaEmpresaEtapaProgramadaProxima:
         avisa_empresa_sobre_etapa_programada_proxima()
 
         mock_envia.delay.assert_not_called()
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch(
+        "src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>"
+    )
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    @pytest.mark.parametrize(
+        "tipo_entrega",
+        [
+            FichaTecnicaDoProduto.PONTO_A_PONTO,
+            FichaTecnicaDoProduto.ARMAZEM,
+        ],
+    )
+    def test_nao_envia_para_ficha_tecnica_flv(
+        self,
+        mock_partes_service,
+        mock_render,
+        mock_envia,
+        cronograma_assinado_perfil_dilog,
+        tipo_entrega,
+    ):
+        ficha_tecnica = cronograma_assinado_perfil_dilog.ficha_tecnica
+        ficha_tecnica.categoria = FichaTecnicaDoProduto.CATEGORIA_FLV
+        ficha_tecnica.tipo_entrega = tipo_entrega
+        ficha_tecnica.save()
+
+        baker.make(
+            EtapasDoCronograma,
+            cronograma=cronograma_assinado_perfil_dilog,
+            data_programada=date(2025, 1, 13),
+            etapa=1,
+        )
+
+        avisa_empresa_sobre_etapa_programada_proxima()
+
+        mock_envia.delay.assert_not_called()
+        mock_partes_service.usuarios_vinculados_a_empresa_do_objeto.assert_not_called()
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch(
+        "src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>"
+    )
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_envia_apenas_para_cronogramas_sem_ficha_flv(
+        self,
+        mock_partes_service,
+        mock_render,
+        mock_envia,
+        cronograma_assinado_perfil_dilog,
+    ):
+        cronograma_flv = baker.make(
+            "Cronograma",
+            numero="005/2022A",
+            status="ASSINADO_CODAE",
+            ficha_tecnica__categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        )
+        for cronograma in (cronograma_assinado_perfil_dilog, cronograma_flv):
+            baker.make(
+                EtapasDoCronograma,
+                cronograma=cronograma,
+                data_programada=date(2025, 1, 13),
+                etapa=1,
+            )
+
+        mock_partes_service.usuarios_vinculados_a_empresa_do_objeto.return_value = [
+            "empresa@teste.com"
+        ]
+
+        avisa_empresa_sobre_etapa_programada_proxima()
+
+        assert mock_envia.delay.call_count == 1
+        assunto = mock_envia.delay.call_args.kwargs["assunto"]
+        assert cronograma_assinado_perfil_dilog.numero in assunto
+        assert cronograma_flv.numero not in assunto
 
 
 @pytest.mark.django_db
@@ -398,8 +470,6 @@ class TestAvisaEmpresaDocumentosPagamento:
         mock_envia,
         cronograma_assinado_perfil_dilog,
     ):
-        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
-
         data_alvo = date(2025, 1, 9)
         baker.make(
             EtapasDoCronograma,
@@ -432,8 +502,6 @@ class TestAvisaEmpresaDocumentosPagamento:
         mock_envia,
         cronograma_assinado_perfil_dilog,
     ):
-        from src.pre_recebimento.cronograma_entrega.models import EtapasDoCronograma
-
         baker.make(
             EtapasDoCronograma,
             cronograma=cronograma_assinado_perfil_dilog,
@@ -444,3 +512,38 @@ class TestAvisaEmpresaDocumentosPagamento:
         avisa_empresa_sobre_documentos_pagamento()
 
         mock_envia.delay.assert_not_called()
+
+    @freeze_time("2025-01-10")
+    @patch("src.pre_recebimento.tasks.envia_email_em_massa_task")
+    @patch(
+        "src.pre_recebimento.tasks.render_to_string", return_value="<html>teste</html>"
+    )
+    @patch("src.pre_recebimento.tasks.PartesInteressadasService")
+    def test_envia_para_ficha_tecnica_flv_pois_rotina_nao_foi_alterada(
+        self,
+        mock_partes_service,
+        mock_render,
+        mock_envia,
+        cronograma_assinado_perfil_dilog,
+    ):
+        ficha_tecnica = cronograma_assinado_perfil_dilog.ficha_tecnica
+        ficha_tecnica.categoria = FichaTecnicaDoProduto.CATEGORIA_FLV
+        ficha_tecnica.save()
+
+        baker.make(
+            EtapasDoCronograma,
+            cronograma=cronograma_assinado_perfil_dilog,
+            data_programada=date(2025, 1, 9),
+            etapa=1,
+        )
+
+        mock_partes_service.usuarios_vinculados_a_empresa_do_objeto.return_value = [
+            "empresa@teste.com"
+        ]
+
+        avisa_empresa_sobre_documentos_pagamento()
+
+        assert mock_envia.delay.call_count == 1
+        assunto = mock_envia.delay.call_args.kwargs["assunto"]
+        assert "Documentos para Pagamento" in assunto
+        assert cronograma_assinado_perfil_dilog.numero in assunto

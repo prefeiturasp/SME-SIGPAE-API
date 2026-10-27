@@ -1,13 +1,15 @@
 import json
 import uuid
 from datetime import date
+from types import SimpleNamespace
 
 import pytest
 from freezegun import freeze_time
+from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns.constants import StringsValidationErrors
-from src.imr.models import FormularioOcorrenciasBase, TipoOcorrencia
+from src.imr.models import FormularioDiretor, FormularioOcorrenciasBase, TipoOcorrencia
 
 pytestmark = pytest.mark.django_db
 
@@ -120,6 +122,35 @@ def test_create_formulario_diretor(
     )
     assert instance.respostas_campo_numerico.count() == 1
     assert instance.respostas_campo_numerico.filter(resposta=10).exists() is True
+
+    solicitacao_medicao_inicial.refresh_from_db()
+    assert solicitacao_medicao_inicial.com_ocorrencias is True
+
+
+@freeze_time("2024-06-10")
+def test_create_formulario_diretor_sem_ocorrencias_mantem_com_ocorrencias_false(
+    client_autenticado_diretor_escola,
+    escola,
+    solicitacao_medicao_inicial_factory,
+):
+    solicitacao_medicao_inicial = solicitacao_medicao_inicial_factory(
+        escola=escola, mes="06", ano="2024"
+    )
+    payload = {
+        "datas": ["07/06/2024"],
+        "solicitacao_medicao_inicial": str(solicitacao_medicao_inicial.uuid),
+        "ocorrencias": [],
+    }
+
+    response = client_autenticado_diretor_escola["client"].post(
+        f"/imr/formulario-diretor/",
+        data=json.dumps(payload),
+        content_type="application/json",
+    )
+    assert response.status_code == status.HTTP_201_CREATED
+
+    solicitacao_medicao_inicial.refresh_from_db()
+    assert solicitacao_medicao_inicial.com_ocorrencias is False
 
 
 @freeze_time("2024-06-10")
@@ -854,3 +885,540 @@ def test_listagem_rejeita_consulta_sem_medicao(
 
     assert resposta.status_code == status.HTTP_400_BAD_REQUEST
     assert "solicitacao_medicao_inicial" in resposta.json()
+
+
+def montar_url_ocorrencia(formulario, tipo_ocorrencia, grupo=1):
+    return (
+        f"{URL_LISTAGEM}{formulario.uuid}/"
+        f"?tipo_ocorrencia={tipo_ocorrencia.uuid}&grupo={grupo}"
+    )
+
+
+def test_retrieve_ocorrencia_diretor_retorna_dados_para_edicao(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    resposta_texto = formulario.formulario_base.respostas_campo_texto_simples.get()
+
+    resposta = contexto.cliente.get(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_200_OK
+    assert resposta.json() == {
+        "uuid": str(formulario.uuid),
+        "solicitacao_medicao_inicial": str(contexto.medicao.uuid),
+        "data": "10/09/2026",
+        "categoria": {
+            "uuid": str(contexto.tipo.categoria.uuid),
+            "nome": "FUNCIONÁRIOS",
+            "posicao": 1,
+            "gera_notificacao": False,
+        },
+        "tipo_ocorrencia": str(contexto.tipo.uuid),
+        "titulo": "UNIFORME DOS MANIPULADORES",
+        "descricao": "Funcionários utilizavam uniforme completo?",
+        "grupo": 1,
+        "respostas": [
+            {
+                "uuid": str(resposta_texto.uuid),
+                "parametrizacao": str(contexto.parametrizacao.uuid),
+                "titulo": "Qual item do uniforme faltou?",
+                "posicao": 1,
+                "resposta": "Touca",
+            }
+        ],
+    }
+
+
+def test_retrieve_ocorrencia_diretor_retorna_uuid_dos_seletores(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+    utensilio_cozinha_factory,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    utensilio = utensilio_cozinha_factory.create()
+    pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory.create(
+        nome="Seletor de Utensílios de Cozinha",
+        tipo_resposta__nome="RespostaUtensilioCozinha",
+    )
+    parametrizacao = parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia=contexto.tipo,
+        tipo_pergunta=pergunta,
+        titulo="Qual utensílio?",
+        posicao=2,
+    )
+    resposta_utensilio = baker.make(
+        "imr.RespostaUtensilioCozinha",
+        formulario_base=formulario.formulario_base,
+        parametrizacao=parametrizacao,
+        grupo=1,
+        resposta=utensilio,
+    )
+
+    resposta = contexto.cliente.get(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_200_OK
+    assert resposta.json()["respostas"][1] == {
+        "uuid": str(resposta_utensilio.uuid),
+        "parametrizacao": str(parametrizacao.uuid),
+        "titulo": "Qual utensílio?",
+        "posicao": 2,
+        "resposta": str(utensilio.uuid),
+    }
+
+
+def test_retrieve_ocorrencia_retorna_403_para_escola_de_outra_escola(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    escola_factory,
+    solicitacao_medicao_inicial_factory,
+):
+    contexto = contexto_listagem_diretor
+    outra_medicao = solicitacao_medicao_inicial_factory.create(
+        escola=escola_factory.create(), mes="09", ano="2026"
+    )
+    formulario = criar_ocorrencia_diretor(medicao=outra_medicao)
+
+    resposta = contexto.cliente.get(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
+    assert resposta.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
+
+
+def test_retrieve_ocorrencia_retorna_404_para_grupo_inexistente(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.get(
+        montar_url_ocorrencia(formulario, contexto.tipo, grupo=2)
+    )
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_retrieve_ocorrencia_retorna_404_para_formulario_inexistente(
+    contexto_listagem_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = SimpleNamespace(uuid=uuid.uuid4())
+
+    resposta = contexto.cliente.get(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_retrieve_ocorrencia_exige_parametros_obrigatorios(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.get(f"{URL_LISTAGEM}{formulario.uuid}/")
+
+    assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+    assert "tipo_ocorrencia" in resposta.json()
+    assert "grupo" in resposta.json()
+
+
+def test_retrieve_ocorrencia_rejeita_perfil_sem_permissao(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    client_autenticado_cogestor_dre,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    cliente, _ = client_autenticado_cogestor_dre
+
+    resposta = cliente.get(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
+
+
+def montar_corpo_atualizacao(
+    contexto,
+    data="10/09/2026",
+    resposta="Avental",
+    grupo=1,
+    parametrizacao=None,
+):
+    return {
+        "tipo_ocorrencia": str(contexto.tipo.uuid),
+        "grupo": grupo,
+        "data": data,
+        "ocorrencias": [
+            {
+                "parametrizacao": str((parametrizacao or contexto.parametrizacao).uuid),
+                "grupo": grupo,
+                "resposta": resposta,
+            }
+        ],
+    }
+
+
+@freeze_time("2026-10-19")
+def test_update_ocorrencia_diretor_atualiza_data_e_resposta(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(
+            montar_corpo_atualizacao(contexto, data="11/09/2026", resposta="Avental")
+        ),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    assert resposta.json()["data"] == "11/09/2026"
+    assert resposta.json()["respostas"] == [
+        {
+            "uuid": resposta.json()["respostas"][0]["uuid"],
+            "parametrizacao": str(contexto.parametrizacao.uuid),
+            "titulo": "Qual item do uniforme faltou?",
+            "posicao": 1,
+            "resposta": "Avental",
+        }
+    ]
+
+    formulario.formulario_base.refresh_from_db()
+    assert formulario.formulario_base.data == date(2026, 9, 11)
+
+    respostas = formulario.formulario_base.respostas_campo_texto_simples.all()
+    assert respostas.count() == 1
+    assert respostas.first().resposta == "Avental"
+
+
+@freeze_time("2026-10-19")
+def test_update_ocorrencia_diretor_preserva_outros_grupos(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    resposta_campo_texto_simples_factory,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    resposta_campo_texto_simples_factory.create(
+        formulario_base=formulario.formulario_base,
+        parametrizacao=contexto.parametrizacao,
+        grupo=2,
+        resposta="Camisa",
+    )
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto, resposta="Avental")),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+
+    respostas = formulario.formulario_base.respostas_campo_texto_simples.all()
+    assert respostas.count() == 2
+    assert respostas.filter(grupo=1, resposta="Avental").exists()
+    assert respostas.filter(grupo=2, resposta="Camisa").exists()
+
+
+@freeze_time("2026-10-19")
+def test_update_ocorrencia_diretor_mantem_data_original_sem_duplicidade(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto)),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    assert resposta.json()["data"] == "10/09/2026"
+
+
+@freeze_time("2026-10-19")
+def test_update_ocorrencia_diretor_rejeita_data_de_outra_competencia(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto, data="10/08/2026")),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+    assert resposta.json() == {
+        "data": [StringsValidationErrors.DATA_FORA_DA_COMPETENCIA_DA_MEDICAO.value]
+    }
+
+
+@freeze_time("2026-10-19")
+def test_update_ocorrencia_diretor_rejeita_data_de_ocorrencia_duplicada(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    criar_ocorrencia_diretor(data=date(2026, 9, 11))
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto, data="11/09/2026")),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+    assert resposta.json() == {
+        "data": [StringsValidationErrors.DATA_DE_OCORRENCIA_DUPLICADA.value]
+    }
+
+
+@freeze_time("2026-10-19")
+def test_update_ocorrencia_diretor_rejeita_parametrizacao_de_outro_tipo(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    tipo_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    outro_tipo = tipo_ocorrencia_factory.create(
+        edital=contexto.tipo.edital,
+        categoria=contexto.tipo.categoria,
+        perfis=["DIRETOR"],
+        status=True,
+    )
+    outra_parametrizacao = parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia=outro_tipo
+    )
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(
+            montar_corpo_atualizacao(contexto, parametrizacao=outra_parametrizacao)
+        ),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+    assert "ocorrencias" in resposta.json()
+
+
+def test_update_ocorrencia_diretor_retorna_403_para_escola_de_outra_escola(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    escola_factory,
+    solicitacao_medicao_inicial_factory,
+):
+    contexto = contexto_listagem_diretor
+    outra_medicao = solicitacao_medicao_inicial_factory.create(
+        escola=escola_factory.create(), mes="09", ano="2026"
+    )
+    formulario = criar_ocorrencia_diretor(medicao=outra_medicao)
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto)),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
+    assert resposta.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
+
+
+def test_update_ocorrencia_diretor_retorna_404_para_grupo_inexistente(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto, grupo=2)),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_update_ocorrencia_diretor_retorna_404_para_formulario_inexistente(
+    contexto_listagem_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = SimpleNamespace(uuid=uuid.uuid4())
+
+    resposta = contexto.cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto)),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_update_ocorrencia_diretor_rejeita_perfil_sem_permissao(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    client_autenticado_cogestor_dre,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    cliente, _ = client_autenticado_cogestor_dre
+
+    resposta = cliente.put(
+        f"{URL_LISTAGEM}{formulario.uuid}/",
+        data=json.dumps(montar_corpo_atualizacao(contexto)),
+        content_type="application/json",
+    )
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_delete_ocorrencia_diretor_remove_formulario_sem_outras_respostas(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    formulario_base_id = formulario.formulario_base_id
+    contexto.medicao.com_ocorrencias = True
+    contexto.medicao.save(update_fields=["com_ocorrencias"])
+
+    resposta = contexto.cliente.delete(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_204_NO_CONTENT
+    assert FormularioDiretor.objects.filter(pk=formulario.pk).exists() is False
+    assert (
+        FormularioOcorrenciasBase.objects.filter(pk=formulario_base_id).exists()
+        is False
+    )
+
+    contexto.medicao.refresh_from_db()
+    assert contexto.medicao.com_ocorrencias is False
+
+    resposta_listagem = contexto.cliente.get(
+        URL_LISTAGEM,
+        {"solicitacao_medicao_inicial": str(contexto.medicao.uuid)},
+    )
+    assert resposta_listagem.status_code == status.HTTP_200_OK
+    assert resposta_listagem.json()["count"] == 0
+
+
+def test_delete_ocorrencia_diretor_preserva_outros_grupos(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    resposta_campo_texto_simples_factory,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    contexto.medicao.com_ocorrencias = True
+    contexto.medicao.save(update_fields=["com_ocorrencias"])
+    resposta_campo_texto_simples_factory.create(
+        formulario_base=formulario.formulario_base,
+        parametrizacao=contexto.parametrizacao,
+        grupo=2,
+        resposta="Camisa",
+    )
+
+    resposta = contexto.cliente.delete(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_204_NO_CONTENT
+
+    formulario.refresh_from_db()
+    respostas = formulario.formulario_base.respostas_campo_texto_simples.all()
+    assert respostas.count() == 1
+    assert respostas.first().grupo == 2
+    assert respostas.first().resposta == "Camisa"
+
+    contexto.medicao.refresh_from_db()
+    assert contexto.medicao.com_ocorrencias is True
+
+
+def test_delete_ocorrencia_diretor_mantem_com_ocorrencias_com_outra_ocorrencia(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    contexto.medicao.com_ocorrencias = True
+    contexto.medicao.save(update_fields=["com_ocorrencias"])
+    criar_ocorrencia_diretor(data=date(2026, 9, 11))
+
+    resposta = contexto.cliente.delete(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_204_NO_CONTENT
+
+    contexto.medicao.refresh_from_db()
+    assert contexto.medicao.com_ocorrencias is True
+
+
+def test_delete_ocorrencia_diretor_retorna_403_para_escola_de_outra_escola(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    escola_factory,
+    solicitacao_medicao_inicial_factory,
+):
+    contexto = contexto_listagem_diretor
+    outra_medicao = solicitacao_medicao_inicial_factory.create(
+        escola=escola_factory.create(), mes="09", ano="2026"
+    )
+    formulario = criar_ocorrencia_diretor(medicao=outra_medicao)
+
+    resposta = contexto.cliente.delete(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
+    assert resposta.json() == {"detail": StringsValidationErrors.PERMISSAO_NEGADA.value}
+
+
+def test_delete_ocorrencia_diretor_retorna_404_para_grupo_inexistente(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+
+    resposta = contexto.cliente.delete(
+        montar_url_ocorrencia(formulario, contexto.tipo, grupo=2)
+    )
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_delete_ocorrencia_diretor_retorna_404_para_formulario_inexistente(
+    contexto_listagem_diretor,
+):
+    contexto = contexto_listagem_diretor
+    formulario = SimpleNamespace(uuid=uuid.uuid4())
+
+    resposta = contexto.cliente.delete(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+
+
+def test_delete_ocorrencia_diretor_rejeita_perfil_sem_permissao(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    client_autenticado_cogestor_dre,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    cliente, _ = client_autenticado_cogestor_dre
+
+    resposta = cliente.delete(montar_url_ocorrencia(formulario, contexto.tipo))
+
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN

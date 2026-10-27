@@ -11,8 +11,18 @@
   <title>SIGPAE</title>
 </head>
 <body>
-  {% include "pre_recebimento/ficha_tecnica/cabecalho.html" %}
-  {% include "pre_recebimento/ficha_tecnica/relatorio_ficha.html" %}
+  <table class="documento-ficha" role="presentation">
+    <thead>
+      <tr>
+        <td>{% include "pre_recebimento/ficha_tecnica/cabecalho.html" %}</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>{% include "pre_recebimento/ficha_tecnica/relatorio_ficha.html" %}</td>
+      </tr>
+    </tbody>
+  </table>
   {% include "logistica/guia_remessa/rodape.html" %}
 </body>
 </html>

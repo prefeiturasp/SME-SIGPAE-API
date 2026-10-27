@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import pytest
 from django.core.exceptions import ValidationError
@@ -26,6 +27,9 @@ from ...dados_comuns.constants import (
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...escola.models import Aluno, FaixaEtaria
 from ...terceirizada.models import Edital
+from ..protocolo_padrao.services.dados_protocolo_padrao import (
+    preparar_dados_protocolo_padrao,
+)
 from ..solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
 from ..tasks.utils.logs import (
     gera_logs_dietas_escolas_cei,
@@ -1059,3 +1063,80 @@ def test_filtra_relatorio_recreio_nas_ferias_status_permitidos(
         SolicitacaoDietaEspecial.workflow_class.TERMINADA_AUTOMATICAMENTE_SISTEMA
         in status_retornados
     )
+
+
+def test_preparar_dados_protocolo_padrao_preserva_conteudo_e_relacoes(
+    protocolo_padrao_para_pdf,
+):
+    outro_protocolo = baker.make("ProtocoloPadraoDietaEspecial")
+    baker.make(
+        "SubstituicaoAlimentoProtocoloPadrao",
+        protocolo_padrao=outro_protocolo,
+        alimento=baker.make("dieta_especial.Alimento", nome="OUTRO ALIMENTO"),
+        tipo="I",
+    )
+    dados = preparar_dados_protocolo_padrao(protocolo_padrao_para_pdf)
+
+    assert dados["nome_protocolo"] == "ALERGIA A CAMARÃO"
+    assert (
+        dados["orientacoes_gerais"]
+        == protocolo_padrao_para_pdf.orientacoes_gerais
+    )
+    assert list(dados["editais"].values_list("numero", flat=True)) == [
+        "01/2026", "02/2026"
+    ]
+    substituicoes = list(dados["substituicoes"])
+    assert [item.alimento.nome for item in substituicoes] == ["ABACATE", "UVA"]
+    assert [item.get_tipo_display() for item in substituicoes] == [
+        "Substituir", "Isento"
+    ]
+    assert set(
+        alimento.nome
+        for alimento in substituicoes[0].alimentos_substitutos.all()
+    ) == {"SUBSTITUTO ALIMENTAR A", "SUBSTITUTO ALIMENTAR B"}
+    produtos = list(substituicoes[0].substitutos.all())
+    assert [produto.nome for produto in produtos] == [
+        "PRODUTO SUBSTITUTO CADASTRADO"
+    ]
+    assert not substituicoes[1].alimentos_substitutos.exists()
+    assert not substituicoes[1].substitutos.exists()
+
+
+@pytest.mark.parametrize(
+    "historico",
+    [None, "", "[]", json.dumps([{"action": "CREATE"}])],
+    ids=["nulo", "vazio", "lista_vazia", "sem_data_de_atualizacao"],
+)
+def test_preparar_dados_protocolo_padrao_utiliza_data_de_criacao(
+    protocolo_padrao_para_pdf, historico
+):
+    protocolo_padrao_para_pdf.historico = historico
+
+    dados = preparar_dados_protocolo_padrao(protocolo_padrao_para_pdf)
+
+    assert dados["data_ultima_atualizacao"] == "07/05/2026"
+
+
+def test_preparar_dados_protocolo_padrao_utiliza_historico_mais_recente(
+    protocolo_padrao_para_pdf,
+):
+    protocolo_padrao_para_pdf.historico = json.dumps(
+        [
+            {"action": "UPDATE", "updated_at": "2026-05-12 16:21:00"},
+            {"action": "CREATE"},
+            {"action": "UPDATE", "updated_at": "2026-05-08 10:00:00"},
+        ]
+    )
+
+    dados = preparar_dados_protocolo_padrao(protocolo_padrao_para_pdf)
+
+    assert dados["data_ultima_atualizacao"] == "12/05/2026"
+
+
+def test_preparar_dados_protocolo_padrao_sem_editais_e_substituicoes(
+    protocolo_padrao_dieta_especial,
+):
+    dados = preparar_dados_protocolo_padrao(protocolo_padrao_dieta_especial)
+
+    assert list(dados["editais"]) == []
+    assert list(dados["substituicoes"]) == []

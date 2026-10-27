@@ -38,6 +38,11 @@ from ..inclusao_alimentacao.models import (
     MotivoInclusaoNormal,
     QuantidadeDeAlunosEMEIInclusaoDeAlimentacaoCEMEI,
 )
+from ..kit_lanche.models import (
+    SolicitacaoKitLancheCEIAvulsa,
+    SolicitacaoKitLancheCEMEI,
+    SolicitacaoKitLancheUnificada,
+)
 from ..paineis_consolidados.models import SolicitacoesEscola
 from .api.constants import ALIMENTACOES_LANCAMENTOS_ESPECIAIS
 from .models import (
@@ -1074,12 +1079,251 @@ def valida_medicoes_inexistentes_cei(solicitacao, lista_erros):
     return lista_erros
 
 
+def _get_dias_inclusao_alimentacao_cei(solicitacao):
+    escola = solicitacao.escola
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+
+    if escola.eh_cei:
+        inclusoes = (
+            escola.inclusao_alimentacao_inclusaoalimentacaodacei_rastro_escola.filter(
+                dias_motivos_da_inclusao_cei__data__month=mes,
+                dias_motivos_da_inclusao_cei__data__year=ano,
+                dias_motivos_da_inclusao_cei__cancelado=False,
+                status="CODAE_AUTORIZADO",
+            )
+        )
+        return set(
+            inclusoes.values_list("dias_motivos_da_inclusao_cei__data", flat=True)
+        )
+
+    if escola.eh_cemei:
+        inclusoes = InclusaoDeAlimentacaoCEMEI.objects.filter(
+            escola=escola,
+            status="CODAE_AUTORIZADO",
+            dias_motivos_da_inclusao_cemei__data__month=mes,
+            dias_motivos_da_inclusao_cemei__data__year=ano,
+            dias_motivos_da_inclusao_cemei__cancelado=False,
+            quantidade_alunos_cei_da_inclusao_cemei__isnull=False,
+        )
+        return set(
+            inclusoes.values_list("dias_motivos_da_inclusao_cemei__data", flat=True)
+        )
+
+    return set()
+
+
+def _dia_sem_atendimento_regular(escola, data):
+    return (
+        data.weekday() >= 5
+        or calendario.is_holiday(data)
+        or DiaSuspensaoAtividades.eh_dia_de_suspensao(escola, data)
+    )
+
+
+def _adiciona_dia_kit_lanche_passeio(
+    dias_kit_lanche,
+    escola,
+    data,
+    faixas_etarias,
+    dias_inclusao,
+):
+    if not faixas_etarias or data in dias_inclusao:
+        return
+    if data >= datetime.date.today():
+        return
+    if not _dia_sem_atendimento_regular(escola, data):
+        return
+
+    dias_kit_lanche.setdefault(data, set()).update(faixas_etarias)
+
+
+def _faixas_kit_lanche_cei_avulsa(kit):
+    return set(
+        kit.faixas_etarias.filter(
+            faixa_etaria__ativo=True,
+            faixa_etaria__fim__gt=12,
+        ).values_list("faixa_etaria_id", flat=True)
+    )
+
+
+def _faixas_kit_lanche_cemei_cei(kit):
+    if not kit.tem_solicitacao_cei:
+        return set()
+
+    return set(
+        kit.solicitacao_cei.faixas_quantidades.filter(
+            faixa_etaria__ativo=True,
+            faixa_etaria__fim__gt=12,
+        ).values_list("faixa_etaria_id", flat=True)
+    )
+
+
+def _adiciona_kits_lanche_cei(
+    dias_kit_lanche,
+    escola,
+    mes,
+    ano,
+    dias_inclusao,
+):
+    kits_cei = SolicitacaoKitLancheCEIAvulsa.objects.filter(
+        escola=escola,
+        status__in=[
+            SolicitacaoKitLancheCEIAvulsa.workflow_class.CODAE_AUTORIZADO,
+            SolicitacaoKitLancheCEIAvulsa.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA,
+        ],
+        solicitacao_kit_lanche__data__month=mes,
+        solicitacao_kit_lanche__data__year=ano,
+    )
+    for kit in kits_cei:
+        _adiciona_dia_kit_lanche_passeio(
+            dias_kit_lanche,
+            escola,
+            kit.solicitacao_kit_lanche.data,
+            _faixas_kit_lanche_cei_avulsa(kit),
+            dias_inclusao,
+        )
+
+
+def _adiciona_kits_lanche_cemei(
+    dias_kit_lanche,
+    escola,
+    mes,
+    ano,
+    dias_inclusao,
+):
+    kits_cemei = SolicitacaoKitLancheCEMEI.objects.filter(
+        escola=escola,
+        status__in=[
+            SolicitacaoKitLancheCEMEI.workflow_class.CODAE_AUTORIZADO,
+            SolicitacaoKitLancheCEMEI.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA,
+        ],
+        data__month=mes,
+        data__year=ano,
+        alunos_cei_e_ou_emei__in=[
+            SolicitacaoKitLancheCEMEI.CEI,
+            SolicitacaoKitLancheCEMEI.TODOS,
+        ],
+    )
+    for kit in kits_cemei:
+        _adiciona_dia_kit_lanche_passeio(
+            dias_kit_lanche,
+            escola,
+            kit.data,
+            _faixas_kit_lanche_cemei_cei(kit),
+            dias_inclusao,
+        )
+
+
+def _adiciona_kits_lanche_unificados(
+    dias_kit_lanche,
+    escola,
+    mes,
+    ano,
+    dias_inclusao,
+):
+    faixas_etarias_unificada = set(
+        FaixaEtaria.objects.filter(ativo=True, fim__gt=12).values_list("id", flat=True)
+    )
+    kits_unificados = SolicitacaoKitLancheUnificada.objects.filter(
+        escolas_quantidades__escola=escola,
+        escolas_quantidades__cancelado=False,
+        status__in=[
+            SolicitacaoKitLancheUnificada.workflow_class.CODAE_AUTORIZADO,
+            SolicitacaoKitLancheUnificada.workflow_class.TERCEIRIZADA_TOMOU_CIENCIA,
+        ],
+        solicitacao_kit_lanche__data__month=mes,
+        solicitacao_kit_lanche__data__year=ano,
+    ).distinct()
+    for kit in kits_unificados:
+        _adiciona_dia_kit_lanche_passeio(
+            dias_kit_lanche,
+            escola,
+            kit.solicitacao_kit_lanche.data,
+            faixas_etarias_unificada,
+            dias_inclusao,
+        )
+
+
+def _get_dias_kit_lanche_passeio_cei(solicitacao):
+    escola = solicitacao.escola
+    if not (escola.eh_cei or escola.eh_cemei):
+        return {}
+
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    dias_inclusao = _get_dias_inclusao_alimentacao_cei(solicitacao)
+    dias_kit_lanche = {}
+
+    if escola.eh_cei:
+        _adiciona_kits_lanche_cei(dias_kit_lanche, escola, mes, ano, dias_inclusao)
+    if escola.eh_cemei:
+        _adiciona_kits_lanche_cemei(dias_kit_lanche, escola, mes, ano, dias_inclusao)
+    _adiciona_kits_lanche_unificados(dias_kit_lanche, escola, mes, ano, dias_inclusao)
+
+    return dias_kit_lanche
+
+
+def _possui_dia_kit_lanche_sem_frequencia(medicao, categoria, dias_kit_lanche):
+    for data, faixas_etarias in dias_kit_lanche.items():
+        for faixa_etaria_id in faixas_etarias:
+            possui_frequencia = (
+                medicao.valores_medicao.filter(
+                    nome_campo="frequencia",
+                    categoria_medicao=categoria,
+                    faixa_etaria_id=faixa_etaria_id,
+                    dia=f"{data.day:02d}",
+                )
+                .exclude(Q(valor__isnull=True) | Q(valor=""))
+                .exists()
+            )
+            if not possui_frequencia:
+                return True
+    return False
+
+
+def validate_lancamento_kit_lanche_passeio_cei(
+    medicao,
+    dias_kit_lanche,
+    lista_erros,
+):
+    if not dias_kit_lanche:
+        return lista_erros
+    if lista_erros_com_periodo(lista_erros, medicao, CATEGORIA_ALIMENTACOES):
+        return lista_erros
+
+    categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
+    if _possui_dia_kit_lanche_sem_frequencia(medicao, categoria, dias_kit_lanche):
+        lista_erros.append(
+            {
+                "periodo_escolar": (
+                    medicao.periodo_escolar.nome
+                    if medicao.periodo_escolar
+                    else medicao.nome_periodo_grupo
+                ),
+                "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS.value,
+            }
+        )
+    return lista_erros
+
+
+def _valida_kit_lanche_da_medicao_cei(medicao, dias_kit_lanche, lista_erros):
+    if medicao.nome_periodo_grupo.upper() != "INTEGRAL":
+        return lista_erros
+    return validate_lancamento_kit_lanche_passeio_cei(
+        medicao,
+        dias_kit_lanche,
+        lista_erros,
+    )
+
+
 def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
     ano = solicitacao.ano
     mes = solicitacao.mes
     escola = solicitacao.escola
     categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
     faixas_etarias = FaixaEtaria.objects.filter(ativo=True)
+    dias_kit_lanche = _get_dias_kit_lanche_passeio_cei(solicitacao)
     logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
         escola=escola, data__month=mes, data__year=ano
     )
@@ -1137,6 +1381,12 @@ def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
                         "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS.value,
                     }
                 )
+
+        lista_erros = _valida_kit_lanche_da_medicao_cei(
+            medicao,
+            dias_kit_lanche,
+            lista_erros,
+        )
     return lista_erros
 
 
@@ -3785,6 +4035,12 @@ def _validate_medicao_cei_cemei(
         mes,
         categoria_alimentacao,
     )
+    if medicao.nome_periodo_grupo.upper() == "INTEGRAL":
+        lista_erros = validate_lancamento_kit_lanche_passeio_cei(
+            medicao,
+            _get_dias_kit_lanche_passeio_cei(medicao.solicitacao_medicao_inicial),
+            lista_erros,
+        )
     lista_erros = validate_lancamento_inclusoes_cei_cemei(
         lista_erros,
         ano,
