@@ -118,8 +118,6 @@ def task_on_failure(self, exc, task_id, args, kwargs, einfo):
         assunto,
         corpo,
         env("EMAIL_NOTIFICACAO_FALHA_TASK"),
-        template="",
-        dados_template=None,
         html=html_message,
     )
 

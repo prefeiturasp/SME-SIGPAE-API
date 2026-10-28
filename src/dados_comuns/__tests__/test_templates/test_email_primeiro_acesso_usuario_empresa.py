@@ -20,6 +20,6 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"<p>A liberação do acesso ao SIGPAE tem o intuito de agilizar o processo de cadastramento e uso do sistema, contudo, não gera responsabilidade contratual. O contrato será firmado, somente após a sua assinatura.</p>"
+        "<p>A liberação do acesso ao SIGPAE tem o intuito de agilizar o processo de cadastramento e uso do sistema, contudo, não gera responsabilidade contratual. O contrato será firmado, somente após a sua assinatura.</p>"
         in html
     )

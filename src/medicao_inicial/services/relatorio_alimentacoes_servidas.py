@@ -19,6 +19,7 @@ from src.dados_comuns.constants import (
     TIPOS_GESTAO,
     USUARIO_EMPRESA,
     USUARIO_RELATORIOS,
+    StringsValidationErrors,
 )
 from src.escola.api.filters import (
     dres_no_escopo,
@@ -336,7 +337,11 @@ def _validar_dres(dres, usuario):
     """Exige ao menos uma DRE dentro do escopo do usuário."""
     if not dres:
         raise serializers.ValidationError(
-            {"dres": "Informe ao menos uma diretoria regional."}
+            {
+                "dres": (
+                    StringsValidationErrors.INFORME_AO_MENOS_UMA_DIRETORIA_REGIONAL.value
+                )
+            }
         )
     queryset = DiretoriaRegional.objects.filter(uuid__in=dres)
     escopo = dres_no_escopo(usuario)
@@ -580,8 +585,12 @@ def _campo_uuids(obrigatorio=False):
     }
     if obrigatorio:
         campo["error_messages"] = {
-            "required": "Informe ao menos uma diretoria regional.",
-            "empty": "Informe ao menos uma diretoria regional.",
+            "required": (
+                StringsValidationErrors.INFORME_AO_MENOS_UMA_DIRETORIA_REGIONAL.value
+            ),
+            "empty": (
+                StringsValidationErrors.INFORME_AO_MENOS_UMA_DIRETORIA_REGIONAL.value
+            ),
         }
         return serializers.ListField(**campo)
     campo["required"] = False

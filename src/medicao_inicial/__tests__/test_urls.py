@@ -3262,7 +3262,7 @@ def test_url_endpoint_relatorio_adesao_com_periodo_lancamento_no_formato_incorre
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.data == {
-        "detail": f"Formato de data inválido para 'periodo_lancamento_de'. Use o formato dd/mm/yyyy"
+        "detail": "Formato de data inválido para 'periodo_lancamento_de'. Use o formato dd/mm/yyyy"
     }
 
 
@@ -3961,7 +3961,7 @@ def test_url_endpoint_atualiza_informacoes_basicas_medicao_nao_existe(
         ),
     }
     response = client_autenticado_da_escola.patch(
-        f"/medicao-inicial/solicitacao-medicao-inicial/5555/informacoes-basicas/",
+        "/medicao-inicial/solicitacao-medicao-inicial/5555/informacoes-basicas/",
         data=payload,
         content_type="application/json",
     )
@@ -4579,7 +4579,7 @@ def test_url_dias_frequencia_zerada_solicitacao_nao_encontrada(
 
 def test_url_dias_frequencia_zerada_uuid_nao_enviado(client_autenticado_codae_medicao):
     response = client_autenticado_codae_medicao.get(
-        f"/medicao-inicial/solicitacao-medicao-inicial/dias-frequencia-zerada/"
+        "/medicao-inicial/solicitacao-medicao-inicial/dias-frequencia-zerada/"
     )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -4676,7 +4676,7 @@ def test_endpoint_relatorio_financeiro_nao_encontrado(
     }
 
     response = client_autenticado_codae_medicao.patch(
-        f"/medicao-inicial/relatorio-financeiro/123/",
+        "/medicao-inicial/relatorio-financeiro/123/",
         content_type="application/json",
         data=json.dumps(payload),
     )
@@ -5167,8 +5167,6 @@ def test_reabrir_lancamentos_todos_restringe_ao_lote_mes_e_ano(
         solicitacao_relatorio_consolidado_grupo_emei.status
         == solicitacao_relatorio_consolidado_grupo_emei.workflow_class.MEDICAO_APROVADA_PELA_DRE
     )
-    status_codae = (
-        solicitacao_escola_ceuemei.workflow_class.MEDICAO_APROVADA_PELA_CODAE
-    )
+    status_codae = solicitacao_escola_ceuemei.workflow_class.MEDICAO_APROVADA_PELA_CODAE
     assert solicitacao_escola_ceuemei.status == status_codae
     assert solicitacao_relatorio_consolidado_grupo_emef.status == status_codae

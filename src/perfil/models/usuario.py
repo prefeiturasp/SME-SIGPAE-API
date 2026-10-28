@@ -145,8 +145,6 @@ class CustomAbstractUser(AbstractBaseUser, PermissionsMixin):
         subject,
         message,
         from_email=None,
-        template=None,
-        dados_template=None,
         html=None,
         **kwargs,
     ):
@@ -155,8 +153,6 @@ class CustomAbstractUser(AbstractBaseUser, PermissionsMixin):
             assunto=subject,
             corpo="",
             email=self.email,
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -399,8 +395,6 @@ class Usuario(
         self.email_user(
             subject="Confirme seu e-mail - SIGPAE",
             message="",
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -419,8 +413,6 @@ class Usuario(
         self.email_user(
             subject="Email de recuperação de senha - SIGPAE",
             message="",
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -437,8 +429,6 @@ class Usuario(
         self.email_user(
             subject="[SIGPAE] Novo cadastro de empresa",
             message="",
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -515,8 +505,6 @@ class Usuario(
         self.email_user(
             subject="[SIGPAE] Credenciais de Acesso ao SIGPAE",
             message="",
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -533,8 +521,6 @@ class Usuario(
         self.email_user(
             subject="[SIGPAE] Credenciais de Acesso ao SIGPAE",
             message="",
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 

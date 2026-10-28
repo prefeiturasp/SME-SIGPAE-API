@@ -25,39 +25,33 @@ class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):
         StringsVerboseNameModels.CODIGO_EOL_ALUNO.value,
         max_length=7,
         validators=[MinLengthValidator(7)],
-        null=True,
         blank=True,
     )
     nome_aluno = models.CharField(
         StringsVerboseNameModels.NOME_DO_ALUNO.value,
         max_length=100,
-        null=True,
         blank=True,
     )
     codigo_eol_escola_origem = models.CharField(
         StringsVerboseNameModels.CODIGO_EOL_ESCOLA_ORIGEM.value,
         max_length=6,
         validators=[MinLengthValidator(6)],
-        null=True,
         blank=True,
     )
     nome_escola_origem = models.CharField(
         StringsVerboseNameModels.NOME_DA_ESCOLA_ORIGEM.value,
         max_length=160,
-        null=True,
         blank=True,
     )
     codigo_eol_escola_destino = models.CharField(
         StringsVerboseNameModels.CODIGO_EOL_ESCOLA_DESTINO.value,
         max_length=6,
         validators=[MinLengthValidator(6)],
-        null=True,
         blank=True,
     )
     nome_escola_destino = models.CharField(
         StringsVerboseNameModels.NOME_DA_ESCOLA_DESTINO.value,
         max_length=160,
-        null=True,
         blank=True,
     )
 

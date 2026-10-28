@@ -858,17 +858,15 @@ class UsuarioDilogOuDistribuidorOuEscolaAbastecimento(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        COORDENADOR_LOGISTICA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        ADMINISTRADOR_CODAE_DILOG_JURIDICO,
-                        DILOG_QUALIDADE,
-                        DILOG_DIRETORIA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    COORDENADOR_LOGISTICA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    ADMINISTRADOR_CODAE_DILOG_JURIDICO,
+                    DILOG_QUALIDADE,
+                    DILOG_DIRETORIA,
+                ]
                 or usuario.eh_distribuidor
                 or (
                     isinstance(usuario.vinculo_atual.instituicao, Escola)
@@ -885,20 +883,18 @@ class PermissaoParaListarEntregas(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        COORDENADOR_LOGISTICA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        COORDENADOR_SUPERVISAO_NUTRICAO,
-                        ADMINISTRADOR_CODAE_GABINETE,
-                        ADMINISTRADOR_CODAE_DILOG_CONTABIL,
-                        ADMINISTRADOR_CODAE_DILOG_JURIDICO,
-                        ADMINISTRADOR_SUPERVISAO_NUTRICAO,
-                        DILOG_DIRETORIA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    COORDENADOR_LOGISTICA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    COORDENADOR_SUPERVISAO_NUTRICAO,
+                    ADMINISTRADOR_CODAE_GABINETE,
+                    ADMINISTRADOR_CODAE_DILOG_CONTABIL,
+                    ADMINISTRADOR_CODAE_DILOG_JURIDICO,
+                    ADMINISTRADOR_SUPERVISAO_NUTRICAO,
+                    DILOG_DIRETORIA,
+                ]
                 or usuario.eh_distribuidor
                 or (isinstance(usuario.vinculo_atual.instituicao, DiretoriaRegional))
             )
@@ -912,21 +908,19 @@ class PermissaoParaVisualizarCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        DILOG_CRONOGRAMA,
-                        DILOG_QUALIDADE,
-                        DILOG_DIRETORIA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        ADMINISTRADOR_CODAE_GABINETE,
-                        USUARIO_RELATORIOS,
-                        USUARIO_GTIC_CODAE,
-                        DILOG_ABASTECIMENTO,
-                        DILOG_VISUALIZACAO,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    DILOG_CRONOGRAMA,
+                    DILOG_QUALIDADE,
+                    DILOG_DIRETORIA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    ADMINISTRADOR_CODAE_GABINETE,
+                    USUARIO_RELATORIOS,
+                    USUARIO_GTIC_CODAE,
+                    DILOG_ABASTECIMENTO,
+                    DILOG_VISUALIZACAO,
+                ]
                 or usuario.eh_fornecedor
             )
         )
@@ -939,21 +933,19 @@ class PermissaoParaVisualizarRelatorioCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        DILOG_CRONOGRAMA,
-                        USUARIO_RELATORIOS,
-                        DILOG_DIRETORIA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        ADMINISTRADOR_CODAE_GABINETE,
-                        USUARIO_GTIC_CODAE,
-                        DILOG_ABASTECIMENTO,
-                        DILOG_VISUALIZACAO,
-                        DILOG_QUALIDADE,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    DILOG_CRONOGRAMA,
+                    USUARIO_RELATORIOS,
+                    DILOG_DIRETORIA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    ADMINISTRADOR_CODAE_GABINETE,
+                    USUARIO_GTIC_CODAE,
+                    DILOG_ABASTECIMENTO,
+                    DILOG_VISUALIZACAO,
+                    DILOG_QUALIDADE,
+                ]
                 or usuario.eh_fornecedor
             )
         )
@@ -966,11 +958,9 @@ class PermissaoParaCriarCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
             )
         )
 
@@ -989,10 +979,8 @@ class PermissaoParaAssinarCronogramaUsuarioCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome == DILOG_CRONOGRAMA
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome == DILOG_CRONOGRAMA
             )
         )
 
@@ -1004,10 +992,8 @@ class UsuarioDinutreDiretoria(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome == DINUTRE_DIRETORIA
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome == DINUTRE_DIRETORIA
             )
         )
 
@@ -1019,10 +1005,8 @@ class UsuarioDilogAbastecimento(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome == DILOG_ABASTECIMENTO
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome == DILOG_ABASTECIMENTO
             )
         )
 
@@ -1034,10 +1018,8 @@ class PermissaoParaAssinarCronogramaUsuarioDilog(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome == DILOG_DIRETORIA
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome == DILOG_DIRETORIA
             )
         )
 
@@ -1059,10 +1041,8 @@ class PermissaoParaDashboardCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 
@@ -1084,10 +1064,8 @@ class PermissaoParaVisualizarCalendarioCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 
@@ -1110,10 +1088,8 @@ class PermissaoParaDashboardLayoutEmbalagem(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 
@@ -1133,10 +1109,8 @@ class PermissaoParaDashboardDocumentosDeRecebimento(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 
@@ -1153,10 +1127,8 @@ class PermissaoParaRelatorioDocumentosDeRecebimento(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 
@@ -1169,11 +1141,9 @@ class PermissaoParaCadastrarLaboratorio(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [DILOG_QUALIDADE, COORDENADOR_CODAE_DILOG_LOGISTICA]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [DILOG_QUALIDADE, COORDENADOR_CODAE_DILOG_LOGISTICA]
             )
         )
 
@@ -1185,15 +1155,13 @@ class PermissaoParaCadastrarVisualizarEmbalagem(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        DILOG_QUALIDADE,
-                        DILOG_CRONOGRAMA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    DILOG_QUALIDADE,
+                    DILOG_CRONOGRAMA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                ]
             )
         )
 
@@ -1205,15 +1173,13 @@ class PermissaoParaCadastrarVisualizarUnidadesMedida(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        DILOG_QUALIDADE,
-                        DILOG_CRONOGRAMA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    DILOG_QUALIDADE,
+                    DILOG_CRONOGRAMA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                ]
             )
         )
 
@@ -1225,17 +1191,15 @@ class PermissaoParaVisualizarUnidadesMedida(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        DILOG_QUALIDADE,
-                        DILOG_CRONOGRAMA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                    ]
-                    or usuario.vinculo_atual.perfil.nome
-                    in [ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    DILOG_QUALIDADE,
+                    DILOG_CRONOGRAMA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                ]
+                or usuario.vinculo_atual.perfil.nome
+                in [ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA]
             )
         )
 
@@ -1257,10 +1221,8 @@ class PermissaoParaVisualizarSolicitacoesAlteracaoCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
                 or usuario.eh_fornecedor
             )
         )
@@ -1273,11 +1235,9 @@ class PermissaoParaDarCienciaAlteracaoCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [DILOG_CRONOGRAMA, COORDENADOR_CODAE_DILOG_LOGISTICA]
             )
         )
 
@@ -1289,15 +1249,13 @@ class PermissaoParaCriarSolicitacoesAlteracaoCronograma(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        DILOG_CRONOGRAMA,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        DILOG_DIRETORIA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    DILOG_CRONOGRAMA,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    DILOG_DIRETORIA,
+                ]
                 or usuario.eh_fornecedor
             )
         )
@@ -1424,17 +1382,15 @@ class PermissaoParaVisualizarGuiasComOcorrencias(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        ADMINISTRADOR_CODAE_DILOG_JURIDICO,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                        COORDENADOR_LOGISTICA,
-                        ADMINISTRADOR_CODAE_GABINETE,
-                        DILOG_DIRETORIA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    ADMINISTRADOR_CODAE_DILOG_JURIDICO,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                    COORDENADOR_LOGISTICA,
+                    ADMINISTRADOR_CODAE_GABINETE,
+                    DILOG_DIRETORIA,
+                ]
             )
         )
 
@@ -1446,14 +1402,12 @@ class PermissaoParaCriarNotificacaoDeGuiasComOcorrencias(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome
-                    in [
-                        ADMINISTRADOR_CODAE_DILOG_JURIDICO,
-                        COORDENADOR_CODAE_DILOG_LOGISTICA,
-                    ]
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome
+                in [
+                    ADMINISTRADOR_CODAE_DILOG_JURIDICO,
+                    COORDENADOR_CODAE_DILOG_LOGISTICA,
+                ]
             )
         )
 
@@ -1482,10 +1436,8 @@ class PermissaoParaVisualizarLayoutDeEmbalagem(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
                 or usuario.eh_fornecedor
             )
         )
@@ -1506,10 +1458,8 @@ class PermissaoParaVisualizarDocumentosDeRecebimento(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
                 or usuario.eh_fornecedor
             )
         )
@@ -1522,10 +1472,8 @@ class UsuarioEhDilogQualidade(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome == DILOG_QUALIDADE
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome == DILOG_QUALIDADE
             )
         )
 
@@ -1549,10 +1497,8 @@ class PermissaoParaDashboardFichaTecnica(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 
@@ -1576,10 +1522,8 @@ class PermissaoParaVisualizarFichaTecnica(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
                 or usuario.eh_fornecedor
             )
         )
@@ -1600,10 +1544,8 @@ class PermissaoParaRelatorioFichasTecnicas(BasePermission):
             not usuario.is_anonymous
             and usuario.vinculo_atual
             and (
-                (
-                    isinstance(usuario.vinculo_atual.instituicao, Codae)
-                    and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
-                )
+                isinstance(usuario.vinculo_atual.instituicao, Codae)
+                and usuario.vinculo_atual.perfil.nome in self.PERFIS_PERMITIDOS
             )
         )
 

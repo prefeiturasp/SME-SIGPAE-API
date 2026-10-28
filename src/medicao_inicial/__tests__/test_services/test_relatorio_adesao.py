@@ -831,9 +831,7 @@ def test_obtem_resultados_por_data_e_tipo_unidade_separa_combinacoes(
     )
     resultados = obtem_resultados_por_data_e_tipo_unidade(query_params)
 
-    assert [
-        (item["data"], item["tipo_unidade"]) for item in resultados
-    ] == [
+    assert [(item["data"], item["tipo_unidade"]) for item in resultados] == [
         ("01/08/2026", "EMEI"),
         ("01/08/2026", "CEU EMEI"),
         ("02/08/2026", "EMEI"),
@@ -985,7 +983,7 @@ def test_valida_ano_mes_formato_incorreto():
 
 
 def test_parse_data():
-    periodo_lancamento_de = f"01/05/2020"
+    periodo_lancamento_de = "01/05/2020"
     data = _parse_data(periodo_lancamento_de, "periodo_lancamento_de")
     assert isinstance(data, date)
     assert data.day == 1
@@ -994,7 +992,7 @@ def test_parse_data():
 
 
 def test_parse_data_formato_incorreto():
-    periodo_lancamento_de = f"01-05-2020"
+    periodo_lancamento_de = "01-05-2020"
     with pytest.raises(
         ValidationError,
         match="Formato de data inválido para 'periodo_lancamento_de'. Use o formato dd/mm/yyyy",

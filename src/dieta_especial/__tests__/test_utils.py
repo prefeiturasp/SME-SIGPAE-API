@@ -928,7 +928,7 @@ def test_formatar_informacoes_historioco_dietas(
 
 
 def test_parse_data():
-    periodo_lancamento_de = f"01/05/2020"
+    periodo_lancamento_de = "01/05/2020"
     data = _parse_data(periodo_lancamento_de, "data_inicio")
     assert isinstance(data, datetime.date)
     assert data.day == 1
@@ -937,7 +937,7 @@ def test_parse_data():
 
 
 def test_parse_data_formato_incorreto():
-    periodo_lancamento_de = f"01-05-2020"
+    periodo_lancamento_de = "01-05-2020"
     with pytest.raises(
         ValidationError,
         match="Formato de data inválido para 'data_inicio'. Use o formato dd/mm/yyyy",
@@ -1078,26 +1078,22 @@ def test_preparar_dados_protocolo_padrao_preserva_conteudo_e_relacoes(
     dados = preparar_dados_protocolo_padrao(protocolo_padrao_para_pdf)
 
     assert dados["nome_protocolo"] == "ALERGIA A CAMARÃO"
-    assert (
-        dados["orientacoes_gerais"]
-        == protocolo_padrao_para_pdf.orientacoes_gerais
-    )
+    assert dados["orientacoes_gerais"] == protocolo_padrao_para_pdf.orientacoes_gerais
     assert list(dados["editais"].values_list("numero", flat=True)) == [
-        "01/2026", "02/2026"
+        "01/2026",
+        "02/2026",
     ]
     substituicoes = list(dados["substituicoes"])
     assert [item.alimento.nome for item in substituicoes] == ["ABACATE", "UVA"]
     assert [item.get_tipo_display() for item in substituicoes] == [
-        "Substituir", "Isento"
+        "Substituir",
+        "Isento",
     ]
     assert set(
-        alimento.nome
-        for alimento in substituicoes[0].alimentos_substitutos.all()
+        alimento.nome for alimento in substituicoes[0].alimentos_substitutos.all()
     ) == {"SUBSTITUTO ALIMENTAR A", "SUBSTITUTO ALIMENTAR B"}
     produtos = list(substituicoes[0].substitutos.all())
-    assert [produto.nome for produto in produtos] == [
-        "PRODUTO SUBSTITUTO CADASTRADO"
-    ]
+    assert [produto.nome for produto in produtos] == ["PRODUTO SUBSTITUTO CADASTRADO"]
     assert not substituicoes[1].alimentos_substitutos.exists()
     assert not substituicoes[1].substitutos.exists()
 
