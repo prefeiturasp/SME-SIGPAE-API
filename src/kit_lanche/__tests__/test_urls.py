@@ -775,6 +775,40 @@ def test_kit_lanche_nao_deve_permitir_editar_status_diretamente(
     assert json.get("status") is None
 
 
+QUANTIDADES_ALUNOS_INVALIDAS = [
+    (0, "Quantidade de alunos deve ser maior que zero"),
+    (-50, "Quantidade de alunos deve ser maior que zero"),
+    ("1.167", "Quantidade de alunos deve ser um número inteiro"),
+    ("12a3", "Quantidade de alunos deve ser um número inteiro"),
+]
+
+
+@freeze_time("2019-10-11")
+@pytest.mark.parametrize("quantidade_alunos, erro", QUANTIDADES_ALUNOS_INVALIDAS)
+def test_url_kit_lanche_avulso_quantidade_alunos_invalida(
+    client_autenticado_da_escola, escola, kit_lanche, aluno, quantidade_alunos, erro
+):
+    response = client_autenticado_da_escola.post(
+        f"/{ENDPOINT_AVULSO}/",
+        content_type="application/json",
+        data={
+            "solicitacao_kit_lanche": {
+                "kits": [str(kit_lanche.uuid)],
+                "descricao": "<p>passeio</p>",
+                "data": "27/11/2019",
+                "tempo_passeio": 0,
+            },
+            "local": "TESTE!!!",
+            "quantidade_alunos": quantidade_alunos,
+            "escola": str(escola.uuid),
+            "alunos_com_dieta_especial_participantes": [str(aluno.uuid)],
+        },
+    )
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["quantidade_alunos"] == [erro]
+    assert not SolicitacaoKitLancheAvulsa.objects.exists()
+
+
 def test_url_endpoint_consulta_kits_lanche(client_autenticado, kit_lanche):
     client = client_autenticado
     response = client.get("/kit-lanches/consulta-kits/")
