@@ -314,6 +314,10 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
     "PAGE_SIZE": 100,
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # DRF 3.18 passou a usar dict nos erros de ListSerializer (many=True).
+    # Mantemos o formato antigo (lista) para não quebrar o contrato consumido
+    # pelo frontend. Reavaliar antes do DRF 3.20, quando a opção é removida.
+    "LIST_SERIALIZER_ERRORS_AS_DICT": False,
 }
 
 
