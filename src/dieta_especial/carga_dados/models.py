@@ -22,7 +22,7 @@ class PlanilhaDietasAtivas(models.Model):
         blank=True, null=True, help_text="Arquivo com o resultado"
     )  # noqa DJ01
     tempfile = models.CharField(
-        max_length=100, null=True, blank=True, help_text="JSON temporario"
+        max_length=100, blank=True, help_text="JSON temporario"
     )  # noqa DJ01
     criado_em = models.DateTimeField(
         StringsVerboseNameModels.CRIADO_EM.value, auto_now_add=True, auto_now=False
