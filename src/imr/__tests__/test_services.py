@@ -10,7 +10,17 @@ from django.template.loader import render_to_string
 from pypdf import PdfReader
 from rest_framework import status
 
-from src.imr.api.services import RelatorioNotificacaoService
+from src.imr.api.services import (
+    RelatorioNotificacaoService,
+    buscar_respostas_diretor,
+    listar_ocorrencias_diretor,
+)
+from src.imr.models import (
+    RespostaCampoTextoLongo,
+    RespostaDatas,
+    RespostaSimNao,
+    RespostaTipoAlimentacao,
+)
 from src.relatorios.relatorios import exportar_relatorio_notificacao
 
 pytestmark = pytest.mark.django_db
@@ -239,3 +249,202 @@ def test_renderiza_conteudo_da_notificacao_quantidade_qualidade(
     assert "em 27/08/2026." in html
     assert "27/08/2026, às" not in html
     assert "10.0" not in html
+
+
+def test_listagem_separa_tipos_e_grupos_do_mesmo_formulario(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    tipo_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+    resposta_campo_texto_simples_factory,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    resposta_campo_texto_simples_factory.create(
+        formulario_base=formulario.formulario_base,
+        parametrizacao=contexto.parametrizacao,
+        grupo=2,
+        resposta="Avental",
+    )
+    outro_tipo = tipo_ocorrencia_factory.create(
+        edital=contexto.tipo.edital,
+        penalidade=contexto.tipo.penalidade,
+        categoria=contexto.tipo.categoria,
+        titulo="HIGIENIZAÇÃO DAS MÃOS",
+        perfis=["DIRETOR"],
+    )
+    outra_parametrizacao = parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia=outro_tipo,
+        tipo_pergunta=contexto.parametrizacao.tipo_pergunta,
+        titulo="Qual material faltou?",
+        posicao=1,
+    )
+    resposta_campo_texto_simples_factory.create(
+        formulario_base=formulario.formulario_base,
+        parametrizacao=outra_parametrizacao,
+        grupo=1,
+        resposta="Sabonete",
+    )
+
+    dados = listar_ocorrencias_diretor([formulario])
+
+    assert len(dados) == 3
+    linhas = {
+        (linha["tipo_ocorrencia"], linha["grupo"]): linha
+        for linha in dados
+    }
+    assert set(linhas) == {
+        (contexto.tipo.uuid, 1),
+        (contexto.tipo.uuid, 2),
+        (outro_tipo.uuid, 1),
+    }
+    assert linhas[(contexto.tipo.uuid, 1)]["respostas"][0]["resposta"] == "Touca"
+    assert linhas[(contexto.tipo.uuid, 2)]["respostas"][0]["resposta"] == "Avental"
+    assert linhas[(outro_tipo.uuid, 1)]["respostas"][0]["resposta"] == "Sabonete"
+    assert all(len(linha["respostas"]) == 1 for linha in linhas.values())
+    assert {linha["uuid"] for linha in linhas.values()} == {formulario.uuid}
+
+
+def test_listagem_ordena_ocorrencias_pela_data_decrescente(
+    criar_ocorrencia_diretor,
+):
+    formularios = [
+        criar_ocorrencia_diretor(data=date(2026, 9, dia))
+        for dia in (10, 18, 2)
+    ]
+
+    dados = listar_ocorrencias_diretor(formularios)
+
+    assert [linha["data"] for linha in dados] == [
+        date(2026, 9, 18),
+        date(2026, 9, 10),
+        date(2026, 9, 2),
+    ]
+
+
+@pytest.mark.parametrize(
+    "modelo,nome_pergunta,valor,texto_esperado",
+    [
+        (
+            RespostaCampoTextoLongo,
+            "Campo de Texto Longo",
+            "Primeira linha\nSegunda linha",
+            "Primeira linha\nSegunda linha",
+        ),
+        (RespostaSimNao, "Opções Sim/Não", "Não", "Não"),
+        (
+            RespostaDatas,
+            "Seletor de Datas",
+            [date(2026, 9, 2), date(2026, 9, 3)],
+            "02/09/2026, 03/09/2026",
+        ),
+    ],
+    ids=["texto-longo", "sim-nao", "datas"],
+)
+def test_listagem_formata_diferentes_tipos_de_resposta(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+    modelo,
+    nome_pergunta,
+    valor,
+    texto_esperado,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory.create(
+        nome=nome_pergunta, tipo_resposta__nome=modelo.__name__
+    )
+    parametrizacao = parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia=contexto.tipo,
+        tipo_pergunta=pergunta,
+        titulo="Detalhes da ocorrência",
+        posicao=2,
+    )
+    modelo.objects.create(
+        formulario_base=formulario.formulario_base,
+        parametrizacao=parametrizacao,
+        grupo=1,
+        resposta=valor,
+    )
+
+    dados = listar_ocorrencias_diretor([formulario])
+
+    assert len(dados) == 1
+    respostas = dados[0]["respostas"]
+    assert len(respostas) == 2
+    assert respostas[1]["parametrizacao"] == parametrizacao.uuid
+    assert respostas[1]["resposta"] == texto_esperado
+
+
+def test_listagem_exibe_nome_da_resposta_relacionada(
+    contexto_listagem_diretor,
+    criar_ocorrencia_diretor,
+    tipo_alimentacao_factory,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+):
+    contexto = contexto_listagem_diretor
+    formulario = criar_ocorrencia_diretor()
+    alimentacao = tipo_alimentacao_factory.create(nome="Lanche")
+    pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory.create(
+        nome="Seletor de Tipo de Alimentação",
+        tipo_resposta__nome="RespostaTipoAlimentacao",
+    )
+    parametrizacao = parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia=contexto.tipo,
+        tipo_pergunta=pergunta,
+        titulo="Tipo de alimentação não fornecida",
+        posicao=2,
+    )
+    RespostaTipoAlimentacao.objects.create(
+        formulario_base=formulario.formulario_base,
+        parametrizacao=parametrizacao,
+        grupo=1,
+        resposta=alimentacao,
+    )
+
+    respostas = buscar_respostas_diretor([formulario.formulario_base_id])
+    detalhes = {
+        detalhe["parametrizacao"]: detalhe
+        for _, _, detalhe in respostas
+    }
+
+    assert len(respostas) == 2
+    assert detalhes[parametrizacao.uuid]["resposta"] == "Lanche"
+
+
+@pytest.mark.parametrize("descricao", ["Item indisponível nesta unidade.", ""])
+def test_listagem_inclui_ocorrencia_nao_se_aplica(
+    contexto_listagem_diretor,
+    formulario_diretor_factory,
+    ocorrencia_nao_se_aplica_factory,
+    descricao,
+):
+    contexto = contexto_listagem_diretor
+    formulario = formulario_diretor_factory.create(
+        solicitacao_medicao_inicial=contexto.medicao,
+        formulario_base__usuario=contexto.usuario,
+        formulario_base__data=date(2026, 9, 10),
+    )
+    resposta_nao_se_aplica = ocorrencia_nao_se_aplica_factory.create(
+        formulario_base=formulario.formulario_base,
+        tipo_ocorrencia=contexto.tipo,
+        grupo=1,
+        descricao=descricao,
+    )
+
+    dados = listar_ocorrencias_diretor([formulario])
+
+    assert len(dados) == 1
+    assert dados[0]["uuid"] == formulario.uuid
+    assert dados[0]["respostas"] == [
+        {
+            "uuid": resposta_nao_se_aplica.uuid,
+            "parametrizacao": None,
+            "titulo": "Não se aplica",
+            "posicao": None,
+            "resposta": descricao or "Não se aplica",
+        }
+    ]

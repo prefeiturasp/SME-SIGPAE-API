@@ -10,14 +10,17 @@ from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
     FaixasEtarias,
     NomesParaTesteEscola,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.logs_models.models import (
+    LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.escola.models import TipoTurma
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,
@@ -27,6 +30,8 @@ from src.medicao_inicial.models import (
     ValorMedicao,
 )
 from src.medicao_inicial.utils import (
+    _filtro_cei_ou_emei_infantil_cemei,
+    _indices_campos_sem_faixas,
     atualiza_alunos_periodo_parcial,
     avalia_soma_total_com_dados_tabela_anterior,
     build_dict_relacao_categorias_e_campos,
@@ -2598,3 +2603,198 @@ def test_build_tabela_somatorio_body_emebs_mescla_extraordinaria(escola_emebs):
         if linha[0] == TIPOS_ALIMENTACAO.LANCHE_EMERGENCIAL.value
     )
     assert linha_lanche[1] == 7
+
+
+@pytest.mark.parametrize(
+    "periodo_corrente, eh_cemei, filtro_esperado",
+    [
+        (
+            "Infantil INTEGRAL",
+            True,
+            {"cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.EMEI.value},
+        ),
+        ("Infantil MANHA", True, {"cei_ou_emei": "N/A"}),
+        ("Infantil TARDE", True, {"cei_ou_emei": "N/A"}),
+        ("INTEGRAL", True, {}),
+        ("Infantil INTEGRAL", False, {}),
+        ("Infantil MANHA", False, {}),
+    ],
+)
+def test_filtro_cei_ou_emei_infantil_cemei(periodo_corrente, eh_cemei, filtro_esperado):
+    assert (
+        _filtro_cei_ou_emei_infantil_cemei(periodo_corrente, eh_cemei)
+        == filtro_esperado
+    )
+
+
+def test_indices_campos_sem_faixas_apos_bloco_de_faixas():
+    tabela = {
+        "periodos": ["INTEGRAL", "Infantil INTEGRAL"],
+        "periodo_por_categoria": ["INTEGRAL", "Infantil INTEGRAL"],
+    }
+
+    assert _indices_campos_sem_faixas(tabela) == (1, 1)
+
+
+def test_indices_campos_sem_faixas_sem_bloco_de_faixas():
+    tabela = {
+        "periodos": ["Programas e Projetos"],
+        "periodo_por_categoria": ["Programas e Projetos"],
+    }
+
+    assert _indices_campos_sem_faixas(tabela) == (0, 0)
+
+
+def test_indices_campos_sem_faixas_multiplos_periodos_com_faixas():
+    periodos = ["INTEGRAL", "PARCIAL", "Infantil INTEGRAL"]
+    tabela = {
+        "periodos": periodos,
+        "periodo_por_categoria": periodos,
+    }
+
+    assert _indices_campos_sem_faixas(tabela) == (2, 2)
+
+
+def _criar_solicitacao_cemei_faixas_e_infantil(escola_cemei, categoria_medicao):
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    faixa_etaria = baker.make("FaixaEtaria", inicio=1, fim=2)
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola_cemei
+    )
+
+    medicao_integral = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo_integral,
+        grupo=None,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="01",
+        semana="1",
+        nome_campo="frequencia",
+        medicao=medicao_integral,
+        categoria_medicao=categoria_medicao,
+        valor="10",
+        faixa_etaria=faixa_etaria,
+    )
+
+    grupo_infantil = baker.make("GrupoMedicao", nome=GrupoMedicao.INFANTIL_INTEGRAL)
+    medicao_infantil = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_infantil,
+        periodo_escolar=None,
+    )
+    for nome_campo, valor in (("frequencia", "200"), ("lanche", "100")):
+        baker.make(
+            "ValorMedicao",
+            dia="01",
+            semana="1",
+            nome_campo=nome_campo,
+            medicao=medicao_infantil,
+            categoria_medicao=categoria_medicao,
+            valor=valor,
+        )
+
+    for cei_ou_emei, quantidade in (("CEI", 111), ("EMEI", 222), ("N/A", 333)):
+        baker.make(
+            "LogAlunosMatriculadosPeriodoEscola",
+            escola=escola_cemei,
+            periodo_escolar=periodo_integral,
+            quantidade_alunos=quantidade,
+            cei_ou_emei=cei_ou_emei,
+            tipo_turma=TipoTurma.REGULAR.name,
+        )
+
+    return solicitacao
+
+
+@freeze_time("2026-03-01")
+def test_build_tabelas_relatorio_medicao_cemei_infantil_usa_valores_do_proprio_periodo(
+    escola_cemei, categoria_medicao
+):
+    solicitacao = _criar_solicitacao_cemei_faixas_e_infantil(
+        escola_cemei, categoria_medicao
+    )
+
+    tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+    tabela = next(
+        tabela
+        for tabela in tabelas
+        if tabela["periodos"] == ["INTEGRAL", "Infantil INTEGRAL"]
+    )
+    linha = _linha_do_dia(tabela, 1)
+
+    inicio_campos = 1 + (len(tabela["faixas_etarias"]) * 2 - 1)
+    valores = dict(zip(tabela["nomes_campos"], linha[inicio_campos:]))
+
+    assert valores["frequencia"] == "200"
+    assert valores["lanche"] == "100"
+
+
+@freeze_time("2026-03-01")
+def test_build_tabelas_relatorio_medicao_cemei_infantil_matriculados_usa_log_emei(
+    escola_cemei, categoria_medicao
+):
+    solicitacao = _criar_solicitacao_cemei_faixas_e_infantil(
+        escola_cemei, categoria_medicao
+    )
+
+    tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+    tabela = next(
+        tabela
+        for tabela in tabelas
+        if tabela["periodos"] == ["INTEGRAL", "Infantil INTEGRAL"]
+    )
+    linha = _linha_do_dia(tabela, 1)
+
+    inicio_campos = 1 + (len(tabela["faixas_etarias"]) * 2 - 1)
+    valores = dict(zip(tabela["nomes_campos"], linha[inicio_campos:]))
+
+    # INTEGRAL possui três logs (CEI, EMEI e N/A); o bloco infantil é o EMEI.
+    assert valores["matriculados"] == 222
+
+
+@freeze_time("2026-03-01")
+def test_build_tabelas_relatorio_medicao_cemei_infantil_aprovadas_usa_log_emei(
+    escola_cemei, categoria_medicao_dieta_b
+):
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=3, ano=2026, escola=escola_cemei
+    )
+    grupo_infantil = baker.make("GrupoMedicao", nome=GrupoMedicao.INFANTIL_INTEGRAL)
+    medicao_infantil = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo_infantil,
+        periodo_escolar=None,
+    )
+    baker.make(
+        "ValorMedicao",
+        dia="01",
+        semana="1",
+        nome_campo="frequencia",
+        medicao=medicao_infantil,
+        categoria_medicao=categoria_medicao_dieta_b,
+        valor="12",
+    )
+    classificacao = baker.make("ClassificacaoDieta", nome=ClassificacaoDieta.TIPO_B)
+    for cei_ou_emei, quantidade in (("CEI", 20), ("EMEI", 12), ("N/A", 50)):
+        baker.make(
+            LogQuantidadeDietasAutorizadas,
+            escola=escola_cemei,
+            data=datetime.date(2026, 3, 1),
+            periodo_escolar=periodo_integral,
+            classificacao=classificacao,
+            quantidade=quantidade,
+            cei_ou_emei=cei_ou_emei,
+        )
+
+    tabelas = build_tabelas_relatorio_medicao_cemei(solicitacao)
+    tabela = _tabela_do_periodo(tabelas, GrupoMedicao.INFANTIL_INTEGRAL)
+    linha = _linha_do_dia(tabela, 1)
+
+    indice_aprovadas = tabela["nomes_campos"].index("aprovadas")
+    assert linha[indice_aprovadas + 1] == 12

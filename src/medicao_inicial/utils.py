@@ -1651,6 +1651,21 @@ def cria_tabela_vazia_cemei():
     }
 
 
+def _filtro_cei_ou_emei_infantil_cemei(periodo_corrente, eh_cemei):
+    """Define o log de alunos/dietas usado no bloco infantil de uma CEMEI.
+
+    O período "Infantil INTEGRAL" representa o EMEI e usa os logs ``EMEI``;
+    os demais períodos infantis usam o total (``N/A``). Sem essa distinção o
+    período INTEGRAL da CEMEI possui três logs (CEI, EMEI e N/A) e o valor
+    retornado fica indefinido.
+    """
+    if not eh_cemei or "Infantil" not in periodo_corrente:
+        return {}
+    if "INTEGRAL" in periodo_corrente:
+        return {"cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.EMEI.value}
+    return {"cei_ou_emei": "N/A"}
+
+
 def popula_campo_matriculados(
     dia,
     campo,
@@ -1659,13 +1674,16 @@ def popula_campo_matriculados(
     logs_alunos_matriculados,
     categoria_corrente,
     periodo_corrente,
+    eh_cemei=False,
 ):
     if campo == "matriculados":
         try:
             periodo = get_nome_periodo(periodo_corrente)
 
             log = logs_alunos_matriculados.filter(
-                periodo_escolar__nome=periodo, criado_em__day=dia
+                periodo_escolar__nome=periodo,
+                criado_em__day=dia,
+                **_filtro_cei_ou_emei_infantil_cemei(periodo_corrente, eh_cemei),
             ).first()
             if log:
                 valores_dia += [log.quantidade_alunos]
@@ -1806,6 +1824,7 @@ def popula_campo_aprovadas(
     valores_dia,
     logs_dietas,
     periodo_corrente,
+    eh_cemei=False,
 ):
     if campo == "aprovadas":
         try:
@@ -1816,6 +1835,7 @@ def popula_campo_aprovadas(
                 data__month=solicitacao.mes,
                 data__year=solicitacao.ano,
                 classificacao__nome__in=classificacoes_nomes,
+                **_filtro_cei_ou_emei_infantil_cemei(periodo_corrente, eh_cemei),
             )
             if periodo in [GrupoMedicao.PROGRAMAS_E_PROJETOS, "ETEC"]:
                 logs_dietas = logs_dietas.filter(periodo_escolar=None)
@@ -3162,6 +3182,19 @@ def popula_tabelas_cemei(solicitacao, tabelas, recreio: bool = False):
     return tabelas
 
 
+def _indices_campos_sem_faixas(tabela):
+    """Retorna (período, categoria) do primeiro bloco sem faixas etárias.
+
+    Após popular as faixas etárias, os campos restantes (``nomes_campos``) não
+    começam no índice zero quando a mesma tabela mescla períodos com e sem
+    faixas (ex.: INTEGRAL + Infantil INTEGRAL em uma CEMEI).
+    """
+    for indice_categoria, periodo in enumerate(tabela.get("periodo_por_categoria", [])):
+        if not _nome_periodo_tem_faixas_etarias_cemei(periodo):
+            return tabela["periodos"].index(periodo), indice_categoria
+    return 0, 0
+
+
 def popula_campos_cemei(
     solicitacao,
     tabela,
@@ -3204,10 +3237,7 @@ def popula_campos_cemei(
     )
 
     if len(faixas_etarias):
-        (
-            indice_periodo,
-            indice_categoria,
-        ) = popula_campos_faixas_etarias(
+        popula_campos_faixas_etarias(
             solicitacao,
             tabela,
             dia,
@@ -3221,8 +3251,9 @@ def popula_campos_cemei(
         )
 
     if len(tabela["nomes_campos"]):
-        indice_categoria_nomes = 0
-        indice_periodo_nomes = 0
+        indice_periodo_nomes, indice_categoria_nomes = _indices_campos_sem_faixas(
+            tabela
+        )
         popula_campos_nomes(
             solicitacao,
             tabela,
@@ -3237,6 +3268,7 @@ def popula_campos_cemei(
             indice_tabela,
             alteracoes_lanche_emergencial,
             kits_lanches,
+            eh_cemei=True,
         )
 
     tabela["valores_campos"] += [valores_dia]
@@ -3257,6 +3289,7 @@ def popula_campos_nomes(
     indice_tabela,
     alteracoes_lanche_emergencial,
     kits_lanches,
+    eh_cemei=False,
 ):
     categoria_corrente = tabela["categorias"][indice_categoria]
     periodo_corrente = tabela["periodos"][indice_periodo]
@@ -3288,6 +3321,7 @@ def popula_campos_nomes(
                 logs_alunos_matriculados,
                 categoria_corrente,
                 periodo_corrente,
+                eh_cemei=eh_cemei,
             )
             popula_campo_participantes(
                 dia,
@@ -3305,6 +3339,7 @@ def popula_campos_nomes(
                 valores_dia,
                 logs_dietas,
                 periodo_corrente,
+                eh_cemei=eh_cemei,
             )
             popula_campo_consumido_solicitacoes_alimentacao(
                 solicitacao, dia, campo, categoria_corrente, valores_dia
@@ -4553,9 +4588,7 @@ def somar_campos_somatorio_recreio_nas_ferias(
     return sum(int(v.valor) for v in values)
 
 
-def _get_total_dieta_por_tipo(
-    medicao, nome_categoria: str, campo: str
-) -> int:
+def _get_total_dieta_por_tipo(medicao, nome_categoria: str, campo: str) -> int:
     if not medicao:
         return 0
 
@@ -5999,7 +6032,9 @@ def atualizar_log_escola_corrigiu(
         )
 
         lista_semanas = [
-            s for s in cp_categorias_dict["semanas"] if s["semana"] == valor_medicao.semana
+            s
+            for s in cp_categorias_dict["semanas"]
+            if s["semana"] == valor_medicao.semana
         ]
 
         log_inicial, semana_idx, cp_semana_dict = atualiza_ou_cria_semanas_log(

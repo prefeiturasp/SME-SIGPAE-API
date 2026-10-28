@@ -382,8 +382,8 @@ class FichaTecnicaDoProduto(
         return self.tipo_entrega == self.PONTO_A_PONTO
 
     @property
-    def eh_flv_ponto_a_ponto(self) -> bool:
-        return self.categoria == self.CATEGORIA_FLV and self.eh_ponto_a_ponto
+    def eh_flv(self) -> bool:
+        return self.categoria == self.CATEGORIA_FLV
 
     @property
     def bloco_fabricante_preenchido(self) -> bool:
@@ -393,11 +393,11 @@ class FichaTecnicaDoProduto(
 
     @property
     def exibir_bloco_fabricante(self) -> bool:
-        return not self.eh_flv_ponto_a_ponto or self.bloco_fabricante_preenchido
+        return not self.eh_flv or self.bloco_fabricante_preenchido
 
     @property
     def exibir_numero_registro(self) -> bool:
-        return not self.eh_flv_ponto_a_ponto or bool(self.numero_registro)
+        return not self.eh_flv or bool(self.numero_registro)
 
 
 def _entidade_fabricante_possui_dados(entidade) -> bool:
@@ -513,10 +513,7 @@ class AnaliseFichaTecnica(ModeloBase, CriadoPor):
         if not valido:
             return False
 
-        if not (
-            self.ficha_tecnica.categoria == "FLV"
-            and self.ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
-        ):
+        if self.ficha_tecnica.categoria != FichaTecnicaDoProduto.CATEGORIA_FLV:
             valido_extra = (
                 (
                     self.informacoes_nutricionais_conferido is True

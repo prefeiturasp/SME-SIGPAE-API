@@ -1,7 +1,7 @@
 import datetime
 from collections import OrderedDict
 
-from django.db.models import Case, CharField, Q, Value, When
+from django.db.models import Case, CharField, Q, Sum, Value, When
 from rest_framework import serializers
 
 from src.dados_comuns.fluxo_status import DocumentoDeRecebimentoWorkflow
@@ -432,6 +432,7 @@ class EtapasDoCronogramaFichaDeRecebimentoSerializer(serializers.ModelSerializer
                     default=Value("Recebido"),
                     output_field=CharField(),
                 ),
+                quantidade_recebida=Sum("veiculos__quantidade_recebida"),
             )
         )
 

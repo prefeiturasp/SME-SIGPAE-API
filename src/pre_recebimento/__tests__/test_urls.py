@@ -3146,6 +3146,187 @@ def test_ficha_tecnica_create_ok(
     assert ficha.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
 
 
+def test_ficha_tecnica_criar_copia_a_partir_de_aprovada(
+    client_autenticado_fornecedor,
+    payload_ficha_tecnica_pereciveis,
+):
+    payload_original = copy.deepcopy(payload_ficha_tecnica_pereciveis)
+
+    response_original = client_autenticado_fornecedor.post(
+        "/ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_original),
+    )
+    assert response_original.status_code == status.HTTP_201_CREATED
+
+    original = FichaTecnicaDoProduto.objects.get(
+        uuid=response_original.json()["uuid"]
+    )
+    original.status = FichaTecnicaDoProdutoWorkflow.APROVADA
+    original.save(update_fields=["status"])
+
+    payload_copia = copy.deepcopy(payload_ficha_tecnica_pereciveis)
+    payload_copia["pregao_chamada_publica"] = "COPIA-123"
+
+    response_copia = client_autenticado_fornecedor.post(
+        "/ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_copia),
+    )
+    assert response_copia.status_code == status.HTTP_201_CREATED
+
+    copia = FichaTecnicaDoProduto.objects.get(uuid=response_copia.json()["uuid"])
+    original.refresh_from_db()
+
+    assert copia.uuid != original.uuid
+    assert copia.numero != original.numero
+    assert copia.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
+    assert copia.pregao_chamada_publica == "COPIA-123"
+    assert copia.produto_id == original.produto_id
+    assert copia.empresa_id == original.empresa_id
+    assert original.status == FichaTecnicaDoProdutoWorkflow.APROVADA
+    assert original.pregao_chamada_publica == payload_original["pregao_chamada_publica"]
+
+
+def test_ficha_tecnica_criar_copia_rascunho_a_partir_de_aprovada(
+    client_autenticado_fornecedor,
+    payload_ficha_tecnica_rascunho,
+):
+    payload_original = copy.deepcopy(payload_ficha_tecnica_rascunho)
+
+    response_original = client_autenticado_fornecedor.post(
+        "/rascunho-ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_original),
+    )
+    assert response_original.status_code == status.HTTP_201_CREATED
+
+    original = FichaTecnicaDoProduto.objects.get(
+        uuid=response_original.json()["uuid"]
+    )
+    original.status = FichaTecnicaDoProdutoWorkflow.APROVADA
+    original.save(update_fields=["status"])
+
+    payload_copia = copy.deepcopy(payload_ficha_tecnica_rascunho)
+    payload_copia["pregao_chamada_publica"] = "COPIA-RASCUNHO"
+
+    response_copia = client_autenticado_fornecedor.post(
+        "/rascunho-ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_copia),
+    )
+    assert response_copia.status_code == status.HTTP_201_CREATED
+
+    copia = FichaTecnicaDoProduto.objects.get(uuid=response_copia.json()["uuid"])
+    original.refresh_from_db()
+
+    assert copia.uuid != original.uuid
+    assert copia.numero != original.numero
+    assert copia.status == FichaTecnicaDoProdutoWorkflow.RASCUNHO
+    assert copia.pregao_chamada_publica == "COPIA-RASCUNHO"
+    assert original.status == FichaTecnicaDoProdutoWorkflow.APROVADA
+    assert (
+        original.pregao_chamada_publica
+        == payload_original["pregao_chamada_publica"]
+    )
+
+
+def test_ficha_tecnica_criar_copia_a_partir_do_detalhamento(
+    client_autenticado_fornecedor,
+    payload_ficha_tecnica_pereciveis,
+    arquivo_pdf_base64,
+):
+    def fabricante_payload(fabricante_detalhado):
+        if not fabricante_detalhado:
+            return None
+        fabricante = fabricante_detalhado.get("fabricante")
+        return {
+            "fabricante": fabricante["uuid"] if fabricante else None,
+            "cnpj": fabricante_detalhado.get("cnpj") or "",
+            "cep": fabricante_detalhado.get("cep") or "",
+            "endereco": fabricante_detalhado.get("endereco") or "",
+            "numero": fabricante_detalhado.get("numero") or "",
+            "complemento": fabricante_detalhado.get("complemento") or "",
+            "bairro": fabricante_detalhado.get("bairro") or "",
+            "cidade": fabricante_detalhado.get("cidade") or "",
+            "estado": fabricante_detalhado.get("estado") or "",
+            "email": fabricante_detalhado.get("email") or "",
+            "telefone": fabricante_detalhado.get("telefone") or "",
+        }
+
+    response_original = client_autenticado_fornecedor.post(
+        "/ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_ficha_tecnica_pereciveis),
+    )
+    assert response_original.status_code == status.HTTP_201_CREATED
+
+    original = FichaTecnicaDoProduto.objects.get(
+        uuid=response_original.json()["uuid"]
+    )
+    original.status = FichaTecnicaDoProdutoWorkflow.APROVADA
+    original.save(update_fields=["status"])
+
+    detalhe = client_autenticado_fornecedor.get(
+        f"/ficha-tecnica/{original.uuid}/"
+    ).json()
+
+    assert detalhe["categoria"] == original.categoria
+    assert detalhe["tipo_entrega"] == original.tipo_entrega
+    assert detalhe["programa"] == original.programa
+
+    payload_copia = copy.deepcopy(payload_ficha_tecnica_pereciveis)
+    payload_copia["produto"] = detalhe["produto"]["uuid"]
+    payload_copia["marca"] = detalhe["marca"]["uuid"] if detalhe["marca"] else None
+    payload_copia["empresa"] = detalhe["empresa"]["uuid"]
+    payload_copia["categoria"] = detalhe["categoria"]
+    payload_copia["tipo_entrega"] = detalhe["tipo_entrega"]
+    payload_copia["programa"] = detalhe["programa"]
+    payload_copia["pregao_chamada_publica"] = detalhe["pregao_chamada_publica"]
+    payload_copia["fabricante"] = fabricante_payload(detalhe["fabricante"])
+    payload_copia["envasador_distribuidor"] = fabricante_payload(
+        detalhe["envasador_distribuidor"]
+    )
+    for campo in (
+        "unidade_medida_porcao",
+        "unidade_medida_primaria",
+        "unidade_medida_secundaria",
+        "unidade_medida_primaria_vazia",
+        "unidade_medida_secundaria_vazia",
+        "unidade_medida_volume_primaria",
+    ):
+        valor = detalhe.get(campo)
+        payload_copia[campo] = valor["uuid"] if valor else None
+    payload_copia["informacoes_nutricionais"] = [
+        {
+            "informacao_nutricional": info["informacao_nutricional"]["uuid"],
+            "quantidade_por_100g": info["quantidade_por_100g"],
+            "quantidade_porcao": info["quantidade_porcao"],
+            "valor_diario": info["valor_diario"],
+        }
+        for info in detalhe["informacoes_nutricionais"]
+    ]
+    payload_copia["arquivo"] = arquivo_pdf_base64
+    payload_copia["password"] = constants.DJANGO_ADMIN_PASSWORD
+
+    response_copia = client_autenticado_fornecedor.post(
+        "/ficha-tecnica/",
+        content_type="application/json",
+        data=json.dumps(payload_copia),
+    )
+    assert response_copia.status_code == status.HTTP_201_CREATED
+
+    copia = FichaTecnicaDoProduto.objects.get(uuid=response_copia.json()["uuid"])
+    original.refresh_from_db()
+
+    assert copia.uuid != original.uuid
+    assert copia.numero != original.numero
+    assert copia.status == FichaTecnicaDoProdutoWorkflow.ENVIADA_PARA_ANALISE
+    assert copia.produto_id == original.produto_id
+    assert copia.empresa_id == original.empresa_id
+    assert original.status == FichaTecnicaDoProdutoWorkflow.APROVADA
+
+
 def test_ficha_tecnica_create_from_rascunho_ok(
     client_autenticado_fornecedor,
     payload_ficha_tecnica_rascunho,

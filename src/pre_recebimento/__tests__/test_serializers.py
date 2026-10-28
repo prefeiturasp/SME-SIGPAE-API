@@ -34,8 +34,10 @@ from src.pre_recebimento.cronograma_entrega.models import (
     Cronograma,
     InterrupcaoProgramadaEntrega,
 )
+from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import (
+    CronogramaSemanalListagemSerializer,
+)
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
-from src.pre_recebimento.cronograma_semanal.api.serializers.serializers import CronogramaSemanalListagemSerializer
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoDetalharSerializer,
     DocumentoDeRecebimentoSerializer,
@@ -330,6 +332,7 @@ def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebim
         assert "houve_ocorrencia" in ficha
         assert "houve_reposicao" in ficha
         assert "situacao" in ficha
+        assert "quantidade_recebida" in ficha
         assert ficha["situacao"] in ["Ocorrência", "Recebido"]
 
     fichas_com_ocorrencia = [f for f in fichas if f["houve_ocorrencia"]]
@@ -340,6 +343,47 @@ def test_etapas_cronograma_ficha_recebimento_serializer(etapa_com_fichas_recebim
     assert len(fichas_sem_ocorrencia) == 2
     for ficha in fichas_sem_ocorrencia:
         assert ficha["situacao"] == "Recebido"
+
+
+def test_etapas_cronograma_ficha_recebimento_quantidade_recebida_soma_veiculos(
+    etapa_com_fichas_recebimento,
+):
+    ficha = etapa_com_fichas_recebimento.ficha_recebimento.filter(
+        houve_ocorrencia=False
+    ).first()
+    baker.make(
+        "VeiculoFichaDeRecebimento",
+        ficha_recebimento=ficha,
+        numero="1",
+        quantidade_recebida=100,
+    )
+    baker.make(
+        "VeiculoFichaDeRecebimento",
+        ficha_recebimento=ficha,
+        numero="2",
+        quantidade_recebida=150,
+    )
+    ficha_com_ocorrencia = etapa_com_fichas_recebimento.ficha_recebimento.filter(
+        houve_ocorrencia=True
+    ).first()
+    baker.make(
+        "VeiculoFichaDeRecebimento",
+        ficha_recebimento=ficha_com_ocorrencia,
+        numero="3",
+        quantidade_recebida=50,
+    )
+
+    data = EtapasDoCronogramaFichaDeRecebimentoSerializer(
+        etapa_com_fichas_recebimento
+    ).data
+    fichas_por_uuid = {str(f["uuid"]): f for f in data["fichas_recebimento"]}
+
+    assert float(
+        fichas_por_uuid[str(ficha.uuid)]["quantidade_recebida"]
+    ) == pytest.approx(250.0)
+    assert float(
+        fichas_por_uuid[str(ficha_com_ocorrencia.uuid)]["quantidade_recebida"]
+    ) == pytest.approx(50.0)
 
 
 def test_etapas_cronograma_ficha_recebimento_serializer_sem_fichas(
@@ -479,6 +523,7 @@ def test_ficha_tecnica_listagem_serializer_campo_programa(ficha_tecnica_factory)
 
     assert "programa" in serializer.data
     assert serializer.data["programa"] == FichaTecnicaDoProduto.LEVE_LEITE
+    assert "categoria" in serializer.data
 
 
 def test_ficha_tecnica_detalhar_serializer_campo_programa(ficha_tecnica_factory):
@@ -686,6 +731,7 @@ def test_ficha_tecnica_simples_serializer_expoe_ponto_a_ponto():
     dados = FichaTecnicaSimplesSerializer(ficha_tecnica).data
 
     assert dados["ponto_a_ponto"] is True
+    assert dados["categoria"] == FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS
     assert "flv_ponto_a_ponto" not in dados
 
 

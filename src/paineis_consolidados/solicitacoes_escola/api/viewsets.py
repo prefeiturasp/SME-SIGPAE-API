@@ -1,5 +1,6 @@
 import datetime
 import unicodedata
+from calendar import monthrange
 
 from dateutil.relativedelta import relativedelta
 from django.db.models import Case, IntegerField, Max, Min, Q, Value, When
@@ -7,6 +8,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from workalendar.america import BrazilSaoPauloCity
 
 from src.cardapio.base.api.serializers import (
     VinculoTipoAlimentoPeriodoSerializer,
@@ -18,13 +20,16 @@ from src.cardapio.utils import ordem_periodos
 from src.dados_comuns.constants import PayloadVariaveis
 from src.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial
 from src.dados_comuns.utils import get_ultimo_dia_mes
-from src.escola.models import Escola, PeriodoEscolar
+from src.escola.models import DiaSuspensaoAtividades, Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,
     MotivoInclusaoNormal,
 )
-from src.kit_lanche.models import SolicitacaoKitLancheUnificada
+from src.kit_lanche.models import (
+    SolicitacaoKitLancheCEMEI,
+    SolicitacaoKitLancheUnificada,
+)
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.recreio_nas_ferias.models import (
     RecreioNasFerias,
@@ -64,6 +69,8 @@ from src.paineis_consolidados.utils.utils import (
     tratar_periodo_parcial,
     tratar_periodo_parcial_cemei,
 )
+
+calendario = BrazilSaoPauloCity()
 
 
 class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
@@ -1194,6 +1201,14 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         tenha medição liberada). Sem esse parâmetro, os eventos em períodos de
         recreio com medição liberada são removidos.
 
+        Para unidades CEI (CEI DIRET, CEU CEI, CCI/CIPS e demais tipos de CEI),
+        são retornados somente os dias sem atendimento regular: sábados,
+        domingos, feriados ou dias com suspensão de atividades cadastrada para
+        o tipo de unidade e edital da escola. Para CEMEI, o padrão continua
+        sendo retornar somente os kits da EMEI; ao enviar ``eh_cei=true``, são
+        retornados somente os kits da CEI da CEMEI nos dias sem atendimento
+        regular.
+
         Args:
             request (Request): Requisição HTTP com os parâmetros de query:
                 escola_uuid (str): UUID da escola.
@@ -1201,6 +1216,8 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 ano (str | int): Ano de referência.
                 recreio_nas_ferias (str, optional): UUID do recreio para
                     filtrar um período específico.
+                eh_cei (str, optional): Quando ``true``/``1``, retorna somente
+                    os kits lanches da CEI da CEMEI.
 
         Returns:
             Response: Payload no formato
@@ -1210,6 +1227,11 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         mes = request.query_params.get("mes")
         ano = request.query_params.get("ano")
         recreio_uuid = request.query_params.get("recreio_nas_ferias")
+        somente_kits_cei = request.query_params.get("eh_cei", "").lower() in (
+            "true",
+            "1",
+        )
+        escola = Escola.objects.filter(uuid=escola_uuid).first()
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
@@ -1233,8 +1255,84 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         query_set = self.remove_duplicados_do_query_set(query_set)
 
-        results = self._build_results_kit_lanches(query_set, escola_uuid)
+        dias_sem_atendimento_regular = set()
+        if escola and (escola.eh_cei or escola.eh_cemei):
+            dias_sem_atendimento_regular = self._get_dias_sem_atendimento_regular(
+                escola, mes, ano
+            )
+
+        if escola and (escola.eh_cei or (escola.eh_cemei and somente_kits_cei)):
+            query_set = self._filtra_kit_lanches_em_dias_sem_atendimento_regular(
+                query_set, dias_sem_atendimento_regular
+            )
+
+        results = self._build_results_kit_lanches(
+            query_set,
+            escola_uuid,
+            dias_sem_atendimento_regular=dias_sem_atendimento_regular,
+            somente_kits_cei=somente_kits_cei,
+        )
         return Response({"results": results})
+
+    def _get_dias_sem_atendimento_regular(self, escola, mes, ano):
+        """Retorna os dias do mes sem atendimento regular para a escola.
+
+        São considerados dias sem atendimento regular sábados, domingos,
+        feriados e dias com ``DiaSuspensaoAtividades`` cadastrado para o tipo
+        de unidade e editais da escola.
+
+        Args:
+            escola (Escola | None): Escola consultada.
+            mes (str | int): Mês de referência.
+            ano (str | int): Ano de referência.
+
+        Returns:
+            set[datetime.date]: Datas sem atendimento regular no mês.
+        """
+        if not escola or not mes or not ano:
+            return set()
+
+        mes = int(mes)
+        ano = int(ano)
+        dias_suspensao = set(
+            DiaSuspensaoAtividades.objects.filter(
+                data__month=mes,
+                data__year=ano,
+                tipo_unidade=escola.tipo_unidade,
+                edital__uuid__in=escola.editais,
+            ).values_list("data", flat=True)
+        )
+        ultimo_dia = monthrange(ano, mes)[1]
+
+        return {
+            data
+            for data in (
+                datetime.date(ano, mes, dia) for dia in range(1, ultimo_dia + 1)
+            )
+            if data.weekday() >= 5
+            or data in dias_suspensao
+            or calendario.is_holiday(data)
+        }
+
+    def _filtra_kit_lanches_em_dias_sem_atendimento_regular(
+        self,
+        query_set,
+        dias_sem_atendimento_regular,
+    ):
+        """Mantem apenas kits lanches em dias sem atendimento regular.
+
+        Args:
+            query_set (QuerySet | list): Solicitações consolidadas candidatas.
+            dias_sem_atendimento_regular (set[datetime.date]): Datas válidas.
+
+        Returns:
+            list: Solicitações cujo evento ocorre em um dos dias informados.
+        """
+        return [
+            item
+            for item in query_set
+            if item.data_evento in dias_sem_atendimento_regular
+        ]
 
     def _filtra_por_recreio_especifico(
         self,
@@ -1300,48 +1398,127 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         return query_set
 
-    def _build_results_kit_lanches(self, query_set, escola_uuid):
+    def _build_results_kit_lanches(
+        self,
+        query_set,
+        escola_uuid,
+        dias_sem_atendimento_regular=None,
+        somente_kits_cei=False,
+    ):
         """Monta a lista de itens de resposta para kits lanches autorizados.
 
-        Para Kit Lanche CEMEI, usa `total_kits_medicao_inicial`. Para os
-        demais casos, usa `total_kit_lanche_escola` em solicitações unificadas
-        e `quantidade_alimentacoes` nos demais modelos.
+        Para Kit Lanche CEMEI, usa `total_kits_medicao_inicial` (EMEI) por
+        padrão. Quando `somente_kits_cei` é verdadeiro, usa apenas a
+        quantidade autorizada para a CEI da CEMEI em dias sem atendimento
+        regular. Para os demais casos, usa `total_kit_lanche_escola` em
+        solicitações unificadas e `quantidade_alimentacoes` nos demais
+        modelos.
 
         Args:
             query_set (QuerySet): Solicitações consolidadas já filtradas.
             escola_uuid (str): UUID da escola usado no cálculo de unificadas.
+            dias_sem_atendimento_regular (set[datetime.date], optional):
+                Dias em que a CEI da CEMEI pode ter kit lanche.
+            somente_kits_cei (bool): Retorna somente os kits da CEI da CEMEI.
 
         Returns:
             list[dict]: Lista no formato
                 [{"dia", "numero_alunos", "kit_lanche_id_externo"}].
         """
         results = []
+        dias_sem_atendimento_regular = dias_sem_atendimento_regular or set()
 
         for item in query_set:
             kit = item.get_raw_model.objects.get(uuid=item.uuid)
             if not kit:
                 continue
 
-            if getattr(kit, "DESCRICAO", "") == "Kit Lanche CEMEI":
-                dia = f"{kit.data.day:02d}"
-                numero_alunos = kit.total_kits_medicao_inicial
-            else:
-                dia = f"{kit.solicitacao_kit_lanche.data.day:02d}"
-                numero_alunos = (
-                    kit.total_kit_lanche_escola(escola_uuid)
-                    if isinstance(kit, SolicitacaoKitLancheUnificada)
-                    else kit.quantidade_alimentacoes
+            if isinstance(kit, SolicitacaoKitLancheCEMEI):
+                results.extend(
+                    self._build_results_kit_lanche_cemei(
+                        kit,
+                        dias_sem_atendimento_regular,
+                        somente_kits_cei,
+                    )
                 )
+                continue
 
-            results.append(
-                {
-                    "dia": dia,
-                    "numero_alunos": numero_alunos,
-                    "kit_lanche_id_externo": kit.id_externo,
-                }
-            )
+            results.append(self._build_result_kit_lanche(kit, escola_uuid))
 
         return results
+
+    def _build_results_kit_lanche_cemei(
+        self,
+        kit,
+        dias_sem_atendimento_regular,
+        somente_kits_cei,
+    ):
+        """Monta os itens de resposta de um Kit Lanche CEMEI.
+
+        Por padrão, inclui a quantidade da EMEI em todos os dias. Quando
+        `somente_kits_cei` é verdadeiro, inclui apenas a quantidade da CEI,
+        desde que o kit esteja autorizado para a CEI da CEMEI e o dia não
+        tenha atendimento regular.
+
+        Args:
+            kit (SolicitacaoKitLancheCEMEI): Solicitação autorizada.
+            dias_sem_atendimento_regular (set[datetime.date]): Dias válidos.
+            somente_kits_cei (bool): Retorna somente os kits da CEI.
+
+        Returns:
+            list[dict]: Itens no formato de resposta do endpoint.
+        """
+        if not somente_kits_cei:
+            if not kit.tem_solicitacao_emei:
+                return []
+            return [
+                self._formata_resultado_kit_lanche(
+                    kit,
+                    kit.data.day,
+                    kit.total_kits_medicao_inicial,
+                )
+            ]
+
+        if kit.data not in dias_sem_atendimento_regular:
+            return []
+
+        if not self._kit_lanche_cemei_autorizado_para_cei(kit):
+            return []
+
+        return [
+            self._formata_resultado_kit_lanche(
+                kit,
+                kit.data.day,
+                kit.solicitacao_cei.quantidade_alimentacoes,
+            )
+        ]
+
+    @staticmethod
+    def _kit_lanche_cemei_autorizado_para_cei(kit):
+        return kit.tem_solicitacao_cei and kit.alunos_cei_e_ou_emei in (
+            kit.CEI,
+            kit.TODOS,
+        )
+
+    def _build_result_kit_lanche(self, kit, escola_uuid):
+        if isinstance(kit, SolicitacaoKitLancheUnificada):
+            numero_alunos = kit.total_kit_lanche_escola(escola_uuid)
+        else:
+            numero_alunos = kit.quantidade_alimentacoes
+
+        return self._formata_resultado_kit_lanche(
+            kit,
+            kit.solicitacao_kit_lanche.data.day,
+            numero_alunos,
+        )
+
+    @staticmethod
+    def _formata_resultado_kit_lanche(kit, dia, numero_alunos):
+        return {
+            "dia": f"{dia:02d}",
+            "numero_alunos": numero_alunos,
+            "kit_lanche_id_externo": kit.id_externo,
+        }
 
     @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_ETEC_AUTORIZADAS}")
     def inclusoes_etec_autorizadas(self, request):

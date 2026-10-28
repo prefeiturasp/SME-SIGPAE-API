@@ -34,8 +34,14 @@ def setup_escola_aberta_data():
     tipo_unidade = TipoUnidadeEscolar.objects.create(
         iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
     )
-    diretoria_regional = DiretoriaRegional.objects.create(nome="DRE Teste")
-    lote = Lote.objects.create(nome="Lote 01")
+    diretoria_regional = DiretoriaRegional.objects.create(
+        nome="DRE Teste",
+        iniciais="DT",
+    )
+    lote = Lote.objects.create(
+        nome="Lote 01",
+        diretoria_regional=diretoria_regional,
+    )
 
     escola_1 = Escola.objects.create(
         nome="EMEF Teste 1",

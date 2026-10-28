@@ -106,7 +106,7 @@ def test_valida_correcao_flv_ponto_a_ponto_sem_fabricante_valida():
     validator.valida_campos_nao_permitidos_por_collapse()
 
 
-def test_valida_correcao_flv_armazem_exige_fabricante():
+def test_valida_correcao_flv_armazem_nao_exige_fabricante():
     ficha = FichaTecnicaFactory(
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
@@ -120,10 +120,8 @@ def test_valida_correcao_flv_armazem_exige_fabricante():
     attrs = {"envasador_distribuidor": None}
 
     validator = ServiceValidacaoCorrecaoFichaTecnica(ficha, attrs)
-    with pytest.raises(ValidationError) as excinfo:
-        validator.valida_campos_obrigatorios_por_collapse()
-
-    assert "fabricante" in excinfo.value.detail
+    validator.valida_campos_obrigatorios_por_collapse()
+    validator.valida_campos_nao_permitidos_por_collapse()
 
 
 def test_valida_correcao_categoria_normal_exige_fabricante():

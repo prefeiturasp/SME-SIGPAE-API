@@ -25,6 +25,7 @@ from src.cardapio.base.fixtures.factories.base_factory import (
 from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
     StringsModelosGestaoAlimentacao,
 )
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
@@ -42,6 +43,7 @@ from src.escola.fixtures.factories.escola_factory import (
     FaixaEtariaFactory,
     PeriodoEscolarFactory,
 )
+from src.escola.models import DiaSuspensaoAtividades
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEIFactory,
     DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,
@@ -1888,7 +1890,7 @@ def test_kit_lanches_autorizadas_recreio_filtra_periodo_para_todos_tipos(
     monkeypatch.setattr(
         EscolaSolicitacoesViewSet,
         "_build_results_kit_lanches",
-        lambda self, qs, escola_uuid: [
+        lambda self, qs, escola_uuid, **kwargs: [
             {"kit_lanche_id_externo": item.uuid, "tipo_doc": item.tipo_doc}
             for item in qs
         ],
@@ -1998,7 +2000,7 @@ def test_kit_lanches_autorizadas_sem_recreio_exclui_periodo_de_recreio_para_todo
     monkeypatch.setattr(
         EscolaSolicitacoesViewSet,
         "_build_results_kit_lanches",
-        lambda self, qs, escola_uuid: [
+        lambda self, qs, escola_uuid, **kwargs: [
             {"kit_lanche_id_externo": item.uuid, "tipo_doc": item.tipo_doc}
             for item in qs
         ],
@@ -2029,3 +2031,398 @@ def test_kit_lanches_autorizadas_sem_recreio_exclui_periodo_de_recreio_para_todo
             },
         ]
     }
+
+
+def _cria_dia_suspensao_atividades(escola, data):
+    edital = baker.make(StringsCaminhoModelos.MODEL_EDITAL.value)
+    contrato = baker.make("terceirizada.Contrato", edital=edital, encerrado=False)
+    contrato.lotes.add(escola.lote)
+    return DiaSuspensaoAtividades.objects.create(
+        data=data,
+        tipo_unidade=escola.tipo_unidade,
+        edital=edital,
+    )
+
+
+def _configura_escola_cei(escola, tipo_unidade):
+    escola.tipo_unidade.iniciais = tipo_unidade
+    escola.tipo_unidade.save()
+
+
+def _cria_linhas_kit_lanche_abril_2026():
+    Linha = namedtuple("Linha", ["uuid", "data_evento"])
+
+    return _FakeQSDataEvento(
+        [
+            Linha(uuid="uuid-sabado", data_evento=datetime.date(2026, 4, 18)),
+            Linha(uuid="uuid-domingo", data_evento=datetime.date(2026, 4, 19)),
+            Linha(uuid="uuid-feriado", data_evento=datetime.date(2026, 4, 21)),
+            Linha(uuid="uuid-dia-regular", data_evento=datetime.date(2026, 4, 22)),
+            Linha(uuid="uuid-suspensao", data_evento=datetime.date(2026, 4, 23)),
+        ]
+    )
+
+
+def _configura_kit_lanches_autorizadas(monkeypatch, fake_qs):
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "get_autorizados",
+        classmethod(lambda cls, escola_uuid=None: fake_qs),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_filtro",
+        classmethod(lambda cls, qs, params: qs),
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "remove_duplicados_do_query_set",
+        lambda self, qs: qs,
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "_build_results_kit_lanches",
+        lambda self, qs, escola_uuid, **kwargs: [
+            {"dia": f"{item.data_evento.day:02d}"} for item in qs
+        ],
+    )
+
+
+@pytest.mark.parametrize(
+    "tipo_unidade",
+    [
+        TIPOS_UNIDADE_ESCOLAR.CEI_DIRET.value,
+        TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
+        TIPOS_UNIDADE_ESCOLAR.CCI_CIPS.value,
+    ],
+)
+@freeze_time("2026-04-27")
+def test_kit_lanches_autorizadas_cei_retorna_apenas_dias_sem_atendimento_regular(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+    monkeypatch,
+    tipo_unidade,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+    _configura_escola_cei(escola, tipo_unidade)
+    _cria_dia_suspensao_atividades(escola, datetime.date(2026, 4, 23))
+
+    fake_qs = _cria_linhas_kit_lanche_abril_2026()
+    _configura_kit_lanches_autorizadas(monkeypatch, fake_qs)
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "04",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+    }
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert [item["dia"] for item in response.json()["results"]] == [
+        "18",
+        "19",
+        "21",
+        "23",
+    ]
+
+
+@freeze_time("2026-04-27")
+def test_kit_lanches_autorizadas_fora_cei_mantem_todos_os_dias(
+    client_autenticado_escola_paineis_consolidados,
+    escola,
+    monkeypatch,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+    fake_qs = _cria_linhas_kit_lanche_abril_2026()
+    _configura_kit_lanches_autorizadas(monkeypatch, fake_qs)
+
+    params = {
+        "escola_uuid": str(escola.uuid),
+        "mes": "04",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+    }
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert [item["dia"] for item in response.json()["results"]] == [
+        "18",
+        "19",
+        "21",
+        "22",
+        "23",
+    ]
+
+
+class _FakeRawModel:
+    def __init__(self, obj):
+        self.obj = obj
+
+    @property
+    def objects(self):
+        return self
+
+    def get(self, uuid):
+        assert uuid == self.obj.uuid
+        return self.obj
+
+
+class _FakeItemKitLanche:
+    def __init__(self, obj):
+        self.uuid = obj.uuid
+        self.data_evento = getattr(obj, "data", None)
+        self.get_raw_model = _FakeRawModel(obj)
+
+
+def _cria_kit_lanche_cemei(escola, data, alunos_cei_e_ou_emei, com_cei, com_emei):
+    kit_cemei = baker.make(
+        "SolicitacaoKitLancheCEMEI",
+        escola=escola,
+        data=data,
+        alunos_cei_e_ou_emei=alunos_cei_e_ou_emei,
+    )
+    kits = baker.make("KitLanche", _quantity=2)
+
+    if com_cei:
+        solicitacao_cei = baker.make(
+            "SolicitacaoKitLancheCEIdaCEMEI",
+            solicitacao_kit_lanche_cemei=kit_cemei,
+            kits=kits,
+        )
+        baker.make(
+            "FaixasQuantidadesKitLancheCEIdaCEMEI",
+            solicitacao_kit_lanche_cei_da_cemei=solicitacao_cei,
+            quantidade_alunos=10,
+            matriculados_quando_criado=20,
+            faixa_etaria=baker.make("FaixaEtaria"),
+        )
+
+    if com_emei:
+        baker.make(
+            "SolicitacaoKitLancheEMEIdaCEMEI",
+            solicitacao_kit_lanche_cemei=kit_cemei,
+            quantidade_alunos=5,
+            matriculados_quando_criado=10,
+            kits=kits,
+        )
+
+    return kit_cemei
+
+
+def _resultado_esperado(kit, dia, numero_alunos):
+    return {
+        "dia": dia,
+        "numero_alunos": numero_alunos,
+        "kit_lanche_id_externo": kit.id_externo,
+    }
+
+
+def test_build_results_kit_lanches_cemei_padrao_retorna_somente_emei(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 18)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="TODOS",
+        com_cei=True,
+        com_emei=True,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular={data},
+    )
+
+    assert results == [_resultado_esperado(kit, "18", 10)]
+
+
+def test_build_results_kit_lanches_cemei_padrao_em_dia_regular(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 22)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="TODOS",
+        com_cei=True,
+        com_emei=True,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular=set(),
+    )
+
+    assert results == [_resultado_esperado(kit, "22", 10)]
+
+
+def test_build_results_kit_lanches_cemei_padrao_sem_emei_nao_retorna_cei(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 18)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="CEI",
+        com_cei=True,
+        com_emei=False,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular={data},
+    )
+
+    assert results == []
+
+
+def test_build_results_kit_lanches_cemei_eh_cei_retorna_somente_cei_em_dia_especial(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 18)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="TODOS",
+        com_cei=True,
+        com_emei=True,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular={data},
+        somente_kits_cei=True,
+    )
+
+    assert results == [_resultado_esperado(kit, "18", 20)]
+
+
+def test_build_results_kit_lanches_cemei_eh_cei_nao_retorna_em_dia_regular(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 22)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="TODOS",
+        com_cei=True,
+        com_emei=True,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular=set(),
+        somente_kits_cei=True,
+    )
+
+    assert results == []
+
+
+def test_build_results_kit_lanches_cemei_eh_cei_sem_emei_em_dia_especial(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 18)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="CEI",
+        com_cei=True,
+        com_emei=False,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular={data},
+        somente_kits_cei=True,
+    )
+
+    assert results == [_resultado_esperado(kit, "18", 20)]
+
+
+def test_build_results_kit_lanches_cemei_eh_cei_autorizado_somente_para_emei(
+    escola_cemei,
+):
+    data = datetime.date(2026, 4, 18)
+    kit = _cria_kit_lanche_cemei(
+        escola_cemei,
+        data,
+        alunos_cei_e_ou_emei="EMEI",
+        com_cei=False,
+        com_emei=True,
+    )
+    viewset = EscolaSolicitacoesViewSet()
+
+    results = viewset._build_results_kit_lanches(
+        [_FakeItemKitLanche(kit)],
+        str(escola_cemei.uuid),
+        dias_sem_atendimento_regular={data},
+        somente_kits_cei=True,
+    )
+
+    assert results == []
+
+
+@freeze_time("2026-04-27")
+def test_kit_lanches_autorizadas_cemei_eh_cei_envia_parametro_para_resultados(
+    client_autenticado_escola_paineis_consolidados,
+    escola_cemei,
+    monkeypatch,
+):
+    client, _ = client_autenticado_escola_paineis_consolidados
+    fake_qs = _FakeQSDataEvento([])
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "get_autorizados",
+        classmethod(lambda cls, escola_uuid=None: fake_qs),
+    )
+    monkeypatch.setattr(
+        SolicitacoesEscola,
+        "busca_filtro",
+        classmethod(lambda cls, qs, params: qs),
+    )
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "remove_duplicados_do_query_set",
+        lambda self, qs: qs,
+    )
+    parametros_recebidos = {}
+
+    def fake_build_results(self, query_set, escola_uuid, **kwargs):
+        parametros_recebidos.update(kwargs)
+        return []
+
+    monkeypatch.setattr(
+        EscolaSolicitacoesViewSet,
+        "_build_results_kit_lanches",
+        fake_build_results,
+    )
+
+    params = {
+        "escola_uuid": str(escola_cemei.uuid),
+        "mes": "04",
+        "ano": "2026",
+        "tipo_solicitacao": "Kit Lanche",
+        "eh_cei": "true",
+    }
+    response = client.get("/escola-solicitacoes/kit-lanches-autorizadas/", params)
+
+    assert response.status_code == status.HTTP_200_OK
+    assert parametros_recebidos["somente_kits_cei"] is True
+    assert isinstance(
+        parametros_recebidos["dias_sem_atendimento_regular"],
+        set,
+    )
