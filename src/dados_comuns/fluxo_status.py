@@ -1986,27 +1986,14 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
             )
 
     @xworkflows.after_transition(
-        "terceirizada_responde_analise_sensorial_da_reclamacao"
+        "terceirizada_responde_analise_sensorial_da_reclamacao",
+        "terceirizada_responde_analise_sensorial_homologado",
     )
-    def _terceirizada_responde_analise_sensorial_da_reclamacao_hook(
-        self, *args, **kwargs
-    ):
-        user = kwargs["user"]
-        justificativa = kwargs.get("justificativa", "")
+    def _registra_log_resposta_analise_sensorial_hook(self, *args, **kwargs):
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_ANALISE_SENSORIAL,
-            usuario=user,
-            justificativa=justificativa,
-        )
-
-    @xworkflows.after_transition("terceirizada_responde_analise_sensorial_homologado")
-    def _terceirizada_responde_analise_sensorial_homologado_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        justificativa = kwargs.get("justificativa", "")
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.TERCEIRIZADA_RESPONDEU_ANALISE_SENSORIAL,
-            usuario=user,
-            justificativa=justificativa,
+            usuario=kwargs["user"],
+            justificativa=kwargs.get("justificativa", ""),
         )
 
     @xworkflows.after_transition("codae_pediu_analise_reclamacao")
