@@ -284,7 +284,7 @@ class TestLogsRecreioNasFerias:
                 escola=escola,
                 periodo_escolar=self.periodo_integral,
                 data_nascimento=datetime.date(2023, 1, 15),  # ~2 anos
-                ciclo=Aluno.CICLO_ALUNO_CEI,  # numérico = 1
+                ciclo=Aluno.CICLO_ALUNO_CEI,
             )
             self.criar_dieta_recreio_comum(aluno, self.classificacao_tipo_a)
 
@@ -294,7 +294,7 @@ class TestLogsRecreioNasFerias:
                 escola=escola,
                 periodo_escolar=self.periodo_integral,
                 data_nascimento=datetime.date(2020, 1, 15),  # ~5 anos
-                ciclo=Aluno.CICLO_ALUNO_EMEI,  # numérico = 2
+                ciclo=Aluno.CICLO_ALUNO_EMEI,
             )
             self.criar_dieta_recreio_comum(aluno, self.classificacao_tipo_a)
 
