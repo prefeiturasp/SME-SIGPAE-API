@@ -187,3 +187,6 @@ import './step_definitions/homologacoes_produtos'
 
 import './commands_api/commands_horario_combo_unidade_escolar'
 import './step_definitions/horario_combo_unidade_escolar'
+
+import './commands_api/commands_inclusao_alimentacao_cemei'
+import './step_definitions/inclusao_alimentacao_cemei'
