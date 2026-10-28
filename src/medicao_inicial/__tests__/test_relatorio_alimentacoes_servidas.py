@@ -34,7 +34,7 @@ def _usuario(django_user_model, instituicao, perfil_nome):
     email = f"{sufixo}@test.com"
     usuario = django_user_model.objects.create_user(
         username=email,
-        password="senha-teste",
+        password=uuid4().hex,
         email=email,
         registro_funcional=sufixo[:7],
     )
