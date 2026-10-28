@@ -3,6 +3,7 @@ import json
 import pytest
 from rest_framework import status
 
+from src.terceirizada.api.validators import MENSAGEM_CNPJ_DUPLICADO
 from src.terceirizada.models import Contrato, Terceirizada
 
 
@@ -285,6 +286,63 @@ def test_cadastro_empresa_remove_lote_erro(users_codae_gestao_alimentacao):
         response.json()[0]
         == "Não pode remover um lote de uma empresa. É preciso atribuí-lo a outra empresa."
     )
+
+
+def test_cadastro_empresa_cnpj_duplicado(client_autenticado_dilog, terceirizada):
+    data = {
+        "nome_fantasia": "Empresa Duplicada",
+        "razao_social": "Empresa Duplicada LTDA",
+        "cnpj": terceirizada.cnpj,
+        "contatos": [],
+        "lotes": [],
+    }
+
+    response = client_autenticado_dilog.post(
+        "/terceirizadas/", content_type="application/json", data=json.dumps(data)
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["cnpj"] == [MENSAGEM_CNPJ_DUPLICADO]
+
+
+def test_edicao_empresa_mantem_o_proprio_cnpj(client_autenticado_dilog, terceirizada):
+    data = {
+        "cnpj": terceirizada.cnpj,
+        "contatos": [
+            {
+                "nome": "Contato Teste",
+                "telefone": "11999999999",
+                "email": "contato@teste.com",
+            }
+        ],
+        "lotes": [],
+    }
+
+    response = client_autenticado_dilog.patch(
+        f"/terceirizadas/{terceirizada.uuid}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    terceirizada.refresh_from_db()
+    assert terceirizada.contatos.count() == 1
+
+
+def test_edicao_empresa_com_cnpj_de_outra_empresa(
+    client_autenticado_dilog, terceirizada, empresa_factory
+):
+    outra_empresa = empresa_factory()
+    data = {"cnpj": outra_empresa.cnpj, "contatos": [], "lotes": []}
+
+    response = client_autenticado_dilog.patch(
+        f"/terceirizadas/{terceirizada.uuid}/",
+        content_type="application/json",
+        data=json.dumps(data),
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["cnpj"] == [MENSAGEM_CNPJ_DUPLICADO]
 
 
 def test_url_authorized_emails_terceirizadas(client_autenticado_terceiro):

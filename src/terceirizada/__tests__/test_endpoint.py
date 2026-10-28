@@ -4,6 +4,7 @@ import pytest
 from rest_framework import status
 
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
+from src.terceirizada.api.validators import MENSAGEM_CNPJ_DUPLICADO
 from src.terceirizada.models import Terceirizada
 
 pytestmark = pytest.mark.django_db
@@ -131,6 +132,58 @@ def test_url_endpoint_empresas_nao_terceirizadas_create_sem_modalidade(
     assert response.status_code == status.HTTP_201_CREATED
     assert empresa.tipo_servico == Terceirizada.DISTRIBUIDOR_ARMAZEM
     assert response.json()["contratos"][0]["modalidade"] is None
+
+
+def test_url_endpoint_empresas_nao_terceirizadas_cnpj_duplicado(
+    client_autenticado_dilog_cronograma, terceirizada
+):
+    response = client_autenticado_dilog_cronograma.post(
+        "/empresas-nao-terceirizadas/",
+        data=json.dumps({"cnpj": terceirizada.cnpj}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["cnpj"] == [MENSAGEM_CNPJ_DUPLICADO]
+
+
+def test_url_endpoint_empresas_nao_terceirizadas_edicao_mantem_o_proprio_cnpj(
+    client_autenticado_dilog_cronograma, terceirizada
+):
+    response = client_autenticado_dilog_cronograma.patch(
+        f"/empresas-nao-terceirizadas/{terceirizada.uuid}/",
+        data=json.dumps(
+            {
+                "cnpj": terceirizada.cnpj,
+                "contatos": [
+                    {
+                        "nome": "Contato Teste",
+                        "telefone": "11999999999",
+                        "email": "contato@teste.com",
+                    }
+                ],
+            }
+        ),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    terceirizada.refresh_from_db()
+    assert terceirizada.contatos.count() == 1
+
+
+def test_url_endpoint_empresas_nao_terceirizadas_edicao_com_cnpj_duplicado(
+    client_autenticado_dilog_cronograma, terceirizada, empresa_factory
+):
+    outra_empresa = empresa_factory()
+    response = client_autenticado_dilog_cronograma.patch(
+        f"/empresas-nao-terceirizadas/{terceirizada.uuid}/",
+        data=json.dumps({"cnpj": outra_empresa.cnpj}),
+        content_type="application/json",
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.json()["cnpj"] == [MENSAGEM_CNPJ_DUPLICADO]
 
 
 def test_url_endpoint_empresas_nao_terceirizadas_cadastro_e_edicao_contratos(

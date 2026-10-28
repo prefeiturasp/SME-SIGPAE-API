@@ -12,11 +12,19 @@ const comandosLista = {
 function cpfAleatorio() {
 	return Math.floor(Math.random() * 99999999999).toString().padStart(11, '0')
 }
+function cnpjAleatorio() {
+	const base = Array.from({ length: 12 }, () => Cypress._.random(0, 9))
+	for (const pesos of [[5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2], [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]]) {
+		const resto = base.reduce((soma, numero, indice) => soma + numero * pesos[indice], 0) % 11
+		base.push(resto < 2 ? 0 : 11 - resto)
+	}
+	return base.join('')
+}
 function dados(sobrescritos = {}) {
 	return {
 		nome_fantasia: `Testes Automacao ${Date.now()}`,
 		razao_social: `Testes Automacao LTDA ${Date.now()}`,
-		cnpj: '60498984000104', representante_legal: 'Representante Teste',
+		cnpj: cnpjAleatorio(), representante_legal: 'Representante Teste',
 		representante_telefone: '1155555555', representante_email: 'representante@example.com',
 		cep: '05010000', logradouro: 'Rua Teste Automacao', numero: '123',
 		complemento: 'Complemento Teste', bairro: 'Bairro Teste', cidade: 'Sao Paulo',
@@ -64,7 +72,9 @@ When('consulto uma terceirizada por UUID invalido', function () {
 	})
 })
 When('cadastro uma terceirizada valida', function () {
-	cy.cadastrar_terceirizadas(dados()).then((criada) => {
+	const dadosTerceirizada = dados()
+	this.dadosTerceirizada = dadosTerceirizada
+	cy.cadastrar_terceirizadas(dadosTerceirizada).then((criada) => {
 		this.response = criada
 		cy.deletar_terceirizadas(criada.body.uuid).then((exclusao) => { this.exclusao = exclusao })
 	})
@@ -94,6 +104,7 @@ function atualizar(contexto, metodo) {
 	cy.cadastrar_terceirizadas(original).then((criada) => {
 		expect(criada.status).to.eq(201)
 		const alterados = dados({
+			cnpj: original.cnpj,
 			responsavel_cpf: original.responsavel_cpf,
 			nome_fantasia: `Testes Automacao ${metodo} ${Date.now()}`,
 		})
@@ -139,7 +150,7 @@ Then('a operacao de terceirizada retorna status 404', function () {
 })
 Then('a terceirizada e criada e removida com sucesso', function () {
 	expect(this.response.status).to.eq(201)
-	expect(this.response.body.cnpj).to.eq('60498984000104')
+	expect(this.response.body.cnpj).to.eq(this.dadosTerceirizada.cnpj)
 	expect(this.exclusao.status).to.eq(204)
 })
 Then('o cadastro da terceirizada retorna status 400 e erro de CPF', function () {
