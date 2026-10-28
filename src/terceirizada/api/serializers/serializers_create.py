@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 from src.dados_comuns.api.serializers import ContatoSerializer
 from src.dados_comuns.utils import update_instance_from_dict
 from src.escola.models import DiretoriaRegional, Lote
+from src.terceirizada.api.validators import valida_cnpj_unico
 from src.terceirizada.models import (
     Contrato,
     Edital,
@@ -178,6 +179,9 @@ class TerceirizadaCreateSerializer(serializers.ModelSerializer):
 
         return terceirizada
 
+    def validate_cnpj(self, cnpj):
+        return valida_cnpj_unico(cnpj, self.instance)
+
     def update(self, instance, validated_data):
         # TODO: Analisar complexidade
         # TODO: voltar aqui quando uma terceirizada tiver seu painel admin para criar suas nutris
@@ -251,6 +255,9 @@ class EmpresaNaoTerceirizadaCreateSerializer(serializers.ModelSerializer):
         empresa.contratos.set(contratos)
 
         return empresa
+
+    def validate_cnpj(self, cnpj):
+        return valida_cnpj_unico(cnpj, self.instance)
 
     def update(self, instance, validated_data):
         contatos = validated_data.pop("contatos", [])

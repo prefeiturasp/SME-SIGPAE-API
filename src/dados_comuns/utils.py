@@ -9,7 +9,6 @@ from calendar import monthrange
 from collections import defaultdict
 from copy import deepcopy
 from mimetypes import guess_extension
-from typing import Any
 
 import environ
 import httpx
@@ -78,9 +77,7 @@ def remove_emails_dev(lista_emails, modo_debug=settings.DEBUG):
     return nova_lista
 
 
-def envia_email_unico(
-    assunto: str, corpo: str, email: str, template: str, dados_template: Any, html=None
-):
+def envia_email_unico(assunto: str, corpo: str, email: str, html=None):
     config = DynamicEmailConfiguration.get_solo()
 
     return send_mail(
@@ -104,8 +101,6 @@ def envia_email_em_massa(
     assunto: str,
     corpo: str,
     emails: list,
-    template: str,
-    dados_template: Any,
     html=None,
 ):
     config = DynamicEmailConfiguration.get_solo()
@@ -164,23 +159,23 @@ def url_configs(variable, content):
 
 
 def convert_base64_to_contentfile(base64_str: str):
-    format, imgstr = base64_str.split(";base64,")
-    if format == "data:application/vnd.ms-excel":
+    cabecalho, imgstr = base64_str.split(";base64,")
+    if cabecalho == "data:application/vnd.ms-excel":
         ext = ".xls"
     else:
-        ext = guess_extension(format[5:]) or ""
+        ext = guess_extension(cabecalho[5:]) or ""
     data = ContentFile(base64.b64decode(imgstr), name=str(uuid.uuid4()) + ext)
     return data
 
 
-def convert_image_to_base64(image_file, format):
+def convert_image_to_base64(image_file, formato):
     if not os.path.isfile(image_file):
         return None
 
     encoded_string = ""
     with open(image_file, "rb") as img_f:
         encoded_string = base64.b64encode(img_f.read())
-    return "data:image/%s;base64,%s" % (format, encoded_string.decode("utf-8"))
+    return "data:image/%s;base64,%s" % (formato, encoded_string.decode("utf-8"))
 
 
 def queryset_por_data(filtro_aplicado, model):

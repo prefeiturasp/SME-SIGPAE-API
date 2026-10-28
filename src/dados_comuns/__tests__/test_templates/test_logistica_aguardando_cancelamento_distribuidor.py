@@ -23,7 +23,7 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"Foi disponibilizado para sua análise o <strong>Cancelamento</strong> de Guia(s) de <br/>"
+        "Foi disponibilizado para sua análise o <strong>Cancelamento</strong> de Guia(s) de <br/>"
         in html
     )
     assert (

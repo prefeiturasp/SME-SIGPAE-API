@@ -106,7 +106,7 @@ def test_gerar_relatorio_reclamacao_produto_excel(reclamacao_produto_query_excel
 
     assert isinstance(output, io.BytesIO)
     workbook = load_workbook(filename=output)
-    nome_aba = f"Relatório Reclamação Produto"
+    nome_aba = "Relatório Reclamação Produto"
     assert nome_aba in workbook.sheetnames
     sheet = workbook[nome_aba]
     rows = list(sheet.iter_rows(values_only=True))

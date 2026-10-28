@@ -891,6 +891,7 @@ class StringsHeadersTabelasSolicitacaoMedicaoPDF(Enum):
     MANHA_FUNDAMENTAL = "MANHA - FUNDAMENTAL"
     TARDE_INFANTIL = "TARDE - INFANTIL"
     TARDE_FUNDAMENTAL = "TARDE - FUNDAMENTAL"
+    TIPOS_DE_ALIMENTACAO = "Tipos de Alimentação"
 
     @classmethod
     def choices(cls):
@@ -1072,6 +1073,7 @@ class StringsValidationErrors(Enum):
     RESTAM_DIAS_A_SEREM_LANCADOS_NOS_LANCHES_EMERGENCIAIS = (
         "Restam dias a serem lançados nos Lanches Emergenciais."
     )
+    INFORME_AO_MENOS_UMA_DIRETORIA_REGIONAL = "Informe ao menos uma diretoria regional."
 
     @classmethod
     def choices(cls):

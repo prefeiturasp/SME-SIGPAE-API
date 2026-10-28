@@ -35,7 +35,7 @@ def test_minhas_solicitacoes(
     )
 
     response = client_autenticado_da_escola.get(
-        f"/solicitacoes-kit-lanche-avulsa/minhas-solicitacoes/"
+        "/solicitacoes-kit-lanche-avulsa/minhas-solicitacoes/"
     )
     assert response.status_code == status.HTTP_200_OK
     assert len(response.json()["results"]) == 1
