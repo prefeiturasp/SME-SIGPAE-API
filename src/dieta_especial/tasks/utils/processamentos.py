@@ -145,8 +145,6 @@ def _enviar_email_para_adm_terceirizada_e_escola(
             assunto=assunto,
             corpo="",
             email=email,
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 

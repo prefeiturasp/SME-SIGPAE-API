@@ -1685,13 +1685,6 @@ class FluxoHomologacaoProduto(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template=TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
-            dados_template={
-                "titulo": titulo,
-                "tipo_solicitacao": self.DESCRICAO,
-                "movimentacao_realizada": str(self.status),
-                "perfil_que_autorizou": user.nome,
-            },
             html=html,
         )
 
@@ -2392,8 +2385,6 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_dre_nega.html",
-            dados_template=dados_template,
             html=html,
         )
 
@@ -2418,8 +2409,6 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_ue_cancela.html",
-            dados_template=dados_template,
             html=html,
         )
 
@@ -2444,8 +2433,6 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template=TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -2782,13 +2769,6 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template=TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR,
-            dados_template={
-                "titulo": titulo,
-                "tipo_solicitacao": self.DESCRICAO,
-                "movimentacao_realizada": str(self.status),
-                "perfil_que_autorizou": user.nome,
-            },
             html=html,
         )
 
@@ -2814,8 +2794,6 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template="fluxo_dre_solicita_e_codae_autoriza_ou_nega.html",
-            dados_template=dados_template,
             html=html,
         )
 
@@ -3012,8 +2990,6 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template=TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA,
-            dados_template=dados_template,
             html=html,
         )
 
@@ -3323,8 +3299,6 @@ class FluxoDietaEspecialPartindoDaEscola(xwf_models.WorkflowEnabled, models.Mode
             assunto=assunto,
             corpo="",
             emails=partes_interessadas,
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 

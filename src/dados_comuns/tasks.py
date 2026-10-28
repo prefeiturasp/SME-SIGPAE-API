@@ -19,10 +19,8 @@ from .utils import (
     retry_backoff=2,
     retry_kwargs={"max_retries": 8},
 )
-def envia_email_em_massa_task(
-    assunto, corpo, emails, template=None, dados_template=None, html=None
-):
-    return envia_email_em_massa(assunto, corpo, emails, template, dados_template, html)
+def envia_email_em_massa_task(assunto, corpo, emails, html=None):
+    return envia_email_em_massa(assunto, corpo, emails, html)
 
 
 @shared_task(
@@ -30,10 +28,8 @@ def envia_email_em_massa_task(
     retry_backoff=2,
     retry_kwargs={"max_retries": 8},
 )
-def envia_email_unico_task(
-    assunto, corpo, email, template=None, dados_template=None, html=None
-):
-    return envia_email_unico(assunto, corpo, email, template, dados_template, html)
+def envia_email_unico_task(assunto, corpo, email, html=None):
+    return envia_email_unico(assunto, corpo, email, html)
 
 
 @shared_task(
