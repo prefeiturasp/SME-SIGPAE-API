@@ -1504,12 +1504,17 @@ class FluxoGuiaRemessa(xwf_models.WorkflowEnabled, models.Model):
         else:
             return []
 
-    @xworkflows.after_transition("distribuidor_confirma_guia")
-    def _distribuidor_confirma_guia_hook(self, *args, **kwargs):
-        user = kwargs["user"]
+    @xworkflows.after_transition(
+        "distribuidor_confirma_guia",
+        "escola_recebe",
+        "escola_recebe_parcial_atraso",
+        "reposicao_parcial",
+        "reposicao_total",
+    )
+    def _registra_log_abastecimento_guia_hook(self, *args, **kwargs):
         self.salvar_log_transicao(
             status_evento=LogSolicitacoesUsuario.ABASTECIMENTO_GUIA_DE_REMESSA,
-            usuario=user,
+            usuario=kwargs["user"],
             justificativa=kwargs.get("justificativa", ""),
         )
 
@@ -1560,15 +1565,6 @@ class FluxoGuiaRemessa(xwf_models.WorkflowEnabled, models.Model):
         insucesso = self.insucessos.last() if self.insucessos else None
         self._preenche_template_e_cria_notificacao_insucesso(
             template_notif, titulo_notif, usuarios, link, tipo, insucesso
-        )
-
-    @xworkflows.after_transition("escola_recebe")
-    def _escola_recebe_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.ABASTECIMENTO_GUIA_DE_REMESSA,
-            usuario=user,
-            justificativa=kwargs.get("justificativa", ""),
         )
 
     @xworkflows.after_transition("escola_nao_recebe")
@@ -1633,33 +1629,6 @@ class FluxoGuiaRemessa(xwf_models.WorkflowEnabled, models.Model):
 
         self._preenche_template_e_cria_notificacao(
             template_notif, titulo_notif, usuarios, link, tipo
-        )
-
-    @xworkflows.after_transition("escola_recebe_parcial_atraso")
-    def _escola_recebe_parcial_atraso_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.ABASTECIMENTO_GUIA_DE_REMESSA,
-            usuario=user,
-            justificativa=kwargs.get("justificativa", ""),
-        )
-
-    @xworkflows.after_transition("reposicao_parcial")
-    def _reposicao_parcial_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.ABASTECIMENTO_GUIA_DE_REMESSA,
-            usuario=user,
-            justificativa=kwargs.get("justificativa", ""),
-        )
-
-    @xworkflows.after_transition("reposicao_total")
-    def _reposicao_total_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        self.salvar_log_transicao(
-            status_evento=LogSolicitacoesUsuario.ABASTECIMENTO_GUIA_DE_REMESSA,
-            usuario=user,
-            justificativa=kwargs.get("justificativa", ""),
         )
 
     class Meta:
