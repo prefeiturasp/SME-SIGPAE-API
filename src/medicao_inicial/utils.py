@@ -38,6 +38,7 @@ from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_TURMAS_EMEBS,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsHeadersTabelasSolicitacaoMedicaoPDF,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import (
@@ -5358,7 +5359,7 @@ def build_tabela_somatorio_body_cemei_recreio_nas_ferias(solicitacao):
     tabela_colaboradores = None
     if medicao_colaboradores:
         header_colab = [
-            "Tipos de Alimentação",
+            StringsHeadersTabelasSolicitacaoMedicaoPDF.TIPOS_DE_ALIMENTACAO.value,
             "Total de Alimentações para Colaboradores",
         ]
         linhas_colab = _build_linhas_colab_somatorio(medicao_colaboradores)
@@ -5520,9 +5521,13 @@ def _build_somatorio_tabela_emei(medicao_4a14, mes_ano):
             + [str(soma_dietas[cat]) for cat in categorias_dieta]
         )
 
+    header = [
+        StringsHeadersTabelasSolicitacaoMedicaoPDF.TIPOS_DE_ALIMENTACAO.value,
+        "Total de Alimentações",
+    ] + categorias_dieta
     return {
         "titulo": "Alimentações para alunos - de 4 a 14 anos",
-        "header": ["Tipos de Alimentação", "Total de Alimentações"] + categorias_dieta,
+        "header": header,
         "valores_campos": linhas,
         "legenda": f"*A tabela acima representa a soma das alimentações lançadas para os alunos em Recreio nas Férias - {mes_ano}",
     }
@@ -5608,7 +5613,7 @@ def build_tabela_somatorio_body_cei_recreio_nas_ferias(solicitacao):
     if medicao_colaboradores:
         tabela_colaboradores = {
             "header": [
-                "Tipos de Alimentação",
+                StringsHeadersTabelasSolicitacaoMedicaoPDF.TIPOS_DE_ALIMENTACAO.value,
                 "Total de Alimentações para Colaboradores",
             ],
             "valores_campos": _build_linhas_colab_somatorio(medicao_colaboradores),
