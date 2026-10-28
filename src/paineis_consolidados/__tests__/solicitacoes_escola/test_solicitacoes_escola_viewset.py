@@ -999,7 +999,7 @@ class TestEndpointAlteracoesAutorizadas:
             uuid="044d9980-30e7-46f4-b329-c2cc406ef999",
         )
         DataIntervaloAlteracaoCardapioFactory.create(
-            alteracao_cardapio=self.alteracao_tipo_alimentacao_rpl, data=f"2025-02-01"
+            alteracao_cardapio=self.alteracao_tipo_alimentacao_rpl, data="2025-02-01"
         )
         SubstituicaoAlimentacaoNoPeriodoEscolarFactory.create(
             alteracao_cardapio=self.alteracao_tipo_alimentacao_rpl,

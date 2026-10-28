@@ -161,7 +161,7 @@ def test_url_list_cronogramas_relatorio(
     client_autenticado_codae_dilog, cronograma_factory
 ):
     cronograma_factory.create_batch(size=11)
-    response = client_autenticado_codae_dilog.get(f"/cronogramas/listagem-relatorio/")
+    response = client_autenticado_codae_dilog.get("/cronogramas/listagem-relatorio/")
     assert response.status_code == status.HTTP_200_OK
     json = response.json()
     assert "count" in json

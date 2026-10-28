@@ -86,7 +86,7 @@ def test_create_formulario_diretor(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -143,7 +143,7 @@ def test_create_formulario_diretor_sem_ocorrencias_mantem_com_ocorrencias_false(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -211,7 +211,7 @@ def test_create_formulario_diretor_erro_parametrizacao_uuid(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -262,7 +262,7 @@ def test_create_formulario_diretor_data_fora_da_competencia(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -291,7 +291,7 @@ def test_create_formulario_diretor_data_formato_invalido(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -321,7 +321,7 @@ def test_create_formulario_diretor_data_de_hoje_ou_futura(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -374,14 +374,14 @@ def test_create_formulario_diretor_data_duplicada(
     }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_201_CREATED
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(payload),
         content_type="application/json",
     )
@@ -441,14 +441,14 @@ def test_create_formulario_diretor_data_igual_tipo_diferente_permitida(
         }
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(montar_payload(tipo_ocorrencia_1, parametrizacao_1)),
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_201_CREATED
 
     response = client_autenticado_diretor_escola["client"].post(
-        f"/imr/formulario-diretor/",
+        "/imr/formulario-diretor/",
         data=json.dumps(montar_payload(tipo_ocorrencia_2, parametrizacao_2)),
         content_type="application/json",
     )
@@ -572,7 +572,7 @@ def test_formulario_diretor_get_tipos_ocorrencias_validation_error(
     client_autenticado_diretor_escola,
 ):
     response = client_autenticado_diretor_escola["client"].get(
-        f"/imr/formulario-diretor/tipos-ocorrencias/?edital_uuid=",
+        "/imr/formulario-diretor/tipos-ocorrencias/?edital_uuid=",
         content_type="application/json",
     )
 

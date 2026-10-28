@@ -354,7 +354,7 @@ def test_obter_justificativa_dieta_dieta_inativa_sem_log_inativacao(
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_inativa)
     assert (
         justificativa
-        == f"Dieta Inativada em: 26/01/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
+        == "Dieta Inativada em: 26/01/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
     )
 
 
@@ -366,7 +366,7 @@ def test_obter_justificativa_dieta_dieta_inativa_com_log_inativacao(
     )
     assert (
         justificativa
-        == f"Dieta Inativada em: 01/02/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
+        == "Dieta Inativada em: 01/02/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
     )
 
 

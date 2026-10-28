@@ -26,7 +26,7 @@ def test_get_formularios_supervisao_com_nutrimanifestacao(
     formulario_supervisao_factory.create()
     formulario_supervisao_factory.create(formulario_base__usuario=usuario)
 
-    response = client.get(f"/imr/formulario-supervisao/")
+    response = client.get("/imr/formulario-supervisao/")
     assert response.status_code == status.HTTP_200_OK
     assert response.json()["count"] == 2
 
@@ -912,7 +912,7 @@ def test_get_lista_nomes_nutricionistas(
         formulario_base__usuario__nome="BELTRANA SANTOS"
     )
 
-    response = client.get(f"/imr/formulario-supervisao/lista_nomes_nutricionistas/")
+    response = client.get("/imr/formulario-supervisao/lista_nomes_nutricionistas/")
     assert response.status_code == status.HTTP_200_OK
 
     results = response.json()["results"]
