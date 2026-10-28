@@ -405,6 +405,10 @@ def extrair_texto_de_pdf(conteudo: bytes) -> str:
     """
     Extrai o texto de um PDF a partir de uma resposta HTTP.
     Remove quebras de linha desnecessárias e trata a codificação.
+
+    Observação: a partir do pypdf 6.20 o texto extraído pode não conter espaço
+    entre trechos posicionados lado a lado no PDF (ex.: "ArmazémCentral").
+    Assertivas sobre o conteúdo devem ser tolerantes a espaços.
     """
     pdf_reader = PdfReader(io.BytesIO(conteudo))
     texto = ""

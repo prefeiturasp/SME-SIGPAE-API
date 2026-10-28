@@ -105,7 +105,7 @@ class TestGeraXlsxRelatorioRecreioNasFeriasAsync(BaseSetupRecreioNasFerias):
             sheet = loaded_wb["Relatório de Recreio nas Férias"]
             assert (
                 sheet["A1"].value
-                != "Relatório de Dietas Autorizadas para Recreio nas Férias"
+                == "Relatório de Dietas Autorizadas para Recreio nas Férias"
             )
 
             assert sheet["B6"].value != "1234567 - MARIA SILVA"
