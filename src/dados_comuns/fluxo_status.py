@@ -4417,23 +4417,10 @@ class FluxoSolicitacaoMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
                     log=log_transicao, arquivo=arquivo, nome=anexo["nome"]
                 )
 
-    @xworkflows.after_transition("ue_corrige_periodo_grupo_para_codae")
-    def _ue_corrige_periodo_grupo_para_codae_hook(self, *args, **kwargs):
-        user = kwargs["user"]
-        if user:
-            nao_possui_permissao = (
-                user.vinculo_atual.perfil.nome != DIRETOR_UE
-                and user.vinculo_atual.instituicao.possui_alunos_regulares
-                and not user.vinculo_atual.instituicao.eh_p_fom
-            )
-            if nao_possui_permissao:
-                raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
-            self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.MEDICAO_CORRIGIDA_PARA_CODAE,
-                usuario=user,
-            )
-
-    @xworkflows.after_transition("ue_corrige_medicao_para_codae")
+    @xworkflows.after_transition(
+        "ue_corrige_periodo_grupo_para_codae",
+        "ue_corrige_medicao_para_codae",
+    )
     def _ue_corrige_medicao_para_codae_hook(self, *args, **kwargs):
         user = kwargs["user"]
         if user:
