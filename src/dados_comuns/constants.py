@@ -1072,6 +1072,7 @@ class StringsValidationErrors(Enum):
     RESTAM_DIAS_A_SEREM_LANCADOS_NOS_LANCHES_EMERGENCIAIS = (
         "Restam dias a serem lançados nos Lanches Emergenciais."
     )
+    INFORME_AO_MENOS_UMA_DIRETORIA_REGIONAL = "Informe ao menos uma diretoria regional."
 
     @classmethod
     def choices(cls):
