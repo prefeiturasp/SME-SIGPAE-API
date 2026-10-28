@@ -1452,7 +1452,6 @@ def build_headers_tabelas_cemei(solicitacao):
     tabelas = [cria_tabela_vazia_cemei()]
     tabelas[0]["recreio"] = recreio
     indice_atual = 0
-    len_colunas = 0
 
     medicao_extraordinaria = _get_medicao_extraordinaria(solicitacao)
     for medicao in get_medicoes_para_relatorio_nao_cei(
@@ -1463,93 +1462,153 @@ def build_headers_tabelas_cemei(solicitacao):
         dict_categorias_campos = build_dict_relacao_categorias_e_campos_cemei(
             medicao, grupo_override, medicao_extra
         )
+        nome_periodo = _nome_periodo_medicao(medicao, grupo_override)
 
         for categoria in dict_categorias_campos.keys():
-            nome_periodo = _nome_periodo_medicao(medicao, grupo_override)
-            faixas_etarias = tabelas[indice_atual]["faixas_etarias"]
-            len_faixas = sum(2 if faixa != "total" else 1 for faixa in faixas_etarias)
-
-            n = len(dict_categorias_campos[categoria])
-            if _nome_periodo_tem_faixas_etarias_cemei(nome_periodo):
-                len_colunas = (n * 2) + 1
-            else:
-                len_colunas = n
-
-            if (
-                len(tabelas[indice_atual]["nomes_campos"]) + len_faixas + len_colunas
-                > MAX_COLUNAS
-            ) or (
-                "total_refeicoes_pagamento" in tabelas[indice_atual]["nomes_campos"]
-                and "total_refeicoes_pagamento" in dict_categorias_campos[categoria]
-            ):
-                if len(dict_categorias_campos[categoria]) > MAX_COLUNAS:
-                    limite_campos = 0
-                    tabelas, limite_campos = append_tabela(
-                        tabelas,
-                        indice_atual,
-                        nome_periodo,
-                        categoria,
-                        dict_categorias_campos,
-                        False,
-                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-                        limite_campos,
-                    )
-                    indice_atual += 1
-                    tabelas += [cria_tabela_vazia_cemei()]
-                    tabelas[-1]["recreio"] = recreio
-                    append_tabela(
-                        tabelas,
-                        indice_atual,
-                        nome_periodo,
-                        categoria,
-                        dict_categorias_campos,
-                        True,
-                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-                        limite_campos,
-                    )
-                else:
-                    indice_atual += 1
-                    tabelas += [cria_tabela_vazia_cemei()]
-                    tabelas[-1]["recreio"] = recreio
-                    adiciona_valores_header(
-                        nome_periodo,
-                        tabelas,
-                        dict_categorias_campos,
-                        indice_atual,
-                        categoria,
-                        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-                        recreio=recreio,
-                    )
-                    get_categorias_dos_periodos(
-                        nome_periodo,
-                        tabelas,
-                        indice_atual,
-                        categoria,
-                        dict_categorias_campos,
-                    )
-            else:
-                adiciona_valores_header(
-                    nome_periodo,
-                    tabelas,
-                    dict_categorias_campos,
-                    indice_atual,
-                    categoria,
-                    TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
-                    recreio=recreio,
-                )
-                get_categorias_dos_periodos(
-                    nome_periodo,
-                    tabelas,
-                    indice_atual,
-                    categoria,
-                    dict_categorias_campos,
-                )
-            adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual)
+            indice_atual = _processa_categoria_cemei(
+                tabelas,
+                indice_atual,
+                nome_periodo,
+                categoria,
+                dict_categorias_campos,
+                recreio,
+            )
 
     get_tamanho_colunas_periodos(
         tabelas, ORDEM_PERIODOS_GRUPOS_CEMEI, TIPOS_UNIDADE_ESCOLAR.CEMEI.value
     )
     return tabelas
+
+
+def _processa_categoria_cemei(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos, recreio
+):
+    """Posiciona a categoria na tabela atual, abrindo novas quando necessário."""
+    campos_categoria = dict_categorias_campos[categoria]
+    faixas_etarias = tabelas[indice_atual]["faixas_etarias"]
+    len_faixas = sum(2 if faixa != "total" else 1 for faixa in faixas_etarias)
+    len_colunas = _len_colunas_categoria_cemei(nome_periodo, len(campos_categoria))
+
+    if _precisa_nova_tabela_cemei(
+        tabelas[indice_atual], campos_categoria, len_faixas, len_colunas
+    ):
+        indice_atual = _abre_nova_tabela_cemei(
+            tabelas,
+            indice_atual,
+            nome_periodo,
+            categoria,
+            dict_categorias_campos,
+            recreio,
+        )
+    else:
+        _adiciona_valores_na_tabela_cemei(
+            tabelas,
+            indice_atual,
+            nome_periodo,
+            categoria,
+            dict_categorias_campos,
+            recreio,
+        )
+
+    adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual)
+    return indice_atual
+
+
+def _len_colunas_categoria_cemei(nome_periodo, quantidade_campos):
+    if _nome_periodo_tem_faixas_etarias_cemei(nome_periodo):
+        return (quantidade_campos * 2) + 1
+    return quantidade_campos
+
+
+def _precisa_nova_tabela_cemei(tabela, campos_categoria, len_faixas, len_colunas):
+    colunas_ocupadas = len(tabela["nomes_campos"]) + len_faixas + len_colunas
+    if colunas_ocupadas > MAX_COLUNAS:
+        return True
+
+    total_refeicoes_pagamento = "total_refeicoes_pagamento"
+    return (
+        total_refeicoes_pagamento in tabela["nomes_campos"]
+        and total_refeicoes_pagamento in campos_categoria
+    )
+
+
+def _abre_nova_tabela_cemei(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos, recreio
+):
+    """Cria a tabela seguinte e distribui a categoria entre a atual e a nova."""
+    if len(dict_categorias_campos[categoria]) > MAX_COLUNAS:
+        return _divide_categoria_entre_tabelas_cemei(
+            tabelas,
+            indice_atual,
+            nome_periodo,
+            categoria,
+            dict_categorias_campos,
+            recreio,
+        )
+
+    indice_atual += 1
+    tabelas += [cria_tabela_vazia_cemei()]
+    tabelas[-1]["recreio"] = recreio
+    _adiciona_valores_na_tabela_cemei(
+        tabelas,
+        indice_atual,
+        nome_periodo,
+        categoria,
+        dict_categorias_campos,
+        recreio,
+    )
+    return indice_atual
+
+
+def _divide_categoria_entre_tabelas_cemei(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos, recreio
+):
+    limite_campos = 0
+    tabelas, limite_campos = append_tabela(
+        tabelas,
+        indice_atual,
+        nome_periodo,
+        categoria,
+        dict_categorias_campos,
+        False,
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        limite_campos,
+    )
+    indice_atual += 1
+    tabelas += [cria_tabela_vazia_cemei()]
+    tabelas[-1]["recreio"] = recreio
+    append_tabela(
+        tabelas,
+        indice_atual,
+        nome_periodo,
+        categoria,
+        dict_categorias_campos,
+        True,
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        limite_campos,
+    )
+    return indice_atual
+
+
+def _adiciona_valores_na_tabela_cemei(
+    tabelas, indice_atual, nome_periodo, categoria, dict_categorias_campos, recreio
+):
+    adiciona_valores_header(
+        nome_periodo,
+        tabelas,
+        dict_categorias_campos,
+        indice_atual,
+        categoria,
+        TIPOS_UNIDADE_ESCOLAR.CEMEI.value,
+        recreio=recreio,
+    )
+    get_categorias_dos_periodos(
+        nome_periodo,
+        tabelas,
+        indice_atual,
+        categoria,
+        dict_categorias_campos,
+    )
 
 
 def _nome_periodo_recreio_4_14(nome_periodo):
