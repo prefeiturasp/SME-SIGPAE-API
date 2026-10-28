@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from ....dados_comuns.utils import update_instance_from_dict
 from ....dados_comuns.validators import (
-    campo_deve_ser_deste_tipo,
     campo_nao_pode_ser_nulo,
     deve_pedir_com_antecedencia,
     deve_ser_no_mesmo_ano_corrente,
@@ -82,6 +81,15 @@ class SolicitacaoKitLancheAvulsaCreationSerializer(serializers.ModelSerializer):
     status_explicacao = serializers.CharField(
         source="status", required=False, read_only=True
     )
+    quantidade_alunos = serializers.IntegerField(
+        required=False,
+        allow_null=True,
+        min_value=1,
+        error_messages={
+            "invalid": "Quantidade de alunos deve ser um número inteiro",
+            "min_value": "Quantidade de alunos deve ser maior que zero",
+        },
+    )
 
     def validate(self, attrs):
         quantidade_aluno_passeio = attrs.get("quantidade_alunos")
@@ -89,11 +97,6 @@ class SolicitacaoKitLancheAvulsaCreationSerializer(serializers.ModelSerializer):
         campo_nao_pode_ser_nulo(
             quantidade_aluno_passeio,
             mensagem="O campo Quantidade de aluno não pode ser nulo",
-        )
-        campo_deve_ser_deste_tipo(
-            quantidade_aluno_passeio,
-            tipo=int,
-            mensagem="Quantidade de aluno de ser do tipo int",
         )
         nao_pode_ser_no_passado(data_evento)
         deve_pedir_com_antecedencia(data_evento)
