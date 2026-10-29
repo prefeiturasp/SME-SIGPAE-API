@@ -1414,6 +1414,11 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         solicitações unificadas e `quantidade_alimentacoes` nos demais
         modelos.
 
+        O campo ``numero_alunos`` mantém a quantidade de alimentações/kits já
+        retornada hoje. Quando ``somente_kits_cei`` é verdadeiro, ele passa a
+        retornar a quantidade de alunos. O campo ``quantidade_alunos`` informa
+        a quantidade de alunos autorizada na solicitação.
+
         Args:
             query_set (QuerySet): Solicitações consolidadas já filtradas.
             escola_uuid (str): UUID da escola usado no cálculo de unificadas.
@@ -1423,7 +1428,8 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         Returns:
             list[dict]: Lista no formato
-                [{"dia", "numero_alunos", "kit_lanche_id_externo"}].
+                [{"dia", "numero_alunos", "quantidade_alunos",
+                "kit_lanche_id_externo"}].
         """
         results = []
         dias_sem_atendimento_regular = dias_sem_atendimento_regular or set()
@@ -1443,7 +1449,13 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                 )
                 continue
 
-            results.append(self._build_result_kit_lanche(kit, escola_uuid))
+            results.append(
+                self._build_result_kit_lanche(
+                    kit,
+                    escola_uuid,
+                    somente_kits_cei,
+                )
+            )
 
         return results
 
@@ -1476,6 +1488,7 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
                     kit,
                     kit.data.day,
                     kit.total_kits_medicao_inicial,
+                    quantidade_alunos=kit.solicitacao_emei.quantidade_alunos,
                 )
             ]
 
@@ -1489,7 +1502,8 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             self._formata_resultado_kit_lanche(
                 kit,
                 kit.data.day,
-                kit.solicitacao_cei.quantidade_alimentacoes,
+                kit.solicitacao_cei.quantidade_alunos,
+                quantidade_alunos=kit.solicitacao_cei.quantidade_alunos,
             )
         ]
 
@@ -1500,25 +1514,44 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
             kit.TODOS,
         )
 
-    def _build_result_kit_lanche(self, kit, escola_uuid):
+    def _build_result_kit_lanche(self, kit, escola_uuid, somente_kits_cei=False):
         if isinstance(kit, SolicitacaoKitLancheUnificada):
             numero_alunos = kit.total_kit_lanche_escola(escola_uuid)
+            escola_quantidade = kit.escolas_quantidades.filter(
+                escola__uuid=escola_uuid
+            ).first()
+            quantidade_alunos = (
+                escola_quantidade.quantidade_alunos if escola_quantidade else None
+            )
         else:
             numero_alunos = kit.quantidade_alimentacoes
+            quantidade_alunos = kit.quantidade_alunos
+
+        if somente_kits_cei and quantidade_alunos is not None:
+            numero_alunos = quantidade_alunos
 
         return self._formata_resultado_kit_lanche(
             kit,
             kit.solicitacao_kit_lanche.data.day,
             numero_alunos,
+            quantidade_alunos,
         )
 
     @staticmethod
-    def _formata_resultado_kit_lanche(kit, dia, numero_alunos):
-        return {
+    def _formata_resultado_kit_lanche(
+        kit,
+        dia,
+        numero_alunos,
+        quantidade_alunos=None,
+    ):
+        resultado = {
             "dia": f"{dia:02d}",
             "numero_alunos": numero_alunos,
             "kit_lanche_id_externo": kit.id_externo,
         }
+        if quantidade_alunos is not None:
+            resultado["quantidade_alunos"] = quantidade_alunos
+        return resultado
 
     @action(detail=False, methods=["GET"], url_path=f"{INCLUSOES_ETEC_AUTORIZADAS}")
     def inclusoes_etec_autorizadas(self, request):
