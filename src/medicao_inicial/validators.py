@@ -1307,7 +1307,130 @@ def validate_lancamento_kit_lanche_passeio_cei(
     return lista_erros
 
 
-def _valida_kit_lanche_da_medicao_cei(medicao, dias_kit_lanche, lista_erros):
+def _valida_dietas_kit_lanche_da_medicao_cei(
+    medicao,
+    dias_kit_lanche,
+    lista_erros,
+    categorias_dieta,
+    logs_,
+):
+    if medicao.nome_periodo_grupo.upper() != "INTEGRAL":
+        return lista_erros
+    return validate_lancamento_dietas_kit_lanche_passeio_cei(
+        medicao,
+        dias_kit_lanche,
+        lista_erros,
+        categorias_dieta,
+        logs_,
+    )
+
+
+def _get_quantidade_dieta_autorizada_no_dia(
+    logs_,
+    data,
+    periodo_escolar_id,
+    faixa_etaria_id,
+    classificacoes,
+):
+    quantidade = 0
+    for classificacao in classificacoes:
+        for log in logs_:
+            if (
+                log[0] == data
+                and log[1] == periodo_escolar_id
+                and log[2] == faixa_etaria_id
+                and log[4] == classificacao.id
+            ):
+                quantidade += log[3]
+    return quantidade
+
+
+def _possui_frequencia_dieta_no_dia(
+    medicao,
+    categoria,
+    faixa_etaria_id,
+    dia,
+):
+    return (
+        medicao.valores_medicao.filter(
+            nome_campo="frequencia",
+            categoria_medicao=categoria,
+            faixa_etaria_id=faixa_etaria_id,
+            dia=f"{dia:02d}",
+        )
+        .exclude(Q(valor__isnull=True) | Q(valor=""))
+        .exists()
+    )
+
+
+def _possui_dia_kit_lanche_sem_frequencia_dieta(
+    medicao,
+    dias_kit_lanche,
+    categoria,
+    classificacoes,
+    logs_,
+):
+    for data, faixas_etarias in dias_kit_lanche.items():
+        for faixa_etaria_id in faixas_etarias:
+            quantidade_dieta = _get_quantidade_dieta_autorizada_no_dia(
+                logs_,
+                data,
+                medicao.periodo_escolar_id,
+                faixa_etaria_id,
+                classificacoes,
+            )
+            if quantidade_dieta == 0:
+                continue
+            if not _possui_frequencia_dieta_no_dia(
+                medicao,
+                categoria,
+                faixa_etaria_id,
+                data.day,
+            ):
+                return True
+    return False
+
+
+def validate_lancamento_dietas_kit_lanche_passeio_cei(
+    medicao,
+    dias_kit_lanche,
+    lista_erros,
+    categorias_dieta,
+    logs_,
+):
+    if not dias_kit_lanche:
+        return lista_erros
+    if lista_erros_com_periodo(lista_erros, medicao, "dietas"):
+        return lista_erros
+
+    for categoria in categorias_dieta:
+        classificacoes = get_classificacoes_dietas_cei(categoria)
+        if _possui_dia_kit_lanche_sem_frequencia_dieta(
+            medicao,
+            dias_kit_lanche,
+            categoria,
+            classificacoes,
+            logs_,
+        ):
+            lista_erros.append(
+                {
+                    "periodo_escolar": (
+                        medicao.periodo_escolar.nome
+                        if medicao.periodo_escolar
+                        else medicao.nome_periodo_grupo
+                    ),
+                    "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS_NAS_DIETAS.value,
+                }
+            )
+            return lista_erros
+    return lista_erros
+
+
+def _valida_kit_lanche_da_medicao_cei(
+    medicao,
+    dias_kit_lanche,
+    lista_erros,
+):
     if medicao.nome_periodo_grupo.upper() != "INTEGRAL":
         return lista_erros
     return validate_lancamento_kit_lanche_passeio_cei(
@@ -2581,6 +2704,24 @@ def validate_lancamento_dietas_emei_cemei(
     return lista_erros
 
 
+def _valida_dietas_kit_lanche_todas_medicoes_cei(
+    solicitacao,
+    lista_erros,
+    categorias_dieta,
+    logs_,
+):
+    dias_kit_lanche = _get_dias_kit_lanche_passeio_cei(solicitacao)
+    for medicao in solicitacao.medicoes.all():
+        lista_erros = _valida_dietas_kit_lanche_da_medicao_cei(
+            medicao,
+            dias_kit_lanche,
+            lista_erros,
+            categorias_dieta,
+            logs_,
+        )
+    return lista_erros
+
+
 def validate_lancamento_dietas_cei(solicitacao, lista_erros):
     ano = solicitacao.ano
     mes = solicitacao.mes
@@ -2658,7 +2799,12 @@ def validate_lancamento_dietas_cei(solicitacao, lista_erros):
                             "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS_NAS_DIETAS.value,
                         }
                     )
-    return lista_erros
+    return _valida_dietas_kit_lanche_todas_medicoes_cei(
+        solicitacao,
+        lista_erros,
+        categorias,
+        logs_,
+    )
 
 
 def validate_lancamento_dietas_cei_cemei(
@@ -4036,11 +4182,16 @@ def _validate_medicao_cei_cemei(
         categoria_alimentacao,
     )
     if medicao.nome_periodo_grupo.upper() == "INTEGRAL":
+        dias_kit_lanche = _get_dias_kit_lanche_passeio_cei(
+            medicao.solicitacao_medicao_inicial
+        )
         lista_erros = validate_lancamento_kit_lanche_passeio_cei(
             medicao,
-            _get_dias_kit_lanche_passeio_cei(medicao.solicitacao_medicao_inicial),
+            dias_kit_lanche,
             lista_erros,
         )
+    else:
+        dias_kit_lanche = {}
     lista_erros = validate_lancamento_inclusoes_cei_cemei(
         lista_erros,
         ano,
@@ -4062,6 +4213,14 @@ def _validate_medicao_cei_cemei(
         dias_letivos,
         medicao,
     )
+    if dias_kit_lanche:
+        lista_erros = validate_lancamento_dietas_kit_lanche_passeio_cei(
+            medicao,
+            dias_kit_lanche,
+            lista_erros,
+            categorias_dieta,
+            logs_dietas_autorizadas_dict,
+        )
     lista_erros = validate_lancamento_inclusoes_dietas_cei_cemei(
         lista_erros,
         mes,

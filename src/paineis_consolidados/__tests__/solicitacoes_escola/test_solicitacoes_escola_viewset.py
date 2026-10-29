@@ -2210,10 +2210,11 @@ def _cria_kit_lanche_cemei(escola, data, alunos_cei_e_ou_emei, com_cei, com_emei
     return kit_cemei
 
 
-def _resultado_esperado(kit, dia, numero_alunos):
+def _resultado_esperado(kit, dia, numero_alunos, quantidade_alunos):
     return {
         "dia": dia,
         "numero_alunos": numero_alunos,
+        "quantidade_alunos": quantidade_alunos,
         "kit_lanche_id_externo": kit.id_externo,
     }
 
@@ -2237,7 +2238,14 @@ def test_build_results_kit_lanches_cemei_padrao_retorna_somente_emei(
         dias_sem_atendimento_regular={data},
     )
 
-    assert results == [_resultado_esperado(kit, "18", 10)]
+    assert results == [
+        _resultado_esperado(
+            kit,
+            "18",
+            10,
+            kit.solicitacao_emei.quantidade_alunos,
+        )
+    ]
 
 
 def test_build_results_kit_lanches_cemei_padrao_em_dia_regular(
@@ -2259,7 +2267,14 @@ def test_build_results_kit_lanches_cemei_padrao_em_dia_regular(
         dias_sem_atendimento_regular=set(),
     )
 
-    assert results == [_resultado_esperado(kit, "22", 10)]
+    assert results == [
+        _resultado_esperado(
+            kit,
+            "22",
+            10,
+            kit.solicitacao_emei.quantidade_alunos,
+        )
+    ]
 
 
 def test_build_results_kit_lanches_cemei_padrao_sem_emei_nao_retorna_cei(
@@ -2304,7 +2319,14 @@ def test_build_results_kit_lanches_cemei_eh_cei_retorna_somente_cei_em_dia_espec
         somente_kits_cei=True,
     )
 
-    assert results == [_resultado_esperado(kit, "18", 20)]
+    assert results == [
+        _resultado_esperado(
+            kit,
+            "18",
+            kit.solicitacao_cei.quantidade_alunos,
+            kit.solicitacao_cei.quantidade_alunos,
+        )
+    ]
 
 
 def test_build_results_kit_lanches_cemei_eh_cei_nao_retorna_em_dia_regular(
@@ -2350,7 +2372,14 @@ def test_build_results_kit_lanches_cemei_eh_cei_sem_emei_em_dia_especial(
         somente_kits_cei=True,
     )
 
-    assert results == [_resultado_esperado(kit, "18", 20)]
+    assert results == [
+        _resultado_esperado(
+            kit,
+            "18",
+            kit.solicitacao_cei.quantidade_alunos,
+            kit.solicitacao_cei.quantidade_alunos,
+        )
+    ]
 
 
 def test_build_results_kit_lanches_cemei_eh_cei_autorizado_somente_para_emei(
