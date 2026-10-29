@@ -395,6 +395,7 @@ def test_cemei_cei_kit_lanche_com_dieta_autorizada_sem_frequencia_gera_erro(
     escola_cemei,
     faixas_etarias_ativas,
     periodo_escolar_integral,
+    categoria_medicao,
     categoria_medicao_dieta_a,
     classificacao_dieta_tipo_a,
 ):
@@ -418,6 +419,7 @@ def test_cemei_cei_kit_lanche_com_dieta_autorizada_e_frequencia_nao_gera_erro(
     escola_cemei,
     faixas_etarias_ativas,
     periodo_escolar_integral,
+    categoria_medicao,
     categoria_medicao_dieta_a,
     classificacao_dieta_tipo_a,
 ):
