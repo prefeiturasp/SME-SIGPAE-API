@@ -6,7 +6,10 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import (
+    PermissionDenied,
+    ValidationError as ErroValidacaoAPI,
+)
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
@@ -274,6 +277,7 @@ class FormularioSupervisaoModelViewSet(
     )
     def dashboard(self, request):
         query_set = self.get_queryset()
+        # query_set = query_set = self._filtrar_relatorios_dashboard(request)
         response = {
             "results": self.dados_dashboard(
                 query_set=query_set,
@@ -374,6 +378,23 @@ class FormularioSupervisaoModelViewSet(
             dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
+
+    def _filtrar_relatorios_dashboard(self, request):
+        parametros = {
+            "diretoria_regional": request.query_params.get("diretoria_regional"),
+            "mes": request.query_params.get("mes"),
+            "ano": request.query_params.get("ano"),
+        }
+        filtro = FormularioSupervisaoFilter(
+            data=parametros,
+            queryset=self.get_queryset(),
+            request=request,
+        )
+
+        if not filtro.is_valid():
+            raise ErroValidacaoAPI(filtro.errors)
+
+        return filtro.qs
 
 
 class FormularioDiretorModelViewSet(
