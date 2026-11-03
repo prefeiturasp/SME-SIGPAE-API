@@ -235,11 +235,13 @@ class FormularioSupervisaoModelViewSet(
         return Response(serializer.data)
 
     def get_lista_status(self) -> list[str]:
-        lista_status = [
-            state.name for state in list(FormularioSupervisaoWorkflow.states)
+        return [
+            FormularioSupervisaoWorkflow.EM_PREENCHIMENTO,
+            FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR,
+            FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE,
+            FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO,
+            FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
         ]
-        lista_status += ["TODOS_OS_RELATORIOS"]
-        return lista_status
 
     def get_label(self, workflow: str) -> str:
         rotulos = {
