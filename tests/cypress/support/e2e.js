@@ -193,3 +193,6 @@ import './step_definitions/inclusao_alimentacao_cemei'
 
 import './commands_api/commands_inclusao_alimentacao'
 import './step_definitions/inclusao_alimentacao'
+
+import './commands_api/commands_inclusoes_alimentacao_continua'
+import './step_definitions/inclusoes_alimentacao_continua'
