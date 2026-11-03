@@ -234,7 +234,17 @@ class FormularioSupervisaoModelViewSet(
 
         return Response(serializer.data)
 
-    def get_lista_status(self) -> list[str]:
+    def get_lista_status(self, novo_painel: bool = True) -> list[str]:
+        if not novo_painel:
+            return [
+                FormularioSupervisaoWorkflow.EM_PREENCHIMENTO,
+                FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR,
+                FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE,
+                FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
+                FormularioSupervisaoWorkflow.APROVADO,
+                "TODOS_OS_RELATORIOS",
+            ]
+
         return [
             FormularioSupervisaoWorkflow.EM_PREENCHIMENTO,
             FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR,
@@ -243,7 +253,17 @@ class FormularioSupervisaoModelViewSet(
             FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
         ]
 
-    def get_label(self, workflow: str) -> str:
+    def get_label(self, workflow: str, novo_painel: bool = True) -> str:
+        if not novo_painel:
+            try:
+                return (
+                    "Aprovados"
+                    if workflow == FormularioSupervisaoWorkflow.APROVADO
+                    else FormularioSupervisaoWorkflow.states[workflow].title
+                )
+            except KeyError:
+                return "Todos os Relatórios"
+
         rotulos = {
             FormularioSupervisaoWorkflow.EM_PREENCHIMENTO:
                 "Em preenchimento pela Supervisão",
@@ -260,15 +280,22 @@ class FormularioSupervisaoModelViewSet(
         }
         return rotulos.get(workflow, "Todos os Relatórios")
 
-    def dados_dashboard(self, query_set: QuerySet) -> list:
+    def dados_dashboard(
+        self, query_set: QuerySet, novo_painel: bool = True
+    ) -> list:
         sumario = []
 
-        for workflow in self.get_lista_status():
+        for workflow in self.get_lista_status(novo_painel=novo_painel):
+            relatorios = (
+                query_set
+                if workflow == "TODOS_OS_RELATORIOS"
+                else query_set.filter(status=workflow)
+            )
             sumario.append(
                 {
                     "status": workflow,
-                    "label": self.get_label(workflow),
-                    "total": query_set.filter(status=workflow).count(),
+                    "label": self.get_label(workflow, novo_painel=novo_painel),
+                    "total": relatorios.count(),
                 }
             )
         return sumario
@@ -279,10 +306,18 @@ class FormularioSupervisaoModelViewSet(
         url_path="dashboard",
     )
     def dashboard(self, request):
-        query_set = query_set = self._filtrar_relatorios_dashboard(request)
+        novo_painel = (
+            request.query_params.get("novo_painel", "true").lower() == "true"
+        )
+        query_set = (
+            self._filtrar_relatorios_dashboard(request)
+            if novo_painel
+            else self.get_queryset()
+        )
         response = {
             "results": self.dados_dashboard(
                 query_set=query_set,
+                novo_painel=novo_painel,
             )
         }
         return Response(response)
