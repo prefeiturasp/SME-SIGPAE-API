@@ -264,17 +264,11 @@ class FormularioSupervisaoModelViewSet(
         sumario = []
 
         for workflow in self.get_lista_status():
-            todos_lancamentos = workflow == "TODOS_OS_RELATORIOS"
-            qs = (
-                query_set.filter(status=workflow)
-                if not todos_lancamentos
-                else query_set
-            )
             sumario.append(
                 {
                     "status": workflow,
                     "label": self.get_label(workflow),
-                    "total": len(qs),
+                    "total": query_set.filter(status=workflow).count(),
                 }
             )
         return sumario
@@ -285,8 +279,7 @@ class FormularioSupervisaoModelViewSet(
         url_path="dashboard",
     )
     def dashboard(self, request):
-        query_set = self.get_queryset()
-        # query_set = query_set = self._filtrar_relatorios_dashboard(request)
+        query_set = query_set = self._filtrar_relatorios_dashboard(request)
         response = {
             "results": self.dados_dashboard(
                 query_set=query_set,
