@@ -6065,6 +6065,7 @@ class FormularioSupervisaoWorkflow(xwf_models.Workflow):
     EM_PREENCHIMENTO = "EM_PREENCHIMENTO"
     NUTRIMANIFESTACAO_A_VALIDAR = "NUTRIMANIFESTACAO_A_VALIDAR"
     COM_COMENTARIOS_DE_CODAE = "COM_COMENTARIOS_DE_CODAE"
+    CORRIGIDO_PELA_SUPERVISAO = "CORRIGIDO_PELA_SUPERVISAO"
     VALIDADO_POR_CODAE = "VALIDADO_POR_CODAE"
     APROVADO = "APROVADO"
 
@@ -6072,6 +6073,7 @@ class FormularioSupervisaoWorkflow(xwf_models.Workflow):
         (EM_PREENCHIMENTO, "Em Preenchimento"),
         (NUTRIMANIFESTACAO_A_VALIDAR, "Enviado para CODAE"),
         (COM_COMENTARIOS_DE_CODAE, "Com comentários de CODAE"),
+        (CORRIGIDO_PELA_SUPERVISAO, "Corrigido pela Supervisão"),
         (VALIDADO_POR_CODAE, "Validado pela CODAE"),
         (APROVADO, "Aprovado"),
     )

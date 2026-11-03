@@ -242,14 +242,21 @@ class FormularioSupervisaoModelViewSet(
         return lista_status
 
     def get_label(self, workflow: str) -> str:
-        try:
-            return (
-                "Aprovados"
-                if workflow == FormularioSupervisaoWorkflow.APROVADO
-                else FormularioSupervisaoWorkflow.states[workflow].title
-            )
-        except KeyError:
-            return "Todos os Relatórios"
+        rotulos = {
+            FormularioSupervisaoWorkflow.EM_PREENCHIMENTO:
+                "Em preenchimento pela Supervisão",
+            FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR:
+                "Enviados pela Supervisão",
+            FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE:
+                "Devolvidos com comentários",
+            FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO:
+                "Corrigidos pela Supervisão",
+            FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE:
+                "Validados pela CODAE",
+            FormularioSupervisaoWorkflow.APROVADO: "Aprovados",
+            "TODOS_OS_RELATORIOS": "Todos os Relatórios",
+        }
+        return rotulos.get(workflow, "Todos os Relatórios")
 
     def dados_dashboard(self, query_set: QuerySet) -> list:
         sumario = []
