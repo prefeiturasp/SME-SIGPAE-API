@@ -1,5 +1,7 @@
 import pytest
 
+from src.imr.api.serializers.serializers import ConsultaOcorrenciasDiretorSerializer
+
 pytestmark = pytest.mark.django_db
 
 
@@ -69,3 +71,13 @@ def test_tipo_ocorrencia_serializer(tipo_ocorrencia_nutrisupervisor_com_parametr
 
     obrigacoes = [obrigacao.descricao for obrigacao in penalidade.obrigacoes.all()]
     assert serializer.data["penalidade"]["obrigacoes"] == obrigacoes
+
+
+@pytest.mark.parametrize("uuid_medicao", ["", "uuid-invalido"], ids=["vazio", "invalido"])
+def test_consulta_ocorrencias_diretor_rejeita_uuid_invalido(uuid_medicao):
+    serializer = ConsultaOcorrenciasDiretorSerializer(
+        data={"solicitacao_medicao_inicial": uuid_medicao}
+    )
+
+    assert serializer.is_valid() is False
+    assert "solicitacao_medicao_inicial" in serializer.errors

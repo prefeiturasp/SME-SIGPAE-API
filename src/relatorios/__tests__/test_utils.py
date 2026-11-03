@@ -292,9 +292,9 @@ def test_merge_pdf_com_string_template_todas_paginas(gerar_pdf_simples):
 
 def test_pdf_merge_service_mescla_dois_pdfs():
     service = PDFMergeService()
-    pdf_1 = HTML(string=f"<h1>Primeiro PDF</h1>").write_pdf()
+    pdf_1 = HTML(string="<h1>Primeiro PDF</h1>").write_pdf()
     service.append_pdf(pdf_1)
-    pdf_2 = HTML(string=f"<h1>Segundo PDF</h1>").write_pdf()
+    pdf_2 = HTML(string="<h1>Segundo PDF</h1>").write_pdf()
     service.append_pdf(pdf_2)
 
     pdf_final = service.merge_pdfs()

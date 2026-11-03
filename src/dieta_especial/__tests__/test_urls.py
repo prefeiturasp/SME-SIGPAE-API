@@ -1,7 +1,10 @@
 import base64
 import datetime
 from datetime import date, timedelta
+from unittest.mock import patch
+from uuid import uuid4
 
+from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns.constants import ContentTypesParaRequests
@@ -1316,7 +1319,13 @@ def test_codae_atualiza_protocolo(
 
     assert "Data de término" in justificativa
     assert "Sem data término" in justificativa
-    assert "Com data de término 25/10/2026" in justificativa
+    data_termino = datetime.date.fromisoformat(
+        mock_request_codae_atualiza_protocolo["data_termino"]
+    )
+    assert (
+        f"Com data de término {data_termino.strftime(FORMATO_DATA_BRASILEIRO)}"
+        in justificativa
+    )
 
     assert "Substituições de Alimentos" in justificativa
     assert justificativa.count("SUBSTITUIR") == 4
@@ -1613,3 +1622,88 @@ def test_logs_dieta_recreio_nas_ferias_cei_escola_sem_log(
     assert response.status_code == status.HTTP_200_OK
     logs = response.json()
     assert len(logs) == 0
+
+
+def test_exportar_pdf_protocolo_padrao_enfileira_protocolo_selecionado(
+    client_autenticado_protocolo_dieta,
+    protocolo_padrao_dieta_especial,
+):
+    selecionado = baker.make(
+        "ProtocoloPadraoDietaEspecial", nome_protocolo="PROTOCOLO SELECIONADO"
+    )
+    caminho_task = (
+        "src.dieta_especial.protocolo_padrao.api.viewsets."
+        "gerar_pdf_protocolo_padrao_async.delay"
+    )
+
+    with patch(caminho_task) as enfileirar:
+        resposta = client_autenticado_protocolo_dieta.get(
+            "/protocolo-padrao-dieta-especial/"
+            f"{selecionado.uuid}/exportar-pdf/"
+        )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    assert resposta.json() == {
+        "detail": constants.MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
+    }
+    enfileirar.assert_called_once_with(
+        user=constants.EMAIL_TESTE,
+        nome_arquivo="relatorio_protocolo_padrao.pdf",
+        params={"protocolo_uuid": str(selecionado.uuid)},
+    )
+
+
+def test_exportar_pdf_protocolo_padrao_inexistente_nao_enfileira(
+    client_autenticado_protocolo_dieta,
+):
+    caminho_task = (
+        "src.dieta_especial.protocolo_padrao.api.viewsets."
+        "gerar_pdf_protocolo_padrao_async.delay"
+    )
+    with patch(caminho_task) as enfileirar:
+        resposta = client_autenticado_protocolo_dieta.get(
+            f"/protocolo-padrao-dieta-especial/{uuid4()}/exportar-pdf/"
+        )
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+    enfileirar.assert_not_called()
+
+
+def test_exportar_pdf_protocolo_padrao_inativo_nao_enfileira(
+    client_autenticado_protocolo_dieta,
+    protocolo_padrao_dieta_especial,
+):
+    protocolo = protocolo_padrao_dieta_especial
+    protocolo.ativo = False
+    protocolo.save(update_fields=["ativo"])
+    caminho_task = (
+        "src.dieta_especial.protocolo_padrao.api.viewsets."
+        "gerar_pdf_protocolo_padrao_async.delay"
+    )
+    with patch(caminho_task) as enfileirar:
+        resposta = client_autenticado_protocolo_dieta.get(
+            f"/protocolo-padrao-dieta-especial/{protocolo.uuid}/exportar-pdf/"
+        )
+
+    assert resposta.status_code == status.HTTP_404_NOT_FOUND
+    enfileirar.assert_not_called()
+
+
+def test_exportar_pdf_protocolo_padrao_exige_autenticacao(
+    client_autenticado_protocolo_dieta,
+    protocolo_padrao_dieta_especial,
+):
+    cliente = client_autenticado_protocolo_dieta
+    cliente.logout()
+    protocolo = protocolo_padrao_dieta_especial
+    caminho_task = (
+        "src.dieta_especial.protocolo_padrao.api.viewsets."
+        "gerar_pdf_protocolo_padrao_async.delay"
+    )
+    with patch(caminho_task) as enfileirar:
+        resposta = cliente.get(
+            f"/protocolo-padrao-dieta-especial/{protocolo.uuid}/exportar-pdf/"
+        )
+
+    assert resposta.status_code == status.HTTP_401_UNAUTHORIZED
+    enfileirar.assert_not_called()

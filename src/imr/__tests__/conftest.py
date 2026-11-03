@@ -1,4 +1,6 @@
 import datetime
+from datetime import date
+from types import SimpleNamespace
 
 import pytest
 from model_bakery import baker
@@ -216,3 +218,80 @@ def tipo_ocorrencia_nutrisupervisor_com_parametrizacao(
     parametrizacao_ocorrencia_factory.create(tipo_ocorrencia=tipo_ocorrencia)
 
     return tipo_ocorrencia
+
+
+@pytest.fixture
+def contexto_listagem_diretor(
+    client_autenticado_diretor_escola,
+    escola,
+    edital_factory,
+    solicitacao_medicao_inicial_factory,
+    tipo_ocorrencia_factory,
+    tipo_pergunta_parametrizacao_ocorrencia_factory,
+    parametrizacao_ocorrencia_factory,
+):
+    usuario = client_autenticado_diretor_escola["user"]
+    medicao = solicitacao_medicao_inicial_factory.create(
+        escola=escola, mes="09", ano="2026"
+    )
+    edital = edital_factory.create(eh_imr=True)
+    tipo = tipo_ocorrencia_factory.create(
+        edital=edital,
+        penalidade__edital=edital,
+        criado_por=usuario,
+        titulo="UNIFORME DOS MANIPULADORES",
+        descricao="Funcionários utilizavam uniforme completo?",
+        categoria__nome="FUNCIONÁRIOS",
+        categoria__posicao=1,
+        categoria__perfis=["DIRETOR"],
+        categoria__gera_notificacao=False,
+        perfis=["DIRETOR"],
+        status=True,
+        eh_imr=True,
+        pontuacao=1,
+        tolerancia=1,
+        aceita_multiplas_respostas=True,
+    )
+    pergunta = tipo_pergunta_parametrizacao_ocorrencia_factory.create(
+        nome="Campo de Texto Simples",
+        tipo_resposta__nome="RespostaCampoTextoSimples",
+    )
+    parametrizacao = parametrizacao_ocorrencia_factory.create(
+        tipo_ocorrencia=tipo,
+        tipo_pergunta=pergunta,
+        titulo="Qual item do uniforme faltou?",
+        posicao=1,
+    )
+    return SimpleNamespace(
+        cliente=client_autenticado_diretor_escola["client"],
+        usuario=usuario,
+        escola=escola,
+        medicao=medicao,
+        tipo=tipo,
+        parametrizacao=parametrizacao,
+    )
+
+
+@pytest.fixture
+def criar_ocorrencia_diretor(
+    contexto_listagem_diretor,
+    formulario_diretor_factory,
+    resposta_campo_texto_simples_factory,
+):
+    contexto = contexto_listagem_diretor
+
+    def criar(data=date(2026, 9, 10), medicao=None):
+        formulario = formulario_diretor_factory.create(
+            solicitacao_medicao_inicial=medicao or contexto.medicao,
+            formulario_base__usuario=contexto.usuario,
+            formulario_base__data=data,
+        )
+        resposta_campo_texto_simples_factory.create(
+            formulario_base=formulario.formulario_base,
+            parametrizacao=contexto.parametrizacao,
+            grupo=1,
+            resposta="Touca",
+        )
+        return formulario
+
+    return criar

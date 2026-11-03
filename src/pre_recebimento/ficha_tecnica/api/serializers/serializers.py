@@ -46,6 +46,7 @@ class FichaTecnicaSimplesSerializer(serializers.ModelSerializer):
             "uuid_empresa",
             "pregao_chamada_publica",
             "programa",
+            "categoria",
             "ponto_a_ponto",
         )
 
@@ -91,6 +92,7 @@ class FichaTecnicaListagemSerializer(serializers.ModelSerializer):
             "criado_em",
             "status",
             "programa",
+            "categoria",
             "ponto_a_ponto",
         )
 

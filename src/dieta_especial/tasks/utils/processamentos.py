@@ -88,14 +88,14 @@ def _gerar_log_dietas_ativas_canceladas_automaticamente(
         dieta=dieta,
         codigo_eol_aluno=dados["codigo_eol_aluno"],
         nome_aluno=dados["nome_aluno"],
-        codigo_eol_escola_destino=dados.get("codigo_eol_escola_origem"),
-        nome_escola_destino=dados.get("nome_escola_origem"),
-        codigo_eol_escola_origem=dados.get("codigo_eol_escola_destino"),
-        nome_escola_origem=dados.get("nome_escola_destino"),
+        codigo_eol_escola_destino=dados.get("codigo_eol_escola_origem") or "",
+        nome_escola_destino=dados.get("nome_escola_origem") or "",
+        codigo_eol_escola_origem=dados.get("codigo_eol_escola_destino") or "",
+        nome_escola_origem=dados.get("nome_escola_destino") or "",
     )
     if fora_da_rede:
-        data["codigo_eol_escola_origem"] = dados.get("codigo_eol_escola_origem")
-        data["nome_escola_origem"] = dados.get("nome_escola_origem")
+        data["codigo_eol_escola_origem"] = dados.get("codigo_eol_escola_origem") or ""
+        data["nome_escola_origem"] = dados.get("nome_escola_origem") or ""
         data["codigo_eol_escola_destino"] = ""
         data["nome_escola_destino"] = ""
     LogDietasAtivasCanceladasAutomaticamente.objects.create(**data)
@@ -145,8 +145,6 @@ def _enviar_email_para_adm_terceirizada_e_escola(
             assunto=assunto,
             corpo="",
             email=email,
-            template=template,
-            dados_template=dados_template,
             html=html,
         )
 

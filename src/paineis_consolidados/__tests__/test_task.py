@@ -120,7 +120,7 @@ def test_build_xlsx(dados_para_geracao_excel_e_pdf):
         instituicao,
     )
     workbook = load_workbook(output)
-    sheet = workbook[f"Relatório - Canceladas"]
+    sheet = workbook["Relatório - Canceladas"]
     rows = list(sheet.iter_rows(values_only=True))
 
     assert rows[0] == (

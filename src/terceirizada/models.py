@@ -653,6 +653,7 @@ class Contrato(TemChaveExterna):
     )
     data_hora_encerramento = models.DateTimeField(
         StringsVerboseNameModels.DATA_E_HORA_DO_ENCERRAMENTO.value,
+        blank=True,
         null=True,
         default=None,
     )

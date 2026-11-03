@@ -229,7 +229,7 @@ def test_envia_email_unico(reclamacao_produto_codae_recusou, dados_html):
     email = reclamacao_produto.criado_por.email
     corpo = ""
     html = dados_html
-    email = envia_email_unico(assunto, corpo, email, "", None, html)
+    email = envia_email_unico(assunto, corpo, email, html)
     assert email == 1
 
 
@@ -241,7 +241,7 @@ def test_envia_email_unico_exception(reclamacao_produto_codae_recusou, dados_htm
     corpo = ""
     html = dados_html
     with pytest.raises(ValueError):
-        email = envia_email_unico(assunto, corpo, email, "", None, html)
+        email = envia_email_unico(assunto, corpo, email, html)
     assert email == reclamacao_produto
 
 

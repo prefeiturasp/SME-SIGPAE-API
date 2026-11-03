@@ -820,7 +820,7 @@ def test_url_endpoint_meses_anos(client_autenticado_da_escola):
 
 def test_url_endpoint_filtros(client_autenticado_da_escola):
     response = client_autenticado_da_escola.get(
-        f"/relatorio-controle-frequencia/filtros/?mes=6&ano=2024"
+        "/relatorio-controle-frequencia/filtros/?mes=6&ano=2024"
     )
     assert response.status_code == status.HTTP_200_OK
     assert response.data["periodos"] == []
@@ -856,7 +856,7 @@ def test_escola_simplissima_dre_unpaginated_nome_edital(
 def test_grupos_por_dre_quando_parametro_dre_nao_enviado(
     client_autenticado_da_dre, grupos_da_dre
 ):
-    response = client_autenticado_da_dre.get(f"/grupos-unidade-escolar/por-dre/")
+    response = client_autenticado_da_dre.get("/grupos-unidade-escolar/por-dre/")
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert response.json() == {"detail": "Parâmetro 'dre' é obrigatório."}
 

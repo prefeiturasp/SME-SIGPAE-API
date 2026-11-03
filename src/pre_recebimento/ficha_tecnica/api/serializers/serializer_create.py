@@ -87,12 +87,12 @@ class FabricanteFichaTecnicaCreateSerializer(serializers.ModelSerializer):
         )
 
 
-class FabricanteOpcionalFLVPontoAPontoMixin:
-    """Torna o bloco Fabricante/Envasador opcional quando FLV + Ponto a Ponto."""
+class FabricanteOpcionalFLVMixin:
+    """Torna o bloco Fabricante/Envasador opcional para fichas FLV."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self._eh_flv_ponto_a_ponto():
+        if self._eh_flv():
             self.fields["fabricante"] = FabricanteFichaTecnicaCreateSerializer(
                 required=False, allow_null=True, fabricante_opcional=True
             )
@@ -102,22 +102,16 @@ class FabricanteOpcionalFLVPontoAPontoMixin:
                 required=False, allow_null=True, fabricante_opcional=True
             )
 
-    def _eh_flv_ponto_a_ponto(self):
+    def _eh_flv(self):
         initial_data = getattr(self, "initial_data", None) or {}
         categoria = initial_data.get("categoria") or getattr(
             self.instance, "categoria", None
         )
-        tipo_entrega = initial_data.get("tipo_entrega") or getattr(
-            self.instance, "tipo_entrega", None
-        )
-        return (
-            categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
-            and tipo_entrega == FichaTecnicaDoProduto.PONTO_A_PONTO
-        )
+        return categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
 
 
 class FichaTecnicaRascunhoSerializer(
-    FabricanteOpcionalFLVPontoAPontoMixin, serializers.ModelSerializer
+    FabricanteOpcionalFLVMixin, serializers.ModelSerializer
 ):
     produto = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -267,7 +261,7 @@ class FichaTecnicaRascunhoSerializer(
 
 
 class FichaTecnicaCreateSerializer(
-    FabricanteOpcionalFLVPontoAPontoMixin, serializers.ModelSerializer
+    FabricanteOpcionalFLVMixin, serializers.ModelSerializer
 ):
     produto = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -429,7 +423,7 @@ class FichaTecnicaCreateSerializer(
 
 
 class FichaTecnicaFLVCreateSerializer(
-    FabricanteOpcionalFLVPontoAPontoMixin, serializers.ModelSerializer
+    FabricanteOpcionalFLVMixin, serializers.ModelSerializer
 ):
     produto = serializers.SlugRelatedField(
         slug_field="uuid",
@@ -667,8 +661,7 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
 
         if (
             ficha_tecnica
-            and ficha_tecnica.categoria == "FLV"
-            and ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
+            and ficha_tecnica.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV
         ):
             campos_inexistentes_flv = [
                 "informacoes_nutricionais_conferido",
@@ -698,10 +691,7 @@ class AnaliseFichaTecnicaCreateSerializer(serializers.ModelSerializer):
             "modo_preparo",
         ]
 
-        if (
-            ficha_tecnica.categoria == "FLV"
-            and ficha_tecnica.tipo_entrega == "PONTO_A_PONTO"
-        ):
+        if ficha_tecnica.categoria == FichaTecnicaDoProduto.CATEGORIA_FLV:
             campos_para_remover = [
                 "informacoes_nutricionais",
                 "conservacao",

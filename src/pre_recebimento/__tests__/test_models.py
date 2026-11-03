@@ -460,7 +460,7 @@ def test_exibir_bloco_fabricante_derivado_do_conteudo():
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.PONTO_A_PONTO,
     )
-    assert ficha_sem_bloco.eh_flv_ponto_a_ponto is True
+    assert ficha_sem_bloco.eh_flv is True
     assert ficha_sem_bloco.bloco_fabricante_preenchido is False
     assert ficha_sem_bloco.exibir_bloco_fabricante is False
 
@@ -472,12 +472,18 @@ def test_exibir_bloco_fabricante_derivado_do_conteudo():
     assert ficha_com_bloco.bloco_fabricante_preenchido is True
     assert ficha_com_bloco.exibir_bloco_fabricante is True
 
-    ficha_outra_combinacao = FichaTecnicaDoProduto(
+    ficha_flv_armazem = FichaTecnicaDoProduto(
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
     )
-    assert ficha_outra_combinacao.eh_flv_ponto_a_ponto is False
-    assert ficha_outra_combinacao.exibir_bloco_fabricante is True
+    assert ficha_flv_armazem.eh_flv is True
+    assert ficha_flv_armazem.exibir_bloco_fabricante is False
+
+    ficha_nao_flv = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+    )
+    assert ficha_nao_flv.exibir_bloco_fabricante is True
 
 
 def test_exibir_numero_registro_derivado_do_conteudo():
@@ -498,7 +504,14 @@ def test_exibir_numero_registro_derivado_do_conteudo():
         categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
         tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
     )
-    assert flv_armazem.exibir_numero_registro is True
+    assert flv_armazem.exibir_numero_registro is False
+
+    flv_armazem_com_numero = FichaTecnicaDoProduto(
+        categoria=FichaTecnicaDoProduto.CATEGORIA_FLV,
+        tipo_entrega=FichaTecnicaDoProduto.ARMAZEM,
+        numero_registro="987654",
+    )
+    assert flv_armazem_com_numero.exibir_numero_registro is True
 
     nao_perecivel_ponto_a_ponto = FichaTecnicaDoProduto(
         categoria=FichaTecnicaDoProduto.CATEGORIA_NAO_PERECIVEIS,

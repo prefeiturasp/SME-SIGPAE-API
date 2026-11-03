@@ -2888,7 +2888,7 @@ def test_formata_filtros_unidade_cieja_cmct(mock_query_params_excel_cieja_cmct):
 
 def test_gera_relatorio_consolidado_xlsx_tipo_unidade_invalida():
     tipos_de_unidade = ["aaa", "bbb"]
-    with pytest.raises(ValueError, match=f"Unidades inválidas"):
+    with pytest.raises(ValueError, match="Unidades inválidas"):
         gera_relatorio_consolidado_xlsx([], tipos_de_unidade, {}, contem_recreio=False)
 
 
@@ -3419,7 +3419,7 @@ def test_formata_filtros_unidade_recreio_emei(mock_query_params_excel_recreio_em
 
 def test_gera_relatorio_consolidado_recreio_xlsx_tipo_unidade_invalida():
     tipos_de_unidade = ["aaa", "bbb"]
-    with pytest.raises(ValueError, match=f"Unidades inválidas"):
+    with pytest.raises(ValueError, match="Unidades inválidas"):
         gera_relatorio_consolidado_xlsx([], tipos_de_unidade, {}, contem_recreio=True)
 
 

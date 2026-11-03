@@ -48,6 +48,15 @@ from ..relatorios import (
 pytestmark = pytest.mark.django_db
 
 
+def _contem_trecho(texto: str, trecho: str) -> bool:
+    """Verifica se o trecho está no texto ignorando espaços.
+
+    A partir do pypdf 6.20 o extrator pode não inserir espaço entre trechos
+    que estão lado a lado no PDF (ex.: "ArmazémCentral").
+    """
+    return trecho.replace(" ", "") in texto.replace(" ", "")
+
+
 def test_relatorio_dieta_especial_protocolo(solicitacao_dieta_especial_autorizada):
     html_string = relatorio_dieta_especial_protocolo(
         None, solicitacao_dieta_especial_autorizada
@@ -354,7 +363,7 @@ def test_obter_justificativa_dieta_dieta_inativa_sem_log_inativacao(
     justificativa = obter_justificativa_dieta(solicitacao_dieta_especial_inativa)
     assert (
         justificativa
-        == f"Dieta Inativada em: 26/01/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
+        == "Dieta Inativada em: 26/01/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
     )
 
 
@@ -366,7 +375,7 @@ def test_obter_justificativa_dieta_dieta_inativa_com_log_inativacao(
     )
     assert (
         justificativa
-        == f"Dieta Inativada em: 01/02/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
+        == "Dieta Inativada em: 01/02/2026 | Justificativa: Autorização de novo protocolo de dieta especial"
     )
 
 
@@ -844,7 +853,9 @@ def test_relatorio_cronograma_lista_sem_leve_leite(cronograma, usuario):
 
     if cronograma.armazem and cronograma.armazem.nome_fantasia:
         nome_armazem = cronograma.armazem.nome_fantasia
-        assert nome_armazem in texto_pdf or nome_armazem.upper() in texto_pdf
+        assert _contem_trecho(texto_pdf, nome_armazem) or _contem_trecho(
+            texto_pdf, nome_armazem.upper()
+        )
 
 
 def test_relatorio_cronograma_pdf_modalidade_nao_informada(cronograma, usuario):
@@ -853,7 +864,7 @@ def test_relatorio_cronograma_pdf_modalidade_nao_informada(cronograma, usuario):
     )
     texto_pdf = extrair_texto_de_pdf(pdf_content)
 
-    assert "Não Informado" in texto_pdf
+    assert _contem_trecho(texto_pdf, "Não Informado")
 
 
 def test_relatorio_cronograma_pdf_modalidade_pregao_eletronico(cronograma, usuario):
@@ -866,7 +877,7 @@ def test_relatorio_cronograma_pdf_modalidade_pregao_eletronico(cronograma, usuar
     )
     texto_pdf = extrair_texto_de_pdf(pdf_content)
 
-    assert "Pregão Eletrônico" in texto_pdf
+    assert _contem_trecho(texto_pdf, "Pregão Eletrônico")
 
 
 def test_obter_relatorio_da_unidade_emef():
@@ -1154,7 +1165,7 @@ def test_relatorio_solicitacao_medicao_recreio_nas_ferias_rodape_aprovacao(
 
     assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
     assert "EMEF JOAO MENDES" in texto
-    assert "Recreio nas Férias - Julho 2025" in texto
+    assert _contem_trecho(texto, "Recreio nas Férias - Julho 2025")
     assert "SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS" in texto
     assert "Aprovado por CODAE em" in texto
     assert "05/08/2025" in texto
@@ -1184,7 +1195,7 @@ def test_relatorio_solicitacao_medicao_recreio_nas_ferias_cei_rodape_aprovacao(
 
     assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
     assert "CEI DIRET JOAO MENDES" in texto
-    assert "Recreio nas Férias - Julho 2025" in texto
+    assert _contem_trecho(texto, "Recreio nas Férias - Julho 2025")
     assert "SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS" in texto
     assert "Aprovado por CODAE em" in texto
     assert "05/08/2025" in texto
@@ -1201,7 +1212,7 @@ def test_relatorio_solicitacao_medicao_recreio_nas_ferias_cemei_rodape_aprovacao
 
     assert "INFORMAÇÕES BÁSICAS DA MEDIÇÃO" in texto
     assert "CEMEI JOAO MENDES" in texto
-    assert "Recreio nas Férias - Julho 2025" in texto
+    assert _contem_trecho(texto, "Recreio nas Férias - Julho 2025")
     assert "SOMATÓRIO DE ALIMENTAÇÕES E DIETAS OFERTADAS" in texto
     assert "Aprovado por CODAE em" in texto
     assert "05/08/2025" in texto

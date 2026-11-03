@@ -533,6 +533,48 @@ class FormularioSupervisaoCreateSerializer(
         exclude = ("id",)
 
 
+def _obter_serializer_class_por_nome(name):
+    serializer_class = globals().get(name)
+    if serializer_class is None:
+        raise ValueError(f"Nenhum serializer encontrado com o nome '{name}'")
+    return serializer_class
+
+
+def salvar_respostas_ocorrencia(ocorrencias_data, form_base):
+    for ocorrencia_data in ocorrencias_data:
+        ocorrencia_data_ = copy.deepcopy(ocorrencia_data)
+        ocorrencia_data_["formulario_base"] = form_base.pk
+        parametrizacao_uuid = ocorrencia_data_["parametrizacao"]
+
+        try:
+            parametrizacao = ParametrizacaoOcorrencia.objects.get(
+                uuid=parametrizacao_uuid
+            )
+        except ParametrizacaoOcorrencia.DoesNotExist:
+            raise serializers.ValidationError(
+                {
+                    "detail": f"ParametrizacaoOcorrencia com o UUID {parametrizacao_uuid} não foi encontrada"
+                }
+            )
+
+        ocorrencia_data_["parametrizacao"] = parametrizacao.pk
+
+        response_model_class_name = (
+            parametrizacao.tipo_pergunta.get_model_tipo_resposta().__name__
+        )
+        response_serializer = _obter_serializer_class_por_nome(
+            f"{response_model_class_name}CreateSerializer"
+        )
+
+        serializer = response_serializer(data=ocorrencia_data_)
+        if serializer.is_valid():
+            serializer.save()
+        else:
+            raise serializers.ValidationError(
+                {"parametrizacao": parametrizacao.uuid, "error": serializer.errors}
+            )
+
+
 class FormularioDiretorCreateSerializer(serializers.ModelSerializer):
     data = serializers.DateField(required=True, allow_null=True)
     solicitacao_medicao_inicial = serializers.SlugRelatedField(
@@ -571,51 +613,148 @@ class FormularioDiretorCreateSerializer(serializers.ModelSerializer):
         )
         self._create_ocorrencias(ocorrencias, form_base)
 
+        if ocorrencias:
+            self._marcar_solicitacao_com_ocorrencias(solicitacao_medicao_inicial)
+
         return form_diretor
 
+    def _marcar_solicitacao_com_ocorrencias(self, solicitacao_medicao_inicial):
+        if solicitacao_medicao_inicial.com_ocorrencias:
+            return
+
+        solicitacao_medicao_inicial.com_ocorrencias = True
+        solicitacao_medicao_inicial.save(update_fields=["com_ocorrencias"])
+
     def get_serializer_class_by_name(self, name):
-        serializer_class = globals().get(name)
-        if serializer_class is None:
-            raise ValueError(f"Nenhum serializer encontrado com o nome '{name}'")
-        return serializer_class
+        return _obter_serializer_class_por_nome(name)
 
     def _create_ocorrencias(self, ocorrencias_data, form_base):
-        for ocorrencia_data in ocorrencias_data:
-            ocorrencia_data_ = copy.deepcopy(ocorrencia_data)
-            ocorrencia_data_["formulario_base"] = form_base.pk
-            parametrizacao_UUID = ocorrencia_data_["parametrizacao"]
-
-            try:
-                parametrizacao = ParametrizacaoOcorrencia.objects.get(
-                    uuid=parametrizacao_UUID
-                )
-            except ParametrizacaoOcorrencia.DoesNotExist:
-                raise serializers.ValidationError(
-                    {
-                        "detail": f"ParametrizacaoOcorrencia com o UUID {parametrizacao_UUID} não foi encontrada"
-                    }
-                )
-
-            ocorrencia_data_["parametrizacao"] = parametrizacao.pk
-
-            response_model_class_name = (
-                parametrizacao.tipo_pergunta.get_model_tipo_resposta().__name__
-            )
-            response_serializer = self.get_serializer_class_by_name(
-                f"{response_model_class_name}CreateSerializer"
-            )
-
-            serializer = response_serializer(data=ocorrencia_data_)
-            if serializer.is_valid():
-                serializer.save()
-            else:
-                raise serializers.ValidationError(
-                    {"parametrizacao": parametrizacao.uuid, "error": serializer.errors}
-                )
+        salvar_respostas_ocorrencia(ocorrencias_data, form_base)
 
     class Meta:
         model = FormularioDiretor
         exclude = ("id",)
+
+
+class AtualizacaoOcorrenciaDiretorSerializer(serializers.Serializer):
+    tipo_ocorrencia = serializers.SlugRelatedField(
+        slug_field="uuid",
+        required=True,
+        queryset=TipoOcorrencia.objects.all(),
+    )
+    grupo = serializers.IntegerField(min_value=1)
+    data = serializers.DateField(input_formats=[FORMATO_DATA_BRASILEIRO])
+    ocorrencias = serializers.ListField(required=True, allow_empty=False)
+
+    def validate(self, attrs):
+        formulario = self.context["formulario"]
+        data = attrs["data"]
+
+        self._valida_data_no_periodo_da_medicao(
+            data, formulario.solicitacao_medicao_inicial
+        )
+        self._valida_data_duplicada(data, formulario, attrs["tipo_ocorrencia"])
+        self._valida_parametrizacoes(
+            attrs["ocorrencias"], attrs["tipo_ocorrencia"], attrs["grupo"]
+        )
+
+        return attrs
+
+    def _valida_data_no_periodo_da_medicao(self, data, solicitacao):
+        competencia = (int(solicitacao.mes), int(solicitacao.ano))
+
+        if (data.month, data.year) != competencia:
+            raise serializers.ValidationError(
+                {
+                    "data": [
+                        StringsValidationErrors.DATA_FORA_DA_COMPETENCIA_DA_MEDICAO.value
+                    ]
+                }
+            )
+
+        if data >= datetime.date.today():
+            raise serializers.ValidationError(
+                {"data": [StringsValidationErrors.DATA_DE_OCORRENCIA_FUTURA.value]}
+            )
+
+    def _valida_data_duplicada(self, data, formulario, tipo_ocorrencia):
+        outros_formularios = (
+            FormularioDiretor.objects.filter(
+                solicitacao_medicao_inicial__escola=formulario.solicitacao_medicao_inicial.escola,
+                formulario_base__data=data,
+            )
+            .exclude(pk=formulario.pk)
+            .select_related("formulario_base")
+        )
+
+        for outro_formulario in outros_formularios:
+            respostas = outro_formulario.formulario_base.buscar_respostas()
+            if any(
+                resposta.parametrizacao.tipo_ocorrencia_id == tipo_ocorrencia.pk
+                for resposta in respostas
+            ):
+                raise serializers.ValidationError(
+                    {
+                        "data": [
+                            StringsValidationErrors.DATA_DE_OCORRENCIA_DUPLICADA.value
+                        ]
+                    }
+                )
+
+    def _valida_parametrizacoes(self, ocorrencias, tipo_ocorrencia, grupo):
+        parametrizacoes = {
+            str(parametrizacao.uuid)
+            for parametrizacao in ParametrizacaoOcorrencia.objects.filter(
+                tipo_ocorrencia=tipo_ocorrencia
+            )
+        }
+
+        for ocorrencia in ocorrencias:
+            parametrizacao = str(ocorrencia.get("parametrizacao", ""))
+
+            if parametrizacao not in parametrizacoes:
+                raise serializers.ValidationError(
+                    {
+                        "ocorrencias": [
+                            f"A parametrização {parametrizacao} não pertence ao tipo de ocorrência informado"
+                        ]
+                    }
+                )
+
+            if ocorrencia.get("grupo", grupo) != grupo:
+                raise serializers.ValidationError(
+                    {
+                        "ocorrencias": [
+                            "Todas as respostas devem pertencer ao grupo informado"
+                        ]
+                    }
+                )
+
+    def update(self, instance, validated_data):
+        form_base = instance.formulario_base
+        tipo_ocorrencia = validated_data["tipo_ocorrencia"]
+        grupo = validated_data["grupo"]
+
+        if form_base.data != validated_data["data"]:
+            form_base.data = validated_data["data"]
+            form_base.save(update_fields=["data", "alterado_em"])
+
+        for resposta in form_base.buscar_respostas():
+            if (
+                resposta.parametrizacao.tipo_ocorrencia_id == tipo_ocorrencia.pk
+                and resposta.grupo == grupo
+            ):
+                resposta.delete()
+
+        OcorrenciaNaoSeAplica.objects.filter(
+            formulario_base=form_base,
+            tipo_ocorrencia=tipo_ocorrencia,
+            grupo=grupo,
+        ).delete()
+
+        salvar_respostas_ocorrencia(validated_data["ocorrencias"], form_base)
+
+        return instance
 
 
 class FormularioDiretorManyCreateSerializer(serializers.Serializer):

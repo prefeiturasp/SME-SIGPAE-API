@@ -177,5 +177,5 @@ def test_checa_senha(users_admin_escola):
 
 def test_checa_senha_incorreta(users_admin_escola):
     _, _, _, _, usuario = users_admin_escola
-    with pytest.raises(ValidationError, match=f"Senha atual incorreta"):
+    with pytest.raises(ValidationError, match="Senha atual incorreta"):
         checa_senha(usuario, usuario.password)

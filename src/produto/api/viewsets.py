@@ -1056,19 +1056,17 @@ class HomologacaoProdutoViewSet(
                     anexos=ultima_reclamacao.anexos.all(),
                     justificativa=ultima_reclamacao.reclamacao,
                 )
-            elif (
-                log_anterior_pedido_analise.status_evento
-                == status["Solicitação Realizada"]
-            ):
-                homologacao_produto.inicia_fluxo(
-                    user=log_anterior_pedido_analise.usuario
-                )
             elif homologacao_produto.esta_homologado():
                 homologacao_produto.codae_homologa(
                     user=log_anterior_pedido_analise.usuario,
                     anexos=log_anterior_pedido_analise.anexos.all(),
                     justificativa=log_anterior_pedido_analise.justificativa,
                     nao_enviar_email=True,
+                )
+            else:
+                # Caso em que não é produto já homologado e nem reclamado
+                homologacao_produto.inicia_fluxo(
+                    user=log_anterior_pedido_analise.usuario
                 )
 
             homologacao_produto.protocolo_analise_sensorial = ""
@@ -2759,11 +2757,15 @@ class ProdutosEditaisViewSet(viewsets.ModelViewSet):
                 == ProdutoEdital.OPCOES_TIPO_PRODUTO[TIPO_PRODUTO_COMUM].lower()
             ):
                 queryset = queryset.filter(
-                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO[TIPO_PRODUTO_COMUM]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO[
+                        TIPO_PRODUTO_COMUM
+                    ]
                 )
             else:
                 queryset = queryset.exclude(
-                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO[TIPO_PRODUTO_COMUM]
+                    tipo_produto__icontains=ProdutoEdital.OPCOES_TIPO_PRODUTO[
+                        TIPO_PRODUTO_COMUM
+                    ]
                 )
             queryset = queryset.order_by("produto__nome", "produto__marca__nome")
             data = self.get_serializer(queryset, many=True).data

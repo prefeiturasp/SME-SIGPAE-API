@@ -20,6 +20,6 @@ def test_template_email_base():
         in html
     )
     assert (
-        f"Contamos com <b>você</b> para que o abastecimento da Rede Municipal de Ensino seja sempre um sucesso"
+        "Contamos com <b>você</b> para que o abastecimento da Rede Municipal de Ensino seja sempre um sucesso"
         in html
     )

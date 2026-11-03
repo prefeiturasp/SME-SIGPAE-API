@@ -400,3 +400,52 @@ class OcorrenciaNaoSeAplicaSerializer(serializers.ModelSerializer):
     class Meta:
         model = OcorrenciaNaoSeAplica
         exclude = ("id",)
+
+
+class ConsultaOcorrenciasDiretorSerializer(serializers.Serializer):
+    solicitacao_medicao_inicial = serializers.UUIDField()
+
+
+class ConsultaOcorrenciaDiretorSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField()
+    tipo_ocorrencia = serializers.UUIDField()
+    grupo = serializers.IntegerField(min_value=1)
+
+
+class RespostaOcorrenciaEdicaoSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField()
+    parametrizacao = serializers.UUIDField(allow_null=True)
+    titulo = serializers.CharField()
+    posicao = serializers.IntegerField(allow_null=True)
+    resposta = serializers.JSONField()
+
+
+class OcorrenciaDiretorRetrieveSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField()
+    solicitacao_medicao_inicial = serializers.UUIDField()
+    data = serializers.DateField(format=FORMATO_DATA_BRASILEIRO)
+    categoria = CategoriaOcorrenciaSerializer()
+    tipo_ocorrencia = serializers.UUIDField()
+    titulo = serializers.CharField()
+    descricao = serializers.CharField(allow_blank=True)
+    grupo = serializers.IntegerField()
+    respostas = RespostaOcorrenciaEdicaoSerializer(many=True)
+
+
+class RespostaOcorrenciaDiretorSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField()
+    parametrizacao = serializers.UUIDField(allow_null=True)
+    titulo = serializers.CharField()
+    posicao = serializers.IntegerField(allow_null=True)
+    resposta = serializers.CharField(allow_blank=True)
+
+
+class FormularioDiretorListagemSerializer(serializers.Serializer):
+    uuid = serializers.UUIDField()
+    data = serializers.DateField(format=FORMATO_DATA_BRASILEIRO)
+    categoria = CategoriaOcorrenciaSerializer()
+    tipo_ocorrencia = serializers.UUIDField()
+    titulo = serializers.CharField()
+    descricao = serializers.CharField(allow_blank=True)
+    grupo = serializers.IntegerField(allow_null=True)
+    respostas = RespostaOcorrenciaDiretorSerializer(many=True)

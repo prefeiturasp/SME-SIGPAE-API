@@ -81,13 +81,13 @@ def test_validate_aceita_sem_duplicidade(monta_payload, serializer_create):
 
 
 def test_validate_bloqueia_duplicidade(
-    grupo_criado_informado, monta_payload, serializer_create
+    grupo_criado_informado, monta_payload, serializer_create, data_suspensao
 ):
     ser = serializer_create(monta_payload())
     assert not ser.is_valid()
     assert "message" in ser.errors
     assert "conflitos" in ser.errors
-    assert ser.errors["conflitos"][0]["data"] == "2026-10-30"
+    assert ser.errors["conflitos"][0]["data"] == data_suspensao.isoformat()
 
 
 def test_validate_libera_outro_periodo(
@@ -103,4 +103,3 @@ def test_validate_update_ignora_o_proprio_registro(
 ):
     ser = serializer_create(monta_payload(), instance=grupo_criado_informado)
     assert ser.is_valid(), ser.errors
-

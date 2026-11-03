@@ -1,8 +1,40 @@
 @import "../variaveis";
 
 @page {
-  margin-top: 0.4cm !important;
-  padding-top: 6.3cm !important;
+  margin-top: 1.4cm !important;
+  padding-top: 0 !important;
+
+  @top-center {
+    content: element(topo-ficha);
+    width: 100%;
+  }
+}
+
+header {
+  position: static !important;
+  margin-top: 0 !important;
+  margin-bottom: 0.5cm;
+  padding-top: 0 !important;
+
+  .titulo-e-logo {
+    position: running(topo-ficha);
+    background: $cinza-claro;
+    padding: 0.5em 2em;
+  }
+}
+
+.documento-ficha {
+  width: 100%;
+  border-collapse: collapse;
+
+  thead {
+    display: table-header-group;
+  }
+
+  > thead > tr > td,
+  > tbody > tr > td {
+    padding: 0;
+  }
 }
 
 .page-container {

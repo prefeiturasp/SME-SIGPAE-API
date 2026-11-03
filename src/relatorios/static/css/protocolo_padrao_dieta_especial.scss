@@ -1,0 +1,199 @@
+@import "variaveis";
+
+@page {
+  size: A4;
+  margin: 38mm 0 18mm;
+
+  @top-center {
+    content: element(cabecalho);
+    width: 100%;
+    vertical-align: top;
+  }
+
+  @bottom-left {
+    content: "";
+    width: 40%;
+    height: 11mm;
+    margin-top: 7mm;
+    background: $cinza-claro;
+  }
+
+  @bottom-center {
+    content: counter(page) "/" counter(pages);
+    width: 20%;
+    height: 11mm;
+    margin-top: 7mm;
+    background: $cinza-claro;
+    color: $preto;
+    font-family: "Roboto", sans-serif;
+    font-size: 14px;
+    vertical-align: middle;
+  }
+
+  @bottom-right {
+    content: element(rodape-data-geracao);
+    width: 40%;
+    height: 11mm;
+    margin-top: 7mm;
+    background: $cinza-claro;
+    vertical-align: middle;
+  }
+}
+
+.protocolo-padrao-dieta-especial {
+  margin: 0;
+  color: #333;
+  font-family: Arial, sans-serif;
+  font-size: 10pt;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  .header {
+    position: running(cabecalho);
+    height: auto;
+    font-family: "Roboto", sans-serif;
+
+    .subtitulo {
+      margin: 8px 0 0;
+      padding: 8px;
+      border: 1px solid $cinza-meio-escuro;
+      border-radius: 3px;
+      background: $branco;
+      font-size: 12px;
+      font-weight: normal;
+      line-height: 16px;
+    }
+  }
+
+  main {
+    padding: 0 2em;
+  }
+
+  .rodape-data-geracao {
+    position: running(rodape-data-geracao);
+    padding-right: 2em;
+    color: $preto;
+    font-family: "Roboto", sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+    text-align: right;
+  }
+
+  main h2 {
+    margin: 0 0 3mm;
+    font-size: 10pt;
+    break-after: avoid;
+  }
+
+  p {
+    margin: 0 0 3mm;
+    orphans: 3;
+    widows: 3;
+  }
+
+  .secao {
+    margin-bottom: 6mm;
+  }
+
+  .nome-protocolo,
+  .orientacoes-gerais {
+    white-space: pre-wrap;
+  }
+
+  .orientacoes-gerais {
+    img {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    table {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 2mm;
+      border: 1px solid #999;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  .tabela-substituicoes {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    color: $cinza-meio-escuro;
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 16px;
+
+    .coluna-alimento,
+    .coluna-tipo,
+    .coluna-substitutos {
+      width: 33.3333%;
+    }
+
+    thead {
+      display: table-header-group;
+    }
+
+    tbody,
+    tr {
+      break-inside: avoid;
+    }
+
+    th,
+    td {
+      border: 0;
+      border-bottom: 1px solid $cinza;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+
+    th {
+      padding: 12px 5px;
+      background-color: $cinza;
+      color: $branco;
+    }
+
+    td {
+      padding: 8px 5px;
+    }
+
+    .lista-substitutos {
+      padding: 0;
+      list-style: none;
+    }
+  }
+
+  .lista-substitutos,
+  .lista-editais {
+    margin: 0;
+    padding-left: 5mm;
+
+    li {
+      margin-bottom: 1mm;
+      break-inside: avoid;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .ultima-atualizacao {
+    break-inside: avoid;
+  }
+
+  .titulo-e-logo .titulo {
+    font-size: 15px;
+    line-height: 20px;
+  }
+}

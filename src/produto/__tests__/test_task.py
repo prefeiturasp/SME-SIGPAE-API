@@ -14,12 +14,12 @@ from src.produto.api.serializers.serializers import (
 from src.produto.models import HomologacaoProduto, Produto
 from src.produto.tasks import (
     gera_excel_relatorio_reclamacao_produtos_async,
-    gera_pdf_relatorio_produtos_homologados_async,
+    gera_pdf_relatorio_historico_produto_async,
     gera_pdf_relatorio_produto_async,
+    gera_pdf_relatorio_produtos_homologados_async,
     gera_pdf_relatorio_reclamacao_produtos_async,
     gera_xls_relatorio_produtos_homologados_async,
     gera_xls_relatorio_produtos_suspensos_async,
-    gera_pdf_relatorio_historico_produto_async,
 )
 
 pytestmark = pytest.mark.django_db
@@ -39,7 +39,7 @@ def test_gera_xls_relatorio_produtos_homologados_async(
 
     resultado = gera_xls_relatorio_produtos_homologados_async.delay(
         user=usuario.username,
-        nome_arquivo=f"relatorio_produtos_homologados.xlsx",
+        nome_arquivo="relatorio_produtos_homologados.xlsx",
         data=request_data,
         perfil_nome=usuario.vinculo_atual.perfil.nome,
         tipo_usuario=usuario.tipo_usuario,
@@ -69,7 +69,7 @@ def test_gera_pdf_relatorio_produtos_homologados_async(
 
     resultado = gera_pdf_relatorio_produtos_homologados_async.delay(
         user=usuario.username,
-        nome_arquivo=f"relatorio_produtos_homologados.xlsx",
+        nome_arquivo="relatorio_produtos_homologados.xlsx",
         data=request_data,
         perfil_nome=usuario.vinculo_atual.perfil.nome,
         tipo_usuario=usuario.tipo_usuario,
@@ -344,9 +344,7 @@ def test_gera_pdf_relatorio_produto_async(
         produto=produto,
     )
 
-    central_download = CentralDeDownload.objects.get(
-        identificador=nome_arquivo
-    )
+    central_download = CentralDeDownload.objects.get(identificador=nome_arquivo)
     central_download.arquivo.open("rb")
 
     assert central_download.status == CentralDeDownload.STATUS_CONCLUIDO
@@ -383,9 +381,7 @@ def test_gera_pdf_relatorio_produto_async_erro(
         produto=produto,
     )
 
-    central_download = CentralDeDownload.objects.get(
-        identificador=nome_arquivo
-    )
+    central_download = CentralDeDownload.objects.get(identificador=nome_arquivo)
 
     assert central_download.status == CentralDeDownload.STATUS_ERRO
     assert not central_download.arquivo

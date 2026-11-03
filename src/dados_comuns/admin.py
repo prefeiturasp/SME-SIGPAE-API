@@ -21,6 +21,8 @@ class ContatoAdmin(admin.ModelAdmin):
 @admin.register(CentralDeDownload)
 class CentralDeDownloadAdmin(admin.ModelAdmin):
     list_display = ("identificador", "status", "criado_em", "visto")
+    list_filter = ("status",)
+    search_fields = ("identificador",)
     readonly_fields = (
         "uuid",
         "id",

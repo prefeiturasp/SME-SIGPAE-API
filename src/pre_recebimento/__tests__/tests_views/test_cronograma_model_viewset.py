@@ -52,7 +52,7 @@ def test_post_cronogramas(
         "programacoes_de_recebimento": [{}],
         "password": DJANGO_ADMIN_PASSWORD,
     }
-    response = client.post(f"/cronogramas/", payload)
+    response = client.post("/cronogramas/", payload)
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -320,7 +320,7 @@ def test_post_cronograma_ponto_a_ponto(
     import json
 
     response = client.post(
-        f"/cronogramas/", json.dumps(payload), content_type="application/json"
+        "/cronogramas/", json.dumps(payload), content_type="application/json"
     )
 
     assert response.status_code == status.HTTP_201_CREATED, response.data

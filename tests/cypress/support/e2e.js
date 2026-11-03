@@ -169,3 +169,33 @@ import './step_definitions/fichas_de_recebimento'
 
 import './commands_api/commands_grupos_inclusao_alimentacao_normal'
 import './step_definitions/grupos_inclusao_alimentacao_normal'
+
+import './commands_api/commands_grupos_suspensoes_alimentacao'
+import './step_definitions/grupos_suspensoes_alimentacao'
+
+import './commands_api/commands_grupos_unidade_escolar'
+import './step_definitions/grupos_unidade_escolar'
+
+import './commands_api/commands_guias_da_requisicao'
+import './step_definitions/guias_da_requisicao'
+
+import './commands_api/commands_historico_escola'
+import './step_definitions/historico_escola'
+
+import './commands_api/commands_homologacoes_produtos'
+import './step_definitions/homologacoes_produtos'
+
+import './commands_api/commands_horario_combo_unidade_escolar'
+import './step_definitions/horario_combo_unidade_escolar'
+
+import './commands_api/commands_inclusao_alimentacao_cemei'
+import './step_definitions/inclusao_alimentacao_cemei'
+
+import './commands_api/commands_inclusao_alimentacao'
+import './step_definitions/inclusao_alimentacao'
+
+import './commands_api/commands_inclusoes_alimentacao_continua'
+import './step_definitions/inclusoes_alimentacao_continua'
+
+import './commands_api/commands_inclusoes_alimentacao_da_cei'
+import './step_definitions/inclusoes_alimentacao_da_cei'

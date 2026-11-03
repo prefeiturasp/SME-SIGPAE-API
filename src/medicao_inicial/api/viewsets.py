@@ -49,6 +49,10 @@ from src.medicao_inicial.services.relatorio_alimentacoes_servidas_dados import (
     obtem_nome_arquivo_relatorio_alimentacoes_servidas,
     recreios_dos_filtros,
 )
+from src.medicao_inicial.services.relatorio_ateste_financeiro import (
+    montar_relatorio_calculado,
+    parametrizacao_possui_reajuste,
+)
 from src.medicao_inicial.utils import process_anexos_from_request
 
 from ...cardapio.base.models import TipoAlimentacao
@@ -2778,7 +2782,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             | UsuarioDinutreDiretoria
         ],
     )
-    def relatorio_consolidado(self, _, uuid_relatorio_financeiro):
+    def relatorio_consolidado(self, request, uuid_relatorio_financeiro):
         """Retorna os dados consolidados do relatório financeiro.
 
         Busca o relatório financeiro pelo UUID e identifica a
@@ -2791,13 +2795,15 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         possui data final.
 
         Args:
-            _: Argumento da requisição HTTP, não utilizado pelo método.
+            request: Requisição HTTP. Com ``incluir_calculos=true``,
+                a resposta inclui a chave ``calculos``.
             uuid_relatorio_financeiro: UUID do relatório financeiro que
                 será consultado.
 
         Returns:
             Response: Resposta HTTP contendo os dados da parametrização
-                financeira, o UUID do lote e o mês/ano de referência.
+                financeira, o UUID do lote, o mês/ano de referência e
+                ``possui_reajuste``.
 
         Raises:
             Exception: Retorna HTTP 400 caso ocorra um erro durante o
@@ -2839,7 +2845,13 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 **DadosParametrizacaoFinanceiraSerializer(parametrizacao).data,
                 "lote": parametrizacao.lote.uuid,
                 "mes_ano": f"{relatorio_financeiro.mes}_{relatorio_financeiro.ano}",
+                "possui_reajuste": parametrizacao_possui_reajuste(parametrizacao),
             }
+
+            if request.query_params.get("incluir_calculos", "").lower() == "true":
+                response["calculos"] = montar_relatorio_calculado(
+                    relatorio_financeiro, parametrizacao
+                )
 
             return Response(
                 data=response,
@@ -2919,7 +2931,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
 
         Localiza o relatório financeiro pelo UUID e identifica as
         solicitações de medição aprovadas pela CODAE no mês e ano de
-        referência do relatório.
+        referência do relatório, restritas ao lote desse relatório.
 
         As solicitações são posteriormente filtradas pelas unidades
         educacionais informadas na requisição, quando houver. O
@@ -2970,6 +2982,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             filtros_relatorio = {
                 "mes": relatorio_financeiro.mes,
                 "ano": relatorio_financeiro.ano,
+                "escola__lote": relatorio_financeiro.lote,
                 "status": SolicitacaoMedicaoInicial.workflow_class.MEDICAO_APROVADA_PELA_CODAE,
             }
 

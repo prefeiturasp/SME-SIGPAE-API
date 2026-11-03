@@ -30,7 +30,6 @@ class EscolaAbertaUnidadeParticipante(TemChaveExterna, CriadoEm, TemAlteradoEm):
     )
     lote = models.ForeignKey(Lote, on_delete=models.PROTECT)
     unidade_educacional = models.ForeignKey(Escola, on_delete=models.PROTECT)
-    # preenchido depois, direto na tabela (outra história)
     num_participantes = models.PositiveIntegerField(null=True, blank=True)
     tipos_alimentacao = models.ManyToManyField(
         TipoAlimentacao, related_name="escolas_abertas_unidades"

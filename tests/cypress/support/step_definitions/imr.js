@@ -19,8 +19,8 @@ function permissao(response) {
 function obterUuidCatalogo(consulta) {
 	return consulta('').then((response) => {
 		expect([200, 403]).to.include(response.status)
-		if (response.status === 403 || !response.body.results.length) return null
-		return response.body.results[0].uuid
+		if (response.status === 200) expect(response.body.results, 'catalogo IMR disponivel em QA').to.be.an('array').and.not.be.empty
+		return response
 	})
 }
 
@@ -28,18 +28,9 @@ function obterUuidFormulario() {
 	return cy.consultar_imr_formulario_supervisao_por_status('EM_PREENCHIMENTO')
 		.then((response) => {
 			expect([200, 403]).to.include(response.status)
-			if (response.status === 403 || !response.body.results.length) return []
-			return response.body.results.map((formulario) => formulario.uuid)
-		})
-}
-
-function consultarPrimeiroFormularioValido(uuids, consulta, indice = 0) {
-	return consulta(uuids[indice]).then((response) => {
-		if ([200, 403].includes(response.status) || indice === uuids.length - 1) {
+			if (response.status === 200) expect(response.body.results, 'formulario IMR disponivel em QA').to.be.an('array').and.not.be.empty
 			return response
-		}
-		return consultarPrimeiroFormularioValido(uuids, consulta, indice + 1)
-	})
+		})
 }
 
 Given('que estou autenticado como CODAE para consultar IMR', () => {
@@ -57,9 +48,13 @@ When('consulto o catalogo IMR {string} com identificador {string}', function (ca
 		consulta(uuidInvalido).then((response) => { this.response = response })
 		return
 	}
-	obterUuidCatalogo(consulta).then((uuid) => {
-		if (uuid) consulta(uuid).then((response) => { this.response = response })
-		else this.response = { status: 403, body: { detail: 'Sem permissao ou massa' } }
+	obterUuidCatalogo(consulta).then((response) => {
+		if (response.status === 403) {
+			this.response = response
+			return
+		}
+		this.uuidReferenciaIMR = response.body.results[0].uuid
+		return consulta(this.uuidReferenciaIMR).then((detalhe) => { this.response = detalhe })
 	})
 })
 
@@ -78,6 +73,7 @@ Then('o catalogo IMR retorna {string}', function (resultado) {
 		expect(this.response.body).to.have.property('results').that.is.an('array')
 	} else {
 		expect(this.response.body).to.include.all.keys('nome', 'criado_em', 'alterado_em', 'uuid')
+		expect(this.response.body.uuid).to.eq(this.uuidReferenciaIMR)
 	}
 })
 
@@ -118,12 +114,14 @@ When('consulto o recurso de formulario IMR {string} com UUID {string}', function
 		executar(uuidInvalido)
 		return
 	}
-	obterUuidFormulario().then((uuids) => {
-		if (uuids.length) {
-			consultarPrimeiroFormularioValido(uuids, consultas[recurso])
-				.then((response) => { this.response = response })
+	obterUuidFormulario().then((response) => {
+		if (response.status === 403) {
+			this.response = response
+			return
 		}
-		else this.response = { status: 403, body: { detail: 'Sem permissao ou massa' } }
+		this.uuidFormularioIMR = response.body.results[0].uuid
+		this.recursoFormularioIMR = recurso
+		return consultas[recurso](this.uuidFormularioIMR).then((detalhe) => { this.response = detalhe })
 	})
 })
 
@@ -134,7 +132,10 @@ Then('o recurso de formulario IMR retorna {string}', function (resultado) {
 		expect([200, 403]).to.include(this.response.status)
 	}
 	if (this.response.status === 403) permissao(this.response)
-	if (this.response.status === 200) expect(this.response.body).to.exist
+	if (this.response.status === 200) {
+		if (this.recursoFormularioIMR === 'formulario') expect(this.response.body.uuid).to.eq(this.uuidFormularioIMR)
+		else expect(this.response.body).to.be.an('array')
+	}
 })
 
 When('consulto a consulta auxiliar IMR {string}', function (consulta) {
@@ -152,4 +153,38 @@ Then('a consulta auxiliar IMR retorna lista ou permissao negada', function () {
 		return
 	}
 	expect(this.response.body).to.have.property('results').that.is.an('array')
+})
+
+When('executo {string} em IMR na rota {string} com acesso {string}', function (method, caminho, acesso) {
+	const opcoes = { method, caminho, body: ['POST', 'PUT', 'PATCH'].includes(method) ? {} : undefined }
+	if (acesso === 'autenticado') {
+		const perfil = caminho.startsWith('formulario-diretor/') ? 'usuario_diretor_ue' : 'usuario_coordenador_supervisao_nutricao'
+		expect(Cypress.env(perfil), 'credencial do perfil IMR').to.be.a('string').and.not.be.empty
+		return cy.autenticar_login(Cypress.env(perfil), Cypress.env('senha'))
+			.then(() => cy.executar_imr(opcoes)).then((response) => { this.response = response })
+	}
+	cy.clearCookies()
+	return cy.executar_imr({ ...opcoes, token: acesso === 'ausente' ? null : 'token-invalido' })
+		.then((response) => { this.response = response })
+})
+
+Then('IMR retorna status {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if (status === 401) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
+
+When('consulto IMR na rota {string} com parametro {string} igual a {string}', function (caminho, parametro, valor) {
+	const perfil = caminho.startsWith('formulario-diretor/') ? 'usuario_diretor_ue' : 'usuario_coordenador_supervisao_nutricao'
+	expect(Cypress.env(perfil), 'credencial do perfil IMR').to.be.a('string').and.not.be.empty
+	return cy.autenticar_login(Cypress.env(perfil), Cypress.env('senha'))
+		.then(() => cy.executar_imr({ caminho, qs: { [parametro]: valor } }))
+		.then((response) => { this.response = response })
+})
+
+Then('IMR retorna resultados vazios', function () {
+	expect(this.response.body.results).to.deep.eq([])
+})
+
+Then('IMR informa erro no campo {string}', function (campo) {
+	expect(this.response.body[campo], campo).to.be.an('array').and.not.be.empty
 })

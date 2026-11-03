@@ -48,8 +48,6 @@ def _preenche_template_e_envia_email_ue_cancela_parcialmente(
         assunto=assunto,
         corpo="",
         emails=partes_interessadas,
-        template="fluxo_ue_cancela.html",
-        dados_template=dados_template,
         html=html,
     )
 
@@ -97,8 +95,6 @@ def _preenche_template_e_envia_email_codae_atualiza_protocolo(
         assunto=assunto,
         corpo="",
         emails=partes_interessadas,
-        template="fluxo_codae_atualiza_dieta_autorizada.html",
-        dados_template=dados_template,
         html=html,
     )
 

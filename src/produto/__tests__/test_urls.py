@@ -176,6 +176,147 @@ def test_url_endpoint_homologacao_produto_codae_pede_analise_sensorial(
     assert len(response.json().get("results")) == 1
 
 
+def _pede_analise_sensorial(client, homologacao_produto):
+    return client.patch(
+        f"/homologacoes-produtos/{homologacao_produto.uuid}/"
+        f"{constants.CODAE_PEDE_ANALISE_SENSORIAL}/",
+        content_type="application/json",
+        data=json.dumps(
+            {
+                "justificativa": "Favor enviar amostra",
+                "uuidTerceirizada": str(homologacao_produto.rastro_terceirizada.uuid),
+            }
+        ),
+    )
+
+
+def _cancela_analise_sensorial(client, homologacao_produto):
+    return client.patch(
+        f"/homologacoes-produtos/{homologacao_produto.uuid}/"
+        f"{constants.CODAE_CANCELA_ANALISE_SENSORIAL}/",
+        content_type="application/json",
+        data=json.dumps({"justificativa": "Análise não é mais necessária"}),
+    )
+
+
+def test_url_endpoint_homologacao_produto_codae_cancela_analise_sensorial(
+    client_autenticado_vinculo_codae_produto, homologacao_produto, user
+):
+    """Cancelar a análise devolve o produto para pendente de homologação."""
+    homologacao_produto.inicia_fluxo(user=user)
+
+    assert (
+        _pede_analise_sensorial(
+            client_autenticado_vinculo_codae_produto, homologacao_produto
+        ).status_code
+        == status.HTTP_200_OK
+    )
+
+    response = _cancela_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    homologacao_produto.refresh_from_db()
+    assert (
+        homologacao_produto.status
+        == HomologacaoProdutoWorkflow.CODAE_PENDENTE_HOMOLOGACAO
+    )
+
+
+def test_url_endpoint_homologacao_produto_codae_cancela_analise_sensorial_apos_resposta(
+    client_autenticado_vinculo_codae_produto, homologacao_produto, user
+):
+    """O cancelamento devolve para pendente mesmo com uma análise já
+    respondida no histórico.
+    """
+    homologacao_produto.inicia_fluxo(user=user)
+    _pede_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    homologacao_produto.refresh_from_db()
+    homologacao_produto.terceirizada_responde_analise_sensorial(
+        user=user, justificativa="Amostra enviada"
+    )
+
+    _pede_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    response = _cancela_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    homologacao_produto.refresh_from_db()
+    assert (
+        homologacao_produto.status
+        == HomologacaoProdutoWorkflow.CODAE_PENDENTE_HOMOLOGACAO
+    )
+
+
+def test_url_endpoint_homologacao_produto_codae_cancela_analise_sensorial_homologado(
+    client_autenticado_vinculo_codae_produto, homologacao_produto, user
+):
+    """Produto já homologado volta a homologado ao cancelar a análise."""
+    homologacao_produto.inicia_fluxo(user=user)
+    homologacao_produto.codae_homologa(user=user, nao_enviar_email=True)
+
+    _pede_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    response = _cancela_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    homologacao_produto.refresh_from_db()
+    assert homologacao_produto.status == HomologacaoProdutoWorkflow.CODAE_HOMOLOGADO
+
+
+def test_url_endpoint_homologacao_produto_codae_cancela_analise_sensorial_com_reclamacao(
+    client_autenticado_vinculo_codae_produto, reclamacao, user
+):
+    """Produto com reclamação volta para reclamado, e a reclamação volta a
+    aguardar avaliação."""
+    from ...dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
+
+    homologacao_produto = reclamacao.homologacao_produto
+    homologacao_produto.escola_ou_nutricionista_reclamou(
+        user=user,
+        reclamacao={"reclamacao": "Produto fora do padrão"},
+        nao_enviar_email=True,
+    )
+
+    resposta_pedido = client_autenticado_vinculo_codae_produto.patch(
+        f"/reclamacoes-produtos/{reclamacao.uuid}/"
+        f"{constants.CODAE_PEDE_ANALISE_SENSORIAL}/",
+        content_type="application/json",
+        data=json.dumps(
+            {
+                "justificativa": "Favor enviar amostra",
+                "uuidTerceirizada": str(homologacao_produto.rastro_terceirizada.uuid),
+            }
+        ),
+    )
+    assert resposta_pedido.status_code == status.HTTP_200_OK
+
+    response = _cancela_analise_sensorial(
+        client_autenticado_vinculo_codae_produto, homologacao_produto
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    homologacao_produto.refresh_from_db()
+    reclamacao.refresh_from_db()
+    assert (
+        homologacao_produto.status
+        == HomologacaoProdutoWorkflow.ESCOLA_OU_NUTRICIONISTA_RECLAMOU
+    )
+    assert reclamacao.status == ReclamacaoProdutoWorkflow.AGUARDANDO_AVALIACAO
+
+
 def test_url_endpoint_homologacao_produto_codae_pede_analise_sensorial_reclamacao_homologado(
     client_autenticado_vinculo_codae_produto, reclamacao
 ):
@@ -1990,7 +2131,7 @@ def test_url_lista_fabricantes_nova_reclamacao(
     client_autenticado_vinculo_codae_produto, produtos_edital_41
 ):
     response = client_autenticado_vinculo_codae_produto.get(
-        f"/fabricantes/lista-nomes-nova-reclamacao/", content_type="application/json"
+        "/fabricantes/lista-nomes-nova-reclamacao/", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
     dados = response.json()
@@ -2003,7 +2144,7 @@ def test_url_lista_fabricantes_nova_reclamacao_com_filtro_edital(
     client_autenticado_vinculo_codae_produto, produtos_edital_41
 ):
     response = client_autenticado_vinculo_codae_produto.get(
-        f"/fabricantes/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        "/fabricantes/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
@@ -2042,7 +2183,7 @@ def test_url_lista_produtos_nova_reclamacao(
     client_autenticado_vinculo_codae_produto, produtos_edital_41
 ):
     response = client_autenticado_vinculo_codae_produto.get(
-        f"/produtos/lista-nomes-nova-reclamacao/", content_type="application/json"
+        "/produtos/lista-nomes-nova-reclamacao/", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
     dados = response.json()
@@ -2054,7 +2195,7 @@ def test_url_lista_produtos_nova_reclamacao_com_filtro_edital(
     client_autenticado_vinculo_codae_produto, produtos_edital_41
 ):
     response = client_autenticado_vinculo_codae_produto.get(
-        f"/produtos/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
+        "/produtos/lista-nomes-nova-reclamacao/?nome_edital=Edital de Pregão nº 78/sme/2022",
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK
@@ -2067,7 +2208,7 @@ def test_url_filtro_homologados_por_parametros(
     client_autenticado_vinculo_codae_produto, produtos_edital_41
 ):
     response = client_autenticado_vinculo_codae_produto.get(
-        f"/produtos/filtro-homologados-por-parametros/", content_type="application/json"
+        "/produtos/filtro-homologados-por-parametros/", content_type="application/json"
     )
     assert response.status_code == status.HTTP_200_OK
     produtos = response.json()
@@ -2108,7 +2249,7 @@ def test_url_filtro_homologados_por_parametros_com_aditivo(
     client_autenticado_vinculo_codae_produto, produtos_edital_41
 ):
     response = client_autenticado_vinculo_codae_produto.get(
-        f"/produtos/filtro-homologados-por-parametros/?aditivos=aditivoB",
+        "/produtos/filtro-homologados-por-parametros/?aditivos=aditivoB",
         content_type="application/json",
     )
     assert response.status_code == status.HTTP_200_OK

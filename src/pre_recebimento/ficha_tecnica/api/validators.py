@@ -323,11 +323,10 @@ class ServiceValidacaoCorrecaoFichaTecnica:
 
     def _campos_flv_aplicaveis(self):
         campos = {**self.CAMPOS_FLV}
-        if self._ficha_tecnica.eh_flv_ponto_a_ponto:
-            campos["fabricante_envasador_conferido"] = {
-                "obrigatorios": [],
-                "opcionais": ["fabricante", "envasador_distribuidor"],
-            }
+        campos["fabricante_envasador_conferido"] = {
+            "obrigatorios": [],
+            "opcionais": ["fabricante", "envasador_distribuidor"],
+        }
         return campos
 
     def _obter_collapses_com_correcao(self):

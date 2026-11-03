@@ -1,10 +1,12 @@
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.db.models import QuerySet
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
@@ -14,6 +16,7 @@ from src.dados_comuns.permissions import (
     UsuarioCODAENutriSupervisao,
     UsuarioEscolaTercTotal,
 )
+from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.terceirizada.models import Edital, Terceirizada
 
 from ...dados_comuns.constants import (
@@ -21,11 +24,13 @@ from ...dados_comuns.constants import (
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
+    StringsValidationErrors,
 )
 from ...dados_comuns.fluxo_status import FormularioSupervisaoWorkflow
 from ...escola.models import DiretoriaRegional, Escola
 from ..models import (
     Equipamento,
+    FormularioDiretor,
     FormularioSupervisao,
     Insumo,
     Mobiliario,
@@ -41,12 +46,16 @@ from ..tasks import (
 )
 from .filters import FormularioSupervisaoFilter
 from .serializers.serializers import (
+    ConsultaOcorrenciaDiretorSerializer,
+    ConsultaOcorrenciasDiretorSerializer,
     EquipamentoSerializer,
+    FormularioDiretorListagemSerializer,
     FormularioSupervisaoRetrieveSerializer,
     FormularioSupervisaoSerializer,
     FormularioSupervisaoSimplesSerializer,
     InsumoSerializer,
     MobiliarioSerializer,
+    OcorrenciaDiretorRetrieveSerializer,
     OcorrenciaNaoSeAplicaSerializer,
     PeriodoVisitaSerializer,
     ReparoEAdaptacaoSerializer,
@@ -56,9 +65,15 @@ from .serializers.serializers import (
     UtensilioMesaSerializer,
 )
 from .serializers.serializers_create import (
+    AtualizacaoOcorrenciaDiretorSerializer,
     FormularioDiretorManyCreateSerializer,
     FormularioSupervisaoCreateSerializer,
     FormularioSupervisaoRascunhoCreateSerializer,
+)
+from .services import (
+    excluir_ocorrencia_diretor,
+    listar_ocorrencias_diretor,
+    obter_ocorrencia_diretor,
 )
 
 
@@ -377,6 +392,120 @@ class FormularioDiretorModelViewSet(
             "list": FormularioSupervisaoSerializer,
             "retrieve": FormularioSupervisaoSerializer,
         }.get(self.action, FormularioDiretorManyCreateSerializer)
+
+    def list(self, request, *args, **kwargs):
+        consulta = ConsultaOcorrenciasDiretorSerializer(data=request.query_params)
+        consulta.is_valid(raise_exception=True)
+        solicitacao = get_object_or_404(
+            SolicitacaoMedicaoInicial,
+            uuid=consulta.validated_data["solicitacao_medicao_inicial"],
+            escola=request.user.vinculo_atual.instituicao,
+        )
+        formularios = (
+            FormularioDiretor.objects.filter(
+                solicitacao_medicao_inicial=solicitacao,
+                formulario_base__data__month=int(solicitacao.mes),
+                formulario_base__data__year=int(solicitacao.ano),
+            )
+            .select_related("formulario_base")
+            .order_by("-criado_em")
+        )
+        ocorrencias = listar_ocorrencias_diretor(formularios)
+        pagina = self.paginate_queryset(ocorrencias)
+        if pagina is not None:
+            serializer = FormularioDiretorListagemSerializer(pagina, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = FormularioDiretorListagemSerializer(ocorrencias, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        formulario, consulta = self._obter_formulario_por_consulta(
+            request, request.query_params.dict(), kwargs["uuid"]
+        )
+
+        tipo_ocorrencia = get_object_or_404(
+            TipoOcorrencia, uuid=consulta["tipo_ocorrencia"]
+        )
+        ocorrencia = obter_ocorrencia_diretor(
+            formulario, tipo_ocorrencia, consulta["grupo"]
+        )
+        if ocorrencia is None:
+            raise Http404
+
+        serializer = OcorrenciaDiretorRetrieveSerializer(ocorrencia)
+        return Response(serializer.data)
+
+    def _valida_escola_da_ocorrencia(self, request, formulario):
+        escola = request.user.vinculo_atual.instituicao
+        if formulario.solicitacao_medicao_inicial.escola != escola:
+            raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
+
+    def _obter_formulario_por_consulta(self, request, dados, uuid):
+        consulta = ConsultaOcorrenciaDiretorSerializer(data={**dados, "uuid": uuid})
+        consulta.is_valid(raise_exception=True)
+
+        formulario = get_object_or_404(
+            FormularioDiretor, uuid=consulta.validated_data["uuid"]
+        )
+        self._valida_escola_da_ocorrencia(request, formulario)
+
+        return formulario, consulta.validated_data
+
+    @transaction.atomic
+    def update(self, request, *args, **kwargs):
+        formulario, consulta = self._obter_formulario_por_consulta(
+            request,
+            {
+                "tipo_ocorrencia": request.data.get("tipo_ocorrencia"),
+                "grupo": request.data.get("grupo"),
+            },
+            kwargs["uuid"],
+        )
+
+        atualizacao = AtualizacaoOcorrenciaDiretorSerializer(
+            formulario,
+            data=request.data,
+            context={"formulario": formulario},
+        )
+        atualizacao.is_valid(raise_exception=True)
+
+        tipo_ocorrencia = atualizacao.validated_data["tipo_ocorrencia"]
+        grupo = atualizacao.validated_data["grupo"]
+
+        if obter_ocorrencia_diretor(formulario, tipo_ocorrencia, grupo) is None:
+            raise Http404
+
+        atualizacao.save()
+
+        ocorrencia = obter_ocorrencia_diretor(formulario, tipo_ocorrencia, grupo)
+        serializer = OcorrenciaDiretorRetrieveSerializer(ocorrencia)
+        return Response(serializer.data)
+
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        formulario, consulta = self._obter_formulario_por_consulta(
+            request,
+            {
+                "tipo_ocorrencia": request.query_params.get("tipo_ocorrencia"),
+                "grupo": request.query_params.get("grupo"),
+            },
+            kwargs["uuid"],
+        )
+
+        tipo_ocorrencia = get_object_or_404(
+            TipoOcorrencia, uuid=consulta["tipo_ocorrencia"]
+        )
+
+        if (
+            obter_ocorrencia_diretor(formulario, tipo_ocorrencia, consulta["grupo"])
+            is None
+        ):
+            raise Http404
+
+        excluir_ocorrencia_diretor(formulario, tipo_ocorrencia, consulta["grupo"])
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
     @action(
         detail=False,

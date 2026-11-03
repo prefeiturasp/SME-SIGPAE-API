@@ -234,8 +234,8 @@ def test_obter_produtos_ordenados_por_edital_e_reclamacoes_filtro_edital(
         "escola__lote__contratos_do_lote__encerrado": False,
     }
     filtro_homologacao = {
-        f"homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero__in": editais,
-        f"homologacao__reclamacoes__escola__lote__contratos_do_lote__encerrado": False,
+        "homologacao__reclamacoes__escola__lote__contratos_do_lote__edital__numero__in": editais,
+        "homologacao__reclamacoes__escola__lote__contratos_do_lote__encerrado": False,
     }
     qs = viewset.obter_produtos_ordenados_por_edital_e_reclamacoes(
         filtro_reclamacao, filtro_homologacao
