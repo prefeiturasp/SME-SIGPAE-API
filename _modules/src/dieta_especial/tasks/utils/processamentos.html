@@ -994,14 +994,14 @@
         <span class="n">dieta</span><span class="o">=</span><span class="n">dieta</span><span class="p">,</span>
         <span class="n">codigo_eol_aluno</span><span class="o">=</span><span class="n">dados</span><span class="p">[</span><span class="s2">"codigo_eol_aluno"</span><span class="p">],</span>
         <span class="n">nome_aluno</span><span class="o">=</span><span class="n">dados</span><span class="p">[</span><span class="s2">"nome_aluno"</span><span class="p">],</span>
-        <span class="n">codigo_eol_escola_destino</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"codigo_eol_escola_origem"</span><span class="p">),</span>
-        <span class="n">nome_escola_destino</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nome_escola_origem"</span><span class="p">),</span>
-        <span class="n">codigo_eol_escola_origem</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"codigo_eol_escola_destino"</span><span class="p">),</span>
-        <span class="n">nome_escola_origem</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nome_escola_destino"</span><span class="p">),</span>
+        <span class="n">codigo_eol_escola_destino</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"codigo_eol_escola_origem"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="n">nome_escola_destino</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nome_escola_origem"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="n">codigo_eol_escola_origem</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"codigo_eol_escola_destino"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
+        <span class="n">nome_escola_origem</span><span class="o">=</span><span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nome_escola_destino"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">fora_da_rede</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">"codigo_eol_escola_origem"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"codigo_eol_escola_origem"</span><span class="p">)</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">"nome_escola_origem"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nome_escola_origem"</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"codigo_eol_escola_origem"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"codigo_eol_escola_origem"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"nome_escola_origem"</span><span class="p">]</span> <span class="o">=</span> <span class="n">dados</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"nome_escola_origem"</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span>
         <span class="n">data</span><span class="p">[</span><span class="s2">"codigo_eol_escola_destino"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">""</span>
         <span class="n">data</span><span class="p">[</span><span class="s2">"nome_escola_destino"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">""</span>
     <span class="n">LogDietasAtivasCanceladasAutomaticamente</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">)</span>
@@ -1051,8 +1051,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">email</span><span class="o">=</span><span class="n">email</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 

@@ -1287,8 +1287,8 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">tipo_entrega</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">PONTO_A_PONTO</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">eh_flv_ponto_a_ponto</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">categoria</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CATEGORIA_FLV</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">eh_ponto_a_ponto</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eh_flv</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">categoria</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">CATEGORIA_FLV</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bloco_fabricante_preenchido</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -1298,11 +1298,11 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">exibir_bloco_fabricante</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eh_flv_ponto_a_ponto</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">bloco_fabricante_preenchido</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eh_flv</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">bloco_fabricante_preenchido</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">exibir_numero_registro</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eh_flv_ponto_a_ponto</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_registro</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eh_flv</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numero_registro</span><span class="p">)</span></div>
 
 
 
@@ -1427,10 +1427,7 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">valido</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">categoria</span> <span class="o">==</span> <span class="s2">"FLV"</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">tipo_entrega</span> <span class="o">==</span> <span class="s2">"PONTO_A_PONTO"</span>
-        <span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ficha_tecnica</span><span class="o">.</span><span class="n">categoria</span> <span class="o">!=</span> <span class="n">FichaTecnicaDoProduto</span><span class="o">.</span><span class="n">CATEGORIA_FLV</span><span class="p">:</span>
             <span class="n">valido_extra</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">informacoes_nutricionais_conferido</span> <span class="ow">is</span> <span class="kc">True</span>

@@ -1246,11 +1246,10 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_campos_flv_aplicaveis</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">campos</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">CAMPOS_FLV</span><span class="p">}</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ficha_tecnica</span><span class="o">.</span><span class="n">eh_flv_ponto_a_ponto</span><span class="p">:</span>
-            <span class="n">campos</span><span class="p">[</span><span class="s2">"fabricante_envasador_conferido"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">"obrigatorios"</span><span class="p">:</span> <span class="p">[],</span>
-                <span class="s2">"opcionais"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"fabricante"</span><span class="p">,</span> <span class="s2">"envasador_distribuidor"</span><span class="p">],</span>
-            <span class="p">}</span>
+        <span class="n">campos</span><span class="p">[</span><span class="s2">"fabricante_envasador_conferido"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"obrigatorios"</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">"opcionais"</span><span class="p">:</span> <span class="p">[</span><span class="s2">"fabricante"</span><span class="p">,</span> <span class="s2">"envasador_distribuidor"</span><span class="p">],</span>
+        <span class="p">}</span>
         <span class="k">return</span> <span class="n">campos</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_obter_collapses_com_correcao</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

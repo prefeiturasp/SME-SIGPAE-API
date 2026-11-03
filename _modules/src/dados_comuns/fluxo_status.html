@@ -2401,12 +2401,17 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"distribuidor_confirma_guia"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_distribuidor_confirma_guia_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
+    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span>
+        <span class="s2">"distribuidor_confirma_guia"</span><span class="p">,</span>
+        <span class="s2">"escola_recebe"</span><span class="p">,</span>
+        <span class="s2">"escola_recebe_parcial_atraso"</span><span class="p">,</span>
+        <span class="s2">"reposicao_parcial"</span><span class="p">,</span>
+        <span class="s2">"reposicao_total"</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_registra_log_abastecimento_guia_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
             <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ABASTECIMENTO_GUIA_DE_REMESSA</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">],</span>
             <span class="n">justificativa</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">)</span>
 
@@ -2457,15 +2462,6 @@
         <span class="n">insucesso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">insucessos</span><span class="o">.</span><span class="n">last</span><span class="p">()</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">insucessos</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_preenche_template_e_cria_notificacao_insucesso</span><span class="p">(</span>
             <span class="n">template_notif</span><span class="p">,</span> <span class="n">titulo_notif</span><span class="p">,</span> <span class="n">usuarios</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">tipo</span><span class="p">,</span> <span class="n">insucesso</span>
-        <span class="p">)</span>
-
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"escola_recebe"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_escola_recebe_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
-            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ABASTECIMENTO_GUIA_DE_REMESSA</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">justificativa</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"escola_nao_recebe"</span><span class="p">)</span>
@@ -2532,33 +2528,6 @@
             <span class="n">template_notif</span><span class="p">,</span> <span class="n">titulo_notif</span><span class="p">,</span> <span class="n">usuarios</span><span class="p">,</span> <span class="n">link</span><span class="p">,</span> <span class="n">tipo</span>
         <span class="p">)</span>
 
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"escola_recebe_parcial_atraso"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_escola_recebe_parcial_atraso_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
-            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ABASTECIMENTO_GUIA_DE_REMESSA</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">justificativa</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
-        <span class="p">)</span>
-
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"reposicao_parcial"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_reposicao_parcial_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
-            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ABASTECIMENTO_GUIA_DE_REMESSA</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">justificativa</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
-        <span class="p">)</span>
-
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"reposicao_total"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_reposicao_total_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
-            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">ABASTECIMENTO_GUIA_DE_REMESSA</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">justificativa</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
-        <span class="p">)</span>
-
     <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="kc">True</span>
 
@@ -2613,13 +2582,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">"titulo"</span><span class="p">:</span> <span class="n">titulo</span><span class="p">,</span>
-                <span class="s2">"tipo_solicitacao"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">DESCRICAO</span><span class="p">,</span>
-                <span class="s2">"movimentacao_realizada"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
-                <span class="s2">"perfil_que_autorizou"</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
-            <span class="p">},</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -2914,27 +2876,14 @@
             <span class="p">)</span>
 
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span>
-        <span class="s2">"terceirizada_responde_analise_sensorial_da_reclamacao"</span>
+        <span class="s2">"terceirizada_responde_analise_sensorial_da_reclamacao"</span><span class="p">,</span>
+        <span class="s2">"terceirizada_responde_analise_sensorial_homologado"</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_terceirizada_responde_analise_sensorial_da_reclamacao_hook</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-    <span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_registra_log_resposta_analise_sensorial_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
             <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_RESPONDEU_ANALISE_SENSORIAL</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
-        <span class="p">)</span>
-
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"terceirizada_responde_analise_sensorial_homologado"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_terceirizada_responde_analise_sensorial_homologado_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="n">justificativa</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
-            <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">TERCEIRIZADA_RESPONDEU_ANALISE_SENSORIAL</span><span class="p">,</span>
-            <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="n">justificativa</span><span class="o">=</span><span class="n">justificativa</span><span class="p">,</span>
+            <span class="n">usuario</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">],</span>
+            <span class="n">justificativa</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"justificativa"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
         <span class="p">)</span>
 
     <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"codae_pediu_analise_reclamacao"</span><span class="p">)</span>
@@ -3333,8 +3282,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="s2">"fluxo_dre_nega.html"</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -3359,8 +3306,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="s2">"fluxo_ue_cancela.html"</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -3385,8 +3330,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -3723,13 +3666,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">TEMPLATE_FLUXO_AUTORIZAR_NEGAR_CANCELAR</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">"titulo"</span><span class="p">:</span> <span class="n">titulo</span><span class="p">,</span>
-                <span class="s2">"tipo_solicitacao"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">DESCRICAO</span><span class="p">,</span>
-                <span class="s2">"movimentacao_realizada"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">status</span><span class="p">),</span>
-                <span class="s2">"perfil_que_autorizou"</span><span class="p">:</span> <span class="n">user</span><span class="o">.</span><span class="n">nome</span><span class="p">,</span>
-            <span class="p">},</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -3755,8 +3691,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="s2">"fluxo_dre_solicita_e_codae_autoriza_ou_nega.html"</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -3953,8 +3887,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">TEMPLATE_FLUXO_CODAE_AUTORIZA_OU_NEGA</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -4264,8 +4196,6 @@
             <span class="n">assunto</span><span class="o">=</span><span class="n">assunto</span><span class="p">,</span>
             <span class="n">corpo</span><span class="o">=</span><span class="s2">""</span><span class="p">,</span>
             <span class="n">emails</span><span class="o">=</span><span class="n">partes_interessadas</span><span class="p">,</span>
-            <span class="n">template</span><span class="o">=</span><span class="n">template</span><span class="p">,</span>
-            <span class="n">dados_template</span><span class="o">=</span><span class="n">dados_template</span><span class="p">,</span>
             <span class="n">html</span><span class="o">=</span><span class="n">html</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -5358,23 +5288,10 @@
                     <span class="n">log</span><span class="o">=</span><span class="n">log_transicao</span><span class="p">,</span> <span class="n">arquivo</span><span class="o">=</span><span class="n">arquivo</span><span class="p">,</span> <span class="n">nome</span><span class="o">=</span><span class="n">anexo</span><span class="p">[</span><span class="s2">"nome"</span><span class="p">]</span>
                 <span class="p">)</span>
 
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"ue_corrige_periodo_grupo_para_codae"</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_ue_corrige_periodo_grupo_para_codae_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
-            <span class="n">nao_possui_permissao</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">perfil</span><span class="o">.</span><span class="n">nome</span> <span class="o">!=</span> <span class="n">DIRETOR_UE</span>
-                <span class="ow">and</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">possui_alunos_regulares</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="n">user</span><span class="o">.</span><span class="n">vinculo_atual</span><span class="o">.</span><span class="n">instituicao</span><span class="o">.</span><span class="n">eh_p_fom</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">nao_possui_permissao</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PermissionDenied</span><span class="p">(</span><span class="n">StringsValidationErrors</span><span class="o">.</span><span class="n">PERMISSAO_NEGADA</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">salvar_log_transicao</span><span class="p">(</span>
-                <span class="n">status_evento</span><span class="o">=</span><span class="n">LogSolicitacoesUsuario</span><span class="o">.</span><span class="n">MEDICAO_CORRIGIDA_PARA_CODAE</span><span class="p">,</span>
-                <span class="n">usuario</span><span class="o">=</span><span class="n">user</span><span class="p">,</span>
-            <span class="p">)</span>
-
-    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span><span class="s2">"ue_corrige_medicao_para_codae"</span><span class="p">)</span>
+    <span class="nd">@xworkflows</span><span class="o">.</span><span class="n">after_transition</span><span class="p">(</span>
+        <span class="s2">"ue_corrige_periodo_grupo_para_codae"</span><span class="p">,</span>
+        <span class="s2">"ue_corrige_medicao_para_codae"</span><span class="p">,</span>
+    <span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_ue_corrige_medicao_para_codae_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">user</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">"user"</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">user</span><span class="p">:</span>
