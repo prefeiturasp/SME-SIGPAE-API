@@ -14,7 +14,6 @@ from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
     CriadoPor,
-    TemLogs,
     Nomeavel,
     Posicao,
     TemAlteradoEm,
@@ -23,6 +22,7 @@ from ..dados_comuns.behaviors import (
     TemData,
     TemDia,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
     TemMes,
     TemSemana,
 )
@@ -549,7 +549,9 @@ class SolicitacaoMedicaoInicial(
         return f"Solicitação #{self.id_externo} -- Escola {self.escola.nome} -- {self.mes}/{self.ano}"
 
 
-class OcorrenciaMedicaoInicial(TemChaveExterna, TemLogs, FluxoSolicitacaoMedicaoInicial):
+class OcorrenciaMedicaoInicial(
+    TemChaveExterna, TemLogs, FluxoSolicitacaoMedicaoInicial
+):
     """Modelo para mapear a tabela Ocorrência e salvar objetos ocorrêcia da medição inicial."""
 
     nome_ultimo_arquivo = models.CharField(max_length=100, null=True, blank=True)
@@ -604,6 +606,7 @@ class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
 
 
 class GrupoMedicao(Nomeavel, TemChaveExterna, Ativavel):
+    ESCOLA_ABERTA = "Escola Aberta"
     SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS = (
         "Solicitações de Alimentação Extraordinárias"
     )
