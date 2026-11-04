@@ -212,7 +212,9 @@ class EscolaAbertaPorEscolaSerializer(serializers.ModelSerializer):
     tipos_alimentacao = serializers.SerializerMethodField()
 
     def get_tipos_alimentacao(self, obj):
-        return [{"uuid": t.uuid, "nome": t.nome} for t in obj.tipos_alimentacao.all()]
+        return [
+            {"uuid": str(t.uuid), "nome": t.nome} for t in obj.tipos_alimentacao.all()
+        ]
 
     class Meta:
         model = EscolaAbertaUnidadeParticipante
