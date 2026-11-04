@@ -15,6 +15,10 @@ from src.medicao_inicial.models import (
 pytestmark = pytest.mark.django_db
 
 
+def test_grupo_medicao_escola_aberta_criado_por_migration():
+    assert GrupoMedicao.objects.filter(nome=GrupoMedicao.ESCOLA_ABERTA).exists()
+
+
 def test_dia_sobremesa_doce_model(dia_sobremesa_doce):
     assert (
         dia_sobremesa_doce.__str__()
