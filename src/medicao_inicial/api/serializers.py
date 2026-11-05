@@ -456,6 +456,14 @@ class ParametrizacaoFinanceiraSerializer(serializers.ModelSerializer):
 class RelatorioFinanceiroSerializer(serializers.ModelSerializer):
     lote = LoteParaFiltroSerializer()
     grupo_unidade_escolar = GrupoUnidadeEscolarSerializer()
+    status_display = serializers.SerializerMethodField()
+    possui_medicao_final = serializers.SerializerMethodField()
+
+    def get_status_display(self, obj):
+        return obj.status.title
+
+    def get_possui_medicao_final(self, obj):
+        return hasattr(obj, "medicao_final")
 
     class Meta:
         model = RelatorioFinanceiro

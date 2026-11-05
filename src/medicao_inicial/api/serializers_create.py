@@ -16,6 +16,9 @@ from src.dados_comuns.utils import (
     update_instance_from_dict,
 )
 from src.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
+from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
+    somente_digitos,
+)
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
@@ -39,6 +42,7 @@ from src.medicao_inicial.models import (
     DiaSobremesaDoce,
     GrupoMedicao,
     Medicao,
+    MedicaoFinal,
     OcorrenciaMedicaoInicial,
     ParametrizacaoFinanceira,
     ParametrizacaoFinanceiraTabela,
@@ -70,6 +74,7 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
     validate_lancamento_alimentacoes_medicao_recreio,
     validate_lancamento_dietas_medicao_recreio,
 )
+from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
 from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
 from src.terceirizada.models import Edital
@@ -2089,3 +2094,48 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
                 }
             )
         self._validar_grupo_emei(attrs)
+
+
+class GerarMedicaoFinalSerializer(serializers.ModelSerializer):
+    """Entrada do modal "Gerar Medição Final".
+
+    Espera ``relatorio_financeiro`` e ``request`` no contexto. O nome do
+    responsável não é aceito do cliente: vem da consulta do RF.
+    """
+
+    rf_responsavel_conferencia = serializers.CharField(
+        max_length=20, validators=[somente_digitos]
+    )
+
+    class Meta:
+        model = MedicaoFinal
+        fields = ("rf_responsavel_conferencia", "numero_processo_pagamento")
+
+    def validate(self, attrs):
+        relatorio = self.context["relatorio_financeiro"]
+        if hasattr(relatorio, "medicao_final"):
+            raise serializers.ValidationError(
+                "A Medição Final já foi gerada para este Relatório Financeiro."
+            )
+        if relatorio.status != relatorio.workflow_class.EM_ANALISE:
+            raise serializers.ValidationError(
+                "Só é possível gerar a Medição Final de um Relatório Financeiro com "
+                'status "Em análise".'
+            )
+
+        nome = EOLServicoSGP.get_nome_servidor(attrs["rf_responsavel_conferencia"])
+        if not nome:
+            raise serializers.ValidationError(
+                {"rf_responsavel_conferencia": MENSAGEM_RF_NAO_LOCALIZADO}
+            )
+        attrs["nome_responsavel_conferencia"] = nome
+        return attrs
+
+    def create(self, validated_data):
+        relatorio = self.context["relatorio_financeiro"]
+        usuario = self.context["request"].user
+        medicao_final = MedicaoFinal.objects.create(
+            relatorio_financeiro=relatorio, gerado_por=usuario, **validated_data
+        )
+        relatorio.gerar_medicao_final(user=usuario)
+        return medicao_final
