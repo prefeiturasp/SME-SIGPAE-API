@@ -75,10 +75,6 @@ Funcionalidade: Validar interrupcao programada de entrega
       | GET | datas-bloqueadas-armazenavel/ | ausente |
       | GET | datas-bloqueadas-armazenavel/ | invalido |
 
-  # O princiapl acesso conforme PermissaoParaVisualizarCalendarioCronograma.
-  # O perfil identifica a variavel de usuario no .env; o comentario informa o vinculo confirmado em QA.
-  # POST usa corpo vazio; DELETE usa UUID inexistente, sem alterar registros.
-
   @perfis @perfil_coordenador_logistica
   # Vinculo: COORDENADOR_LOGISTICA
   Esquema do Cenario: Validar acesso do usuario COORDENADOR_LOGISTICA
