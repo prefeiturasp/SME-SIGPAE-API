@@ -437,6 +437,66 @@ def test_url_dashboard_supervisao(
     assert total["total"] == 6
 
 
+@pytest.mark.parametrize(
+    "parametros",
+    [{}, {"novo_painel": "true"}],
+    ids=["sem_parametro", "novo_painel_true"],
+)
+def test_dashboard_retorna_painel_novo_por_padrao_ou_com_flag_true(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    parametros,
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+
+    resposta = cliente.get("/imr/formulario-supervisao/dashboard/", parametros)
+
+    assert resposta.status_code == status.HTTP_200_OK
+    resultados = resposta.json()["results"]
+    assert [resultado["status"] for resultado in resultados] == [
+        "EM_PREENCHIMENTO",
+        "NUTRIMANIFESTACAO_A_VALIDAR",
+        "COM_COMENTARIOS_DE_CODAE",
+        "CORRIGIDO_PELA_SUPERVISAO",
+        "VALIDADO_POR_CODAE",
+    ]
+    assert [resultado["label"] for resultado in resultados] == [
+        "Em preenchimento pela Supervisão",
+        "Enviados pela Supervisão",
+        "Devolvidos com comentários",
+        "Corrigidos pela Supervisão",
+        "Validados pela CODAE",
+    ]
+
+
+def test_dashboard_retorna_painel_anterior_com_flag_false(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "false"}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    resultados = resposta.json()["results"]
+    assert [resultado["status"] for resultado in resultados] == [
+        "EM_PREENCHIMENTO",
+        "NUTRIMANIFESTACAO_A_VALIDAR",
+        "COM_COMENTARIOS_DE_CODAE",
+        "VALIDADO_POR_CODAE",
+        "APROVADO",
+        "TODOS_OS_RELATORIOS",
+    ]
+    assert [resultado["label"] for resultado in resultados] == [
+        "Em Preenchimento",
+        "Enviado para CODAE",
+        "Com comentários de CODAE",
+        "Validado pela CODAE",
+        "Aprovados",
+        "Todos os Relatórios",
+    ]
+
+
 def test_get_respostas(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     edital_factory,
