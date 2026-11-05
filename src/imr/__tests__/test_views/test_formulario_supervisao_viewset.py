@@ -1118,3 +1118,310 @@ def test_diretor_escola_nao_acessa_dashboard_novo(
     cliente = client_autenticado_diretor_escola["client"]
     resposta = cliente.get("/imr/formulario-supervisao/dashboard/",{"novo_painel": "true"})
     assert resposta.status_code == status.HTTP_403_FORBIDDEN
+
+def test_dashboard_filtra_relatorios_por_mes(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+
+    formulario_supervisao_factory.create(
+        formulario_base__data="2026-09-01"
+    )
+    formulario_supervisao_factory.create(
+        formulario_base__data="2026-09-30"
+    )
+    formulario_supervisao_factory.create(
+        formulario_base__data="2026-10-01"
+    )
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {"novo_painel": "true", "mes": "9"},
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+
+    totais = {}
+    for resultado in resposta.json()["results"]:
+        totais[resultado["status"]] = resultado["total"]
+
+    assert totais["EM_PREENCHIMENTO"] == 2
+    assert sum(totais.values()) == 2
+
+
+def test_dashboard_filtra_relatorios_por_ano(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create()
+    datas_visitas = [
+        "2026-01-01",
+        "2026-12-31",
+        "2025-12-31",
+        "2027-01-01"
+    ]
+
+    for data_visita in datas_visitas:
+        formulario_supervisao_factory.create(
+            escola=escola,
+            formulario_base__usuario=usuario,
+            formulario_base__data=data_visita
+        )
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {"novo_painel": "true", "ano": 2026}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    totais = {}
+    for resultado in resposta.json()["results"]:
+        totais[resultado["status"]] = resultado["total"]
+
+    assert totais["EM_PREENCHIMENTO"] == 2
+    assert sum(totais.values()) == 2
+
+
+def test_dashboard_filtra_relatorios_por_dre(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory,
+    diretoria_regional_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    diretoria = diretoria_regional_factory.create()
+    primeira_escola = escola_factory.create(diretoria_regional=diretoria)
+    segunda_escola = escola_factory.create(diretoria_regional=diretoria)
+    escola_de_outra_dre = escola_factory.create()
+
+    for escola in [primeira_escola, segunda_escola, escola_de_outra_dre]:
+        formulario_supervisao_factory.create(
+            escola=escola,
+            formulario_base__usuario=usuario,
+            formulario_base__data="2026-09-10"
+        )
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {"novo_painel": "true", "diretoria_regional": str(diretoria.uuid)}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    totais = {}
+    for resultado in resposta.json()["results"]:
+        totais[resultado["status"]] = resultado["total"]
+
+    assert totais["EM_PREENCHIMENTO"] == 2
+    assert sum(totais.values()) == 2
+
+
+def test_filtros_dre_mes_e_ano_mantem_dashboard_e_listagem_coerentes(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create()
+    escola_de_outra_dre = escola_factory.create()
+    relatorio_inicio = formulario_supervisao_factory.create(
+        escola=escola,
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-01"
+    )
+    relatorio_fim = formulario_supervisao_factory.create(
+        escola=escola,
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-30",
+        status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR
+    )
+
+    for escola_relatorio, data_visita in [
+        (escola, "2026-08-31"),
+        (escola, "2025-09-10"),
+        (escola_de_outra_dre, "2026-09-10")
+    ]:
+        formulario_supervisao_factory.create(
+            escola=escola_relatorio,
+            formulario_base__usuario=usuario,
+            formulario_base__data=data_visita
+        )
+
+    parametros = {
+        "diretoria_regional": str(escola.diretoria_regional.uuid),
+        "mes": 9,
+        "ano": 2026
+    }
+    resposta_dashboard = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {**parametros, "novo_painel": "true"}
+    )
+
+    assert resposta_dashboard.status_code == status.HTTP_200_OK
+    totais = {}
+    for resultado in resposta_dashboard.json()["results"]:
+        totais[resultado["status"]] = resultado["total"]
+
+    assert totais["EM_PREENCHIMENTO"] == 1
+    assert totais["NUTRIMANIFESTACAO_A_VALIDAR"] == 1
+    assert sum(totais.values()) == 2
+
+    resposta_listagem = cliente.get(
+        "/imr/formulario-supervisao/", parametros
+    )
+
+    assert resposta_listagem.status_code == status.HTTP_200_OK
+    dados_listagem = resposta_listagem.json()
+    assert dados_listagem["count"] == sum(totais.values())
+    uuids_retornados = set()
+    for resultado in dados_listagem["results"]:
+        uuids_retornados.add(resultado["uuid"])
+
+    assert uuids_retornados == {
+        str(relatorio_inicio.uuid),
+        str(relatorio_fim.uuid)
+    }
+
+
+def test_dashboard_filtros_sem_correspondencia_retornam_cards_zerados(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    relatorio = formulario_supervisao_factory.create(
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-10"
+    )
+    diretoria = relatorio.escola.diretoria_regional
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {
+            "novo_painel": "true",
+            "diretoria_regional": str(diretoria.uuid),
+            "mes": 10,
+            "ano": 2026
+        }
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    resultados = resposta.json()["results"]
+    assert len(resultados) == 5
+    for resultado in resultados:
+        assert resultado["total"] == 0
+
+
+@pytest.mark.parametrize(
+    "rota",
+    ["/imr/formulario-supervisao/dashboard/", "/imr/formulario-supervisao/"],
+    ids=["dashboard", "listagem"]
+)
+@pytest.mark.parametrize(
+    "campo, valor",
+    [("mes", 0), ("mes", 13), ("mes", "abc"), ("ano", "abc")],
+    ids=[
+        "mes_zero",
+        "mes_maior_que_doze",
+        "mes_nao_numerico",
+        "ano_nao_numerico"
+    ]
+)
+def test_filtros_rejeitam_valores_invalidos(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    rota,
+    campo,
+    valor
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+
+    resposta = cliente.get(rota, {campo: valor})
+
+    assert resposta.status_code == status.HTTP_400_BAD_REQUEST
+    assert campo in resposta.json()
+
+
+def test_dashboard_status_selecionado_nao_restringe_totais_dos_cards(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create()
+    formulario_supervisao_factory.create_batch(
+        2,
+        escola=escola,
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-10"
+    )
+    formulario_supervisao_factory.create(
+        escola=escola,
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-10",
+        status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR
+    )
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {
+            "novo_painel": "true",
+            "diretoria_regional": str(escola.diretoria_regional.uuid),
+            "mes": 9,
+            "ano": 2026,
+            "status": "EM_PREENCHIMENTO"
+        }
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    totais = {}
+    for resultado in resposta.json()["results"]:
+        totais[resultado["status"]] = resultado["total"]
+
+    assert totais["EM_PREENCHIMENTO"] == 2
+    assert totais["NUTRIMANIFESTACAO_A_VALIDAR"] == 1
+    assert sum(totais.values()) == 3
+
+
+@pytest.mark.parametrize(
+    "parametros, datas_esperadas",
+    [
+        ({"mes": 9}, ["10/09/2026", "10/09/2025"]),
+        ({"ano": 2026}, ["10/09/2026", "10/10/2026"]),
+        ({"mes": 9, "ano": 2026}, ["10/09/2026"])
+    ],
+    ids=["mes", "ano", "mes_e_ano"]
+)
+def test_listagem_filtra_relatorios_por_mes_e_ano(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory,
+    parametros,
+    datas_esperadas
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create()
+
+    for data_visita in ["2026-09-10", "2025-09-10", "2026-10-10"]:
+        formulario_supervisao_factory.create(
+            escola=escola,
+            formulario_base__usuario=usuario,
+            formulario_base__data=data_visita
+        )
+
+    resposta = cliente.get("/imr/formulario-supervisao/", parametros)
+
+    assert resposta.status_code == status.HTTP_200_OK
+    dados = resposta.json()
+    assert dados["count"] == len(datas_esperadas)
+    datas_retornadas = []
+    for resultado in dados["results"]:
+        datas_retornadas.append(resultado["data"])
+
+    assert sorted(datas_retornadas) == sorted(datas_esperadas)
