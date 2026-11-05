@@ -34,6 +34,7 @@ module.exports = defineConfig({
 			usuario_escola_cei_admin: process.env.USUARIO_ESCOLA_CEI_ADMIN,
 			usuario_codae: process.env.CODAE,
 			usuario_medicao: process.env.MEDICAO,
+			usuario_distribuidor: process.env.DISTRIBUIDOR,
 			usuario_gpcodae: process.env.GPCODAE,
 			usuario_dre: process.env.DRE,
 			usuario_classificacoes_dieta: process.env.CLASSIFICACOES_DIETA,
