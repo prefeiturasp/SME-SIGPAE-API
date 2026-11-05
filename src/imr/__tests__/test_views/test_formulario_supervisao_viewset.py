@@ -225,7 +225,9 @@ def test_dashboard_administrador_supervisao_contabiliza_apenas_relatorios_propri
     formulario_supervisao_factory.create(formulario_base__usuario=usuario)
     formulario_supervisao_factory.create()
 
-    response = client.get("/imr/formulario-supervisao/dashboard/")
+    response = client.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "false"}
+    )
 
     assert response.status_code == status.HTTP_200_OK
     total = next(
@@ -408,7 +410,9 @@ def test_url_dashboard_supervisao(
         status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR,
     )
 
-    response = client.get("/imr/formulario-supervisao/dashboard/")
+    response = client.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "false"}
+    )
     assert response.status_code == status.HTTP_200_OK
     results = response.json()["results"]
 
