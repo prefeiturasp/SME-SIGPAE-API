@@ -1078,6 +1078,7 @@ class RelatorioFinanceiro(
     TemChaveExterna,
     CriadoEm,
     TemAlteradoEm,
+    TemLogs,
 ):
     grupo_unidade_escolar = models.ForeignKey(
         "escola.GrupoUnidadeEscolar",
@@ -1098,11 +1099,52 @@ class RelatorioFinanceiro(
         )
         return f"{self.mes} / {self.ano} | Unidades {unidades} | Lote {self.lote} | Status {self.status}"
 
+    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra o log de transição de status do relatório financeiro."""
+        return LogSolicitacoesUsuario.objects.create(
+            descricao=str(self),
+            status_evento=status_evento,
+            solicitacao_tipo=LogSolicitacoesUsuario.RELATORIO_FINANCEIRO,
+            usuario=usuario,
+            uuid_original=self.uuid,
+            justificativa=kwargs.get("justificativa", ""),
+        )
+
     class Meta:
         verbose_name = "Relatório Financeiro"
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
+
+
+class MedicaoFinal(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """Dados administrativos informados ao gerar a Medição Final.
+
+    Registrados quando o Relatório Financeiro passa para o status
+    "Gerada Medição Final". O nome do responsável pela conferência é
+    sempre obtido pela consulta do RF no backend.
+    """
+
+    relatorio_financeiro = models.OneToOneField(
+        RelatorioFinanceiro,
+        on_delete=models.CASCADE,
+        related_name="medicao_final",
+    )
+    rf_responsavel_conferencia = models.CharField(max_length=20)
+    nome_responsavel_conferencia = models.CharField(max_length=255)
+    numero_processo_pagamento = models.CharField(max_length=100)
+    gerado_por = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.PROTECT,
+        related_name="medicoes_finais_geradas",
+    )
+
+    def __str__(self):
+        return f"Medição Final | {self.relatorio_financeiro}"
+
+    class Meta:
+        verbose_name = "Medição Final"
+        verbose_name_plural = "Medições Finais"
 
 
 class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
