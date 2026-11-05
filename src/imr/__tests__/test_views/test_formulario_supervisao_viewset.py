@@ -1072,3 +1072,49 @@ def test_get_lista_nomes_nutricionistas(
 
     results = response.json()["results"]
     assert len(results) == 3
+
+@pytest.mark.parametrize(
+    "nome_perfil",
+    [
+        constants.COORDENADOR_SUPERVISAO_NUTRICAO,
+        constants.COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+        constants.ADMINISTRADOR_MEDICAO,
+        constants.ADMINISTRADOR_CODAE_GABINETE,
+        constants.DINUTRE_DIRETORIA,
+        constants.COORDENADOR_SUPERVISAO_NUTRICAO_MANIFESTACAO,
+    ],
+)
+def test_perfis_codae_acessam_dashboard_novo(
+    client,
+    django_user_model,
+    codae,
+    nome_perfil,
+):
+    senha = constants.DJANGO_ADMIN_PASSWORD
+    email = f"{nome_perfil.lower()}@test.com"
+    usuario = django_user_model.objects.create_user(
+        username=email,
+        password=senha,
+        email=email,
+        registro_funcional="4321098",
+    )
+    perfil = baker.make("Perfil", nome=nome_perfil, ativo=True)
+    baker.make(
+        "Vinculo",
+        usuario=usuario,
+        instituicao=codae,
+        perfil=perfil,
+        data_inicial="2026-08-24",
+        ativo=True,
+    )
+    client.login(username=usuario.username, password=senha)
+    resposta = client.get("/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"})
+    assert resposta.status_code == status.HTTP_200_OK
+
+
+def test_diretor_escola_nao_acessa_dashboard_novo(
+    client_autenticado_diretor_escola
+):
+    cliente = client_autenticado_diretor_escola["client"]
+    resposta = cliente.get("/imr/formulario-supervisao/dashboard/",{"novo_painel": "true"})
+    assert resposta.status_code == status.HTTP_403_FORBIDDEN
