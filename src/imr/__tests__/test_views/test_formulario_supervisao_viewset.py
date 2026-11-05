@@ -497,6 +497,97 @@ def test_dashboard_retorna_painel_anterior_com_flag_false(
     ]
 
 
+def test_dashboard_contagem_por_status_respeita_as_quantidades(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory,
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create()
+    
+    quantidades_esperadas = {
+        "EM_PREENCHIMENTO": 2,
+        "NUTRIMANIFESTACAO_A_VALIDAR": 1,
+        "COM_COMENTARIOS_DE_CODAE": 3,
+        "CORRIGIDO_PELA_SUPERVISAO": 1,
+        "VALIDADO_POR_CODAE": 2,
+    }
+
+    for status_relatorio, quantidade in quantidades_esperadas.items():
+        formulario_supervisao_factory.create_batch(
+            quantidade,
+            escola=escola,
+            formulario_base__usuario=usuario,
+            status=status_relatorio,
+        )
+
+    formulario_supervisao_factory.create(
+        escola=escola,
+        formulario_base__usuario=usuario,
+        status=FormularioSupervisao.workflow_class.APROVADO,
+    )
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    totais = {}
+    for resultado in resposta.json()["results"]:
+        totais[resultado["status"]] = resultado["total"]
+
+    assert totais == quantidades_esperadas
+    assert sum(totais.values()) == 9
+
+
+def test_dashboard_contagem_por_status_sem_relatorios_retorna_zero(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    resultados = resposta.json()["results"]
+    assert len(resultados) == 5
+    for resultado in resultados:
+        assert resultado["total"] == 0
+
+
+def test_dashboard_contagem_por_status_nao_duplica_relatorio_entre_cards(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    formulario_supervisao_factory.create(
+        formulario_base__usuario=usuario,
+        status=FormularioSupervisao.workflow_class.CORRIGIDO_PELA_SUPERVISAO,
+    )
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    resultados = resposta.json()["results"]
+    assert len(resultados) == 5
+    total_contabilizado = 0
+
+    for resultado in resultados:
+        quantidade_esperada = 0
+        if resultado["status"] == "CORRIGIDO_PELA_SUPERVISAO":
+            quantidade_esperada = 1
+
+        assert resultado["total"] == quantidade_esperada
+        total_contabilizado += resultado["total"]
+
+    assert total_contabilizado == 1
+
+
 def test_get_respostas(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     edital_factory,
