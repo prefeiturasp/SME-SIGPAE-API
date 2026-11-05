@@ -3,10 +3,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
+    somente_digitos,
+)
 from src.escola.api.serializers import UsuarioDetalheSerializer
 from src.escola.models import Aluno
 
-from ..utils import EOLException, EOLServicoSGP
+from ..utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLException, EOLServicoSGP
 
 
 class DadosUsuarioEOLCompletoViewSet(ViewSet):
@@ -63,6 +66,23 @@ class DadosUsuarioEOLCompletoViewSet(ViewSet):
             return Response(dados_usuario)
         except EOLException as e:
             return Response({"detail": f"{e}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class DadosServidorEOLViewSet(ViewSet):
+    """Nome do servidor a partir do RF (consulta ao EOL/SGP)."""
+
+    lookup_field = "registro_funcional"
+    permission_classes = (IsAuthenticated,)
+
+    def retrieve(self, request, registro_funcional=None):
+        somente_digitos(registro_funcional)
+        nome = EOLServicoSGP.get_nome_servidor(registro_funcional)
+        if not nome:
+            return Response(
+                {"detail": MENSAGEM_RF_NAO_LOCALIZADO},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        return Response({"rf": registro_funcional, "nome": nome})
 
 
 class DadosAlunoEOLViewSet(ViewSet):

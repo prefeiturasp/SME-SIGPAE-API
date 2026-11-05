@@ -4,6 +4,7 @@ from datetime import date, datetime
 
 import environ
 from rest_framework import status
+from rest_framework.exceptions import APIException
 
 from ..dados_comuns.constants import (
     DJANGO_EOL_PAPA_API_SENHA_CANCELAMENTO,
@@ -26,6 +27,23 @@ logger = logging.getLogger(__name__)
 
 class EOLException(Exception):
     pass
+
+
+MENSAGEM_RF_NAO_LOCALIZADO = "RF não localizado. Verifique o número informado."
+
+# Respostas da consulta de servidor que indicam que o RF não existe.
+STATUS_RF_NAO_ENCONTRADO = (
+    status.HTTP_204_NO_CONTENT,
+    status.HTTP_400_BAD_REQUEST,
+    status.HTTP_404_NOT_FOUND,
+)
+
+
+class ConsultaRFIndisponivel(APIException):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    default_detail = (
+        "Não foi possível consultar o RF no momento. Tente novamente mais tarde."
+    )
 
 
 class EOLServicoSGP:
@@ -272,6 +290,24 @@ class EOLServicoSGP:
         logger.info("Checa dados do usuário no CoreSSO.")
         response = cls.chamada_externa_dados_usuario(registro_funcional)
         return response
+
+    @classmethod
+    def get_nome_servidor(cls, registro_funcional: str) -> str | None:
+        """Nome do servidor com o RF informado, ou ``None`` se não existir.
+
+        Qualquer falha na integração vira ``ConsultaRFIndisponivel`` (HTTP 503).
+        """
+        try:
+            response = cls.get_dados_usuario(registro_funcional)
+            if response.status_code in STATUS_RF_NAO_ENCONTRADO:
+                return None
+            if response.status_code != status.HTTP_200_OK:
+                raise EOLException(f"status {response.status_code}")
+            nome = response.json().get("nome") or ""
+        except Exception as err:
+            logger.error("Falha ao consultar o RF %s: %s", registro_funcional, err)
+            raise ConsultaRFIndisponivel() from err
+        return nome.strip() or None
 
     @classmethod
     def chamada_externa_alunos_por_escola_por_ano_letivo(
