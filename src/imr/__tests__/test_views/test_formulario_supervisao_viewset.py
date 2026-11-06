@@ -1425,3 +1425,65 @@ def test_listagem_filtra_relatorios_por_mes_e_ano(
         datas_retornadas.append(resultado["data"])
 
     assert sorted(datas_retornadas) == sorted(datas_esperadas)
+
+
+def test_listagem_preserva_relatorios_distintos_da_mesma_escola(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create(
+        nome="EMEI ESCOLA DE TESTE",
+        codigo_eol="000054",
+        tipo_unidade__iniciais="EMEI"
+    )
+    relatorios_esperados = {}
+
+    for data_visita, data_formatada, status_relatorio, descricao_status in [
+        ("2026-09-02", "02/09/2026", "EM_PREENCHIMENTO", "Em Preenchimento"),
+        (
+            "2026-09-02",
+            "02/09/2026",
+            "NUTRIMANIFESTACAO_A_VALIDAR",
+            "Enviado para CODAE"
+        ),
+        (
+            "2026-09-03",
+            "03/09/2026",
+            "CORRIGIDO_PELA_SUPERVISAO",
+            "Corrigido pela Supervisão"
+        )
+    ]:
+        relatorio = formulario_supervisao_factory.create(
+            escola=escola,
+            formulario_base__usuario=usuario,
+            formulario_base__data=data_visita,
+            status=status_relatorio
+        )
+        relatorios_esperados[str(relatorio.uuid)] = {
+            "uuid": str(relatorio.uuid),
+            "diretoria_regional": escola.diretoria_regional.nome,
+            "unidade_educacional": "EMEI ESCOLA DE TESTE",
+            "codigo_eol": "000054",
+            "tipo_unidade": "EMEI",
+            "data": data_formatada,
+            "status": descricao_status
+        }
+
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/",
+        {"unidade_educacional": str(escola.uuid), "mes": 9, "ano": 2026}
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    dados = resposta.json()
+    assert dados["count"] == 3
+    assert len(dados["results"]) == 3
+
+    relatorios_retornados = {}
+    for resultado in dados["results"]:
+        relatorios_retornados[resultado["uuid"]] = resultado
+
+    assert relatorios_retornados == relatorios_esperados
