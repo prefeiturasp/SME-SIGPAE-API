@@ -1487,3 +1487,94 @@ def test_listagem_preserva_relatorios_distintos_da_mesma_escola(
         relatorios_retornados[resultado["uuid"]] = resultado
 
     assert relatorios_retornados == relatorios_esperados
+
+
+def test_alteracao_status_atualiza_listagem_e_cards_sem_duplicar_relatorio(
+    client_autenticado_vinculo_coordenador_supervisao_nutricao,
+    formulario_supervisao_factory,
+    escola_factory
+):
+    cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
+    usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
+    escola = escola_factory.create()
+    relatorio = formulario_supervisao_factory.create(
+        escola=escola,
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-02",
+        status="EM_PREENCHIMENTO"
+    )
+    outro_relatorio = formulario_supervisao_factory.create(
+        escola=escola,
+        formulario_base__usuario=usuario,
+        formulario_base__data="2026-09-03",
+        status="NUTRIMANIFESTACAO_A_VALIDAR"
+    )
+    parametros = {
+        "diretoria_regional": str(escola.diretoria_regional.uuid),
+        "mes": 9,
+        "ano": 2026
+    }
+
+    resposta_listagem = cliente.get("/imr/formulario-supervisao/", parametros)
+    resposta_dashboard = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {**parametros, "novo_painel": "true"}
+    )
+
+    assert resposta_listagem.status_code == status.HTTP_200_OK
+    assert resposta_dashboard.status_code == status.HTTP_200_OK
+    assert resposta_listagem.json()["count"] == 2
+    relatorios_esperados = {}
+    for resultado in resposta_listagem.json()["results"]:
+        relatorios_esperados[resultado["uuid"]] = resultado
+
+    assert set(relatorios_esperados) == {
+        str(relatorio.uuid), str(outro_relatorio.uuid)
+    }
+    assert (
+        relatorios_esperados[str(relatorio.uuid)]["status"] == "Em Preenchimento"
+    )
+
+    totais_esperados = {
+        "EM_PREENCHIMENTO": 1,
+        "NUTRIMANIFESTACAO_A_VALIDAR": 1,
+        "COM_COMENTARIOS_DE_CODAE": 0,
+        "CORRIGIDO_PELA_SUPERVISAO": 0,
+        "VALIDADO_POR_CODAE": 0
+    }
+    totais_iniciais = {}
+    for resultado in resposta_dashboard.json()["results"]:
+        totais_iniciais[resultado["status"]] = resultado["total"]
+
+    assert totais_iniciais == totais_esperados
+
+    FormularioSupervisao.objects.filter(pk=relatorio.pk).update(
+        status="NUTRIMANIFESTACAO_A_VALIDAR"
+    )
+
+    resposta_listagem = cliente.get("/imr/formulario-supervisao/", parametros)
+    resposta_dashboard = cliente.get(
+        "/imr/formulario-supervisao/dashboard/",
+        {**parametros, "novo_painel": "true"}
+    )
+
+    assert resposta_listagem.status_code == status.HTTP_200_OK
+    assert resposta_dashboard.status_code == status.HTTP_200_OK
+    dados_listagem = resposta_listagem.json()
+    assert dados_listagem["count"] == 2
+    assert len(dados_listagem["results"]) == 2
+    relatorios_retornados = {}
+    for resultado in dados_listagem["results"]:
+        relatorios_retornados[resultado["uuid"]] = resultado
+
+    relatorios_esperados[str(relatorio.uuid)]["status"] = "Enviado para CODAE"
+    assert relatorios_retornados == relatorios_esperados
+
+    totais_esperados["EM_PREENCHIMENTO"] = 0
+    totais_esperados["NUTRIMANIFESTACAO_A_VALIDAR"] = 2
+    totais_atualizados = {}
+    for resultado in resposta_dashboard.json()["results"]:
+        totais_atualizados[resultado["status"]] = resultado["total"]
+
+    assert totais_atualizados == totais_esperados
+    assert sum(totais_atualizados.values()) == dados_listagem["count"]
