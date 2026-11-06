@@ -5,7 +5,7 @@ from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns import constants as const
-from src.pos_recebimento.models import TermoRecebimentoDefinitivo
+from src.pos_recebimento.models import TermoRecebimentoProvisorio
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
 )
@@ -56,8 +56,8 @@ def test_termo_create_retorna_201(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    termo = TermoRecebimentoDefinitivo.objects.get(uuid=response.json()["uuid"])
-    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    termo = TermoRecebimentoProvisorio.objects.get(uuid=response.json()["uuid"])
+    assert termo.status == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
     assert termo.criado_por is not None
     assert termo.alterado_por is not None
     assert termo.cronogramas_termo.count() == 1
@@ -407,7 +407,7 @@ def test_termo_retrieve_retorna_detalhe_do_termo(
     assert detalhe["contrato"]["uuid"] == str(contrato.uuid)
     assert detalhe["texto_termo"] == termo_listagem.texto_termo
     assert detalhe["valor_contrato"] == "150000.00"
-    assert detalhe["status"] == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert detalhe["status"] == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
     assert [detalhe[f"fiscal_{i}"]["uuid"] for i in (1, 2, 3)] == [
         str(fiscal.uuid) for fiscal in tres_fiscais
     ]

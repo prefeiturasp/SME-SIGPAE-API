@@ -8,8 +8,8 @@ from rest_framework import status
 
 from src.dados_comuns import constants as const
 from src.pos_recebimento.models import (
-    CronogramaTermoRecebimentoDefinitivo,
-    TermoRecebimentoDefinitivo,
+    CronogramaTermoRecebimentoProvisorio,
+    TermoRecebimentoProvisorio,
 )
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
@@ -85,7 +85,7 @@ def _cria_termo(
     empresa,
     contrato,
     django_user_model,
-    status=TermoRecebimentoDefinitivo.ENVIADO_FORNECEDOR,
+    status=TermoRecebimentoProvisorio.ENVIADO_FORNECEDOR,
     data_cadastro=DATA_CADASTRO_TERMO,
     numeros_cronogramas=(),
 ):
@@ -103,24 +103,24 @@ def _cria_termo(
         )
         for indice in (1, 2, 3)
     ]
-    termo = TermoRecebimentoDefinitivo.objects.create(
+    termo = TermoRecebimentoProvisorio.objects.create(
         empresa=empresa,
         contrato=contrato,
         fiscal_1=fiscais[0],
         fiscal_2=fiscais[1],
         fiscal_3=fiscais[2],
-        texto_termo="<p>Termo de Recebimento Definitivo</p>",
+        texto_termo="<p>Termo de Recebimento Provisório</p>",
         status=status,
     )
     for numero in numeros_cronogramas:
-        CronogramaTermoRecebimentoDefinitivo.objects.create(
+        CronogramaTermoRecebimentoProvisorio.objects.create(
             termo=termo,
             cronograma=CronogramaFactory(
                 contrato=contrato, empresa=empresa, numero=numero
             ),
             quantidade_total_recebida="1234.56",
         )
-    TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
+    TermoRecebimentoProvisorio.objects.filter(pk=termo.pk).update(
         criado_em=timezone.make_aware(data_cadastro)
     )
     termo.refresh_from_db()
@@ -180,21 +180,21 @@ def test_termo_list_escopado_a_empresa_e_status_do_fornecedor(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+        status=TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
         data_cadastro=datetime.datetime(2026, 3, 15, 12, 0),
     )
     termo_assinado = _cria_termo(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
         data_cadastro=datetime.datetime(2026, 3, 16, 12, 0),
     )
     _cria_termo(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.RASCUNHO,
+        status=TermoRecebimentoProvisorio.RASCUNHO,
         data_cadastro=datetime.datetime(2026, 3, 17, 12, 0),
     )
     _cria_termo(
@@ -220,7 +220,7 @@ def test_termo_list_retorna_dados_do_grid_do_fornecedor(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
         numeros_cronogramas=("111/2026", "222/2026"),
     )
     produtos = [
@@ -241,7 +241,7 @@ def test_termo_list_retorna_dados_do_grid_do_fornecedor(
         "LEITE EM PÓ INTEGRAL",
     ]
     assert resultado["data_cadastro"] == "15/03/2026"
-    assert resultado["status"] == TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR
+    assert resultado["status"] == TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR
 
 
 def test_termo_list_filtra_por_numero_contrato(
@@ -308,18 +308,18 @@ def test_termo_list_filtra_por_status(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ENVIADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ENVIADO_FORNECEDOR,
     )
     termo_assinado = _cria_termo(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
     )
 
     response = client_admin_empresa.get(
         "/pos-recebimento/termos/",
-        {"status": TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR},
+        {"status": TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR},
     )
 
     assert response.status_code == status.HTTP_200_OK
@@ -337,21 +337,21 @@ def test_termo_list_filtra_por_status_fornecedor_recebido(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+        status=TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
         data_cadastro=datetime.datetime(2026, 3, 15, 12, 0),
     )
     termo_fornecedor = _cria_termo(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ENVIADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ENVIADO_FORNECEDOR,
         data_cadastro=datetime.datetime(2026, 3, 16, 12, 0),
     )
     _cria_termo(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
         data_cadastro=datetime.datetime(2026, 3, 17, 12, 0),
     )
 
@@ -374,13 +374,13 @@ def test_termo_list_filtra_por_status_fornecedor_assinado(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ENVIADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ENVIADO_FORNECEDOR,
     )
     termo_assinado = _cria_termo(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
         data_cadastro=datetime.datetime(2026, 3, 16, 12, 0),
     )
 
@@ -432,7 +432,7 @@ def test_termo_retrieve_liberado_para_fornecedor(
         empresa_fornecedora,
         contrato_fornecedor,
         django_user_model,
-        status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+        status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
     )
 
     response = client_usuario_empresa.get(f"/pos-recebimento/termos/{termo.uuid}/")
