@@ -127,3 +127,71 @@ class TestDadosUsuarioEOLCompletoViewSet:
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert "Usuário não encontrado" in response.data["detail"]
+
+
+class TestDadosServidorEOLViewSet:
+    URL = "/dados-servidor-eol/{}/"
+    PATCH_RF = "src.eol_servico.utils.EOLServicoSGP.get_dados_usuario"
+
+    @staticmethod
+    def _resposta(status_code=200, json_data=None):
+        resposta = MagicMock()
+        resposta.status_code = status_code
+        resposta.json.return_value = json_data
+        return resposta
+
+    def test_encontrado(self, client_autenticado):
+        with patch(
+            self.PATCH_RF, return_value=self._resposta(200, {"nome": " FULANO "})
+        ):
+            response = client_autenticado.get(self.URL.format("1234567"))
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"rf": "1234567", "nome": "FULANO"}
+
+    @pytest.mark.parametrize(
+        "status_code,json_data",
+        [(404, None), (400, None), (204, None), (200, {"nome": ""}), (200, {})],
+    )
+    def test_nao_encontrado(self, client_autenticado, status_code, json_data):
+        with patch(self.PATCH_RF, return_value=self._resposta(status_code, json_data)):
+            response = client_autenticado.get(self.URL.format("1234567"))
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {
+            "detail": "RF não localizado. Verifique o número informado."
+        }
+
+    @pytest.mark.parametrize("rf", ["12a4567", "abc", "12 34", "²³"])
+    def test_rf_invalido(self, client_autenticado, rf):
+        with patch(self.PATCH_RF) as mock_consulta:
+            response = client_autenticado.get(self.URL.format(rf))
+
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        mock_consulta.assert_not_called()
+
+    @pytest.mark.parametrize(
+        "mock_kwargs",
+        [
+            {"side_effect": ConnectionError("fora do ar")},
+            {"return_value": MagicMock(status_code=500)},
+            {
+                "return_value": MagicMock(
+                    status_code=200, json=MagicMock(side_effect=ValueError)
+                )
+            },
+        ],
+    )
+    def test_servico_indisponivel(self, client_autenticado, mock_kwargs):
+        with patch(self.PATCH_RF, **mock_kwargs):
+            response = client_autenticado.get(self.URL.format("1234567"))
+
+        assert response.status_code == status.HTTP_503_SERVICE_UNAVAILABLE
+        assert "detail" in response.json()
+
+    def test_nao_autenticado(self, client):
+        with patch(self.PATCH_RF) as mock_consulta:
+            response = client.get(self.URL.format("1234567"))
+
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        mock_consulta.assert_not_called()
