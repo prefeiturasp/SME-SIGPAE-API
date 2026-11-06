@@ -2,13 +2,15 @@ from rest_framework.permissions import BasePermission
 
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
+    ADMINISTRADOR_UE,
     COORDENADOR_CODAE_DILOG_LOGISTICA,
     DILOG_CRONOGRAMA,
     DILOG_DIRETORIA,
     DILOG_QUALIDADE,
+    DIRETOR_UE,
     USUARIO_EMPRESA,
 )
-from src.escola.models import Codae
+from src.escola.models import Codae, Escola
 from src.terceirizada.models import Terceirizada
 
 
@@ -112,4 +114,24 @@ class PermissaoParaVisualizarTermoRecebimentoDefinitivo(
             request, view
         ) or PermissaoParaVisualizarTermoRecebimentoDefinitivoEmpresa().has_permission(
             request, view
+        )
+
+
+class PermissaoParaRegistrarMemorandoOcorrencia(BasePermission):
+    """Permissão para registrar ocorrências pelo Memorando de Ocorrências.
+
+    Apenas os perfis DIRETOR_UE e ADMINISTRADOR_UE vinculados a uma Escola
+    podem registrar ocorrências. A escola do registro é derivada do vínculo
+    do usuário autenticado.
+    """
+
+    message = "O seu perfil não tem permissão para registrar ocorrências."
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return (
+            not usuario.is_anonymous
+            and usuario.vinculo_atual
+            and isinstance(usuario.vinculo_atual.instituicao, Escola)
+            and usuario.vinculo_atual.perfil.nome in [DIRETOR_UE, ADMINISTRADOR_UE]
         )

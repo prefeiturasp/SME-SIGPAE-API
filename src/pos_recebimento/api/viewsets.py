@@ -13,21 +13,27 @@ from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from ..models import (
     AssinaturaTermoRecebimentoDefinitivo,
     CronogramaTermoRecebimentoDefinitivo,
+    MemorandoOcorrencia,
     TermoRecebimentoDefinitivo,
 )
 from .filters import TermoRecebimentoDefinitivoFilter
 from .permissions import (
     PermissaoParaAssinarTermoRecebimentoDefinitivo,
     PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+    PermissaoParaRegistrarMemorandoOcorrencia,
     PermissaoParaVisualizarTermoRecebimentoDefinitivo,
     usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
+    MemorandoOcorrenciaSerializer,
     TermoRecebimentoDefinitivoListagemSerializer,
     TermoRecebimentoDefinitivoPainelAssinaturaSerializer,
     TermoRecebimentoDefinitivoSerializer,
 )
-from .serializers.serializers_create import TermoRecebimentoDefinitivoCreateSerializer
+from .serializers.serializers_create import (
+    MemorandoOcorrenciaCreateSerializer,
+    TermoRecebimentoDefinitivoCreateSerializer,
+)
 
 
 class TermoRecebimentoDefinitivoViewSet(
@@ -213,11 +219,7 @@ class TermoRecebimentoDefinitivoViewSet(
         queryset = self._termos_do_fiscal(request)
         for campo_fiscal in ("fiscal_1", "fiscal_2", "fiscal_3"):
             queryset = queryset.annotate(
-                **{
-                    f"assinou_{campo_fiscal}": self._assinatura_do_fiscal(
-                        campo_fiscal
-                    )
-                }
+                **{f"assinou_{campo_fiscal}": self._assinatura_do_fiscal(campo_fiscal)}
             )
         queryset = queryset.filter(
             Q(assinou_fiscal_1=True, assinou_fiscal_2=True, assinou_fiscal_3=True)
@@ -338,4 +340,27 @@ class TermoRecebimentoDefinitivoViewSet(
         instance = serializer.instance
 
         output_serializer = TermoRecebimentoDefinitivoSerializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class MemorandoOcorrenciaViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    """Cadastro de ocorrências do Memorando de Ocorrências.
+
+    Endpoint:
+    - ``POST /pos-recebimento/memorandos-ocorrencia/`` — Registra uma
+      ocorrência com um ou mais lotes.
+    """
+
+    lookup_field = "uuid"
+    queryset = MemorandoOcorrencia.objects.all()
+    serializer_class = MemorandoOcorrenciaCreateSerializer
+    permission_classes = (PermissaoParaRegistrarMemorandoOcorrencia,)
+
+    def create(self, request, *args, **kwargs):
+        """Cria o memorando, persiste os lotes e retorna 201."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        output_serializer = MemorandoOcorrenciaSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
