@@ -831,7 +831,7 @@ class TestFinalizacaoMedicaoEmebsKitLanche:
         )
         monkeypatch.setattr(
             "src.medicao_inicial.validators.get_lista_dias_solicitacoes",
-            lambda parametros, escola: ["04", "08"],
+            lambda parametros, escola, **kwargs: ["04", "08"],
         )
         serializer = SolicitacaoMedicaoInicialCreateSerializer()
 
@@ -872,7 +872,7 @@ class TestFinalizacaoMedicaoEmebsKitLanche:
         )
         monkeypatch.setattr(
             "src.medicao_inicial.validators.get_lista_dias_solicitacoes",
-            lambda parametros, escola: dias_autorizados,
+            lambda parametros, escola, **kwargs: dias_autorizados,
         )
         serializer = SolicitacaoMedicaoInicialCreateSerializer()
 
