@@ -12,6 +12,16 @@ class FormularioSupervisaoFilter(filters.FilterSet):
         field_name="escola__diretoria_regional__uuid",
         lookup_expr="exact",
     )
+    mes = filters.NumberFilter(
+        field_name="formulario_base__data__month",
+        lookup_expr="exact",
+        min_value=1,
+        max_value=12,
+    )
+    ano = filters.NumberFilter(
+        field_name="formulario_base__data__year",
+        lookup_expr="exact",
+    )
     unidade_educacional = filters.CharFilter(
         field_name="escola__uuid",
         lookup_expr="exact",

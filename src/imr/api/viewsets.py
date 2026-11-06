@@ -6,7 +6,10 @@ from django.shortcuts import get_object_or_404
 from django_filters import rest_framework as filters
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import (
+    PermissionDenied,
+    ValidationError as ErroValidacaoAPI,
+)
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
@@ -231,38 +234,68 @@ class FormularioSupervisaoModelViewSet(
 
         return Response(serializer.data)
 
-    def get_lista_status(self) -> list[str]:
-        lista_status = [
-            state.name for state in list(FormularioSupervisaoWorkflow.states)
+    def get_lista_status(self, novo_painel: bool = True) -> list[str]:
+        if not novo_painel:
+            return [
+                FormularioSupervisaoWorkflow.EM_PREENCHIMENTO,
+                FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR,
+                FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE,
+                FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
+                FormularioSupervisaoWorkflow.APROVADO,
+                "TODOS_OS_RELATORIOS",
+            ]
+
+        return [
+            FormularioSupervisaoWorkflow.EM_PREENCHIMENTO,
+            FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR,
+            FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE,
+            FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO,
+            FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
         ]
-        lista_status += ["TODOS_OS_RELATORIOS"]
-        return lista_status
 
-    def get_label(self, workflow: str) -> str:
-        try:
-            return (
-                "Aprovados"
-                if workflow == FormularioSupervisaoWorkflow.APROVADO
-                else FormularioSupervisaoWorkflow.states[workflow].title
-            )
-        except KeyError:
-            return "Todos os Relatórios"
+    def get_label(self, workflow: str, novo_painel: bool = True) -> str:
+        if not novo_painel:
+            try:
+                return (
+                    "Aprovados"
+                    if workflow == FormularioSupervisaoWorkflow.APROVADO
+                    else FormularioSupervisaoWorkflow.states[workflow].title
+                )
+            except KeyError:
+                return "Todos os Relatórios"
 
-    def dados_dashboard(self, query_set: QuerySet) -> list:
+        rotulos = {
+            FormularioSupervisaoWorkflow.EM_PREENCHIMENTO:
+                "Em preenchimento pela Supervisão",
+            FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR:
+                "Enviados pela Supervisão",
+            FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE:
+                "Devolvidos com comentários",
+            FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO:
+                "Corrigidos pela Supervisão",
+            FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE:
+                "Validados pela CODAE",
+            FormularioSupervisaoWorkflow.APROVADO: "Aprovados",
+            "TODOS_OS_RELATORIOS": "Todos os Relatórios",
+        }
+        return rotulos.get(workflow, "Todos os Relatórios")
+
+    def dados_dashboard(
+        self, query_set: QuerySet, novo_painel: bool = True
+    ) -> list:
         sumario = []
 
-        for workflow in self.get_lista_status():
-            todos_lancamentos = workflow == "TODOS_OS_RELATORIOS"
-            qs = (
-                query_set.filter(status=workflow)
-                if not todos_lancamentos
-                else query_set
+        for workflow in self.get_lista_status(novo_painel=novo_painel):
+            relatorios = (
+                query_set
+                if workflow == "TODOS_OS_RELATORIOS"
+                else query_set.filter(status=workflow)
             )
             sumario.append(
                 {
                     "status": workflow,
-                    "label": self.get_label(workflow),
-                    "total": len(qs),
+                    "label": self.get_label(workflow, novo_painel=novo_painel),
+                    "total": relatorios.count(),
                 }
             )
         return sumario
@@ -273,10 +306,18 @@ class FormularioSupervisaoModelViewSet(
         url_path="dashboard",
     )
     def dashboard(self, request):
-        query_set = self.get_queryset()
+        novo_painel = (
+            request.query_params.get("novo_painel", "true").lower() == "true"
+        )
+        query_set = (
+            self._filtrar_relatorios_dashboard(request)
+            if novo_painel
+            else self.get_queryset()
+        )
         response = {
             "results": self.dados_dashboard(
                 query_set=query_set,
+                novo_painel=novo_painel,
             )
         }
         return Response(response)
@@ -374,6 +415,23 @@ class FormularioSupervisaoModelViewSet(
             dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
             status=status.HTTP_200_OK,
         )
+
+    def _filtrar_relatorios_dashboard(self, request):
+        parametros = {
+            "diretoria_regional": request.query_params.get("diretoria_regional"),
+            "mes": request.query_params.get("mes"),
+            "ano": request.query_params.get("ano"),
+        }
+        filtro = FormularioSupervisaoFilter(
+            data=parametros,
+            queryset=self.get_queryset(),
+            request=request,
+        )
+
+        if not filtro.is_valid():
+            raise ErroValidacaoAPI(filtro.errors)
+
+        return filtro.qs
 
 
 class FormularioDiretorModelViewSet(
