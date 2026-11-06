@@ -11,18 +11,18 @@ from src.terceirizada.api.serializers.serializers import (
 )
 
 from ...models import (
-    CronogramaTermoRecebimentoDefinitivo,
-    TermoRecebimentoDefinitivo,
+    CronogramaTermoRecebimentoProvisorio,
+    TermoRecebimentoProvisorio,
 )
 
 
-class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
+class CronogramaTermoRecebimentoProvisorioSerializer(serializers.ModelSerializer):
     """Cronograma do termo com a quantidade recebida."""
 
     cronograma = CronogramaSerializer(read_only=True)
 
     class Meta:
-        model = CronogramaTermoRecebimentoDefinitivo
+        model = CronogramaTermoRecebimentoProvisorio
         fields = (
             "cronograma",
             "quantidade_total_recebida",
@@ -30,9 +30,9 @@ class CronogramaTermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer
         read_only_fields = fields
 
 
-class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
+class TermoRecebimentoProvisorioListagemSerializer(serializers.ModelSerializer):
     """
-    Serializador para a listagem de Termos de Recebimento Definitivo.
+    Serializador para a listagem de Termos de Recebimento Provisório.
     """
 
     nome_empresa = serializers.CharField(
@@ -73,7 +73,7 @@ class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
         return produtos
 
     class Meta:
-        model = TermoRecebimentoDefinitivo
+        model = TermoRecebimentoProvisorio
         fields = (
             "uuid",
             "nome_empresa",
@@ -89,7 +89,7 @@ class TermoRecebimentoDefinitivoListagemSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
-class TermoRecebimentoDefinitivoPainelAssinaturaSerializer(serializers.ModelSerializer):
+class TermoRecebimentoProvisorioPainelAssinaturaSerializer(serializers.ModelSerializer):
     """Termo no painel de assinaturas do fiscal."""
 
     empresa = serializers.CharField(
@@ -126,7 +126,7 @@ class TermoRecebimentoDefinitivoPainelAssinaturaSerializer(serializers.ModelSeri
         return obj.criado_em.strftime(FORMATO_DATA_BRASILEIRO)
 
     class Meta:
-        model = TermoRecebimentoDefinitivo
+        model = TermoRecebimentoProvisorio
         fields = (
             "uuid",
             "empresa",
@@ -139,8 +139,8 @@ class TermoRecebimentoDefinitivoPainelAssinaturaSerializer(serializers.ModelSeri
         read_only_fields = fields
 
 
-class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
-    """Serializador de saída do Termo de Recebimento Definitivo.
+class TermoRecebimentoProvisorioSerializer(serializers.ModelSerializer):
+    """Serializador de saída do Termo de Recebimento Provisório.
 
     Os modelos já existentes (empresa, contrato, cronogramas e fiscais)
     são serializados pelos serializers de seus respectivos módulos. Cada
@@ -149,7 +149,7 @@ class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
 
     empresa = TerceirizadaSimplesSerializer(read_only=True)
     contrato = ContratoSimplesSerializer(read_only=True)
-    cronogramas = CronogramaTermoRecebimentoDefinitivoSerializer(
+    cronogramas = CronogramaTermoRecebimentoProvisorioSerializer(
         source="cronogramas_termo",
         many=True,
         read_only=True,
@@ -167,7 +167,7 @@ class TermoRecebimentoDefinitivoSerializer(serializers.ModelSerializer):
         return obj.pode_assinar(request.user)
 
     class Meta:
-        model = TermoRecebimentoDefinitivo
+        model = TermoRecebimentoProvisorio
         fields = (
             "uuid",
             "empresa",

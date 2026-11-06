@@ -6301,8 +6301,8 @@ class FluxoCronogramaSemanal(xwf_models.WorkflowEnabled, models.Model):
         abstract = True
 
 
-class TermoRecebimentoDefinitivoWorkflow(xwf_models.Workflow):
-    """Workflow do Termo de Recebimento Definitivo (módulo Pós-Recebimento)."""
+class TermoRecebimentoProvisorioWorkflow(xwf_models.Workflow):
+    """Workflow do Termo de Recebimento Provisório (módulo Pós-Recebimento)."""
 
     log_model = ""  # Disable logging to database
 
@@ -6330,10 +6330,10 @@ class TermoRecebimentoDefinitivoWorkflow(xwf_models.Workflow):
     initial_state = RASCUNHO
 
 
-class FluxoTermoRecebimentoDefinitivo(xwf_models.WorkflowEnabled, models.Model):
-    """Classe abstrata que adiciona o workflow do Termo de Recebimento Definitivo."""
+class FluxoTermoRecebimentoProvisorio(xwf_models.WorkflowEnabled, models.Model):
+    """Classe abstrata que adiciona o workflow do Termo de Recebimento Provisório."""
 
-    workflow_class = TermoRecebimentoDefinitivoWorkflow
+    workflow_class = TermoRecebimentoProvisorioWorkflow
     status = xwf_models.StateField(workflow_class, max_length=20)
 
     def salvar_log_transicao(self, status_evento, usuario, **kwargs):
@@ -6341,7 +6341,7 @@ class FluxoTermoRecebimentoDefinitivo(xwf_models.WorkflowEnabled, models.Model):
         LogSolicitacoesUsuario.objects.create(
             descricao=str(self),
             status_evento=status_evento,
-            solicitacao_tipo=LogSolicitacoesUsuario.TERMO_RECEBIMENTO_DEFINITIVO,
+            solicitacao_tipo=LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO,
             usuario=usuario,
             uuid_original=self.uuid,
             justificativa=kwargs.get("justificativa", ""),
@@ -6352,7 +6352,7 @@ class FluxoTermoRecebimentoDefinitivo(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs.get("user")
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.TERMO_RECEBIMENTO_DEFINITIVO_ENVIADO_AOS_FISCAIS,
+                status_evento=LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO_ENVIADO_AOS_FISCAIS,
                 usuario=user,
             )
 
@@ -6361,7 +6361,7 @@ class FluxoTermoRecebimentoDefinitivo(xwf_models.WorkflowEnabled, models.Model):
         user = kwargs.get("user")
         if user:
             self.salvar_log_transicao(
-                status_evento=LogSolicitacoesUsuario.TERMO_RECEBIMENTO_DEFINITIVO_ETAPA_FISCAIS_CONCLUIDA,
+                status_evento=LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO_ETAPA_FISCAIS_CONCLUIDA,
                 usuario=user,
             )
 

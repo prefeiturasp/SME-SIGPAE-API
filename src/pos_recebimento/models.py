@@ -1,19 +1,19 @@
 from django.conf import settings
 from django.db import models
 
-from src.dados_comuns.behaviors import CriadoPor, TemLogs, ModeloBase
+from src.dados_comuns.behaviors import CriadoPor, ModeloBase, TemLogs
 from src.dados_comuns.constants import StringsVerboseNameModels
-from src.dados_comuns.fluxo_status import FluxoTermoRecebimentoDefinitivo
+from src.dados_comuns.fluxo_status import FluxoTermoRecebimentoProvisorio
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Contrato, Terceirizada
 
 
-class TermoRecebimentoDefinitivo(
-    ModeloBase, CriadoPor, TemLogs, FluxoTermoRecebimentoDefinitivo
+class TermoRecebimentoProvisorio(
+    ModeloBase, CriadoPor, TemLogs, FluxoTermoRecebimentoProvisorio
 ):
-    """Termo de Recebimento Definitivo do módulo Pós-Recebimento.
+    """Termo de Recebimento Provisório do módulo Pós-Recebimento.
 
-    Registra a formalização do recebimento definitivo de produtos de uma
+    Registra a formalização do recebimento provisório de produtos de uma
     empresa/contrato, vinculando um ou mais cronogramas, os fiscais
     (perfil DILOG_QUALIDADE) responsáveis e o texto do termo.
 
@@ -53,38 +53,38 @@ class TermoRecebimentoDefinitivo(
         Terceirizada,
         on_delete=models.PROTECT,
         verbose_name=StringsVerboseNameModels.EMPRESA.value,
-        related_name="termos_recebimento_definitivo",
+        related_name="termos_recebimento_provisorio",
     )
     contrato = models.ForeignKey(
         Contrato,
         on_delete=models.PROTECT,
         verbose_name=StringsVerboseNameModels.CONTRATO.value,
-        related_name="termos_recebimento_definitivo",
+        related_name="termos_recebimento_provisorio",
     )
     cronogramas = models.ManyToManyField(
         Cronograma,
-        through="CronogramaTermoRecebimentoDefinitivo",
+        through="CronogramaTermoRecebimentoProvisorio",
         verbose_name=StringsVerboseNameModels.CRONOGRAMAS.value,
-        related_name="termos_recebimento_definitivo",
+        related_name="termos_recebimento_provisorio",
         blank=True,
     )
     fiscal_1 = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         verbose_name=StringsVerboseNameModels.FISCAL_1.value,
-        related_name="termos_recebimento_definitivo_fiscal_1",
+        related_name="termos_recebimento_provisorio_fiscal_1",
     )
     fiscal_2 = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         verbose_name=StringsVerboseNameModels.FISCAL_2.value,
-        related_name="termos_recebimento_definitivo_fiscal_2",
+        related_name="termos_recebimento_provisorio_fiscal_2",
     )
     fiscal_3 = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         verbose_name=StringsVerboseNameModels.FISCAL_3.value,
-        related_name="termos_recebimento_definitivo_fiscal_3",
+        related_name="termos_recebimento_provisorio_fiscal_3",
     )
     valor_contrato = models.DecimalField(
         StringsVerboseNameModels.VALOR_DO_CONTRATO.value,
@@ -100,12 +100,12 @@ class TermoRecebimentoDefinitivo(
         null=True,
         blank=True,
         verbose_name=StringsVerboseNameModels.ALTERADO_POR.value,
-        related_name="termos_recebimento_definitivo_alterados",
+        related_name="termos_recebimento_provisorio_alterados",
     )
 
     def __str__(self):
         return (
-            f"Termo de Recebimento Definitivo - "
+            f"Termo de Recebimento Provisório - "
             f"{self.empresa.nome_fantasia} - Contrato: {self.contrato.numero}"
         )
 
@@ -121,7 +121,7 @@ class TermoRecebimentoDefinitivo(
         fiscais = {self.fiscal_1_id, self.fiscal_2_id, self.fiscal_3_id}
         assinantes = set(
             self.assinaturas.filter(
-                etapa=AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO
+                etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO
             ).values_list("usuario_id", flat=True)
         )
         return fiscais <= assinantes
@@ -134,7 +134,7 @@ class TermoRecebimentoDefinitivo(
         """O usuário já registrou assinatura na etapa dos Fiscais?"""
         return self.assinaturas.filter(
             usuario=usuario,
-            etapa=AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO,
+            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
         ).exists()
 
     def pode_assinar(self, usuario):
@@ -145,26 +145,26 @@ class TermoRecebimentoDefinitivo(
         assinado.
         """
         return (
-            self.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+            self.status == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
             and self.eh_fiscal(usuario)
             and not self.usuario_ja_assinou_fiscal(usuario)
         )
 
     class Meta:
-        verbose_name = "Termo de Recebimento Definitivo"
-        verbose_name_plural = "Termos de Recebimento Definitivo"
+        verbose_name = "Termo de Recebimento Provisório"
+        verbose_name_plural = "Termos de Recebimento Provisório"
 
 
-class CronogramaTermoRecebimentoDefinitivo(models.Model):
-    """Cronograma vinculado a um Termo de Recebimento Definitivo.
+class CronogramaTermoRecebimentoProvisorio(models.Model):
+    """Cronograma vinculado a um Termo de Recebimento Provisório.
 
     Cada cronograma do termo possui sua própria quantidade total recebida.
     """
 
     termo = models.ForeignKey(
-        TermoRecebimentoDefinitivo,
+        TermoRecebimentoProvisorio,
         on_delete=models.CASCADE,
-        verbose_name=StringsVerboseNameModels.TERMO_DE_RECEBIMENTO_DEFINITIVO.value,
+        verbose_name=StringsVerboseNameModels.TERMO_DE_RECEBIMENTO_PROVISORIO.value,
         related_name="cronogramas_termo",
     )
     cronograma = models.ForeignKey(
@@ -182,13 +182,13 @@ class CronogramaTermoRecebimentoDefinitivo(models.Model):
         return f"Cronograma {self.cronograma.numero} do Termo {self.termo.uuid}"
 
     class Meta:
-        verbose_name = "Cronograma do Termo de Recebimento Definitivo"
-        verbose_name_plural = "Cronogramas do Termo de Recebimento Definitivo"
+        verbose_name = "Cronograma do Termo de Recebimento Provisório"
+        verbose_name_plural = "Cronogramas do Termo de Recebimento Provisório"
         unique_together = [("termo", "cronograma")]
 
 
-class AssinaturaTermoRecebimentoDefinitivo(ModeloBase):
-    """Assinatura registrada em um Termo de Recebimento Definitivo.
+class AssinaturaTermoRecebimentoProvisorio(ModeloBase):
+    """Assinatura registrada em um Termo de Recebimento Provisório.
 
     Cada assinatura é individual (um usuário por etapa), permitindo que os
     três Fiscais do Contrato assinem em qualquer ordem. As etapas seguintes
@@ -209,16 +209,16 @@ class AssinaturaTermoRecebimentoDefinitivo(ModeloBase):
     )
 
     termo = models.ForeignKey(
-        TermoRecebimentoDefinitivo,
+        TermoRecebimentoProvisorio,
         on_delete=models.CASCADE,
-        verbose_name=StringsVerboseNameModels.TERMO_DE_RECEBIMENTO_DEFINITIVO.value,
+        verbose_name=StringsVerboseNameModels.TERMO_DE_RECEBIMENTO_PROVISORIO.value,
         related_name="assinaturas",
     )
     usuario = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
         verbose_name=StringsVerboseNameModels.USUARIO.value,
-        related_name="assinaturas_termo_recebimento_definitivo",
+        related_name="assinaturas_termo_recebimento_provisorio",
     )
     etapa = models.CharField(
         "Etapa do fluxo de assinaturas",
@@ -230,6 +230,6 @@ class AssinaturaTermoRecebimentoDefinitivo(ModeloBase):
         return f"Assinatura de {self.usuario.nome} no Termo {self.termo.uuid}"
 
     class Meta:
-        verbose_name = "Assinatura do Termo de Recebimento Definitivo"
-        verbose_name_plural = "Assinaturas dos Termos de Recebimento Definitivo"
+        verbose_name = "Assinatura do Termo de Recebimento Provisório"
+        verbose_name_plural = "Assinaturas dos Termos de Recebimento Provisório"
         unique_together = [("termo", "usuario", "etapa")]

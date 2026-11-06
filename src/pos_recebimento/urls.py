@@ -7,8 +7,8 @@ router = routers.DefaultRouter()
 
 router.register(
     "termos",
-    viewsets.TermoRecebimentoDefinitivoViewSet,
-    basename="termos-recebimento-definitivo",
+    viewsets.TermoRecebimentoProvisorioViewSet,
+    basename="termos-recebimento-provisorio",
 )
 
 
