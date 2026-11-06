@@ -31,7 +31,6 @@ class EOLException(Exception):
 
 MENSAGEM_RF_NAO_LOCALIZADO = "RF não localizado. Verifique o número informado."
 
-# Respostas da consulta de servidor que indicam que o RF não existe.
 STATUS_RF_NAO_ENCONTRADO = (
     status.HTTP_204_NO_CONTENT,
     status.HTTP_400_BAD_REQUEST,
