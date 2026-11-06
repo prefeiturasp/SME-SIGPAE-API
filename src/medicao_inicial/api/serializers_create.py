@@ -1537,6 +1537,22 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
     valores_medicao = ValorMedicaoCreateUpdateSerializer(many=True, required=False)
     infantil_ou_fundamental = serializers.CharField(required=False)
 
+    def _apenas_observacoes_em_correcao(self, instance, valores):
+        """Impede que salvamentos comuns/autosaves regravem valores em correção."""
+        status_correcao = (
+            instance.workflow_class.MEDICAO_CORRECAO_SOLICITADA,
+            instance.workflow_class.MEDICAO_CORRIGIDA_PELA_UE,
+            instance.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+            instance.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+        )
+        if instance.status not in status_correcao or not valores:
+            return valores
+        return [
+            valor
+            for valor in valores
+            if valor and valor.get("nome_campo") == "observacoes"
+        ]
+
     def create(self, validated_data):
         usuario = self.context["request"].user
         validated_data["criado_por"] = usuario
@@ -1601,6 +1617,9 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):  # noqa C901
         user = self.context["request"].user
         acao = instance.workflow_class.MEDICAO_CORRIGIDA_PELA_UE
+        validated_data["valores_medicao"] = self._apenas_observacoes_em_correcao(
+            instance, validated_data.get("valores_medicao", None)
+        )
         valores = validated_data.get("valores_medicao", None)
         if instance.status in [
             acao,
