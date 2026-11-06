@@ -54,6 +54,7 @@ from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     parametrizacao_possui_reajuste,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
+from src.terceirizada.models import Contrato
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
@@ -185,6 +186,7 @@ from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
     DescontoFinanceiroUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
+    GerarMedicaoFinalSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
     MedicaoCreateUpdateSerializer,
     ParametrizacaoFinanceiraWriteModelSerializer,
@@ -2764,7 +2766,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         | UsuarioCODAENutriManifestacao
         | UsuarioDinutreDiretoria
     ]
-    queryset = RelatorioFinanceiro.objects.all()
+    queryset = RelatorioFinanceiro.objects.select_related("medicao_final")
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = RelatorioFinanceiroFilter
     pagination_class = CustomPagination
@@ -3012,6 +3014,71 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 {"Erro": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(detail=True, methods=["GET"], url_path="dados-medicao-final")
+    def dados_medicao_final(self, request, uuid=None):
+        """Dados somente leitura exibidos no modal "Gerar Medição Final"."""
+        relatorio_financeiro = self.get_object()
+        lote = relatorio_financeiro.lote
+        terceirizada = lote.terceirizada
+        mes, ano = int(relatorio_financeiro.mes), int(relatorio_financeiro.ano)
+        primeiro_dia = datetime.date(ano, mes, 1)
+        ultimo_dia = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
+
+        contratos = Contrato.objects.filter(lotes=lote).filter(
+            Q(data_hora_encerramento__isnull=True)
+            | Q(data_hora_encerramento__date__gte=primeiro_dia),
+            Q(data_proposta__isnull=True) | Q(data_proposta__lte=ultimo_dia),
+        )
+        if terceirizada:
+            contratos = contratos.filter(terceirizada=terceirizada)
+        contrato = contratos.order_by(
+            "encerrado", F("data_proposta").desc(nulls_last=True)
+        ).first()
+
+        tipos_unidade = (
+            relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.order_by(
+                "iniciais"
+            ).values_list("iniciais", flat=True)
+        )
+
+        return Response(
+            {
+                "empresa_contratada": (
+                    terceirizada.razao_social if terceirizada else None
+                ),
+                "periodo_inicio": primeiro_dia.strftime("%d/%m/%Y"),
+                "periodo_fim": ultimo_dia.strftime("%d/%m/%Y"),
+                "lote": lote.nome,
+                "dre": (
+                    lote.diretoria_regional.nome if lote.diretoria_regional else None
+                ),
+                "tipos_unidade": ", ".join(tipos_unidade),
+                "numero_contrato": contrato.numero if contrato else None,
+                "numero_processo_administrativo": (
+                    contrato.processo if contrato else None
+                ),
+            }
+        )
+
+    @action(
+        detail=True,
+        methods=["POST"],
+        url_path="gerar-medicao-final",
+        permission_classes=[UsuarioMedicao],
+    )
+    def gerar_medicao_final(self, request, uuid=None):
+        """Registra a Medição Final e muda o status para "Gerada Medição Final"."""
+        relatorio_financeiro = get_object_or_404(
+            self.get_queryset().select_for_update(of=("self",)), uuid=uuid
+        )
+        serializer = GerarMedicaoFinalSerializer(
+            data=request.data,
+            context={"request": request, "relatorio_financeiro": relatorio_financeiro},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(self.get_serializer(relatorio_financeiro).data)
 
 
 class DescontoFinanceiroViewSet(ModelViewSet):

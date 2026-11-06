@@ -155,7 +155,9 @@ class LogSolicitacoesUsuario(models.Model):
         TERMO_RECEBIMENTO_PROVISORIO_ENVIADO_AOS_FISCAIS,
         TERMO_RECEBIMENTO_PROVISORIO_ASSINADO_PELO_FISCAL,
         TERMO_RECEBIMENTO_PROVISORIO_ETAPA_FISCAIS_CONCLUIDA,
-    ) = range(121)
+        # RELATÓRIO FINANCEIRO (MEDIÇÃO INICIAL)
+        MEDICAO_FINAL_GERADA,
+    ) = range(122)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -357,6 +359,7 @@ class LogSolicitacoesUsuario(models.Model):
             TERMO_RECEBIMENTO_PROVISORIO_ETAPA_FISCAIS_CONCLUIDA,
             "Etapa de assinatura dos Fiscais do Termo de Recebimento Provisório concluída",
         ),
+        (MEDICAO_FINAL_GERADA, "Gerada Medição Final"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,
@@ -390,7 +393,8 @@ class LogSolicitacoesUsuario(models.Model):
         FORMULARIO_SUPERVISAO,
         FICHA_RECEBIMENTO,
         TERMO_RECEBIMENTO_PROVISORIO,
-    ) = range(27)
+        RELATORIO_FINANCEIRO,
+    ) = range(28)
 
     TIPOS_SOLICITACOES = (
         (SOLICITACAO_KIT_LANCHE_AVULSA, "Solicitação de kit lanche avulsa"),
@@ -420,6 +424,7 @@ class LogSolicitacoesUsuario(models.Model):
         (FORMULARIO_SUPERVISAO, "Formulário Supervisão"),
         (FICHA_RECEBIMENTO, "Ficha de Recebimento"),
         (TERMO_RECEBIMENTO_PROVISORIO, "Termo de Recebimento Provisório"),
+        (RELATORIO_FINANCEIRO, "Relatório Financeiro"),
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)

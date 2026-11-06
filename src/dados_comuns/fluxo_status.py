@@ -6065,6 +6065,7 @@ class FormularioSupervisaoWorkflow(xwf_models.Workflow):
     EM_PREENCHIMENTO = "EM_PREENCHIMENTO"
     NUTRIMANIFESTACAO_A_VALIDAR = "NUTRIMANIFESTACAO_A_VALIDAR"
     COM_COMENTARIOS_DE_CODAE = "COM_COMENTARIOS_DE_CODAE"
+    CORRIGIDO_PELA_SUPERVISAO = "CORRIGIDO_PELA_SUPERVISAO"
     VALIDADO_POR_CODAE = "VALIDADO_POR_CODAE"
     APROVADO = "APROVADO"
 
@@ -6072,6 +6073,7 @@ class FormularioSupervisaoWorkflow(xwf_models.Workflow):
         (EM_PREENCHIMENTO, "Em Preenchimento"),
         (NUTRIMANIFESTACAO_A_VALIDAR, "Enviado para CODAE"),
         (COM_COMENTARIOS_DE_CODAE, "Com comentários de CODAE"),
+        (CORRIGIDO_PELA_SUPERVISAO, "Corrigido pela Supervisão"),
         (VALIDADO_POR_CODAE, "Validado pela CODAE"),
         (APROVADO, "Aprovado"),
     )
@@ -6117,7 +6119,7 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
         (FINALIZADO, "Finalizado"),
     )
 
-    transitions = ()
+    transitions = (("gerar_medicao_final", EM_ANALISE, GERADA_MEDICAO_FINAL),)
 
     initial_state = RELATORIO_FINANCEIRO_GERADO
 
@@ -6125,6 +6127,19 @@ class RelatorioFinanceiroMedicaoInicialWorkflow(xwf_models.Workflow):
 class FluxoRelatorioFinanceiroMedicaoInicial(xwf_models.WorkflowEnabled, models.Model):
     workflow_class = RelatorioFinanceiroMedicaoInicialWorkflow
     status = xwf_models.StateField(workflow_class)
+
+    @xworkflows.before_transition("gerar_medicao_final")
+    def _valida_usuario_gerar_medicao_final_hook(self, *args, **kwargs):
+        """Exige o usuário antes de mudar o status, para o log ser sempre gravado."""
+        if not kwargs.get("user"):
+            raise PermissionDenied(StringsValidationErrors.PERMISSAO_NEGADA.value)
+
+    @xworkflows.after_transition("gerar_medicao_final")
+    def _gerar_medicao_final_hook(self, *args, **kwargs):
+        self.salvar_log_transicao(
+            status_evento=LogSolicitacoesUsuario.MEDICAO_FINAL_GERADA,
+            usuario=kwargs["user"],
+        )
 
     class Meta:
         abstract = True

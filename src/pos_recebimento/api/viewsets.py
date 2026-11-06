@@ -14,21 +14,26 @@ from ..models import (
     AssinaturaTermoRecebimentoProvisorio,
     CronogramaTermoRecebimentoProvisorio,
     TermoRecebimentoProvisorio,
+    MemorandoOcorrencia,
 )
 from .filters import TermoRecebimentoProvisorioFilter
 from .permissions import (
     PermissaoParaAssinarTermoRecebimentoProvisorio,
     PermissaoParaCadastrarTermoRecebimentoProvisorio,
     PermissaoParaVisualizarTermoRecebimentoProvisorio,
+    PermissaoParaRegistrarMemorandoOcorrencia,
     usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
+    MemorandoOcorrenciaSerializer,
     TermoRecebimentoProvisorioListagemSerializer,
     TermoRecebimentoProvisorioPainelAssinaturaSerializer,
     TermoRecebimentoProvisorioSerializer,
 )
-from .serializers.serializers_create import TermoRecebimentoProvisorioCreateSerializer
-
+from .serializers.serializers_create import (
+    MemorandoOcorrenciaCreateSerializer,
+    TermoRecebimentoProvisorioCreateSerializer,
+)
 
 class TermoRecebimentoProvisorioViewSet(
     mixins.CreateModelMixin,
@@ -334,4 +339,27 @@ class TermoRecebimentoProvisorioViewSet(
         instance = serializer.instance
 
         output_serializer = TermoRecebimentoProvisorioSerializer(instance)
+        return Response(output_serializer.data, status=status.HTTP_201_CREATED)
+
+
+class MemorandoOcorrenciaViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
+    """Cadastro de ocorrências do Memorando de Ocorrências.
+
+    Endpoint:
+    - ``POST /pos-recebimento/memorandos-ocorrencia/`` — Registra uma
+      ocorrência com um ou mais lotes.
+    """
+
+    lookup_field = "uuid"
+    queryset = MemorandoOcorrencia.objects.all()
+    serializer_class = MemorandoOcorrenciaCreateSerializer
+    permission_classes = (PermissaoParaRegistrarMemorandoOcorrencia,)
+
+    def create(self, request, *args, **kwargs):
+        """Cria o memorando, persiste os lotes e retorna 201."""
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        instance = serializer.save()
+
+        output_serializer = MemorandoOcorrenciaSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)

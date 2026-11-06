@@ -217,6 +217,25 @@ def test_valida_mesmo_ano(data_inversao_mesmo_ano):
     assert deve_ser_no_mesmo_ano_corrente(data_inversao) is esperado
 
 
+@freeze_time("2019-12-31")
+def test_dezembro_aceita_data_do_ano_seguinte():
+    assert deve_ser_no_mesmo_ano_corrente(datetime.date(2020, 1, 2)) is True
+
+
+@freeze_time("2020-01-01")
+def test_janeiro_rejeita_data_do_ano_anterior():
+    with pytest.raises(
+        serializers.ValidationError,
+        match="Solicitação deve ser solicitada no ano corrente",
+    ):
+        deve_ser_no_mesmo_ano_corrente(datetime.date(2019, 12, 31))
+
+
+@freeze_time("2020-01-01")
+def test_janeiro_aceita_data_do_ano_corrente():
+    assert deve_ser_no_mesmo_ano_corrente(datetime.date(2020, 1, 31)) is True
+
+
 def test_anexo_extensoes_validas(nomes_anexos_validos):
     nome = deve_ter_extensao_xls_xlsx_pdf(nomes_anexos_validos)
     assert type(nome) is str

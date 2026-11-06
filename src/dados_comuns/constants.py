@@ -1653,6 +1653,14 @@ class StringsVerboseNameModels(Enum):
     VALOR_DO_CONTRATO = "Valor do Contrato"
     VISAO = "Visão"
     VOLUME = "Volume"
+    DATA_DE_FABRICACAO = "Data de Fabricação"
+    DATA_DE_VALIDADE = "Data de Validade"
+    ESCOLA = "Escola"
+    LOTE = "Lote"
+    MARCA = "Marca"
+    MEMORANDO_DE_OCORRENCIA = "Memorando de Ocorrência"
+    PRODUTO = "Produto"
+    QUANTIDADE_COM_PROBLEMA_DEVOLUCAO = "Quantidade com Problema / Devolução"
 
     @classmethod
     def choices(cls):

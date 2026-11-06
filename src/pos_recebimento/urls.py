@@ -10,6 +10,11 @@ router.register(
     viewsets.TermoRecebimentoProvisorioViewSet,
     basename="termos-recebimento-provisorio",
 )
+router.register(
+    "memorandos-ocorrencia",
+    viewsets.MemorandoOcorrenciaViewSet,
+    basename="memorandos-ocorrencia",
+)
 
 
 urlpatterns = [path("pos-recebimento/", include(router.urls))]

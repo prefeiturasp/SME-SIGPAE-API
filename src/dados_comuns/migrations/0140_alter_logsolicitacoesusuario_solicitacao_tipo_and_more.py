@@ -42,6 +42,7 @@ class Migration(migrations.Migration):
                     (24, "Formulário Supervisão"),
                     (25, "Ficha de Recebimento"),
                     (26, "Termo de Recebimento Provisório"),
+                    (27, "Relatório Financeiro"),
                 ]
             ),
         ),
@@ -174,6 +175,7 @@ class Migration(migrations.Migration):
                         120,
                         "Etapa de assinatura dos Fiscais do Termo de Recebimento Provisório concluída",
                     ),
+                    (121, "Gerada Medição Final"),
                 ]
             ),
         ),

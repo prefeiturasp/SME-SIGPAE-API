@@ -4,6 +4,8 @@ from .models import (
     AssinaturaTermoRecebimentoProvisorio,
     CronogramaTermoRecebimentoProvisorio,
     TermoRecebimentoProvisorio,
+    LoteMemorandoOcorrencia,
+    MemorandoOcorrencia,
 )
 
 
@@ -59,3 +61,54 @@ class AssinaturaTermoRecebimentoProvisorioAdmin(admin.ModelAdmin):
     )
     list_filter = ("etapa",)
     search_fields = ("termo__uuid", "usuario__nome", "usuario__email")
+
+
+class LoteMemorandoOcorrenciaInline(admin.TabularInline):
+    """Inline dos lotes do memorando de ocorrência."""
+
+    model = LoteMemorandoOcorrencia
+    extra = 0
+    fields = (
+        "lote",
+        "marca",
+        "data_fabricacao",
+        "data_validade",
+        "quantidade_problema_devolucao",
+        "ordem",
+    )
+
+
+@admin.register(MemorandoOcorrencia)
+class MemorandoOcorrenciaAdmin(admin.ModelAdmin):
+    """Admin do Memorando de Ocorrência com inline dos lotes."""
+
+    list_display = (
+        "uuid",
+        "escola",
+        "categoria",
+        "produto",
+        "tipo_ocorrencia",
+        "criado_em",
+    )
+    list_filter = ("categoria", "tipo_ocorrencia")
+    inlines = (LoteMemorandoOcorrenciaInline,)
+    readonly_fields = ("uuid", "criado_em", "alterado_em", "criado_por")
+    search_fields = ("escola__nome", "escola__codigo_eol", "produto", "uuid")
+    list_select_related = ("escola",)
+
+
+@admin.register(LoteMemorandoOcorrencia)
+class LoteMemorandoOcorrenciaAdmin(admin.ModelAdmin):
+    """Admin dos lotes dos memorandos de ocorrência."""
+
+    list_display = (
+        "memorando",
+        "lote",
+        "marca",
+        "data_fabricacao",
+        "data_validade",
+        "quantidade_problema_devolucao",
+        "ordem",
+    )
+    search_fields = ("memorando__uuid", "lote", "marca")
+    list_select_related = ("memorando",)

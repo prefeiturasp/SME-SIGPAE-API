@@ -13,6 +13,8 @@ from src.terceirizada.api.serializers.serializers import (
 from ...models import (
     CronogramaTermoRecebimentoProvisorio,
     TermoRecebimentoProvisorio,
+    LoteMemorandoOcorrencia,
+    MemorandoOcorrencia,
 )
 
 
@@ -182,5 +184,49 @@ class TermoRecebimentoProvisorioSerializer(serializers.ModelSerializer):
             "pode_assinar",
             "criado_em",
             "alterado_em",
+        )
+        read_only_fields = fields
+
+
+class LoteMemorandoOcorrenciaSerializer(serializers.ModelSerializer):
+    """Lote do Memorando de Ocorrência para leitura."""
+
+    class Meta:
+        model = LoteMemorandoOcorrencia
+        fields = (
+            "uuid",
+            "lote",
+            "marca",
+            "data_fabricacao",
+            "data_validade",
+            "quantidade_problema_devolucao",
+            "ordem",
+        )
+        read_only_fields = fields
+
+
+class MemorandoOcorrenciaSerializer(serializers.ModelSerializer):
+    """Memorando de Ocorrência para leitura."""
+
+    categoria_display = serializers.CharField(
+        source="get_categoria_display",
+        read_only=True,
+    )
+    tipo_ocorrencia_display = serializers.CharField(
+        source="get_tipo_ocorrencia_display",
+        read_only=True,
+    )
+    lotes = LoteMemorandoOcorrenciaSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = MemorandoOcorrencia
+        fields = (
+            "uuid",
+            "categoria",
+            "categoria_display",
+            "produto",
+            "tipo_ocorrencia",
+            "tipo_ocorrencia_display",
+            "lotes",
         )
         read_only_fields = fields
