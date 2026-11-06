@@ -20,6 +20,7 @@ from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
     somente_digitos,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
 from src.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
 )
@@ -74,7 +75,6 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
     validate_lancamento_alimentacoes_medicao_recreio,
     validate_lancamento_dietas_medicao_recreio,
 )
-from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
 from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
 from src.terceirizada.models import Edital
@@ -104,6 +104,7 @@ from ..validators import (
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
+    validate_lancamento_alimentacoes_escola_aberta,
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao,
     validate_lancamento_alimentacoes_medicao_cei,
@@ -378,6 +379,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_solicitacoes_etec(instance, lista_erros)
         lista_erros = validate_solicitacoes_programas_e_projetos(instance, lista_erros)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+        lista_erros = validate_lancamento_alimentacoes_escola_aberta(
+            instance, lista_erros
+        )
 
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
@@ -455,6 +459,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+        lista_erros = validate_lancamento_alimentacoes_escola_aberta(
+            instance, lista_erros
+        )
 
         if lista_erros:
             raise ValidationError(lista_erros)
