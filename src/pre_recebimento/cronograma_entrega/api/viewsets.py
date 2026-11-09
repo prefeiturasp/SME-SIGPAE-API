@@ -45,7 +45,7 @@ from src.dados_comuns.permissions import (
     ViewSetActionPermissionMixin,
 )
 from src.pos_recebimento.api.permissions import (
-    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+    PermissaoParaCadastrarTermoRecebimentoProvisorio,
 )
 from src.pre_recebimento.base.api.paginations import (
     PreRecebimentoPagination,
@@ -101,7 +101,6 @@ from src.relatorios.relatorios import (
 
 from ....dados_comuns.models import LogSolicitacoesUsuario
 from .validators import valida_parametros_calendario
-
 
 MENSAGEM_ASSINATURA_NAO_VALIDADA = (
     "Assinatura do cronograma não foi validada. Verifique sua senha."
@@ -441,9 +440,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
             return Response(
-                dict(
-                    detail=MENSAGEM_ASSINATURA_NAO_VALIDADA
-                ),
+                dict(detail=MENSAGEM_ASSINATURA_NAO_VALIDADA),
                 status=HTTP_401_UNAUTHORIZED,
             )
 
@@ -483,9 +480,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
             return Response(
-                dict(
-                    detail=MENSAGEM_ASSINATURA_NAO_VALIDADA
-                ),
+                dict(detail=MENSAGEM_ASSINATURA_NAO_VALIDADA),
                 status=HTTP_401_UNAUTHORIZED,
             )
 
@@ -523,9 +518,7 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
 
         if not usuario.verificar_autenticidade(request.data.get("password")):
             return Response(
-                dict(
-                    detail=MENSAGEM_ASSINATURA_NAO_VALIDADA
-                ),
+                dict(detail=MENSAGEM_ASSINATURA_NAO_VALIDADA),
                 status=HTTP_401_UNAUTHORIZED,
             )
 
@@ -615,12 +608,12 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         detail=False,
         methods=["GET"],
         url_path="lista-cronogramas-pos-recebimento",
-        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoProvisorio,),
     )
     def lista_cronogramas_pos_recebimento(self, request):
         """Cronogramas do contrato e da empresa selecionados (query params
         ``contrato_id`` e ``empresa_id``) para o cadastro do Termo de
-        Recebimento Definitivo (Pós-Recebimento).
+        Recebimento Provisório (Pós-Recebimento).
 
         Os dois filtros são obrigatórios porque ``Cronograma.empresa`` e
         ``Cronograma.contrato`` são independentes: filtrar só pelo contrato
@@ -644,12 +637,12 @@ class CronogramaModelViewSet(ViewSetActionPermissionMixin, viewsets.ModelViewSet
         detail=True,
         methods=["GET"],
         url_path="dados-cronograma-pos-recebimento",
-        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoProvisorio,),
     )
     def dados_cronograma_pos_recebimento(self, request, uuid):
         """Dados do cronograma (produto, processo SEI, unidade de medida)
         para preenchimento automático no cadastro do Termo de Recebimento
-        Definitivo (Pós-Recebimento)."""
+        Provisório (Pós-Recebimento)."""
         return Response(
             CronogramaDetalhePosRecebimentoSerializer(self.get_object()).data
         )

@@ -11,13 +11,13 @@ from src.terceirizada.models import Contrato, Terceirizada
 from ...models import (
     LoteMemorandoOcorrencia,
     MemorandoOcorrencia,
-    TermoRecebimentoDefinitivo,
+    TermoRecebimentoProvisorio,
 )
-from ..services import TermoRecebimentoDefinitivoService
+from ..services import TermoRecebimentoProvisorioService
 
 
-class CronogramaTermoRecebimentoDefinitivoCreateSerializer(serializers.Serializer):
-    """Item de cronograma do Termo de Recebimento Definitivo.
+class CronogramaTermoRecebimentoProvisorioCreateSerializer(serializers.Serializer):
+    """Item de cronograma do Termo de Recebimento Provisório.
 
     Cada cronograma possui sua própria quantidade total recebida.
     """
@@ -33,8 +33,8 @@ class CronogramaTermoRecebimentoDefinitivoCreateSerializer(serializers.Serialize
     )
 
 
-class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
-    """Serializador de criação do Termo de Recebimento Definitivo.
+class TermoRecebimentoProvisorioCreateSerializer(serializers.ModelSerializer):
+    """Serializador de criação do Termo de Recebimento Provisório.
 
     Recebe os uuids de empresa, contrato, cronogramas (cada um com sua
     quantidade recebida) e fiscais, além do valor do contrato — único por
@@ -62,7 +62,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
         max_digits=15,
         decimal_places=2,
     )
-    cronogramas = CronogramaTermoRecebimentoDefinitivoCreateSerializer(
+    cronogramas = CronogramaTermoRecebimentoProvisorioCreateSerializer(
         many=True,
         allow_empty=False,
     )
@@ -83,7 +83,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = TermoRecebimentoDefinitivo
+        model = TermoRecebimentoProvisorio
         fields = (
             "empresa",
             "contrato",
@@ -98,7 +98,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
     def _valida_empresa_com_ficha_assinada(self, empresa):
         """Empresa deve possuir ao menos uma ficha de recebimento
         'Assinado CODAE' (FichaDeRecebimentoWorkflow.ASSINADA)."""
-        if not TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada(empresa):
+        if not TermoRecebimentoProvisorioService.empresa_tem_ficha_assinada(empresa):
             raise serializers.ValidationError(
                 "A empresa deve possuir ao menos uma ficha de recebimento "
                 "assinada pela CODAE."

@@ -1625,7 +1625,7 @@ class StringsVerboseNameModels(Enum):
     )
     TEM_ADITIVOS_ALERGENICOS = "Tem aditivos alergênicos"
     TEM_GLUTEN = "Tem Glúten?"
-    TERMO_DE_RECEBIMENTO_DEFINITIVO = "Termo de Recebimento Definitivo"
+    TERMO_DE_RECEBIMENTO_PROVISORIO = "Termo de Recebimento Provisório"
     TEXTO_DO_TERMO = "Texto do Termo"
     TIPO = "Tipo"
     TIPO_DE_CALENDARIO = "Tipo de Calendário"

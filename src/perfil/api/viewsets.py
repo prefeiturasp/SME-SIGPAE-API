@@ -71,14 +71,16 @@ from src.perfil.tasks import (
 )
 from src.perfil.utils import PerfilPagination
 from src.pos_recebimento.api.permissions import (
-    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+    PermissaoParaCadastrarTermoRecebimentoProvisorio,
 )
 from src.terceirizada.models import Terceirizada
 
 CABECALHO_NOME_DO_USUARIO = "Nome do Usuário"
 MENSAGEM_PERFIL_INVALIDO = "Perfil Inválido"
 MENSAGEM_PERFIL_NAO_PERMITIDO = "Perfil não permitido"
-MENSAGEM_PROCESSAMENTO_IMPORTACAO_INICIADO = "Processamento de importação iniciado com sucesso."
+MENSAGEM_PROCESSAMENTO_IMPORTACAO_INICIADO = (
+    "Processamento de importação iniciado com sucesso."
+)
 MENSAGEM_ARQUIVO_REMOVIDO = "Arquivo removido com sucesso."
 
 logger = logging.getLogger(__name__)
@@ -94,11 +96,11 @@ class UsuarioViewSet(viewsets.ReadOnlyModelViewSet):
         detail=False,
         methods=["GET"],
         url_path="fiscais",
-        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoProvisorio,),
     )
     def fiscais(self, request):
         """Usuários com perfil DILOG_QUALIDADE para seleção de fiscais
-        no cadastro do Termo de Recebimento Definitivo (Pós-Recebimento)."""
+        no cadastro do Termo de Recebimento Provisório (Pós-Recebimento)."""
         fiscais = (
             Usuario.objects.filter(
                 vinculos__perfil__nome=DILOG_QUALIDADE,
@@ -801,9 +803,7 @@ class ImportacaoPlanilhaUsuarioServidorCoreSSOViewSet(
 
         arquivo.removido()
 
-        return Response(
-            dict(detail=MENSAGEM_ARQUIVO_REMOVIDO), status=HTTP_200_OK
-        )
+        return Response(dict(detail=MENSAGEM_ARQUIVO_REMOVIDO), status=HTTP_200_OK)
 
 
 class ImportacaoPlanilhaUsuarioExternoCoreSSOViewSet(
@@ -881,9 +881,7 @@ class ImportacaoPlanilhaUsuarioExternoCoreSSOViewSet(
 
         arquivo.removido()
 
-        return Response(
-            dict(detail=MENSAGEM_ARQUIVO_REMOVIDO), status=HTTP_200_OK
-        )
+        return Response(dict(detail=MENSAGEM_ARQUIVO_REMOVIDO), status=HTTP_200_OK)
 
 
 class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOViewSet(
@@ -960,6 +958,4 @@ class ImportacaoPlanilhaUsuarioUEParceiraCoreSSOViewSet(
 
         arquivo.removido()
 
-        return Response(
-            dict(detail=MENSAGEM_ARQUIVO_REMOVIDO), status=HTTP_200_OK
-        )
+        return Response(dict(detail=MENSAGEM_ARQUIVO_REMOVIDO), status=HTTP_200_OK)

@@ -1,10 +1,10 @@
 from django_filters import rest_framework as filters
 
-from ..models import TermoRecebimentoDefinitivo
+from ..models import TermoRecebimentoProvisorio
 
 
-class TermoRecebimentoDefinitivoFilter(filters.FilterSet):
-    """Filtros para listagem de Termos de Recebimento Definitivo.
+class TermoRecebimentoProvisorioFilter(filters.FilterSet):
+    """Filtros para listagem de Termos de Recebimento Provisório.
 
     Permite filtrar por:
     - ``uuid``: UUID exato do termo.
@@ -41,7 +41,7 @@ class TermoRecebimentoDefinitivoFilter(filters.FilterSet):
         field_name="status",
         choices=[
             (str(state), state)
-            for state, _ in TermoRecebimentoDefinitivo.STATUS_CHOICES
+            for state, _ in TermoRecebimentoProvisorio.STATUS_CHOICES
         ],
     )
     status_fornecedor = filters.CharFilter(
@@ -62,7 +62,7 @@ class TermoRecebimentoDefinitivoFilter(filters.FilterSet):
     )
 
     class Meta:
-        model = TermoRecebimentoDefinitivo
+        model = TermoRecebimentoProvisorio
         fields = ("uuid", "status")
 
     def filter_status_fornecedor(self, queryset, name, value):
@@ -74,10 +74,10 @@ class TermoRecebimentoDefinitivoFilter(filters.FilterSet):
         """
         if value == "RECEBIDO":
             return queryset.filter(
-                status__in=TermoRecebimentoDefinitivo.STATUS_RECEBIDO_FORNECEDOR
+                status__in=TermoRecebimentoProvisorio.STATUS_RECEBIDO_FORNECEDOR
             )
         if value == "ASSINADO":
             return queryset.filter(
-                status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR
+                status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR
             )
         return queryset

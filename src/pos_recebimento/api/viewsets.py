@@ -11,38 +11,37 @@ from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 
 from ..models import (
-    AssinaturaTermoRecebimentoDefinitivo,
-    CronogramaTermoRecebimentoDefinitivo,
+    AssinaturaTermoRecebimentoProvisorio,
+    CronogramaTermoRecebimentoProvisorio,
+    TermoRecebimentoProvisorio,
     MemorandoOcorrencia,
-    TermoRecebimentoDefinitivo,
 )
-from .filters import TermoRecebimentoDefinitivoFilter
+from .filters import TermoRecebimentoProvisorioFilter
 from .permissions import (
-    PermissaoParaAssinarTermoRecebimentoDefinitivo,
-    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+    PermissaoParaAssinarTermoRecebimentoProvisorio,
+    PermissaoParaCadastrarTermoRecebimentoProvisorio,
+    PermissaoParaVisualizarTermoRecebimentoProvisorio,
     PermissaoParaRegistrarMemorandoOcorrencia,
-    PermissaoParaVisualizarTermoRecebimentoDefinitivo,
     usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
     MemorandoOcorrenciaSerializer,
-    TermoRecebimentoDefinitivoListagemSerializer,
-    TermoRecebimentoDefinitivoPainelAssinaturaSerializer,
-    TermoRecebimentoDefinitivoSerializer,
+    TermoRecebimentoProvisorioListagemSerializer,
+    TermoRecebimentoProvisorioPainelAssinaturaSerializer,
+    TermoRecebimentoProvisorioSerializer,
 )
 from .serializers.serializers_create import (
     MemorandoOcorrenciaCreateSerializer,
-    TermoRecebimentoDefinitivoCreateSerializer,
+    TermoRecebimentoProvisorioCreateSerializer,
 )
 
-
-class TermoRecebimentoDefinitivoViewSet(
+class TermoRecebimentoProvisorioViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
-    """Criação e listagem do Termo de Recebimento Definitivo.
+    """Criação e listagem do Termo de Recebimento Provisório.
 
     Endpoints:
     - ``POST /`` — Cria o termo (Salvar e Enviar).
@@ -56,11 +55,11 @@ class TermoRecebimentoDefinitivoViewSet(
     """
 
     lookup_field = "uuid"
-    serializer_class = TermoRecebimentoDefinitivoCreateSerializer
-    queryset = TermoRecebimentoDefinitivo.objects.all().order_by("-criado_em")
-    permission_classes = (PermissaoParaCadastrarTermoRecebimentoDefinitivo,)
+    serializer_class = TermoRecebimentoProvisorioCreateSerializer
+    queryset = TermoRecebimentoProvisorio.objects.all().order_by("-criado_em")
+    permission_classes = (PermissaoParaCadastrarTermoRecebimentoProvisorio,)
     filter_backends = (filters.DjangoFilterBackend,)
-    filterset_class = TermoRecebimentoDefinitivoFilter
+    filterset_class = TermoRecebimentoProvisorioFilter
     pagination_class = DefaultPagination
 
     ACTIONS_PAINEL_ASSINATURA = ("pendentes_assinatura", "assinados")
@@ -74,14 +73,14 @@ class TermoRecebimentoDefinitivoViewSet(
         Na listagem, os relacionamentos exibidos no grid são
         pré-carregados para evitar N+1.
         """
-        queryset = TermoRecebimentoDefinitivo.objects.all().order_by("-criado_em")
+        queryset = TermoRecebimentoProvisorio.objects.all().order_by("-criado_em")
 
         if usuario_vinculado_a_empresa_fornecedor(self.request.user):
             queryset = queryset.filter(
                 empresa=self.request.user.vinculo_atual.instituicao,
                 status__in=[
-                    *TermoRecebimentoDefinitivo.STATUS_RECEBIDO_FORNECEDOR,
-                    TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+                    *TermoRecebimentoProvisorio.STATUS_RECEBIDO_FORNECEDOR,
+                    TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
                 ],
             )
 
@@ -100,22 +99,22 @@ class TermoRecebimentoDefinitivoViewSet(
     def get_permissions(self):
         """Visualização é liberada para mais perfis do que o cadastro."""
         if self.action in ("list", "retrieve", *self.ACTIONS_PAINEL_ASSINATURA):
-            return [PermissaoParaVisualizarTermoRecebimentoDefinitivo()]
+            return [PermissaoParaVisualizarTermoRecebimentoProvisorio()]
         if self.action == "fiscal_assina_termo":
-            return [PermissaoParaAssinarTermoRecebimentoDefinitivo()]
+            return [PermissaoParaAssinarTermoRecebimentoProvisorio()]
 
-        return [PermissaoParaCadastrarTermoRecebimentoDefinitivo()]
+        return [PermissaoParaCadastrarTermoRecebimentoProvisorio()]
 
     def get_serializer_class(self):
         """Retorna o serializer adequado conforme a ação."""
         if self.action == "list":
-            return TermoRecebimentoDefinitivoListagemSerializer
+            return TermoRecebimentoProvisorioListagemSerializer
         if self.action == "retrieve":
-            return TermoRecebimentoDefinitivoSerializer
+            return TermoRecebimentoProvisorioSerializer
         if self.action in self.ACTIONS_PAINEL_ASSINATURA:
-            return TermoRecebimentoDefinitivoPainelAssinaturaSerializer
+            return TermoRecebimentoProvisorioPainelAssinaturaSerializer
 
-        return TermoRecebimentoDefinitivoCreateSerializer
+        return TermoRecebimentoProvisorioCreateSerializer
 
     def list(self, request, *args, **kwargs):
         """
@@ -174,18 +173,18 @@ class TermoRecebimentoDefinitivoViewSet(
         if request.user.vinculo_atual.perfil.nome == DILOG_DIRETORIA:
             queryset = (
                 self.filter_queryset(self.get_queryset())
-                .filter(status=TermoRecebimentoDefinitivo.ENVIADO_DILOG)
+                .filter(status=TermoRecebimentoProvisorio.ENVIADO_DILOG)
                 .order_by("-criado_em")
                 .distinct()
             )
             return self._resposta_paginada(queryset)
 
         queryset = self._termos_do_fiscal(request).filter(
-            status=TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+            status=TermoRecebimentoProvisorio.ENVIADO_FISCAIS
         )
         queryset = queryset.exclude(
             assinaturas__usuario=request.user,
-            assinaturas__etapa=AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO,
+            assinaturas__etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
         )
         return self._resposta_paginada(queryset)
 
@@ -196,10 +195,10 @@ class TermoRecebimentoDefinitivoViewSet(
         naturalmente o mesmo usuário repetido em mais de um papel.
         """
         return Exists(
-            AssinaturaTermoRecebimentoDefinitivo.objects.filter(
+            AssinaturaTermoRecebimentoProvisorio.objects.filter(
                 termo=OuterRef("pk"),
                 usuario=OuterRef(campo_fiscal),
-                etapa=AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO,
+                etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
             )
         )
 
@@ -223,7 +222,7 @@ class TermoRecebimentoDefinitivoViewSet(
             )
         queryset = queryset.filter(
             Q(assinou_fiscal_1=True, assinou_fiscal_2=True, assinou_fiscal_3=True)
-            | Q(status=TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR)
+            | Q(status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR)
         )
         return self._resposta_paginada(queryset)
 
@@ -237,7 +236,7 @@ class TermoRecebimentoDefinitivoViewSet(
             alterado_por=self.request.user,
         )
         for item in cronogramas:
-            CronogramaTermoRecebimentoDefinitivo.objects.create(
+            CronogramaTermoRecebimentoProvisorio.objects.create(
                 termo=instance,
                 cronograma=item["cronograma"],
                 quantidade_total_recebida=item["quantidade_total_recebida"],
@@ -255,7 +254,7 @@ class TermoRecebimentoDefinitivoViewSet(
                 dict(detail="Apenas os Fiscais do Contrato podem assinar o termo."),
                 status=status.HTTP_403_FORBIDDEN,
             )
-        if termo.status != TermoRecebimentoDefinitivo.ENVIADO_FISCAIS:
+        if termo.status != TermoRecebimentoProvisorio.ENVIADO_FISCAIS:
             return Response(
                 dict(
                     detail="O termo não está pendente de assinatura dos Fiscais do Contrato."
@@ -272,14 +271,14 @@ class TermoRecebimentoDefinitivoViewSet(
     def _registra_assinatura_fiscal(self, termo, usuario):
         """Cria a assinatura do fiscal e conclui a etapa dos fiscais
         quando o último fiscal distinto assina."""
-        AssinaturaTermoRecebimentoDefinitivo.objects.create(
+        AssinaturaTermoRecebimentoProvisorio.objects.create(
             termo=termo,
             usuario=usuario,
-            etapa=AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO,
+            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
         )
         termo.salvar_log_transicao(
             status_evento=(
-                LogSolicitacoesUsuario.TERMO_RECEBIMENTO_DEFINITIVO_ASSINADO_PELO_FISCAL
+                LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO_ASSINADO_PELO_FISCAL
             ),
             usuario=usuario,
         )
@@ -290,7 +289,7 @@ class TermoRecebimentoDefinitivoViewSet(
     @action(
         detail=True,
         methods=["patch"],
-        permission_classes=(PermissaoParaAssinarTermoRecebimentoDefinitivo,),
+        permission_classes=(PermissaoParaAssinarTermoRecebimentoProvisorio,),
         url_path="fiscal-assina-termo",
         url_name="fiscal_assina_termo",
     )
@@ -326,7 +325,7 @@ class TermoRecebimentoDefinitivoViewSet(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        serializer = TermoRecebimentoDefinitivoSerializer(
+        serializer = TermoRecebimentoProvisorioSerializer(
             termo, context={"request": request}
         )
         return Response(serializer.data)
@@ -339,7 +338,7 @@ class TermoRecebimentoDefinitivoViewSet(
         self.perform_create(serializer)
         instance = serializer.instance
 
-        output_serializer = TermoRecebimentoDefinitivoSerializer(instance)
+        output_serializer = TermoRecebimentoProvisorioSerializer(instance)
         return Response(output_serializer.data, status=status.HTTP_201_CREATED)
 
 
