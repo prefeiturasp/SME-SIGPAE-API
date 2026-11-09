@@ -5,16 +5,16 @@ models
    :members:
    :show-inheritance:
    :exclude-members:
-      TermoRecebimentoDefinitivo,
-      CronogramaTermoRecebimentoDefinitivo,
+      TermoRecebimentoProvisorio,
+      CronogramaTermoRecebimentoProvisorio,
       DoesNotExist,
       MultipleObjectsReturned
 
-TermoRecebimentoDefinitivo
+TermoRecebimentoProvisorio
 --------------------------
 
-O Termo de Recebimento Definitivo é o documento que formaliza o
-recebimento definitivo (físico e financeiro) de produtos de uma
+O Termo de Recebimento Provisório é o documento que formaliza o
+recebimento provisório (físico e financeiro) de produtos de uma
 empresa/contrato no módulo Pós-Recebimento. Ele registra a entrega final
 de um conjunto de cronogramas de entrega, nomeia os fiscais responsáveis
 (três usuários com perfil ``DILOG_QUALIDADE``) e carrega o texto do termo
@@ -39,16 +39,16 @@ Regras de negócio da criação:
   (``RASCUNHO``). O status ``RASCUNHO`` existe no modelo, mas não é
   utilizado pela API atual.
 
-Cada cronograma do termo carrega o seu próprio **valor de contrato** e
-**quantidade total recebida** (valores decimais de até 15 dígitos com 2
-casas decimais), armazenados no modelo intermediário
-:class:`CronogramaTermoRecebimentoDefinitivo` — ambos devem ser maiores
+O **valor de contrato** é único por termo. Cada cronograma carrega a sua
+própria **quantidade total recebida** (decimais de até 15 dígitos com 2
+casas decimais), armazenada no modelo intermediário
+:class:`CronogramaTermoRecebimentoProvisorio` — ambos devem ser maiores
 que zero.
 
-.. autoclass:: TermoRecebimentoDefinitivo
+.. autoclass:: TermoRecebimentoProvisorio
    :members:
    :show-inheritance:
-   :exclude-members: DoesNotExist, ENVIADO, MultipleObjectsReturned, RASCUNHO, STATUS_CHOICES, alterado_em, alterado_por, alterado_por_id, contrato, contrato_id, criado_em, criado_por, criado_por_id, cronogramas, cronogramas_termo, empresa, empresa_id, fiscal_1, fiscal_1_id, fiscal_2, fiscal_2_id, fiscal_3, fiscal_3_id, get_next_by_alterado_em, get_next_by_criado_em, get_previous_by_alterado_em, get_previous_by_criado_em, get_status_display, id, objects, status, termos_recebimento_definitivo_alterados, termos_recebimento_definitivo_fiscal_1, termos_recebimento_definitivo_fiscal_2, termos_recebimento_definitivo_fiscal_3, texto_termo, uuid
+   :exclude-members: DoesNotExist, ENVIADO, MultipleObjectsReturned, RASCUNHO, STATUS_CHOICES, alterado_em, alterado_por, alterado_por_id, contrato, contrato_id, criado_em, criado_por, criado_por_id, cronogramas, cronogramas_termo, empresa, empresa_id, fiscal_1, fiscal_1_id, fiscal_2, fiscal_2_id, fiscal_3, fiscal_3_id, get_next_by_alterado_em, get_next_by_criado_em, get_previous_by_alterado_em, get_previous_by_criado_em, get_status_display, id, objects, status, termos_recebimento_provisorio_alterados, termos_recebimento_provisorio_fiscal_1, termos_recebimento_provisorio_fiscal_2, termos_recebimento_provisorio_fiscal_3, texto_termo, uuid
 
    .. attribute:: id
       :type: int
@@ -97,27 +97,27 @@ que zero.
       **Descrição:**
       Relação M:N com :class:`Cronograma
       <src.pre_recebimento.cronograma_entrega.models.Cronograma>` através do
-      modelo intermediário :class:`CronogramaTermoRecebimentoDefinitivo`.
+      modelo intermediário :class:`CronogramaTermoRecebimentoProvisorio`.
 
       Lista os cronogramas de entrega formalizados no termo. Cada vínculo
-      carrega o ``valor_contrato`` e a ``quantidade_total_recebida``
-      específicos daquele cronograma (ver ``cronogramas_termo``).
+      carrega a ``quantidade_total_recebida`` específica daquele cronograma
+      (ver ``cronogramas_termo``).
 
       Regra de negócio: cada cronograma deve pertencer ao contrato e à
       empresa selecionados e não pode ser repetido no mesmo termo
       (``unique_together`` entre ``termo`` e ``cronograma``).
 
    .. attribute:: cronogramas_termo
-      :type: django.db.models.QuerySet[CronogramaTermoRecebimentoDefinitivo]
+      :type: django.db.models.QuerySet[CronogramaTermoRecebimentoProvisorio]
 
       **Descrição:**
-      Relação reversa 1:N com :class:`CronogramaTermoRecebimentoDefinitivo`
+      Relação reversa 1:N com :class:`CronogramaTermoRecebimentoProvisorio`
       (``related_name="cronogramas_termo"``).
 
-      Acesso direto às linhas intermediárias do termo, incluindo o valor de
-      contrato e a quantidade total recebida de cada cronograma. É a fonte
-      utilizada pelo serializador de saída para expor os cronogramas com
-      seus valores.
+      Acesso direto às linhas intermediárias do termo, incluindo a
+      quantidade total recebida de cada cronograma. É a fonte utilizada
+      pelo serializador de saída para expor os cronogramas com seus
+      valores.
 
    .. attribute:: fiscal_1
       :type: perfil.Usuario
@@ -199,28 +199,27 @@ que zero.
       **Descrição:**
       Timestamp preenchido automaticamente na última alteração do termo.
 
-CronogramaTermoRecebimentoDefinitivo
+CronogramaTermoRecebimentoProvisorio
 ------------------------------------
 
-Modelo intermediário (through) que vincula um :class:`TermoRecebimentoDefinitivo`
+Modelo intermediário (through) que vincula um :class:`TermoRecebimentoProvisorio`
 a um :class:`Cronograma <src.pre_recebimento.cronograma_entrega.models.Cronograma>`.
 
-Como cada cronograma de um termo pode ter valores financeiros próprios,
-o valor de contrato e a quantidade total recebida são armazenados **neste
-modelo** (por cronograma) e não no termo. O mesmo cronograma não pode
-aparecer duas vezes no mesmo termo (``unique_together`` entre ``termo`` e
-``cronograma``).
+Como cada cronograma de um termo pode ter uma quantidade recebida própria,
+a quantidade total recebida é armazenada **neste modelo** (por cronograma)
+e não no termo, onde fica apenas o valor de contrato. O mesmo cronograma
+não pode aparecer duas vezes no mesmo termo (``unique_together`` entre
+``termo`` e ``cronograma``).
 
 Regras de negócio na criação:
 
-- ``valor_contrato`` deve ser maior que zero.
 - ``quantidade_total_recebida`` deve ser maior que zero.
 - O cronograma deve pertencer ao contrato e à empresa selecionados no termo.
 
-.. autoclass:: CronogramaTermoRecebimentoDefinitivo
+.. autoclass:: CronogramaTermoRecebimentoProvisorio
    :members:
    :show-inheritance:
-   :exclude-members: DoesNotExist, MultipleObjectsReturned, cronograma, cronograma_id, id, objects, quantidade_total_recebida, termo, termo_id, valor_contrato
+   :exclude-members: DoesNotExist, MultipleObjectsReturned, cronograma, cronograma_id, id, objects, quantidade_total_recebida, termo, termo_id
 
    .. attribute:: id
       :type: int
@@ -229,10 +228,10 @@ Regras de negócio na criação:
       Chave primária inteira criada automaticamente pelo Django para identificar o vínculo.
 
    .. attribute:: termo
-      :type: TermoRecebimentoDefinitivo
+      :type: TermoRecebimentoProvisorio
 
       **Descrição:**
-      Termo de Recebimento Definitivo ao qual o vínculo pertence.
+      Termo de Recebimento Provisório ao qual o vínculo pertence.
       ``on_delete=CASCADE``: ao remover o termo, os vínculos são removidos
       junto.
 

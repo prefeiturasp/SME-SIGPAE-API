@@ -16,6 +16,7 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
+from src.escola_aberta.services import obter_unidade_escola_aberta_por_mes_ano
 from src.medicao_inicial.models import GrupoMedicao
 
 from ..cardapio.base.models import (
@@ -3030,7 +3031,7 @@ def formatar_query_set_alteracao(query_set, mes, ano):
     return list(set(datas))
 
 
-def get_lista_dias_solicitacoes(params, escola):
+def get_lista_dias_solicitacoes(params, escola, uuids_solicitacoes_excluidas=None):
     """Retorna dias de solicitações autorizadas no mês/ano informado.
 
     Args:
@@ -3046,6 +3047,8 @@ def get_lista_dias_solicitacoes(params, escola):
         data_evento__month=params["mes"], data_evento__year=params["ano"]
     )
     query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    if uuids_solicitacoes_excluidas:
+        query_set = query_set.exclude(uuid__in=uuids_solicitacoes_excluidas)  # NOVO
     if params.get("eh_lanche_emergencial", False):
         query_set = query_set.filter(motivo__icontains="Emergencial")
         query_set = remover_duplicados(query_set)
@@ -3081,7 +3084,10 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
         "escola_uuid": escola.uuid,
         "tipo_solicitacao": tipo_solicitacao,
     }
-    dias_kit_lanche = get_lista_dias_solicitacoes(params, escola)
+    uuids_somente_cei = _uuids_kit_lanche_cemei_somente_cei(escola, mes, ano)
+    dias_kit_lanche = get_lista_dias_solicitacoes(
+        params, escola, uuids_solicitacoes_excluidas=uuids_somente_cei
+    )
     dias_kit_lanche = list(set(dias_kit_lanche))
     dias_kit_lanche = _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche)
 
@@ -3105,6 +3111,20 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
             }
         )
     return erros_unicos(lista_erros)
+
+
+def _uuids_kit_lanche_cemei_somente_cei(escola, mes, ano):
+    """UUIDs de Kit Lanche CEMEI destinados apenas ao público CEI."""
+    if not escola.eh_cemei:
+        return []
+    return list(
+        SolicitacaoKitLancheCEMEI.objects.filter(
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            alunos_cei_e_ou_emei="CEI",
+        ).values_list("uuid", flat=True)
+    )
 
 
 def validate_lanche_emergencial(solicitacao, lista_erros):
@@ -3984,6 +4004,96 @@ def valida_medicoes_inexistentes_escola_sem_alunos_regulares(solicitacao, lista_
     lista_erros = valida_medicao_etec_inexistente_escola_sem_alunos_regulares(
         solicitacao, lista_erros
     )
+    return lista_erros
+
+
+def _normalizar_nome_campo_escola_aberta(nome):
+    nome_sem_acentos = "".join(
+        caractere
+        for caractere in unicodedata.normalize("NFD", nome)
+        if not unicodedata.combining(caractere)
+    )
+    return nome_sem_acentos.lower().replace(" ", "_")
+
+
+def _obter_linhas_escola_aberta(unidade):
+    linhas = []
+    for nome in unidade.tipos_alimentacao.values_list("nome", flat=True):
+        nome_campo = _normalizar_nome_campo_escola_aberta(nome)
+        linhas.append(nome_campo)
+        if nome_campo == "refeicao":
+            linhas.append("repeticao_refeicao")
+        if nome_campo == "sobremesa":
+            linhas.append("repeticao_sobremesa")
+    return list(dict.fromkeys(linhas))
+
+
+def _obter_dias_liberados_escola_aberta(unidade, mes, ano):
+    cadastro = unidade.escola_aberta
+    primeiro_dia_mes = datetime.date(ano, mes, 1)
+    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+    data_inicial = max(cadastro.data_inicial, primeiro_dia_mes)
+    data_final = min(cadastro.data_final, ultimo_dia_mes)
+    dias_semana = {int(dia) for dia in cadastro.dias_semana}
+    hoje = datetime.date.today()
+    dias = []
+
+    dia = data_inicial
+    while dia <= data_final:
+        if dia.weekday() in dias_semana and dia < hoje:
+            dias.append(f"{dia.day:02d}")
+        dia += datetime.timedelta(days=1)
+
+    return dias
+
+
+def validate_lancamento_alimentacoes_escola_aberta(solicitacao, lista_erros):
+    escola = solicitacao.escola
+    if not (escola.eh_emef or escola.eh_ceu_gestao):
+        return lista_erros
+
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    unidade = obter_unidade_escola_aberta_por_mes_ano(escola.uuid, mes, ano)
+    if not unidade:
+        return lista_erros
+
+    dias_liberados = _obter_dias_liberados_escola_aberta(unidade, mes, ano)
+    linhas = _obter_linhas_escola_aberta(unidade)
+    if not dias_liberados or not linhas:
+        return lista_erros
+
+    medicao = solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.ESCOLA_ABERTA
+    ).first()
+    if not medicao:
+        lista_erros.append(
+            {
+                "periodo_escolar": GrupoMedicao.ESCOLA_ABERTA,
+                "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS.value,
+            }
+        )
+        return lista_erros
+
+    categoria_medicao = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
+    valores_preenchidos = set(
+        medicao.valores_medicao.filter(categoria_medicao=categoria_medicao)
+        .exclude(valor__in=["", None])
+        .values_list("nome_campo", "dia")
+    )
+
+    if any(
+        (linha, dia) not in valores_preenchidos
+        for linha in linhas
+        for dia in dias_liberados
+    ):
+        lista_erros.append(
+            {
+                "periodo_escolar": GrupoMedicao.ESCOLA_ABERTA,
+                "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS.value,
+            }
+        )
+
     return lista_erros
 
 

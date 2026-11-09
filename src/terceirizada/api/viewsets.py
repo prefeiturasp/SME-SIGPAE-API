@@ -14,7 +14,7 @@ from ...dados_comuns.api.paginations import DefaultPagination
 from ...dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from ...escola.api.serializers import TerceirizadaSerializer
 from ...pos_recebimento.api.permissions import (
-    PermissaoParaCadastrarTermoRecebimentoDefinitivo,
+    PermissaoParaCadastrarTermoRecebimentoProvisorio,
 )
 from ...relatorios.relatorios import relatorio_quantitativo_por_terceirizada
 from ..forms import RelatorioQuantitativoForm
@@ -148,11 +148,11 @@ class TerceirizadaViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=["GET"],
         url_path="lista-empresas-pos-recebimento",
-        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoProvisorio,),
     )
     def lista_empresas_pos_recebimento(self, request):
         """Empresas com ao menos uma ficha de recebimento 'Assinado CODAE'
-        para o cadastro do Termo de Recebimento Definitivo (Pós-Recebimento)."""
+        para o cadastro do Termo de Recebimento Provisório (Pós-Recebimento)."""
         queryset = (
             Terceirizada.objects.filter(
                 cronograma__etapas__ficha_recebimento__status=(
@@ -285,11 +285,11 @@ class ContratoViewSet(ReadOnlyModelViewSet):
         detail=False,
         methods=["GET"],
         url_path="lista-contratos-pos-recebimento",
-        permission_classes=(PermissaoParaCadastrarTermoRecebimentoDefinitivo,),
+        permission_classes=(PermissaoParaCadastrarTermoRecebimentoProvisorio,),
     )
     def lista_contratos_pos_recebimento(self, request):
         """Contratos vinculados à empresa selecionada (query param ``empresa_id``)
-        para o cadastro do Termo de Recebimento Definitivo (Pós-Recebimento)."""
+        para o cadastro do Termo de Recebimento Provisório (Pós-Recebimento)."""
         empresa_uuid = request.query_params.get("empresa_id")
         queryset = self.get_queryset()
         if not _uuid_valido(empresa_uuid):
