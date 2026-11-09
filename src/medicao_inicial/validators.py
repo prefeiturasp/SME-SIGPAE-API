@@ -3031,7 +3031,7 @@ def formatar_query_set_alteracao(query_set, mes, ano):
     return list(set(datas))
 
 
-def get_lista_dias_solicitacoes(params, escola):
+def get_lista_dias_solicitacoes(params, escola, uuids_solicitacoes_excluidas=None):
     """Retorna dias de solicitações autorizadas no mês/ano informado.
 
     Args:
@@ -3047,6 +3047,8 @@ def get_lista_dias_solicitacoes(params, escola):
         data_evento__month=params["mes"], data_evento__year=params["ano"]
     )
     query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    if uuids_solicitacoes_excluidas:
+        query_set = query_set.exclude(uuid__in=uuids_solicitacoes_excluidas)  # NOVO
     if params.get("eh_lanche_emergencial", False):
         query_set = query_set.filter(motivo__icontains="Emergencial")
         query_set = remover_duplicados(query_set)
@@ -3082,7 +3084,10 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
         "escola_uuid": escola.uuid,
         "tipo_solicitacao": tipo_solicitacao,
     }
-    dias_kit_lanche = get_lista_dias_solicitacoes(params, escola)
+    uuids_somente_cei = _uuids_kit_lanche_cemei_somente_cei(escola, mes, ano)
+    dias_kit_lanche = get_lista_dias_solicitacoes(
+        params, escola, uuids_solicitacoes_excluidas=uuids_somente_cei
+    )
     dias_kit_lanche = list(set(dias_kit_lanche))
     dias_kit_lanche = _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche)
 
@@ -3106,6 +3111,20 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
             }
         )
     return erros_unicos(lista_erros)
+
+
+def _uuids_kit_lanche_cemei_somente_cei(escola, mes, ano):
+    """UUIDs de Kit Lanche CEMEI destinados apenas ao público CEI."""
+    if not escola.eh_cemei:
+        return []
+    return list(
+        SolicitacaoKitLancheCEMEI.objects.filter(
+            escola=escola,
+            data__month=mes,
+            data__year=ano,
+            alunos_cei_e_ou_emei="CEI",
+        ).values_list("uuid", flat=True)
+    )
 
 
 def validate_lanche_emergencial(solicitacao, lista_erros):

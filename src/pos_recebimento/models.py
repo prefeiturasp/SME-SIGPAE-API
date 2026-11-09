@@ -1,9 +1,11 @@
 from django.conf import settings
+from django.core.validators import MinValueValidator
 from django.db import models
 
-from src.dados_comuns.behaviors import CriadoPor, TemLogs, ModeloBase
+from src.dados_comuns.behaviors import CriadoPor, ModeloBase, TemLogs
 from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoTermoRecebimentoDefinitivo
+from src.escola.models import Escola
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Contrato, Terceirizada
 
@@ -233,3 +235,112 @@ class AssinaturaTermoRecebimentoDefinitivo(ModeloBase):
         verbose_name = "Assinatura do Termo de Recebimento Definitivo"
         verbose_name_plural = "Assinaturas dos Termos de Recebimento Definitivo"
         unique_together = [("termo", "usuario", "etapa")]
+
+
+class MemorandoOcorrencia(ModeloBase, CriadoPor):
+    """Ocorrência registrada pela Unidade Educacional no Pós-Recebimento.
+
+    Registra a categoria, o produto e o tipo de ocorrência informados pela
+    escola. Os lotes envolvidos ficam em ``LoteMemorandoOcorrencia``. Nesta
+    história são contempladas as categorias Não Perecíveis, Perecíveis -
+    Resfriados e Congelados, FLV e Leve Leite, todas com os mesmos campos.
+    """
+
+    CATEGORIA_NAO_PERECIVEIS = "NAO_PERECIVEIS"
+    CATEGORIA_PERECIVEIS_RESFRIADOS_CONGELADOS = "PERECIVEIS_RESFRIADOS_CONGELADOS"
+    CATEGORIA_FLV = "FLV"
+    CATEGORIA_LEVE_LEITE = "LEVE_LEITE"
+
+    CATEGORIA_CHOICES = (
+        (CATEGORIA_NAO_PERECIVEIS, "Não Perecíveis"),
+        (
+            CATEGORIA_PERECIVEIS_RESFRIADOS_CONGELADOS,
+            "Perecíveis - Resfriados e Congelados",
+        ),
+        (CATEGORIA_FLV, "FLV"),
+        (CATEGORIA_LEVE_LEITE, "Leve Leite"),
+    )
+
+    TIPO_RECLAMACAO_QUALIDADE = "RECLAMACAO_QUALIDADE"
+    TIPO_RETIRADA_ALIMENTO_IMPROPRIO = "RETIRADA_ALIMENTO_IMPROPRIO"
+    TIPO_DEVOLUCAO_ALIMENTO_PROPRIO = "DEVOLUCAO_ALIMENTO_PROPRIO"
+
+    TIPO_OCORRENCIA_CHOICES = (
+        (TIPO_RECLAMACAO_QUALIDADE, "Reclamação de Qualidade"),
+        (
+            TIPO_RETIRADA_ALIMENTO_IMPROPRIO,
+            "Retirada de Alimento Impróprio para o Consumo",
+        ),
+        (
+            TIPO_DEVOLUCAO_ALIMENTO_PROPRIO,
+            "Devolução de Alimento Próprio para o Consumo",
+        ),
+    )
+
+    escola = models.ForeignKey(
+        Escola,
+        on_delete=models.PROTECT,
+        verbose_name=StringsVerboseNameModels.ESCOLA.value,
+        related_name="memorandos_ocorrencia",
+    )
+    categoria = models.CharField(
+        StringsVerboseNameModels.CATEGORIA.value,
+        max_length=40,
+        choices=CATEGORIA_CHOICES,
+    )
+    produto = models.CharField(
+        StringsVerboseNameModels.PRODUTO.value,
+        max_length=255,
+    )
+    tipo_ocorrencia = models.CharField(
+        StringsVerboseNameModels.TIPO_DE_OCORRENCIA.value,
+        max_length=40,
+        choices=TIPO_OCORRENCIA_CHOICES,
+    )
+
+    def __str__(self):
+        return f"Memorando de Ocorrência - {self.produto} - {self.escola.nome}"
+
+    class Meta:
+        verbose_name = StringsVerboseNameModels.MEMORANDO_DE_OCORRENCIA.value
+        verbose_name_plural = "Memorandos de Ocorrência"
+
+
+class LoteMemorandoOcorrencia(ModeloBase):
+    """Lote vinculado a um Memorando de Ocorrência."""
+
+    memorando = models.ForeignKey(
+        MemorandoOcorrencia,
+        on_delete=models.CASCADE,
+        verbose_name=StringsVerboseNameModels.MEMORANDO_DE_OCORRENCIA.value,
+        related_name="lotes",
+    )
+    lote = models.CharField(
+        StringsVerboseNameModels.LOTE.value,
+        max_length=100,
+    )
+    marca = models.CharField(
+        StringsVerboseNameModels.MARCA.value,
+        max_length=100,
+    )
+    data_fabricacao = models.DateField(
+        StringsVerboseNameModels.DATA_DE_FABRICACAO.value,
+    )
+    data_validade = models.DateField(
+        StringsVerboseNameModels.DATA_DE_VALIDADE.value,
+    )
+    quantidade_problema_devolucao = models.DecimalField(
+        StringsVerboseNameModels.QUANTIDADE_COM_PROBLEMA_DEVOLUCAO.value,
+        max_digits=15,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+    )
+    ordem = models.PositiveIntegerField("Ordem", default=1)
+
+    def __str__(self):
+        return f"Lote {self.lote} do Memorando {self.memorando.uuid}"
+
+    class Meta:
+        verbose_name = "Lote do Memorando de Ocorrência"
+        verbose_name_plural = "Lotes do Memorando de Ocorrência"
+        ordering = ["ordem", "id"]
