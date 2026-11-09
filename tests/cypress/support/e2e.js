@@ -205,3 +205,6 @@ import './step_definitions/insucesso_de_entrega'
 
 import './commands_api/commands_interrupcao_programada_entrega'
 import './step_definitions/interrupcao_programada_entrega'
+
+import './commands_api/commands_inversoes_dia_cardapio'
+import './step_definitions/inversoes_dia_cardapio'
