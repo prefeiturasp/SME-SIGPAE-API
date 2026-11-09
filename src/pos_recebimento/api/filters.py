@@ -44,14 +44,6 @@ class TermoRecebimentoProvisorioFilter(filters.FilterSet):
             for state, _ in TermoRecebimentoProvisorio.STATUS_CHOICES
         ],
     )
-    status_fornecedor = filters.CharFilter(
-        field_name="status",
-        method="filter_status_fornecedor",
-        help_text=(
-            "Filtro agregado para o fornecedor: RECEBIDO agrupa os status "
-            "do fluxo de envio; ASSINADO corresponde a ASSINADO_FORNECEDOR."
-        ),
-    )
     data_inicial = filters.DateFilter(
         field_name="criado_em",
         lookup_expr="date__gte",
@@ -64,20 +56,3 @@ class TermoRecebimentoProvisorioFilter(filters.FilterSet):
     class Meta:
         model = TermoRecebimentoProvisorio
         fields = ("uuid", "status")
-
-    def filter_status_fornecedor(self, queryset, name, value):
-        """Agrupa os status na visão do fornecedor.
-
-        ``RECEBIDO`` corresponde aos status do fluxo de envio e
-        ``ASSINADO`` ao status ``ASSINADO_FORNECEDOR``. Qualquer outro
-        valor não aplica filtro.
-        """
-        if value == "RECEBIDO":
-            return queryset.filter(
-                status__in=TermoRecebimentoProvisorio.STATUS_RECEBIDO_FORNECEDOR
-            )
-        if value == "ASSINADO":
-            return queryset.filter(
-                status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR
-            )
-        return queryset

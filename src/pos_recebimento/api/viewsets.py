@@ -22,7 +22,6 @@ from .permissions import (
     PermissaoParaCadastrarTermoRecebimentoProvisorio,
     PermissaoParaVisualizarTermoRecebimentoProvisorio,
     PermissaoParaRegistrarMemorandoOcorrencia,
-    usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
     MemorandoOcorrenciaSerializer,
@@ -34,6 +33,7 @@ from .serializers.serializers_create import (
     MemorandoOcorrenciaCreateSerializer,
     TermoRecebimentoProvisorioCreateSerializer,
 )
+
 
 class TermoRecebimentoProvisorioViewSet(
     mixins.CreateModelMixin,
@@ -67,22 +67,10 @@ class TermoRecebimentoProvisorioViewSet(
     def get_queryset(self):
         """Termos ordenados por data de criação (decrescente).
 
-        Usuários vinculados a empresa fornecedora veem apenas os termos
-        da própria empresa com status do fluxo de envio (exibidos como
-        "Recebido") ou ``ASSINADO_FORNECEDOR`` (exibido como "Assinado").
         Na listagem, os relacionamentos exibidos no grid são
         pré-carregados para evitar N+1.
         """
         queryset = TermoRecebimentoProvisorio.objects.all().order_by("-criado_em")
-
-        if usuario_vinculado_a_empresa_fornecedor(self.request.user):
-            queryset = queryset.filter(
-                empresa=self.request.user.vinculo_atual.instituicao,
-                status__in=[
-                    *TermoRecebimentoProvisorio.STATUS_RECEBIDO_FORNECEDOR,
-                    TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
-                ],
-            )
 
         if self.action in ("list", *self.ACTIONS_PAINEL_ASSINATURA):
             return queryset.select_related("empresa", "contrato").prefetch_related(

@@ -42,15 +42,6 @@ class TermoRecebimentoProvisorio(
         (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
     )
 
-    # Status exibidos como "Recebido" para o fornecedor (todo o fluxo de
-    # envio até a assinatura).
-    STATUS_RECEBIDO_FORNECEDOR = [
-        ENVIADO_FISCAIS,
-        ENVIADO_DILOG,
-        ENVIADO_COORDENADOR,
-        ENVIADO_FORNECEDOR,
-    ]
-
     empresa = models.ForeignKey(
         Terceirizada,
         on_delete=models.PROTECT,
