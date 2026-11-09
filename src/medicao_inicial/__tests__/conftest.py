@@ -573,6 +573,14 @@ def escola_cemei():
 
 
 @pytest.fixture
+def escola_emef():
+    return baker.make(
+        "Escola",
+        tipo_unidade=baker.make("TipoUnidadeEscolar", iniciais="EMEF"),
+    )
+
+
+@pytest.fixture
 def escola_ceu_cemei():
     terceirizada = baker.make("Terceirizada")
     lote = baker.make("Lote", terceirizada=terceirizada)
