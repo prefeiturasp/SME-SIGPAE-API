@@ -7,6 +7,7 @@ from calendar import monthcalendar, setfirstweekday
 import numpy
 from django.db import models
 from django.db.models import Q
+from django.utils.html import format_html
 
 from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
@@ -1144,6 +1145,20 @@ class MedicaoFinal(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
     def __str__(self):
         return f"Medição Final | {self.relatorio_financeiro}"
+
+    @property
+    def assinatura_eletronica(self) -> str:
+        usuario = self.gerado_por
+        return format_html(
+            "Documento conferido e registrado eletronicamente por "
+            "<strong>{}</strong> - RF: {}, em {}, às {}. O registro eletrônico da "
+            "Medição Inicial é comprovação e ateste do serviço prestado às "
+            "Unidades Educacionais listadas neste relatório.",
+            usuario.nome,
+            usuario.registro_funcional or "-",
+            self.criado_em.strftime(FORMATO_DATA_BRASILEIRO),
+            self.criado_em.strftime("%H:%M"),
+        )
 
     class Meta:
         verbose_name = "Medição Final"
