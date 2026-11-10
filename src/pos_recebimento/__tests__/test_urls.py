@@ -70,12 +70,21 @@ def test_termo_create_retorna_201(
     assert response.json()["cronogramas"][0]["quantidade_total_recebida"] == "1234.56"
 
 
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_qualidade",
+        "client_autenticado_fornecedor",
+        "client_autenticado_usuario_empresa",
+    ],
+)
 def test_termo_create_negado_para_perfil_sem_permissao(
-    client_autenticado_qualidade,
+    request,
+    nome_client,
     payload_termo,
 ):
     response = _post_json(
-        client_autenticado_qualidade,
+        request.getfixturevalue(nome_client),
         "/pos-recebimento/termos/",
         payload_termo,
     )
@@ -358,35 +367,36 @@ def test_termo_list_pagina_resultados(
 
 
 @pytest.mark.parametrize(
-    "nome_client",
+    ("nome_client", "status_esperado"),
     [
-        "client_autenticado_dilog_cronograma",
-        "client_autenticado_qualidade",
-        "client_autenticado_dilog_diretoria",
+        ("client_autenticado_dilog_cronograma", status.HTTP_200_OK),
+        ("client_autenticado_qualidade", status.HTTP_200_OK),
+        ("client_autenticado_dilog_diretoria", status.HTTP_200_OK),
+        ("client_autenticado_distribuidor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_fornecedor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_usuario_empresa", status.HTTP_403_FORBIDDEN),
     ],
 )
-def test_termo_list_e_detalhe_liberados_para_perfis_de_visualizacao(
+def test_termo_list_e_detalhe_por_perfil(
     request,
     nome_client,
+    status_esperado,
     termo_listagem,
 ):
-    """Visualização é liberada para mais perfis do que o cadastro."""
+    """Visualização é liberada para mais perfis do que o cadastro, e negada
+    fora da CODAE.
+
+    Os perfis de empresa (ADMINISTRADOR_EMPRESA e USUARIO_EMPRESA) estão
+    vinculados à própria empresa do termo e mesmo assim recebem 403: o
+    fornecedor não participa mais do Termo de Recebimento Provisório.
+    """
     client = request.getfixturevalue(nome_client)
 
-    assert client.get("/pos-recebimento/termos/").status_code == status.HTTP_200_OK
+    assert client.get("/pos-recebimento/termos/").status_code == status_esperado
     assert (
         client.get(f"/pos-recebimento/termos/{termo_listagem.uuid}/").status_code
-        == status.HTTP_200_OK
+        == status_esperado
     )
-
-
-def test_termo_list_negado_para_perfil_fora_da_codae(
-    client_autenticado_distribuidor,
-    termo_listagem,
-):
-    response = client_autenticado_distribuidor.get("/pos-recebimento/termos/")
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_termo_retrieve_retorna_detalhe_do_termo(
