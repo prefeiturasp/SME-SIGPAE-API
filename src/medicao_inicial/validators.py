@@ -4097,6 +4097,26 @@ def validate_lancamento_alimentacoes_escola_aberta(solicitacao, lista_erros):
     return lista_erros
 
 
+def validate_finalizacao_sem_lancamentos_escola_aberta(solicitacao, lista_erros):
+    escola = solicitacao.escola
+    if not (escola.eh_emef or escola.eh_ceu_gestao):
+        return lista_erros
+
+    unidade = obter_unidade_escola_aberta_por_mes_ano(
+        escola.uuid, int(solicitacao.mes), int(solicitacao.ano)
+    )
+    if unidade:
+        lista_erros.append(
+            {
+                "periodo_escolar": GrupoMedicao.ESCOLA_ABERTA,
+                "erro": "Existem atendimentos de Escola Aberta cadastrados no período. "
+                "Não é possível finalizar a medição sem lançamentos.",
+            }
+        )
+
+    return lista_erros
+
+
 def validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares(
     solicitacao, lista_erros
 ):
