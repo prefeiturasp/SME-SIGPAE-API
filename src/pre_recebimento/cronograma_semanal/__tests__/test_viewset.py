@@ -1212,3 +1212,49 @@ class TestRelatorioCronogramaSemanalFiltros:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["results"] == []
+
+    @pytest.mark.parametrize(
+        "mes, quantidade_esperada",
+        [("03/2026", 1), ("04/2026", 0)],
+        ids=["produto_no_mes", "outro_produto_no_mes"]
+    )
+    def test_dilog_abastecimento_filtra_relatorio_por_produto_e_mes(
+        self,
+        client_autenticado_dilog_abastecimento,
+        cronogramas_semanais_relatorio,
+        mes,
+        quantidade_esperada
+    ):
+        cliente = client_autenticado_dilog_abastecimento
+        cronograma = cronogramas_semanais_relatorio[0]
+        produto = cronograma.cronograma_mensal.ficha_tecnica.produto
+
+        resposta = cliente.get(
+            self.URL,
+            {
+                "nome_produto": produto.nome.lower(),
+                "mes_inicial": mes,
+                "mes_final": mes
+            }
+        )
+
+        assert resposta.status_code == status.HTTP_200_OK
+        dados = resposta.json()
+        assert dados["count"] == quantidade_esperada
+        assert len(dados["results"]) == quantidade_esperada
+
+        if quantidade_esperada == 0:
+            assert dados["results"] == []
+            return
+
+        linha = dados["results"][0]
+        assert linha["uuid"] == str(cronograma.uuid)
+        assert linha["produto"] == produto.nome
+        assert linha["programacoes"] == [
+            {
+                "quantidade": 50.0,
+                "data_inicio": "01/03/2026",
+                "data_fim": "15/03/2026",
+                "mes_programado": "03/2026"
+            }
+        ]
