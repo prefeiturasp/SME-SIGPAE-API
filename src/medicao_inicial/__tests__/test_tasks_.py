@@ -31,6 +31,7 @@ from src.medicao_inicial.tasks import (
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_controle_frequencia_para_pdf,
     exporta_relatorio_historico_correcoes_pdf,
+    gera_pdf_folha_medicao_final_async,
     gera_pdf_relatorio_financeiro_consolidado_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
@@ -963,6 +964,90 @@ def test_gerar_pdf_relatorio_financeiro_async(
 
     assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
     assert registro.arquivo is not None
+
+
+@pytest.mark.django_db
+def test_gerar_pdf_relatorio_financeiro_sem_parametrizacao_registra_erro(
+    relatorio_financeiro_cei,
+    usuario,
+):
+    nome_arquivo = "ateste-sem-parametrizacao.pdf"
+
+    gera_pdf_relatorio_financeiro_consolidado_async(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+
+    assert registro.status == CentralDeDownload.STATUS_ERRO
+    assert "Parametrização financeira não encontrada" in registro.msg_erro
+
+
+@pytest.mark.django_db
+def test_gerar_pdf_folha_medicao_final_async(
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+    usuario,
+    make_medicao_final,
+):
+    make_medicao_final(relatorio_financeiro_cei)
+    nome_arquivo = "folha.pdf"
+
+    gera_pdf_folha_medicao_final_async(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo.name.endswith(".pdf")
+
+
+@pytest.mark.django_db
+def test_gerar_pdf_folha_sem_medicao_final_registra_erro(
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+    usuario,
+):
+    nome_arquivo = "folha-sem-medicao.pdf"
+
+    gera_pdf_folha_medicao_final_async(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+
+    assert registro.status == CentralDeDownload.STATUS_ERRO
+    assert registro.msg_erro == (
+        "Medição Final não encontrada para o relatório financeiro."
+    )
+
+
+@pytest.mark.django_db
+def test_gerar_pdf_folha_sem_parametrizacao_registra_erro(
+    relatorio_financeiro_cei,
+    usuario,
+    make_medicao_final,
+):
+    make_medicao_final(relatorio_financeiro_cei)
+    nome_arquivo = "folha-sem-parametrizacao.pdf"
+
+    gera_pdf_folha_medicao_final_async(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+
+    assert registro.status == CentralDeDownload.STATUS_ERRO
+    assert "Parametrização financeira não encontrada" in registro.msg_erro
 
 
 @pytest.mark.django_db
