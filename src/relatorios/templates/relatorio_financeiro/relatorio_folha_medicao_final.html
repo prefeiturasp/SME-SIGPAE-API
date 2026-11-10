@@ -1,0 +1,122 @@
+{% extends template_ateste %}
+{% load sass_tags static %}
+
+{% block estilos %}
+{{ block.super }}
+<link
+  rel="stylesheet"
+  href="{% sass_src 'css/relatorio_folha_medicao_final.scss' %}"
+  type="text/css"
+/>
+{% endblock %}
+
+{% block classe_relatorio %}folha-medicao-final{% endblock %}
+
+{% block cabecalho %}
+<div class="cabecalho-relatorio cabecalho-folha">
+  <div class="topo">
+    <div class="logo">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="" />
+    </div>
+
+    <div class="titulos">
+      <div class="linha-superior">
+        SECRETARIA MUNICIPAL DE EDUCAÇÃO<span class="separador">|</span
+        >COORDENADORIA DE ALIMENTAÇÃO ESCOLAR
+      </div>
+
+      <div class="titulo-principal">FOLHA DE MEDIÇÃO FINAL</div>
+    </div>
+  </div>
+
+  <table class="info-folha">
+    <tr>
+      <td>DRE E LOTE: <strong>{{ cabecalho.dre_lote }}</strong></td>
+      <td>
+        DATA DE GERAÇÃO DO RELATÓRIO:
+        <strong>{{ cabecalho.data_geracao }}</strong>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        EMPRESA CONTRATADA: <strong>{{ cabecalho.empresa_contratada }}</strong>
+      </td>
+      <td>
+        PERÍODO DE REALIZAÇÃO DO SERVIÇO:
+        <strong>{{ cabecalho.periodo_servico }}</strong>
+      </td>
+    </tr>
+    <tr>
+      <td>Nº CONTRATO: <strong>{{ cabecalho.numero_contrato }}</strong></td>
+      <td>
+        Nº PROCESSO ADMINISTRATIVO:
+        <strong>{{ cabecalho.numero_processo_administrativo }}</strong>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        GRUPO/TIPO DE UNIDADE:
+        <strong>{{ cabecalho.grupo_unidade_escolar }}</strong>
+      </td>
+      <td>
+        MÊS DE REFERÊNCIA DA MEDIÇÃO:
+        <strong>{{ cabecalho.data_referencia }}</strong>
+      </td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
+
+{% block complemento %}
+<div class="responsaveis">
+  <p class="nota">
+    <strong>Nota</strong>: na presente medição final estão totalizadas as
+    quantidades das alimentações fornecidas no período acima indicado, com base
+    nos apontamentos realizados pelos diretores das unidades escolares, conforme
+    o estabelecido na Portaria Intersecretarial nº 05/SMG-SME, de 17/09/06,
+    segundo a qual cabe à direção da unidade, entre outras atividades, proceder
+    ao acompanhamento e controle diário de todas as atividades inerentes à
+    correta execução dos serviços contratados (medição inicial).
+  </p>
+
+  <p class="responsavel-conferencia">
+    Responsável pela conferência das medições iniciais:
+    <strong
+      >{{ medicao_final.nome_responsavel_conferencia }} - RF
+      {{ medicao_final.rf_responsavel_conferencia }}</strong
+    >
+  </p>
+
+  <table class="caixas-assinatura">
+    <tr>
+      <td>
+        <p class="titulo-assinatura">
+          Servidor responsável pela consolidação das Medições Iniciais
+        </p>
+        <div class="caixa-assinatura">
+          <div class="assinatura-eletronica">
+            <img src="{% static 'images/logo-sigpae.png' %}" alt="" />
+            <p>{{ medicao_final.assinatura_eletronica }}</p>
+          </div>
+        </div>
+      </td>
+      <td>
+        <p class="titulo-assinatura">
+          Diretor de Divisão Técnica SME/CODAE/DINUTRE
+        </p>
+        <div class="caixa-assinatura"></div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <p class="titulo-assinatura">Coordenador SME/CODAE</p>
+        <div class="caixa-assinatura"></div>
+      </td>
+      <td>
+        <p class="titulo-assinatura">Responsável pela Empresa Contratada</p>
+        <div class="caixa-assinatura"></div>
+      </td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
