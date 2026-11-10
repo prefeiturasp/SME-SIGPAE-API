@@ -1,7 +1,9 @@
-from datetime import datetime
+import calendar
+from datetime import date, datetime
 from decimal import ROUND_HALF_UP, Decimal
-from typing import Any
+from typing import Any, Callable
 
+from django.db.models import Q
 from num2words import num2words
 
 from src.cardapio.base.api.serializers import (
@@ -20,6 +22,7 @@ from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDi
 from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    ParametrizacaoFinanceira,
     ParametrizacaoFinanceiraTabelaValor,
 )
 from src.medicao_inicial.utils import (
@@ -44,10 +47,16 @@ CENTAVOS = Decimal("0.01")
 CEM = Decimal("100")
 CHAVE_CALCULO = "calculo"
 CHAVE_CABECALHO = "cabecalho"
+TITULO_CONSOLIDADO_SIMPLES = "CONSOLIDADO TOTAL (A + B + C)"
 
 
 def arredonda_centavos(valor: Decimal) -> Decimal:
     return valor.quantize(CENTAVOS, rounding=ROUND_HALF_UP)
+
+
+def valor_por_extenso(valor: Decimal) -> str:
+    """Retorna o valor em Reais por extenso, ex.: "dez reais e cinquenta centavos"."""
+    return num2words(valor, lang="pt_BR", to="currency")
 
 
 def calcula_linha_alimentacao(
@@ -76,26 +85,58 @@ def calcula_linha_dieta(
     }
 
 
-def serializa_relatorio_calculado(dados: Any) -> Any:
+def _mescla_calculo(dados: dict) -> dict:
+    if CHAVE_CALCULO not in dados:
+        return dados
+    return {
+        **{k: v for k, v in dados.items() if k != CHAVE_CALCULO},
+        **dados[CHAVE_CALCULO],
+    }
+
+
+def _achata_relatorio(
+    dados: Any, converte_decimal: Callable, chaves_ignoradas: tuple = ()
+) -> Any:
+    """Promove os valores de ``calculo`` para a linha e converte os Decimals."""
     if isinstance(dados, Decimal):
-        return decimal_br(arredonda_centavos(dados))
+        return converte_decimal(dados)
 
     if isinstance(dados, dict):
-        if CHAVE_CALCULO in dados:
-            dados = {
-                **{k: v for k, v in dados.items() if k != CHAVE_CALCULO},
-                **dados[CHAVE_CALCULO],
-            }
         return {
-            chave: serializa_relatorio_calculado(valor)
-            for chave, valor in dados.items()
-            if chave != CHAVE_CABECALHO
+            chave: _achata_relatorio(valor, converte_decimal, chaves_ignoradas)
+            for chave, valor in _mescla_calculo(dados).items()
+            if chave not in chaves_ignoradas
         }
 
     if isinstance(dados, (list, tuple)):
-        return [serializa_relatorio_calculado(item) for item in dados]
+        return [
+            _achata_relatorio(item, converte_decimal, chaves_ignoradas)
+            for item in dados
+        ]
 
     return dados
+
+
+def serializa_relatorio_calculado(dados: Any) -> Any:
+    """Converte o relatório calculado para a resposta da API, com valores em pt-BR."""
+    return _achata_relatorio(
+        dados,
+        lambda valor: decimal_br(arredonda_centavos(valor)),
+        (CHAVE_CABECALHO,),
+    )
+
+
+def normaliza_consolidados(relatorio: dict) -> list[dict]:
+    """Devolve os consolidados como lista, com o consolidado geral por último."""
+    if "consolidados" in relatorio:
+        return relatorio["consolidados"]
+    return [{**relatorio["consolidado"], "titulo": TITULO_CONSOLIDADO_SIMPLES}]
+
+
+def prepara_relatorio_para_template(relatorio: dict) -> dict:
+    """Entrega ao template os mesmos valores da API, ainda como Decimal."""
+    dados = _achata_relatorio(relatorio, arredonda_centavos)
+    return {**dados, "consolidados": normaliza_consolidados(dados)}
 
 
 def obter_config_grupo(grupo_nome):
@@ -139,6 +180,60 @@ def parametrizacao_possui_reajuste(parametrizacao):
     return any(to_decimal_safe(valor) != 0 for valor in valores)
 
 
+def obter_parametrizacao_vigente(relatorio_financeiro):
+    """Retorna a parametrização financeira vigente no mês do relatório.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+
+    Returns:
+        ParametrizacaoFinanceira | None: Parametrização vigente, se existir.
+    """
+    mes = int(relatorio_financeiro.mes)
+    ano = int(relatorio_financeiro.ano)
+
+    return (
+        ParametrizacaoFinanceira.objects.filter(
+            lote=relatorio_financeiro.lote,
+            grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
+            data_inicial__lte=date(ano, mes, calendar.monthrange(ano, mes)[1]),
+        )
+        .filter(Q(data_final__gte=date(ano, mes, 1)) | Q(data_final__isnull=True))
+        .first()
+    )
+
+
+def montar_relatorio_financeiro(
+    relatorio_financeiro, parametrizacao, builder, tipo_calculo=None
+):
+    """Calcula os totais de consumo e executa o builder do grupo.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+        parametrizacao (Model): Parametrização financeira vigente.
+        builder (Callable): Builder do grupo de unidade escolar.
+        tipo_calculo (str | None): Tipo de cálculo dos totais de consumo.
+
+    Returns:
+        dict: Estrutura do relatório com valores em Decimal.
+    """
+    kwargs_consumo = {"tipo_calculo": tipo_calculo} if tipo_calculo else {}
+
+    totais_consumo = calcula_totais_consumo_por_grupo(
+        relatorio_financeiro.lote,
+        relatorio_financeiro.grupo_unidade_escolar,
+        relatorio_financeiro.mes,
+        relatorio_financeiro.ano,
+        **kwargs_consumo,
+    )
+
+    return builder(
+        relatorio_financeiro,
+        parametrizacao.tabelas.all(),
+        totais_consumo,
+    )
+
+
 def montar_relatorio_calculado(relatorio_financeiro, parametrizacao):
     """Monta os cálculos por linha do Ateste Financeiro.
 
@@ -151,22 +246,11 @@ def montar_relatorio_calculado(relatorio_financeiro, parametrizacao):
     """
     config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
 
-    kwargs_consumo = {}
-    if config["tipo_calculo"]:
-        kwargs_consumo["tipo_calculo"] = config["tipo_calculo"]
-
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-        **kwargs_consumo,
-    )
-
-    relatorio = config["builder"](
+    relatorio = montar_relatorio_financeiro(
         relatorio_financeiro,
-        parametrizacao.tabelas.all(),
-        totais_consumo,
+        parametrizacao,
+        config["builder"],
+        config["tipo_calculo"],
     )
 
     return serializa_relatorio_calculado(relatorio)
@@ -268,12 +352,14 @@ def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
         + dieta_b["total_consumo"]
     )
 
-    valor = alimentacao["valor_total"] + dieta_a["valor_total"] + dieta_b["valor_total"]
+    valor = arredonda_centavos(
+        alimentacao["valor_total"] + dieta_a["valor_total"] + dieta_b["valor_total"]
+    )
 
     return {
         "quantidade": int(quantidade),
-        "valor": arredonda_centavos(valor),
-        "valor_extenso": num2words(valor, lang="pt_BR", to="currency"),
+        "valor": valor,
+        "valor_extenso": valor_por_extenso(valor),
     }
 
 
@@ -298,9 +384,11 @@ def _montar_cabecalho(relatorio_financeiro, tipos_unidades):
         + f"/{relatorio_financeiro.ano}"
     )
 
+    gerado_em = datetime.now()
+
     return {
-        "data_geracao": datetime.now().strftime(FORMATO_DATA_BRASILEIRO),
-        "hora_geracao": datetime.now().strftime("%H:%M"),
+        "data_geracao": gerado_em.strftime(FORMATO_DATA_BRASILEIRO),
+        "hora_geracao": gerado_em.strftime("%H:%M"),
         "data_referencia": data_referencia,
         "grupo_unidade_escolar": grupo_com_unidades,
         "dre_lote": (
@@ -896,11 +984,9 @@ def build_relatorio_financeiro_grupo_cemei(
         + relatorio_emei["consolidado"]["quantidade"],
         "valor": relatorio_cei["consolidado"]["valor"]
         + relatorio_emei["consolidado"]["valor"],
-        "valor_extenso": num2words(
+        "valor_extenso": valor_por_extenso(
             relatorio_cei["consolidado"]["valor"]
-            + relatorio_emei["consolidado"]["valor"],
-            lang="pt_BR",
-            to="currency",
+            + relatorio_emei["consolidado"]["valor"]
         ),
     }
 
@@ -968,11 +1054,9 @@ def build_relatorio_financeiro_grupo_emebs(
         + relatorio_fundamental["consolidado"]["quantidade"],
         "valor": relatorio_infantil["consolidado"]["valor"]
         + relatorio_fundamental["consolidado"]["valor"],
-        "valor_extenso": num2words(
+        "valor_extenso": valor_por_extenso(
             relatorio_infantil["consolidado"]["valor"]
-            + relatorio_fundamental["consolidado"]["valor"],
-            lang="pt_BR",
-            to="currency",
+            + relatorio_fundamental["consolidado"]["valor"]
         ),
     }
 
