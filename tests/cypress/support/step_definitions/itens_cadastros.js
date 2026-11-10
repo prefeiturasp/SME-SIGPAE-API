@@ -1,4 +1,4 @@
-import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+import { Given, When, Then, Before } from 'cypress-cucumber-preprocessor/steps'
 const tipos = ['MARCA', 'FABRICANTE', 'UNIDADE_MEDIDA', 'EMBALAGEM']
 const uuidInvalido = '53886ad8-cb8b-4175-853e-de087aaaaaaa'
 let processamentoInicialAguardado = false
@@ -24,13 +24,16 @@ function obterUuid(dados) {
 		return response.body.results[0].uuid
 	})
 }
-Given('que estou autenticado como CODAE para gerenciar itens de cadastros', () => {
-	cy.autenticar_login(Cypress.env('usuario_codae'), Cypress.env('senha'))
-	if (!processamentoInicialAguardado) {
-		cy.wait(Cypress.env('wait_api_itens_cadastros') || 3000)
-		processamentoInicialAguardado = true
-	}
-})
+function autenticarCenariosFuncionais() {
+	return autenticarPerfilItens('CODAE').then(() => {
+		if (!processamentoInicialAguardado) {
+			processamentoInicialAguardado = true
+			return cy.wait(Cypress.env('wait_api_itens_cadastros') || 3000)
+		}
+	})
+}
+Given('que estou autenticado como CODAE para gerenciar itens de cadastros', autenticarCenariosFuncionais)
+Before({ tags: '@funcionais_itens' }, autenticarCenariosFuncionais)
 When('consulto todos os itens de cadastros', function () {
 	cy.consultar_itens_cadastros().then((response) => { this.response = response })
 })
@@ -204,4 +207,65 @@ Then('a atualizacao invalida do item retorna erro e realiza limpeza quando neces
 	expect([400, 404, 409]).to.include(this.response.status)
 	expect(this.response.body).to.exist
 	expect(this.exclusao.status).to.be.oneOf([204, 404])
+})
+
+function autenticarPerfilItens(perfil) {
+	const usuarios = {
+		COORDENADOR_LOGISTICA: 'usuario_coordenador_logistica',
+		COORDENADOR_CODAE_DILOG_LOGISTICA: 'usuario_coordenador_codae_dilog_logistica',
+		COORDENADOR_SUPERVISAO_NUTRICAO: 'usuario_coordenador_supervisao_nutricao',
+		DILOG_CRONOGRAMA: 'usuario_dilog_cronograma', DILOG_QUALIDADE: 'usuario_dilog_qualidade',
+		ABASTECIMENTO: 'usuario_abastecimento', DIRETOR_UE: 'usuario_diretor_ue',
+		CODAE: 'usuario_codae', GPCODAE: 'usuario_gpcodae', DRE: 'usuario_dre',
+		CLASSIFICACOES_DIETA: 'usuario_classificacoes_dieta', USUARIO_ESCOLA_CEI_ADMIN: 'usuario_escola_cei_admin',
+		MEDICAO: 'usuario_medicao', DISTRIBUIDOR: 'usuario_distribuidor',
+		EMEF: 'usuario_emef', CEMEI: 'usuario_cemei', CEI: 'usuario_cei', CCI: 'usuario_cci',
+		DILOG_DIRETORIA: 'usuario_dilog_diretoria', ADMINISTRADOR_EMPRESA: 'usuario_administrador_empresa',
+	}
+	expect(usuarios).to.have.property(perfil)
+	const usuario = Cypress.env(usuarios[perfil])
+	expect(usuario, 'credencial de ' + perfil).to.be.a('string').and.not.be.empty
+	return cy.autenticar_login(usuario, Cypress.env('senha'))
+}
+
+When('executo {string} em itens de cadastros na rota {string} com perfil {string}', function (method, rota, perfil) {
+	this.rotaItensPerfil = rota
+	return autenticarPerfilItens(perfil).then(() => cy.executar_itens_cadastros({
+		method, caminho: rota === 'principal' ? '' : rota,
+		qs: method === 'GET' ? { page: 1, page_size: 2 } : undefined,
+		body: ['POST', 'PUT', 'PATCH'].includes(method) ? {} : undefined,
+	})).then((response) => { this.response = response })
+})
+
+Then('itens de cadastros retorna status {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if (status === 401) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
+
+Then('itens de cadastros valida o retorno permitido para o perfil', function () {
+	if (this.response.status === 200) {
+		if (this.rotaItensPerfil === 'principal') {
+			expect(this.response.body).to.include.all.keys('count', 'next', 'previous', 'results')
+			expect(this.response.body.count).to.be.a('number').and.at.least(0)
+			expect(this.response.body.results).to.be.an('array').and.have.length.at.most(2)
+			this.response.body.results.forEach(validarItem)
+		} else if (this.rotaItensPerfil === 'lista-nomes/') {
+			expect(this.response.body.results).to.be.an('array')
+			this.response.body.results.forEach((nomeItem) => expect(nomeItem).to.be.a('string'))
+		} else if (this.rotaItensPerfil === 'tipos/') {
+			expect(this.response.body).to.be.an('array')
+			expect(this.response.body.map((itemTipo) => itemTipo.tipo)).to.have.members(tipos)
+			this.response.body.forEach((itemTipo) => expect(itemTipo.tipo_display).to.be.a('string').and.not.be.empty)
+		}
+	} else if (this.response.status === 400) {
+		for (const campo of ['nome', 'tipo']) expect(this.response.body[campo], campo).to.be.an('array').and.not.be.empty
+	}
+})
+
+When('executo {string} em itens de cadastros na rota {string} com acesso {string}', function (method, rota, acesso) {
+	cy.clearCookies()
+	return cy.executar_itens_cadastros({
+		method, caminho: rota === 'principal' ? '' : rota, token: acesso === 'ausente' ? null : 'token-invalido',
+		body: ['POST', 'PUT', 'PATCH'].includes(method) ? {} : undefined,
+	}).then((response) => { this.response = response })
 })
