@@ -1,5 +1,3 @@
-import calendar
-import datetime
 import re
 from decimal import Decimal
 
@@ -895,95 +893,6 @@ CHAVES_RESPOSTA_ATUAL = {
     "possui_reajuste",
 }
 
-GRUPOS = {
-    "grupo_1_cei": dict(
-        relatorio="relatorio_financeiro_cei",
-        parametrizacao="parametrizacao_financeira_cei",
-        consumo="relatorio_consolidado_xlsx_cei",
-        tipo_calculo="faixa_etaria",
-        fixtures_extras=["faixas_etarias_ativas"],
-    ),
-    "grupo_2_cemei": dict(
-        relatorio="relatorio_financeiro_cemei",
-        parametrizacao="parametrizacao_financeira_cemei",
-        consumo="relatorio_consolidado_xlsx_cemei",
-        tipo_calculo=None,
-        fixtures_extras=["faixas_etarias_ativas", "vinculo_alimentacao_cemei"],
-    ),
-    "grupo_3_emei": dict(
-        relatorio="relatorio_financeiro_emei",
-        parametrizacao="parametrizacao_financeira_emei",
-        consumo="relatorio_consolidado_xlsx_emei",
-        tipo_calculo="tipo_alimentacao",
-        fixtures_extras=["vinculo_alimentacao_emei"],
-    ),
-    "grupo_4_emef": dict(
-        relatorio="relatorio_financeiro_emef",
-        parametrizacao="parametrizacao_financeira_emef",
-        consumo="relatorio_consolidado_xlsx_emef",
-        tipo_calculo="tipo_alimentacao",
-        fixtures_extras=["vinculo_alimentacao_emef"],
-    ),
-    "grupo_5_emebs": dict(
-        relatorio="relatorio_financeiro_emebs",
-        parametrizacao="parametrizacao_financeira_emebs",
-        consumo="relatorio_consolidado_xlsx_emebs",
-        tipo_calculo="tipo_alimentacao",
-        fixtures_extras=["vinculo_alimentacao_emebs"],
-    ),
-    "grupo_6_cieja_cmct": dict(
-        relatorio="relatorio_financeiro_cieja",
-        parametrizacao="parametrizacao_financeira_cieja",
-        consumo="relatorio_consolidado_xlsx_cieja",
-        tipo_calculo="tipo_alimentacao",
-        fixtures_extras=["vinculo_alimentacao_cieja"],
-    ),
-}
-
-
-def _alinha_relatorio_a_solicitacao(relatorio, parametrizacao, solicitacao):
-    relatorio.mes = solicitacao.mes
-    relatorio.ano = solicitacao.ano
-
-    escola = solicitacao.escola
-    if escola.lote.diretoria_regional_id is None:
-        escola.lote = relatorio.lote
-    tipos_do_grupo = relatorio.grupo_unidade_escolar.tipos_unidades
-    if not tipos_do_grupo.filter(pk=escola.tipo_unidade_id).exists():
-        escola.tipo_unidade = tipos_do_grupo.get(iniciais=escola.tipo_unidade.iniciais)
-    escola.save()
-
-    relatorio.lote = escola.lote
-    relatorio.save()
-
-    ano = int(solicitacao.ano)
-    mes = int(solicitacao.mes)
-    parametrizacao.lote = solicitacao.escola.lote
-    parametrizacao.data_inicial = datetime.date(ano, mes, 1)
-    parametrizacao.data_final = datetime.date(
-        ano, mes, calendar.monthrange(ano, mes)[1]
-    )
-    parametrizacao.save()
-
-
-@pytest.fixture(params=list(GRUPOS))
-def contexto_grupo(request):
-    spec = GRUPOS[request.param]
-    for nome_fixture in spec["fixtures_extras"]:
-        request.getfixturevalue(nome_fixture)
-
-    relatorio = request.getfixturevalue(spec["relatorio"])
-    parametrizacao = request.getfixturevalue(spec["parametrizacao"])
-    solicitacao = request.getfixturevalue(spec["consumo"])
-    _alinha_relatorio_a_solicitacao(relatorio, parametrizacao, solicitacao)
-
-    return {
-        "nome": request.param,
-        "spec": spec,
-        "relatorio": relatorio,
-        "parametrizacao": parametrizacao,
-    }
-
 
 def _aplica_valores_pt_br(parametrizacao):
     valores = ParametrizacaoFinanceiraTabelaValor.objects.filter(
@@ -1059,12 +968,12 @@ def _pt_br(valor: Decimal) -> str:
 @pytest.mark.django_db
 class TestContratoRelatorioConsolidado:
     def test_retorna_unitario_reajuste_acrescimo_como_string_pt_br(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
-        _aplica_valores_pt_br(contexto_grupo["parametrizacao"])
+        _aplica_valores_pt_br(contexto_grupo_relatorio["parametrizacao"])
 
         response = _get_consolidado(
-            client_autenticado_codae_medicao, contexto_grupo["relatorio"]
+            client_autenticado_codae_medicao, contexto_grupo_relatorio["relatorio"]
         )
 
         assert response.status_code == status.HTTP_200_OK, response.json()
@@ -1088,15 +997,17 @@ class TestContratoRelatorioConsolidado:
                 assert valor["valor"] == esperado_por_tipo[valor["tipo_valor"]]
 
     def test_nao_altera_formato_de_milhar_pt_br(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
         ParametrizacaoFinanceiraTabelaValor.objects.filter(
-            tabela__parametrizacao_financeira=contexto_grupo["parametrizacao"],
+            tabela__parametrizacao_financeira=contexto_grupo_relatorio[
+                "parametrizacao"
+            ],
             tipo_valor__nome="UNITARIO",
         ).update(valor="2.000,00")
 
         response = _get_consolidado(
-            client_autenticado_codae_medicao, contexto_grupo["relatorio"]
+            client_autenticado_codae_medicao, contexto_grupo_relatorio["relatorio"]
         )
 
         assert response.status_code == status.HTTP_200_OK, response.json()
@@ -1109,12 +1020,14 @@ class TestContratoRelatorioConsolidado:
         assert valores == {"2.000,00"}
 
     def test_sem_incluir_calculos_nao_tem_chave_calculos(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
         for valor in ("", "false", "0"):
             params = {"incluir_calculos": valor} if valor else {}
             response = _get_consolidado(
-                client_autenticado_codae_medicao, contexto_grupo["relatorio"], **params
+                client_autenticado_codae_medicao,
+                contexto_grupo_relatorio["relatorio"],
+                **params,
             )
 
             assert response.status_code == status.HTTP_200_OK, response.json()
@@ -1124,9 +1037,11 @@ class TestContratoRelatorioConsolidado:
 @pytest.mark.django_db
 class TestContratoTotaisAtendimentoConsumo:
     def test_retorna_quantitativos_inteiros_por_grupo(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
-        response = _get_totais(client_autenticado_codae_medicao, contexto_grupo)
+        response = _get_totais(
+            client_autenticado_codae_medicao, contexto_grupo_relatorio
+        )
 
         assert response.status_code == status.HTTP_200_OK, response.json()
         dados = response.json()
@@ -1135,7 +1050,7 @@ class TestContratoTotaisAtendimentoConsumo:
         assert quantidades
         assert all(float(q).is_integer() for q in quantidades), dados
 
-        nome = contexto_grupo["nome"]
+        nome = contexto_grupo_relatorio["nome"]
         if nome == "grupo_1_cei":
             assert dados["ALIMENTAÇÃO - INTEGRAL"]
             assert dados["ALIMENTAÇÃO - PARCIAL"]
@@ -1163,13 +1078,13 @@ class TestContratoTotaisAtendimentoConsumo:
 @pytest.mark.django_db
 class TestCalculosRelatorioConsolidado:
     def test_alimentacao_bate_com_calculo_manual(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
-        _aplica_valores_pt_br(contexto_grupo["parametrizacao"])
+        _aplica_valores_pt_br(contexto_grupo_relatorio["parametrizacao"])
 
         response = _get_consolidado(
             client_autenticado_codae_medicao,
-            contexto_grupo["relatorio"],
+            contexto_grupo_relatorio["relatorio"],
             incluir_calculos="true",
         )
 
@@ -1197,13 +1112,13 @@ class TestCalculosRelatorioConsolidado:
         assert linhas_verificadas > 0
 
     def test_dieta_bate_com_calculo_manual(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
-        _aplica_valores_pt_br(contexto_grupo["parametrizacao"])
+        _aplica_valores_pt_br(contexto_grupo_relatorio["parametrizacao"])
 
         response = _get_consolidado(
             client_autenticado_codae_medicao,
-            contexto_grupo["relatorio"],
+            contexto_grupo_relatorio["relatorio"],
             incluir_calculos="true",
         )
 
@@ -1229,9 +1144,9 @@ class TestCalculosRelatorioConsolidado:
         assert linhas_verificadas > 0
 
     def test_nao_altera_demais_campos(
-        self, client_autenticado_codae_medicao, contexto_grupo
+        self, client_autenticado_codae_medicao, contexto_grupo_relatorio
     ):
-        relatorio = contexto_grupo["relatorio"]
+        relatorio = contexto_grupo_relatorio["relatorio"]
 
         sem_calculos = _get_consolidado(client_autenticado_codae_medicao, relatorio)
         com_calculos = _get_consolidado(
@@ -1404,9 +1319,10 @@ def _gera_ateste(relatorio, parametrizacao):
 @pytest.mark.django_db
 @pytest.mark.usefixtures("pdf_com_estilos")
 class TestAtesteNovasColunas:
-    def test_tem_as_novas_colunas_sem_assinaturas(self, contexto_grupo):
+    def test_tem_as_novas_colunas_sem_assinaturas(self, contexto_grupo_relatorio):
         texto = _gera_ateste(
-            contexto_grupo["relatorio"], contexto_grupo["parametrizacao"]
+            contexto_grupo_relatorio["relatorio"],
+            contexto_grupo_relatorio["parametrizacao"],
         )
 
         assert "ATESTE FINANCEIRO - MEDIÇÃO INICIAL" in texto
@@ -1423,14 +1339,16 @@ class TestAtesteNovasColunas:
         assert "FOLHA DE MEDIÇÃO FINAL" not in texto
         assert "Coordenador SME/CODAE" not in texto
 
-    def test_sem_reajuste_oculta_as_colunas(self, contexto_grupo):
-        parametrizacao = contexto_grupo["parametrizacao"]
+    def test_sem_reajuste_oculta_as_colunas(self, contexto_grupo_relatorio):
+        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
         ParametrizacaoFinanceiraTabelaValor.objects.filter(
             tabela__parametrizacao_financeira=parametrizacao,
             tipo_valor__nome="REAJUSTE",
         ).update(valor="0")
 
-        texto = _sem_espacos(_gera_ateste(contexto_grupo["relatorio"], parametrizacao))
+        texto = _sem_espacos(
+            _gera_ateste(contexto_grupo_relatorio["relatorio"], parametrizacao)
+        )
 
         assert "VALORTOTALUNITÁRIO" in texto
         assert "VALORUNITÁRIOTOTAL" in texto

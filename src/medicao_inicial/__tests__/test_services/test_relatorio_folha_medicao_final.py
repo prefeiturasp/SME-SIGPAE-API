@@ -8,9 +8,6 @@ from model_bakery import baker
 from pypdf import PdfReader
 
 from src.escola.models import FaixaEtaria
-from src.medicao_inicial.__tests__.test_services.test_relatorio_ateste_financeiro import (  # noqa: F401
-    contexto_grupo,
-)
 from src.medicao_inicial.models import MedicaoFinal, ParametrizacaoFinanceiraTabelaValor
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
@@ -48,12 +45,14 @@ def _paginas(pdf_bytes):
 
 
 class TestConsolidados:
-    def test_extenso_dos_consolidados_tem_maiuscula_e_ponto(self, contexto_grupo):
-        relatorio = contexto_grupo["relatorio"]
+    def test_extenso_dos_consolidados_tem_maiuscula_e_ponto(
+        self, contexto_grupo_relatorio
+    ):
+        relatorio = contexto_grupo_relatorio["relatorio"]
         _gera_medicao_final(relatorio)
 
         contexto = montar_contexto_folha_medicao_final(
-            relatorio, contexto_grupo["parametrizacao"]
+            relatorio, contexto_grupo_relatorio["parametrizacao"]
         )
 
         for consolidado in contexto["consolidados"]:
@@ -183,9 +182,9 @@ class TestAssinatura:
 
 @pytest.mark.usefixtures("pdf_com_estilos")
 class TestConteudoFolha:
-    def test_conteudo_em_todos_os_grupos(self, contexto_grupo):
-        relatorio = contexto_grupo["relatorio"]
-        parametrizacao = contexto_grupo["parametrizacao"]
+    def test_conteudo_em_todos_os_grupos(self, contexto_grupo_relatorio):
+        relatorio = contexto_grupo_relatorio["relatorio"]
+        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
         _gera_medicao_final(relatorio)
 
         texto = extrair_texto_de_pdf(
@@ -214,9 +213,9 @@ class TestConteudoFolha:
         assert "FATURAMENTO FINAL" not in texto
         assert "ATESTE FINANCEIRO" not in texto
 
-    def test_numeros_iguais_aos_da_api_e_do_ateste(self, contexto_grupo):
-        relatorio = contexto_grupo["relatorio"]
-        parametrizacao = contexto_grupo["parametrizacao"]
+    def test_numeros_iguais_aos_da_api_e_do_ateste(self, contexto_grupo_relatorio):
+        relatorio = contexto_grupo_relatorio["relatorio"]
+        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
         _gera_medicao_final(relatorio)
         config = obter_config_grupo(relatorio.grupo_unidade_escolar.nome)
 
@@ -323,13 +322,15 @@ class TestPaginacao:
         for pagina in paginas_com_linhas:
             assert "NÚMERO DE" in pagina
 
-    def test_cabecalho_em_todas_as_paginas_nos_seis_grupos(self, contexto_grupo):
-        relatorio = contexto_grupo["relatorio"]
+    def test_cabecalho_em_todas_as_paginas_nos_seis_grupos(
+        self, contexto_grupo_relatorio
+    ):
+        relatorio = contexto_grupo_relatorio["relatorio"]
         _gera_medicao_final(relatorio)
 
         paginas = _paginas(
             gerar_relatorio_folha_medicao_final(
-                relatorio, contexto_grupo["parametrizacao"]
+                relatorio, contexto_grupo_relatorio["parametrizacao"]
             )
         )
 
