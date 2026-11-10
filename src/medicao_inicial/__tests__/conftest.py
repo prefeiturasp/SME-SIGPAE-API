@@ -3,12 +3,15 @@ import json
 import random
 from io import BytesIO
 from itertools import product
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
+import sass
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
+from weasyprint import CSS, HTML
 
 from src.dados_comuns import constants
 from src.dados_comuns.behaviors import TempoPasseio
@@ -3161,6 +3164,17 @@ def make_valores_medicao():
 @pytest.fixture
 def usuario(django_user_model):
     return baker.make(django_user_model)
+
+
+@pytest.fixture
+def make_medicao_final(usuario):
+    def handle(relatorio_financeiro, **kwargs):
+        kwargs.setdefault("gerado_por", usuario)
+        return baker.make(
+            "MedicaoFinal", relatorio_financeiro=relatorio_financeiro, **kwargs
+        )
+
+    return handle
 
 
 @pytest.fixture
@@ -8294,3 +8308,26 @@ def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def pdf_com_estilos(monkeypatch):
+    """Gera o PDF com o CSS real, que não é compilado nem resolvido em teste."""
+    diretorio_css = Path("src/relatorios/static/css")
+    folhas = [
+        CSS(
+            string=sass.compile(
+                filename=str(diretorio_css / nome),
+                include_paths=[str(diretorio_css)],
+            )
+        )
+        for nome in (
+            "relatorio_ateste_financeiro.scss",
+            "relatorio_folha_medicao_final.scss",
+        )
+    ]
+
+    def gerar_pdf(html_string, _nome_arquivo, is_async=False):
+        return HTML(string=html_string).write_pdf(stylesheets=folhas)
+
+    monkeypatch.setattr("src.relatorios.relatorios.html_to_pdf_file", gerar_pdf)
