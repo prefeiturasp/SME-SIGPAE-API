@@ -55,6 +55,7 @@ def arredonda_centavos(valor: Decimal) -> Decimal:
 
 
 def valor_por_extenso(valor: Decimal) -> str:
+    """Retorna o valor em Reais por extenso, ex.: "dez reais e cinquenta centavos"."""
     return num2words(valor, lang="pt_BR", to="currency")
 
 
@@ -117,6 +118,7 @@ def _achata_relatorio(
 
 
 def serializa_relatorio_calculado(dados: Any) -> Any:
+    """Converte o relatório calculado para a resposta da API, com valores em pt-BR."""
     return _achata_relatorio(
         dados,
         lambda valor: decimal_br(arredonda_centavos(valor)),

@@ -2985,6 +2985,18 @@ def gerar_relatorio_ateste_financeiro(
     template,
     tipo_calculo=None,
 ):
+    """Gera o PDF do Ateste Financeiro do relatório financeiro.
+
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+        parametrizacao (Model): Parametrização financeira vigente.
+        builder (Callable): Builder do grupo de unidade escolar.
+        template (str): Template do Ateste Financeiro do grupo.
+        tipo_calculo (str | None): Tipo de cálculo dos totais de consumo.
+
+    Returns:
+        File: Arquivo PDF a ser registrado na Central de Downloads.
+    """
     relatorio = montar_relatorio_financeiro(
         relatorio_financeiro, parametrizacao, builder, tipo_calculo
     )
@@ -3014,6 +3026,18 @@ def gerar_relatorio_ateste_financeiro(
 
 
 def gerar_relatorio_folha_medicao_final(relatorio_financeiro, parametrizacao):
+    """Gera o PDF da Folha de Medição Final do relatório financeiro.
+
+    As tabelas e os consolidados usam os mesmos cálculos do Ateste Financeiro,
+    acrescidos dos dados contratuais e da página de responsáveis.
+
+    Args:
+        relatorio_financeiro (Model): Relatório com Medição Final gerada.
+        parametrizacao (Model): Parametrização financeira vigente.
+
+    Returns:
+        File: Arquivo PDF a ser registrado na Central de Downloads.
+    """
     contexto = montar_contexto_folha_medicao_final(relatorio_financeiro, parametrizacao)
     html_string = render_to_string(
         "relatorio_financeiro/relatorio_folha_medicao_final.html", contexto

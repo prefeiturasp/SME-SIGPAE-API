@@ -1148,6 +1148,7 @@ class MedicaoFinal(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
     @property
     def assinatura_eletronica(self) -> str:
+        """Texto da assinatura eletrônica exibido na Folha de Medição Final."""
         usuario = self.gerado_por
         return format_html(
             "Documento conferido e registrado eletronicamente por "

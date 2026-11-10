@@ -1126,6 +1126,7 @@ def decimal_br(value, casas=2):
 
 @register.filter
 def percentual_br(value):
+    """Formata percentual sem zeros decimais à direita, ex.: 10.50 -> "10,5%"."""
     return f"{decimal_br(value).rstrip('0').rstrip(',')}%"
 
 
