@@ -1,4 +1,3 @@
-import calendar
 import datetime
 import logging
 from io import BytesIO
@@ -6,7 +5,6 @@ from uuid import UUID
 
 from celery import shared_task
 from dateutil.relativedelta import relativedelta
-from django.db.models import Q
 from django.db import transaction
 from pypdf import PdfWriter
 
@@ -43,6 +41,7 @@ from ..dados_comuns.utils import (
 from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     gerar_relatorio_ateste_financeiro,
+    gerar_relatorio_folha_medicao_final,
     obter_relatorio_da_unidade,
     relatorio_historico_ocorrencias_medicao_inicial,
     relatorio_solicitacao_medicao_por_escola,
@@ -55,12 +54,14 @@ from ..relatorios.relatorios import (
 )
 from .historico_acesso_ue import tasks as historico_acesso_ue_tasks
 from .models import (
-    ParametrizacaoFinanceira,
     RelatorioFinanceiro,
     Responsavel,
     SolicitacaoMedicaoInicial,
 )
-from .services.relatorio_ateste_financeiro import obter_config_grupo
+from .services.relatorio_ateste_financeiro import (
+    obter_config_grupo,
+    obter_parametrizacao_vigente,
+)
 from .utils import cria_relatorios_financeiros_por_grupo_unidade_escolar
 
 cria_historico_acesso_ue = historico_acesso_ue_tasks.cria_historico_acesso_ue
@@ -577,16 +578,8 @@ def exporta_relatorio_historico_correcoes_pdf(user, nome_arquivo, solicitacao_uu
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
-@shared_task(
-    retry_backoff=2,
-    retry_kwargs={"max_retries": 8},
-    time_limit=3000,
-    soft_time_limit=3000,
-)
-def gera_pdf_relatorio_financeiro_consolidado_async(
-    user,
-    nome_arquivo,
-    uuid_relatorio_financeiro,
+def _processa_pdf_relatorio_financeiro(
+    user, nome_arquivo, uuid_relatorio_financeiro, gerar_arquivo
 ):
     logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
 
@@ -601,41 +594,15 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
             "grupo_unidade_escolar",
         ).get(uuid=uuid_relatorio_financeiro)
 
-        mes = int(relatorio_financeiro.mes)
-        ano = int(relatorio_financeiro.ano)
-
-        parametrizacao = (
-            ParametrizacaoFinanceira.objects.filter(
-                lote=relatorio_financeiro.lote,
-                grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
-                data_inicial__lte=datetime.date(
-                    ano,
-                    mes,
-                    calendar.monthrange(ano, mes)[1],
-                ),
-            )
-            .filter(
-                Q(data_final__gte=datetime.date(ano, mes, 1))
-                | Q(data_final__isnull=True)
-            )
-            .first()
-        )
+        parametrizacao = obter_parametrizacao_vigente(relatorio_financeiro)
 
         if not parametrizacao:
-            raise Exception(
+            raise ValueError(
                 "Parametrização financeira não encontrada "
                 "para o tipo de unidade e lote do relatório financeiro."
             )
 
-        config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
-
-        arquivo = gerar_relatorio_ateste_financeiro(
-            relatorio_financeiro=relatorio_financeiro,
-            parametrizacao=parametrizacao,
-            builder=config["builder"],
-            template=config["template"],
-            tipo_calculo=config["tipo_calculo"],
-        )
+        arquivo = gerar_arquivo(relatorio_financeiro, parametrizacao)
 
         atualiza_central_download(
             obj_central_download,
@@ -652,3 +619,54 @@ def gera_pdf_relatorio_financeiro_consolidado_async(
         )
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
+
+
+def _gerar_ateste_financeiro(relatorio_financeiro, parametrizacao):
+    config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
+
+    return gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro,
+        parametrizacao=parametrizacao,
+        builder=config["builder"],
+        template=config["template"],
+        tipo_calculo=config["tipo_calculo"],
+    )
+
+
+def _gerar_folha_medicao_final(relatorio_financeiro, parametrizacao):
+    if not hasattr(relatorio_financeiro, "medicao_final"):
+        raise ValueError("Medição Final não encontrada para o relatório financeiro.")
+
+    return gerar_relatorio_folha_medicao_final(relatorio_financeiro, parametrizacao)
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_pdf_relatorio_financeiro_consolidado_async(
+    user,
+    nome_arquivo,
+    uuid_relatorio_financeiro,
+):
+    _processa_pdf_relatorio_financeiro(
+        user, nome_arquivo, uuid_relatorio_financeiro, _gerar_ateste_financeiro
+    )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_pdf_folha_medicao_final_async(
+    user,
+    nome_arquivo,
+    uuid_relatorio_financeiro,
+):
+    _processa_pdf_relatorio_financeiro(
+        user, nome_arquivo, uuid_relatorio_financeiro, _gerar_folha_medicao_final
+    )

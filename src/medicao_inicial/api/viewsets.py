@@ -51,10 +51,14 @@ from src.medicao_inicial.services.relatorio_alimentacoes_servidas_dados import (
 )
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
+    obter_parametrizacao_vigente,
     parametrizacao_possui_reajuste,
 )
+from src.medicao_inicial.services.relatorio_folha_medicao_final import (
+    nome_arquivo_folha_medicao_final,
+    obter_dados_contratuais,
+)
 from src.medicao_inicial.utils import process_anexos_from_request
-from src.terceirizada.models import Contrato
 
 from ...cardapio.base.models import TipoAlimentacao
 from ...dados_comuns import constants
@@ -123,6 +127,7 @@ from ..tasks import (
     exporta_relatorio_alimentacoes_servidas_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_historico_correcoes_pdf,
+    gera_pdf_folha_medicao_final_async,
     gera_pdf_historico_ocorrencias_medicao_inicial_async,
     gera_pdf_relatorio_financeiro_consolidado_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
@@ -2817,23 +2822,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 uuid=uuid_relatorio_financeiro
             )
 
-            mes = int(relatorio_financeiro.mes)
-            ano = int(relatorio_financeiro.ano)
-
-            parametrizacao = (
-                ParametrizacaoFinanceira.objects.filter(
-                    lote=relatorio_financeiro.lote,
-                    grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
-                    data_inicial__lte=datetime.date(
-                        ano, mes, calendar.monthrange(ano, mes)[1]
-                    ),
-                )
-                .filter(
-                    Q(data_final__gte=datetime.date(ano, mes, 1))
-                    | Q(data_final__isnull=True)
-                )
-                .first()
-            )
+            parametrizacao = obter_parametrizacao_vigente(relatorio_financeiro)
 
             if not parametrizacao:
                 return Response(
@@ -2882,6 +2871,9 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         executada de forma assíncrona, permitindo que a requisição HTTP
         seja concluída sem aguardar o processamento do arquivo.
 
+        O documento é a Folha de Medição Final quando o relatório possui
+        Medição Final e o Ateste Financeiro nos demais casos.
+
         O nome do arquivo gerado é composto pela diretoria regional,
         grupo de unidade escolar e período de referência do relatório.
 
@@ -2910,12 +2902,19 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        gera_pdf_relatorio_financeiro_consolidado_async.delay(
-            user=user,
-            nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
-            f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
-            uuid_relatorio_financeiro=uuid_relatorio_financeiro,
-        )
+        if hasattr(relatorio_financeiro, "medicao_final"):
+            gera_pdf_folha_medicao_final_async.delay(
+                user=user,
+                nome_arquivo=nome_arquivo_folha_medicao_final(relatorio_financeiro),
+                uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+            )
+        else:
+            gera_pdf_relatorio_financeiro_consolidado_async.delay(
+                user=user,
+                nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+                f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
+                uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+            )
 
         return Response(
             dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),
@@ -3018,48 +3017,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
     @action(detail=True, methods=["GET"], url_path="dados-medicao-final")
     def dados_medicao_final(self, request, uuid=None):
         """Dados somente leitura exibidos no modal "Gerar Medição Final"."""
-        relatorio_financeiro = self.get_object()
-        lote = relatorio_financeiro.lote
-        terceirizada = lote.terceirizada
-        mes, ano = int(relatorio_financeiro.mes), int(relatorio_financeiro.ano)
-        primeiro_dia = datetime.date(ano, mes, 1)
-        ultimo_dia = datetime.date(ano, mes, calendar.monthrange(ano, mes)[1])
-
-        contratos = Contrato.objects.filter(lotes=lote).filter(
-            Q(data_hora_encerramento__isnull=True)
-            | Q(data_hora_encerramento__date__gte=primeiro_dia),
-            Q(data_proposta__isnull=True) | Q(data_proposta__lte=ultimo_dia),
-        )
-        if terceirizada:
-            contratos = contratos.filter(terceirizada=terceirizada)
-        contrato = contratos.order_by(
-            "encerrado", F("data_proposta").desc(nulls_last=True)
-        ).first()
-
-        tipos_unidade = (
-            relatorio_financeiro.grupo_unidade_escolar.tipos_unidades.order_by(
-                "iniciais"
-            ).values_list("iniciais", flat=True)
-        )
-
-        return Response(
-            {
-                "empresa_contratada": (
-                    terceirizada.razao_social if terceirizada else None
-                ),
-                "periodo_inicio": primeiro_dia.strftime("%d/%m/%Y"),
-                "periodo_fim": ultimo_dia.strftime("%d/%m/%Y"),
-                "lote": lote.nome,
-                "dre": (
-                    lote.diretoria_regional.nome if lote.diretoria_regional else None
-                ),
-                "tipos_unidade": ", ".join(tipos_unidade),
-                "numero_contrato": contrato.numero if contrato else None,
-                "numero_processo_administrativo": (
-                    contrato.processo if contrato else None
-                ),
-            }
-        )
+        return Response(obter_dados_contratuais(self.get_object()))
 
     @action(
         detail=True,
