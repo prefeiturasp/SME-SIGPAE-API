@@ -127,9 +127,8 @@ from ..tasks import (
     exporta_relatorio_alimentacoes_servidas_para_xlsx,
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_historico_correcoes_pdf,
-    gera_pdf_folha_medicao_final_async,
     gera_pdf_historico_ocorrencias_medicao_inicial_async,
-    gera_pdf_relatorio_financeiro_consolidado_async,
+    gera_pdf_relatorio_financeiro_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
 )
@@ -2903,18 +2902,18 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
             )
 
         if hasattr(relatorio_financeiro, "medicao_final"):
-            gera_pdf_folha_medicao_final_async.delay(
-                user=user,
-                nome_arquivo=nome_arquivo_folha_medicao_final(relatorio_financeiro),
-                uuid_relatorio_financeiro=uuid_relatorio_financeiro,
-            )
+            nome_arquivo = nome_arquivo_folha_medicao_final(relatorio_financeiro)
         else:
-            gera_pdf_relatorio_financeiro_consolidado_async.delay(
-                user=user,
-                nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
-                f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
-                uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+            nome_arquivo = (
+                f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+                f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf"
             )
+
+        gera_pdf_relatorio_financeiro_async.delay(
+            user=user,
+            nome_arquivo=nome_arquivo,
+            uuid_relatorio_financeiro=uuid_relatorio_financeiro,
+        )
 
         return Response(
             dict(detail=MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO),

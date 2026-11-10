@@ -12,12 +12,8 @@ from src.medicao_inicial.models import MedicaoFinal, RelatorioFinanceiro
 
 BASE_URL = "/medicao-inicial/relatorio-financeiro"
 PATCH_RF = "src.eol_servico.utils.EOLServicoSGP.get_dados_usuario"
-PATCH_TASK_ATESTE = (
-    "src.medicao_inicial.api.viewsets."
-    "gera_pdf_relatorio_financeiro_consolidado_async.delay"
-)
-PATCH_TASK_FOLHA = (
-    "src.medicao_inicial.api.viewsets.gera_pdf_folha_medicao_final_async.delay"
+PATCH_TASK = (
+    "src.medicao_inicial.api.viewsets.gera_pdf_relatorio_financeiro_async.delay"
 )
 MSG_RF_NAO_LOCALIZADO = "RF não localizado. Verifique o número informado."
 PAYLOAD = {
@@ -455,12 +451,10 @@ def test_transicao_gerar_medicao_final_exige_usuario(relatorio_em_analise):
 
 @pytest.mark.django_db
 class TestExportarPdf:
-    @patch(PATCH_TASK_FOLHA)
-    @patch(PATCH_TASK_ATESTE)
-    def test_sem_medicao_final_dispara_o_ateste(
+    @patch(PATCH_TASK)
+    def test_sem_medicao_final_nomeia_como_ateste(
         self,
-        task_ateste,
-        task_folha,
+        task,
         client_autenticado_codae_medicao,
         relatorio_em_analise,
     ):
@@ -470,18 +464,18 @@ class TestExportarPdf:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
-        task_ateste.assert_called_once()
-        task_folha.assert_not_called()
-        nome_arquivo = task_ateste.call_args.kwargs["nome_arquivo"]
+        task.assert_called_once()
+        assert task.call_args.kwargs["uuid_relatorio_financeiro"] == str(
+            relatorio_em_analise.uuid
+        )
+        nome_arquivo = task.call_args.kwargs["nome_arquivo"]
         assert nome_arquivo.startswith("Ateste Financeiro - Medição Inicial")
 
     @pytest.mark.parametrize("status_relatorio", ["GERADA_MEDICAO_FINAL", "FINALIZADO"])
-    @patch(PATCH_TASK_FOLHA)
-    @patch(PATCH_TASK_ATESTE)
-    def test_com_medicao_final_dispara_a_folha(
+    @patch(PATCH_TASK)
+    def test_com_medicao_final_nomeia_como_folha(
         self,
-        task_ateste,
-        task_folha,
+        task,
         status_relatorio,
         client_autenticado_codae_medicao,
         lote_medicao_final,
@@ -501,32 +495,25 @@ class TestExportarPdf:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
-        task_ateste.assert_not_called()
-        task_folha.assert_called_once()
-        nome_arquivo = task_folha.call_args.kwargs["nome_arquivo"]
+        task.assert_called_once()
+        nome_arquivo = task.call_args.kwargs["nome_arquivo"]
         assert nome_arquivo.startswith("Folha de Medição Final - DRE ")
         assert "/" not in nome_arquivo
 
-    @patch(PATCH_TASK_FOLHA)
-    @patch(PATCH_TASK_ATESTE)
-    def test_relatorio_inexistente(
-        self, task_ateste, task_folha, client_autenticado_codae_medicao
-    ):
+    @patch(PATCH_TASK)
+    def test_relatorio_inexistente(self, task, client_autenticado_codae_medicao):
         response = client_autenticado_codae_medicao.post(
             f"{BASE_URL}/exportar-pdf/9b2f8a3e-6a0b-4b53-9a50-3c2f2c0f8b11/"
         )
 
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json() == {"Erro": "Relatório financeiro não encontrado."}
-        task_ateste.assert_not_called()
-        task_folha.assert_not_called()
+        task.assert_not_called()
 
-    @patch(PATCH_TASK_FOLHA)
-    @patch(PATCH_TASK_ATESTE)
+    @patch(PATCH_TASK)
     def test_sem_permissao(
         self,
-        task_ateste,
-        task_folha,
+        task,
         client_autenticado_diretoria_regional,
         relatorio_em_analise,
     ):
@@ -535,5 +522,4 @@ class TestExportarPdf:
         )
 
         assert response.status_code == status.HTTP_403_FORBIDDEN
-        task_ateste.assert_not_called()
-        task_folha.assert_not_called()
+        task.assert_not_called()

@@ -578,9 +578,43 @@ def exporta_relatorio_historico_correcoes_pdf(user, nome_arquivo, solicitacao_uu
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
-def _processa_pdf_relatorio_financeiro(
-    user, nome_arquivo, uuid_relatorio_financeiro, gerar_arquivo
+def _gerar_arquivo_relatorio_financeiro(relatorio_financeiro, parametrizacao):
+    if hasattr(relatorio_financeiro, "medicao_final"):
+        return gerar_relatorio_folha_medicao_final(relatorio_financeiro, parametrizacao)
+
+    config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
+
+    return gerar_relatorio_ateste_financeiro(
+        relatorio_financeiro=relatorio_financeiro,
+        parametrizacao=parametrizacao,
+        builder=config["builder"],
+        template=config["template"],
+        tipo_calculo=config["tipo_calculo"],
+    )
+
+
+@shared_task(
+    retry_backoff=2,
+    retry_kwargs={"max_retries": 8},
+    time_limit=3000,
+    soft_time_limit=3000,
+)
+def gera_pdf_relatorio_financeiro_async(
+    user,
+    nome_arquivo,
+    uuid_relatorio_financeiro,
 ):
+    """Gera o PDF do relatório financeiro e o registra na Central de Downloads.
+
+    O documento é a Folha de Medição Final quando o relatório possui Medição
+    Final e o Ateste Financeiro nos demais casos. Erros na geração, inclusive a
+    ausência de parametrização vigente, são registrados na Central de Downloads.
+
+    Args:
+        user (str): Username do usuário que solicitou o arquivo.
+        nome_arquivo (str): Identificador do arquivo na Central de Downloads.
+        uuid_relatorio_financeiro (str): UUID do relatório financeiro.
+    """
     logger.info(f"x-x-x-x Iniciando a geração do arquivo {nome_arquivo} x-x-x-x")
 
     obj_central_download = gera_objeto_na_central_download(
@@ -602,7 +636,9 @@ def _processa_pdf_relatorio_financeiro(
                 "para o tipo de unidade e lote do relatório financeiro."
             )
 
-        arquivo = gerar_arquivo(relatorio_financeiro, parametrizacao)
+        arquivo = _gerar_arquivo_relatorio_financeiro(
+            relatorio_financeiro, parametrizacao
+        )
 
         atualiza_central_download(
             obj_central_download,
@@ -619,54 +655,3 @@ def _processa_pdf_relatorio_financeiro(
         )
 
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
-
-
-def _gerar_ateste_financeiro(relatorio_financeiro, parametrizacao):
-    config = obter_config_grupo(relatorio_financeiro.grupo_unidade_escolar.nome)
-
-    return gerar_relatorio_ateste_financeiro(
-        relatorio_financeiro=relatorio_financeiro,
-        parametrizacao=parametrizacao,
-        builder=config["builder"],
-        template=config["template"],
-        tipo_calculo=config["tipo_calculo"],
-    )
-
-
-def _gerar_folha_medicao_final(relatorio_financeiro, parametrizacao):
-    if not hasattr(relatorio_financeiro, "medicao_final"):
-        raise ValueError("Medição Final não encontrada para o relatório financeiro.")
-
-    return gerar_relatorio_folha_medicao_final(relatorio_financeiro, parametrizacao)
-
-
-@shared_task(
-    retry_backoff=2,
-    retry_kwargs={"max_retries": 8},
-    time_limit=3000,
-    soft_time_limit=3000,
-)
-def gera_pdf_relatorio_financeiro_consolidado_async(
-    user,
-    nome_arquivo,
-    uuid_relatorio_financeiro,
-):
-    _processa_pdf_relatorio_financeiro(
-        user, nome_arquivo, uuid_relatorio_financeiro, _gerar_ateste_financeiro
-    )
-
-
-@shared_task(
-    retry_backoff=2,
-    retry_kwargs={"max_retries": 8},
-    time_limit=3000,
-    soft_time_limit=3000,
-)
-def gera_pdf_folha_medicao_final_async(
-    user,
-    nome_arquivo,
-    uuid_relatorio_financeiro,
-):
-    _processa_pdf_relatorio_financeiro(
-        user, nome_arquivo, uuid_relatorio_financeiro, _gerar_folha_medicao_final
-    )
