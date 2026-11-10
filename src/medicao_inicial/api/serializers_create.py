@@ -104,6 +104,7 @@ from ..validators import (
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
+    validate_finalizacao_sem_lancamentos_escola_aberta,
     validate_lancamento_alimentacoes_escola_aberta,
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao,
@@ -1309,6 +1310,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         lista_erros = []
         lista_erros = self._checa_se_medicao_possui_algum_lancamento(
+            instance, lista_erros
+        )
+        lista_erros = validate_finalizacao_sem_lancamentos_escola_aberta(
             instance, lista_erros
         )
 
