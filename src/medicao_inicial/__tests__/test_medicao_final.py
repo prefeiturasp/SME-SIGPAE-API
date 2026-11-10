@@ -6,11 +6,15 @@ from model_bakery import baker
 from rest_framework import status
 from rest_framework.exceptions import PermissionDenied
 
+from src.dados_comuns.constants import MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.medicao_inicial.models import MedicaoFinal, RelatorioFinanceiro
 
 BASE_URL = "/medicao-inicial/relatorio-financeiro"
 PATCH_RF = "src.eol_servico.utils.EOLServicoSGP.get_dados_usuario"
+PATCH_TASK = (
+    "src.medicao_inicial.api.viewsets.gera_pdf_relatorio_financeiro_async.delay"
+)
 MSG_RF_NAO_LOCALIZADO = "RF não localizado. Verifique o número informado."
 PAYLOAD = {
     "rf_responsavel_conferencia": "1234567",
@@ -334,14 +338,9 @@ def test_gerar_medicao_final_status_nao_elegivel(
 
 @pytest.mark.django_db
 def test_gerar_medicao_final_ja_gerada(
-    client_autenticado_codae_medicao, user_administrador_medicao, relatorio_em_analise
+    client_autenticado_codae_medicao, relatorio_em_analise, make_medicao_final
 ):
-    usuario, _ = user_administrador_medicao
-    baker.make(
-        "MedicaoFinal",
-        relatorio_financeiro=relatorio_em_analise,
-        gerado_por=usuario,
-    )
+    make_medicao_final(relatorio_em_analise)
 
     with patch(PATCH_RF, return_value=_resposta_rf(200, {"nome": "FULANO"})):
         response = client_autenticado_codae_medicao.post(
@@ -406,18 +405,17 @@ def test_gerar_medicao_final_relatorio_inexistente(client_autenticado_codae_medi
 @pytest.mark.django_db
 def test_listagem_expoe_status_e_possui_medicao_final(
     client_autenticado_codae_medicao,
-    user_administrador_medicao,
     lote_medicao_final,
     grupo_medicao_final,
+    make_medicao_final,
 ):
-    usuario, _ = user_administrador_medicao
     gerado = _cria_relatorio(
         lote_medicao_final,
         grupo_medicao_final,
         mes="08",
         status_relatorio="GERADA_MEDICAO_FINAL",
     )
-    baker.make("MedicaoFinal", relatorio_financeiro=gerado, gerado_por=usuario)
+    make_medicao_final(gerado)
     em_analise = _cria_relatorio(lote_medicao_final, grupo_medicao_final, mes="09")
 
     response = client_autenticado_codae_medicao.get(
@@ -449,3 +447,79 @@ def test_transicao_gerar_medicao_final_exige_usuario(relatorio_em_analise):
     relatorio_em_analise.refresh_from_db()
     assert relatorio_em_analise.status == "EM_ANALISE"
     assert not LogSolicitacoesUsuario.objects.exists()
+
+
+@pytest.mark.django_db
+class TestExportarPdf:
+    @patch(PATCH_TASK)
+    def test_sem_medicao_final_nomeia_como_ateste(
+        self,
+        task,
+        client_autenticado_codae_medicao,
+        relatorio_em_analise,
+    ):
+        response = client_autenticado_codae_medicao.post(
+            f"{BASE_URL}/exportar-pdf/{relatorio_em_analise.uuid}/"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
+        task.assert_called_once()
+        assert task.call_args.kwargs["uuid_relatorio_financeiro"] == str(
+            relatorio_em_analise.uuid
+        )
+        nome_arquivo = task.call_args.kwargs["nome_arquivo"]
+        assert nome_arquivo.startswith("Ateste Financeiro - Medição Inicial")
+
+    @pytest.mark.parametrize("status_relatorio", ["GERADA_MEDICAO_FINAL", "FINALIZADO"])
+    @patch(PATCH_TASK)
+    def test_com_medicao_final_nomeia_como_folha(
+        self,
+        task,
+        status_relatorio,
+        client_autenticado_codae_medicao,
+        lote_medicao_final,
+        grupo_medicao_final,
+        make_medicao_final,
+    ):
+        relatorio = _cria_relatorio(
+            lote_medicao_final,
+            grupo_medicao_final,
+            status_relatorio=status_relatorio,
+        )
+        make_medicao_final(relatorio)
+
+        response = client_autenticado_codae_medicao.post(
+            f"{BASE_URL}/exportar-pdf/{relatorio.uuid}/"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO}
+        task.assert_called_once()
+        nome_arquivo = task.call_args.kwargs["nome_arquivo"]
+        assert nome_arquivo.startswith("Folha de Medição Final - DRE ")
+        assert "/" not in nome_arquivo
+
+    @patch(PATCH_TASK)
+    def test_relatorio_inexistente(self, task, client_autenticado_codae_medicao):
+        response = client_autenticado_codae_medicao.post(
+            f"{BASE_URL}/exportar-pdf/9b2f8a3e-6a0b-4b53-9a50-3c2f2c0f8b11/"
+        )
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {"Erro": "Relatório financeiro não encontrado."}
+        task.assert_not_called()
+
+    @patch(PATCH_TASK)
+    def test_sem_permissao(
+        self,
+        task,
+        client_autenticado_diretoria_regional,
+        relatorio_em_analise,
+    ):
+        response = client_autenticado_diretoria_regional.post(
+            f"{BASE_URL}/exportar-pdf/{relatorio_em_analise.uuid}/"
+        )
+
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        task.assert_not_called()

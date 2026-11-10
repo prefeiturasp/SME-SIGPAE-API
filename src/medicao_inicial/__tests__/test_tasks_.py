@@ -31,13 +31,17 @@ from src.medicao_inicial.tasks import (
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_controle_frequencia_para_pdf,
     exporta_relatorio_historico_correcoes_pdf,
-    gera_pdf_relatorio_financeiro_consolidado_async,
+    gera_pdf_relatorio_financeiro_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
     processa_relatorio_lançamentos,
     solicitacao_medicao_atual_existe,
 )
 from src.perfil.models.usuario import Usuario
+from src.relatorios.relatorios import (
+    gerar_relatorio_ateste_financeiro,
+    gerar_relatorio_folha_medicao_final,
+)
 from src.terceirizada.models import Terceirizada
 
 
@@ -945,16 +949,25 @@ def test_exporta_relatorio_historico_correcoes_pdf_exception(
 
 
 @pytest.mark.django_db
-def test_gerar_pdf_relatorio_financeiro_async(
+@patch(
+    "src.medicao_inicial.tasks.gerar_relatorio_folha_medicao_final",
+    wraps=gerar_relatorio_folha_medicao_final,
+)
+@patch(
+    "src.medicao_inicial.tasks.gerar_relatorio_ateste_financeiro",
+    wraps=gerar_relatorio_ateste_financeiro,
+)
+def test_gerar_pdf_relatorio_financeiro_sem_medicao_final_gera_ateste(
+    gerar_ateste,
+    gerar_folha,
     relatorio_financeiro_cei,
     parametrizacao_financeira_cei,
     usuario,
 ):
     nome_arquivo = "teste.pdf"
-    user = usuario.get_username()
 
-    gera_pdf_relatorio_financeiro_consolidado_async(
-        user=user,
+    gera_pdf_relatorio_financeiro_async(
+        user=usuario.get_username(),
         nome_arquivo=nome_arquivo,
         uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
     )
@@ -962,7 +975,67 @@ def test_gerar_pdf_relatorio_financeiro_async(
     registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
 
     assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
-    assert registro.arquivo is not None
+    assert registro.arquivo.name.endswith(".pdf")
+    gerar_ateste.assert_called_once()
+    gerar_folha.assert_not_called()
+
+
+@pytest.mark.django_db
+@patch(
+    "src.medicao_inicial.tasks.gerar_relatorio_folha_medicao_final",
+    wraps=gerar_relatorio_folha_medicao_final,
+)
+@patch(
+    "src.medicao_inicial.tasks.gerar_relatorio_ateste_financeiro",
+    wraps=gerar_relatorio_ateste_financeiro,
+)
+def test_gerar_pdf_relatorio_financeiro_com_medicao_final_gera_folha(
+    gerar_ateste,
+    gerar_folha,
+    relatorio_financeiro_cei,
+    parametrizacao_financeira_cei,
+    usuario,
+    make_medicao_final,
+):
+    make_medicao_final(relatorio_financeiro_cei)
+    nome_arquivo = "folha.pdf"
+
+    gera_pdf_relatorio_financeiro_async(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+
+    assert registro.status == CentralDeDownload.STATUS_CONCLUIDO
+    assert registro.arquivo.name.endswith(".pdf")
+    gerar_folha.assert_called_once()
+    gerar_ateste.assert_not_called()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("possui_medicao_final", [False, True])
+def test_gerar_pdf_relatorio_financeiro_sem_parametrizacao_registra_erro(
+    possui_medicao_final,
+    relatorio_financeiro_cei,
+    usuario,
+    make_medicao_final,
+):
+    if possui_medicao_final:
+        make_medicao_final(relatorio_financeiro_cei)
+    nome_arquivo = "relatorio-sem-parametrizacao.pdf"
+
+    gera_pdf_relatorio_financeiro_async(
+        user=usuario.get_username(),
+        nome_arquivo=nome_arquivo,
+        uuid_relatorio_financeiro=relatorio_financeiro_cei.uuid,
+    )
+
+    registro = CentralDeDownload.objects.get(identificador=nome_arquivo)
+
+    assert registro.status == CentralDeDownload.STATUS_ERRO
+    assert "Parametrização financeira não encontrada" in registro.msg_erro
 
 
 @pytest.mark.django_db
