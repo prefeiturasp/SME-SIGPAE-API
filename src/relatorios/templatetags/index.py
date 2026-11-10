@@ -1125,6 +1125,11 @@ def decimal_br(value, casas=2):
 
 
 @register.filter
+def percentual_br(value):
+    return f"{decimal_br(value).rstrip('0').rstrip(',')}%"
+
+
+@register.filter
 def nome_escola_historico_kit_unificado(escola_quantidade):
     """
     Retorna o nome histórico da escola baseado na data da solicitação de kit unificado.
