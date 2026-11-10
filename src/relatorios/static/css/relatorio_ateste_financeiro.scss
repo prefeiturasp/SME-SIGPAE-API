@@ -105,22 +105,67 @@
   .tabela-relatorio td:first-child,
   .tabela-relatorio th:first-child {
     text-align: center;
-    width: 34%;
+    width: 22%;
   }
 
-  .tabela-relatorio th:not(:first-child):not(:last-child),
-  .tabela-relatorio td:not(:first-child):not(:last-child) {
-    width: 12%;
+  .tabela-detalhada-alimentacao {
+    font-size: 8.5px;
+
+    th,
+    td {
+      padding: 4px 2px;
+      width: 11%;
+    }
+
+    th:first-child,
+    td:first-child {
+      width: 20%;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 14%;
+    }
+
+    &.sem-reajuste {
+      font-size: 10px;
+
+      th:first-child,
+      td:first-child {
+        width: 34%;
+      }
+
+      th:not(:first-child),
+      td:not(:first-child) {
+        width: 16.5%;
+      }
+    }
   }
 
-  .tabela-relatorio td:last-child,
-  .tabela-relatorio th:last-child {
-    width: 15%;
+  .tabela-detalhada-dieta {
+    th:first-child,
+    td:first-child {
+      width: 30%;
+    }
+
+    th:not(:first-child),
+    td:not(:first-child) {
+      width: 13.5%;
+    }
+
+    th:last-child,
+    td:last-child {
+      width: 16%;
+    }
   }
 
   .linha-total td {
     font-weight: bold;
     background-color: $cinza-claro !important;
+  }
+
+  .linha-total td:last-child {
+    white-space: nowrap;
   }
 
   .cor-tipo-a th {

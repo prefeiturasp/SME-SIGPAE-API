@@ -1,0 +1,37 @@
+<!doctype html>
+{% load sass_tags %}
+<html lang="pt-BR">
+  <head>
+    {% block estilos %}
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/custom_bootstrap.scss' %}"
+      type="text/css"
+    />
+    <link
+      rel="stylesheet"
+      href="{% sass_src 'css/relatorio_ateste_financeiro.scss' %}"
+      type="text/css"
+    />
+    {% endblock %}
+    <title>SIGPAE</title>
+  </head>
+
+  <body>
+    <div class="relatorio-financeiro {% block classe_relatorio %}{% endblock %}">
+      {% block cabecalho %}
+      {% include "relatorio_financeiro/componentes/cabecalho.html" %}
+      {% endblock %}
+      {% block tabelas %}{% endblock %}
+      {% for consolidado in consolidados %}
+      {% include "relatorio_financeiro/componentes/consolidado_total.html" with
+      titulo=consolidado.titulo quantidade=consolidado.quantidade
+      titulo_quantidade=consolidado.titulo_quantidade
+      titulo_valor=consolidado.titulo_valor valor=consolidado.valor
+      valor_extenso=consolidado.valor_extenso %}
+      {% endfor %}
+      {% block complemento %}{% endblock %}
+    </div>
+    {% include "relatorio_financeiro/componentes/rodape.html" %}
+  </body>
+</html>
