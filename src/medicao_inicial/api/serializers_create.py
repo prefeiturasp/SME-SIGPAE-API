@@ -3,7 +3,7 @@ import json
 from datetime import date, datetime
 
 import environ
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from rest_framework import serializers
@@ -35,6 +35,7 @@ from src.escola.models import (
     PeriodoEscolar,
     TipoUnidadeEscolar,
 )
+from src.medicao_inicial.api.constants import CAMPOS_CONTROLADOS_PELO_FLUXO
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -1116,7 +1117,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def cria_valores_medicao_logs_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1128,7 +1129,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self.cria_valores_medicao_logs_dietas_autorizadas_cei(instance)
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def update(self, instance, validated_data):
         self._check_user_permission()
@@ -1170,7 +1171,38 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             validated_data["dre_ciencia_correcao_usuario"] = self.context[
                 "request"
             ].user
-        update_instance_from_dict(instance, validated_data, save=True)
+        update_instance_from_dict(instance, validated_data)
+        update_fields = self._campos_para_atualizacao(instance, validated_data)
+        if update_fields:
+            instance.save(update_fields=update_fields)
+
+    @staticmethod
+    def _campos_para_atualizacao(instance, validated_data):
+        """Lista os campos que um salvamento comum pode gravar.
+
+        Campos controlados pelo fluxo de aprovação (``status``) são ignorados,
+        pois uma instância carregada antes de uma transição concorrente
+        sobrescreveria o novo status com o valor antigo.
+
+        Args:
+            instance (SolicitacaoMedicaoInicial): Instância em atualização.
+            validated_data (dict): Campos recebidos na requisição.
+
+        Returns:
+            list[str]: Nomes dos campos concretos que devem ser persistidos.
+        """
+        update_fields = []
+        for nome in validated_data:
+            try:
+                campo = instance._meta.get_field(nome)
+            except FieldDoesNotExist:
+                continue
+            if not campo.concrete or campo.primary_key:
+                continue
+            if nome in CAMPOS_CONTROLADOS_PELO_FLUXO:
+                continue
+            update_fields.append(nome)
+        return update_fields
 
     def _update_responsaveis(self, instance):
         responsaveis_dict = self.context["request"].data.get("responsaveis")
@@ -1398,7 +1430,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance
         )
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(
         self, instance: SolicitacaoMedicaoInicial
@@ -1429,7 +1461,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_dietas_autorizadas_cei(instance)
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1461,7 +1493,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_cemei(instance)
         cria_valores_medicao_participantes_dietas_autorizadas_cemei(instance)
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_cemei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1692,7 +1724,7 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
         if not eh_observacao:
             instance.valores_medicao.filter(valor=-1).delete()
         instance.alterado_em = datetime.now()
-        instance.save()
+        instance.save(update_fields=["alterado_em"])
 
         return instance
 

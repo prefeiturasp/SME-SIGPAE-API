@@ -1184,7 +1184,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1216,7 +1216,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1263,7 +1263,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1295,7 +1295,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1466,7 +1466,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 solicitacao_medicao_inicial.ocorrencia.escola_exclui_ocorrencia(
                     user=request.user, justificativa=justificativa
                 )
-            solicitacao_medicao_inicial.save()
+            solicitacao_medicao_inicial.save(update_fields=["com_ocorrencias"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:

@@ -48,3 +48,8 @@ USUARIOS_VISAO_CODAE = [
     "nutricao_manifestacao",
     "codae_gabinete",
 ]
+
+# Campos controlados exclusivamente pelo fluxo de aprovação (xworkflows).
+# Salvamentos comuns (autosaves) não devem gravá-los, pois uma instância
+# carregada antes de uma transição concorrente sobrescreveria o novo status.
+CAMPOS_CONTROLADOS_PELO_FLUXO = ("status",)

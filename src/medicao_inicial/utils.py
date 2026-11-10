@@ -5952,7 +5952,7 @@ def criar_log_escola_corrigiu(
     log_inicial["alteracoes"].append(alteracoes_dict)
     historico.append(log_inicial)
     solicitacao.historico = json.dumps(historico)
-    solicitacao.save()
+    solicitacao.save(update_fields=["historico"])
 
 
 def get_alteracoes_log(lista_alteracoes, log_inicial, periodo_nome):
@@ -6152,7 +6152,7 @@ def atualizar_log_escola_corrigiu(
             ]["semanas"][semana_idx]["dias"][dia_idx]["campos"][campo_idx]["para"]
         ) = value
     solicitacao.historico = json.dumps(historico)
-    solicitacao.save()
+    solicitacao.save(update_fields=["historico"])
 
 
 def log_alteracoes_escola_corrige_periodo(user, medicao, acao, data):
