@@ -157,6 +157,13 @@ class FormularioSupervisaoModelViewSet(
         instituicao = usuario.vinculo_atual.instituicao
         queryset = super().get_queryset()
 
+        if self.action == "list":
+            queryset = queryset.select_related(
+                "escola__diretoria_regional",
+                "escola__tipo_unidade",
+                "formulario_base"
+            )
+
         if usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_SUPERVISAO_NUTRICAO:
             return queryset.filter(formulario_base__usuario=usuario)
 
