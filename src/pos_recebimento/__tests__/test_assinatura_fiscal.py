@@ -86,10 +86,18 @@ def test_fiscal_assina_termo_usuario_nao_e_fiscal_do_termo_retorna_403(
     assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
 
 
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_dilog_cronograma",
+        "client_autenticado_fornecedor",
+        "client_autenticado_usuario_empresa",
+    ],
+)
 def test_fiscal_assina_termo_perfil_sem_permissao_retorna_403(
-    client_autenticado_dilog_cronograma, termo_para_assinatura
+    request, nome_client, termo_para_assinatura
 ):
-    response = _assinar(client_autenticado_dilog_cronograma, termo_para_assinatura)
+    response = _assinar(request.getfixturevalue(nome_client), termo_para_assinatura)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
