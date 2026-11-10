@@ -8,6 +8,7 @@ from rest_framework import status
 
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, ContentTypesParaRequests
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.pre_recebimento.base.models import UnidadeMedida
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 pytestmark = pytest.mark.django_db
@@ -52,6 +53,49 @@ class TestCronogramaSemanalViewSet:
             "data_fim": "15/03/2026",
             "mes_programado": "03/2026",
         }
+
+    def test_dilog_abastecimento_pode_consultar_relatorio_semanal(
+        self,
+        client_autenticado_dilog_abastecimento,
+        cronograma_semanal_para_relatorio
+    ):
+        cliente = client_autenticado_dilog_abastecimento
+        cronograma = cronograma_semanal_para_relatorio
+        mensal = cronograma.cronograma_mensal
+        mensal.unidade_medida = baker.make(UnidadeMedida, abreviacao="kg")
+        mensal.save(update_fields=["unidade_medida"])
+
+        resposta = cliente.get("/cronogramas-semanais/listagem-relatorio/")
+
+        assert resposta.status_code == status.HTTP_200_OK
+        dados = resposta.json()
+        assert dados["count"] == 1
+        assert dados["results"] == [
+            {
+                "uuid": str(cronograma.uuid),
+                "numero": cronograma.numero,
+                "empresa": mensal.empresa.nome_fantasia,
+                "produto": mensal.ficha_tecnica.produto.nome,
+                "qtd_total_empenho": mensal.qtd_total_empenho,
+                "unidade_medida": "kg",
+                "status": cronograma.get_status_display(),
+                "custo_unitario_produto": mensal.custo_unitario_produto,
+                "programacoes": [
+                    {
+                        "quantidade": 50.0,
+                        "data_inicio": "01/03/2026",
+                        "data_fim": "15/03/2026",
+                        "mes_programado": "03/2026"
+                    },
+                    {
+                        "quantidade": 30.0,
+                        "data_inicio": "01/04/2026",
+                        "data_fim": "15/04/2026",
+                        "mes_programado": "04/2026"
+                    }
+                ]
+            }
+        ]
 
     def test_post_rascunho_sucesso(
         self,
