@@ -348,6 +348,20 @@ class TestPaginacao:
             assert "Diretor de Divisão Técnica" not in pagina
             assert "Responsável pela Empresa Contratada" not in pagina
 
+    def test_responsaveis_na_pagina_do_consolidado_quando_cabem(
+        self, relatorio_financeiro_cei, parametrizacao_financeira_cei
+    ):
+        _gera_medicao_final(relatorio_financeiro_cei)
+
+        ultima = _paginas(
+            gerar_relatorio_folha_medicao_final(
+                relatorio_financeiro_cei, parametrizacao_financeira_cei
+            )
+        )[-1]
+
+        assert "CONSOLIDADO TOTAL (A + B + C)" in ultima
+        assert "Responsável pela Empresa Contratada" in ultima
+
     def test_nenhuma_linha_de_faixa_etaria_e_perdida(self, documento_longo):
         texto = "\n".join(documento_longo)
         faixas_ativas = FaixaEtaria.objects.filter(ativo=True).count()
