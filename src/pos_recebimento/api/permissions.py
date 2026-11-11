@@ -54,6 +54,12 @@ class PermissaoParaAssinarTermoRecebimentoProvisorio(
     PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
 
 
+class PermissaoParaAcessarPainelAssinaturas(PermissaoTermoRecebimentoProvisorio):
+    """Permissão para o Painel de Assinaturas, exclusiva de DILOG_QUALIDADE."""
+
+    PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
+
+
 class PermissaoParaVisualizarTermoRecebimentoProvisorio(
     PermissaoTermoRecebimentoProvisorio
 ):

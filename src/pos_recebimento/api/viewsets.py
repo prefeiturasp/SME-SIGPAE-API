@@ -13,15 +13,16 @@ from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from ..models import (
     AssinaturaTermoRecebimentoProvisorio,
     CronogramaTermoRecebimentoProvisorio,
-    TermoRecebimentoProvisorio,
     MemorandoOcorrencia,
+    TermoRecebimentoProvisorio,
 )
 from .filters import TermoRecebimentoProvisorioFilter
 from .permissions import (
+    PermissaoParaAcessarPainelAssinaturas,
     PermissaoParaAssinarTermoRecebimentoProvisorio,
     PermissaoParaCadastrarTermoRecebimentoProvisorio,
-    PermissaoParaVisualizarTermoRecebimentoProvisorio,
     PermissaoParaRegistrarMemorandoOcorrencia,
+    PermissaoParaVisualizarTermoRecebimentoProvisorio,
 )
 from .serializers.serializers import (
     MemorandoOcorrenciaSerializer,
@@ -85,9 +86,10 @@ class TermoRecebimentoProvisorioViewSet(
         return queryset
 
     def get_permissions(self):
-        """Visualização é liberada para mais perfis do que o cadastro."""
-        if self.action in ("list", "retrieve", *self.ACTIONS_PAINEL_ASSINATURA):
+        if self.action in ("list", "retrieve"):
             return [PermissaoParaVisualizarTermoRecebimentoProvisorio()]
+        if self.action in self.ACTIONS_PAINEL_ASSINATURA:
+            return [PermissaoParaAcessarPainelAssinaturas()]
         if self.action == "fiscal_assina_termo":
             return [PermissaoParaAssinarTermoRecebimentoProvisorio()]
 
