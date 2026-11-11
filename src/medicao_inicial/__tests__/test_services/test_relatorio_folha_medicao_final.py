@@ -3,11 +3,14 @@ import io
 from decimal import Decimal
 
 import pytest
+from django.template import Context
+from django.template.loader import get_template
+from django.template.loader_tags import ExtendsNode
 from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfReader
 
-from src.escola.models import FaixaEtaria
+from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import MedicaoFinal, ParametrizacaoFinanceiraTabelaValor
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
@@ -23,7 +26,11 @@ from src.relatorios.relatorios import (
     gerar_relatorio_ateste_financeiro,
     gerar_relatorio_folha_medicao_final,
 )
-from src.relatorios.templatetags.index import percentual_br
+from src.relatorios.templatetags.index import (
+    agrupador_milhar_com_decimal,
+    numero_para_milhar,
+    percentual_br,
+)
 from src.relatorios.utils import extrair_texto_de_pdf
 
 pytestmark = pytest.mark.django_db
@@ -146,6 +153,41 @@ class TestCabecalhoEArquivo:
 )
 def test_percentual_br_sem_zeros_decimais(valor, esperado):
     assert percentual_br(valor) == esperado
+
+
+TEMPLATE_FOLHA = "relatorio_financeiro/relatorio_folha_medicao_final.html"
+
+
+def _template_pai_da_folha(contexto):
+    template = get_template(TEMPLATE_FOLHA).template
+    extends = template.nodelist.get_nodes_by_type(ExtendsNode)[0]
+    context = Context(contexto)
+    context.template = template
+    return extends.get_parent(context).origin.template_name
+
+
+def test_template_da_folha_estende_o_base_sem_contexto():
+    assert (
+        _template_pai_da_folha({})
+        == "relatorio_financeiro/relatorio_ateste_financeiro_base.html"
+    )
+
+
+@pytest.mark.parametrize(
+    "grupo",
+    [
+        GrupoUnidadeEscolar.GRUPO_1,
+        GrupoUnidadeEscolar.GRUPO_2,
+        GrupoUnidadeEscolar.GRUPO_3,
+        GrupoUnidadeEscolar.GRUPO_5,
+    ],
+)
+def test_template_da_folha_estende_o_template_do_grupo(grupo):
+    template_grupo = obter_config_grupo(grupo)["template"]
+
+    assert _template_pai_da_folha({"template_ateste": template_grupo}) == (
+        template_grupo
+    )
 
 
 @pytest.mark.usefixtures("pdf_com_estilos")
@@ -306,6 +348,20 @@ class TestPaginacao:
             assert "Diretor de Divisão Técnica" not in pagina
             assert "Responsável pela Empresa Contratada" not in pagina
 
+    def test_responsaveis_na_pagina_do_consolidado_quando_cabem(
+        self, relatorio_financeiro_cei, parametrizacao_financeira_cei
+    ):
+        _gera_medicao_final(relatorio_financeiro_cei)
+
+        ultima = _paginas(
+            gerar_relatorio_folha_medicao_final(
+                relatorio_financeiro_cei, parametrizacao_financeira_cei
+            )
+        )[-1]
+
+        assert "CONSOLIDADO TOTAL (A + B + C)" in ultima
+        assert "Responsável pela Empresa Contratada" in ultima
+
     def test_nenhuma_linha_de_faixa_etaria_e_perdida(self, documento_longo):
         texto = "\n".join(documento_longo)
         faixas_ativas = FaixaEtaria.objects.filter(ativo=True).count()
@@ -339,3 +395,110 @@ class TestPaginacao:
             assert pagina.count("FOLHA DE MEDIÇÃO FINAL") == 1
             assert f"Página {numero}/{len(paginas)}" in pagina
         assert "Coordenador SME/CODAE" in paginas[-1]
+
+
+def _sem_espacos(texto):
+    return "".join(texto.split())
+
+
+def _assert_em_ordem(texto, trechos):
+    posicao = 0
+    for trecho in trechos:
+        posicao = texto.index(_sem_espacos(trecho), posicao)
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+@pytest.mark.parametrize(
+    "contexto_grupo_relatorio", ["grupo_1_cei", "grupo_2_cemei"], indirect=True
+)
+class TestGruposPorFaixaEtaria:
+    @pytest.fixture
+    def folha(self, contexto_grupo_relatorio):
+        relatorio = contexto_grupo_relatorio["relatorio"]
+        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
+        _gera_medicao_final(relatorio)
+        contexto = montar_contexto_folha_medicao_final(relatorio, parametrizacao)
+        texto = extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
+        )
+        return contexto.get("cei", contexto), _sem_espacos(texto)
+
+    def test_tabelas_na_ordem_com_os_totais(self, folha):
+        tabelas, texto = folha
+
+        _assert_em_ordem(
+            texto,
+            [
+                "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS",
+                "TOTAL (A)",
+                "DIETA ESPECIAL - TIPO A",
+                "TOTAL (B)",
+                "DIETA ESPECIAL - TIPO B",
+                "TOTAL (C)",
+            ],
+        )
+        totais = (
+            ("A", tabelas["alimentacao"]["total_atendimentos"], "alimentacao"),
+            ("B", tabelas["dieta_a"]["total_consumo"], "dieta_a"),
+            ("C", tabelas["dieta_b"]["total_consumo"], "dieta_b"),
+        )
+        for ordem, quantidade, tabela in totais:
+            valor = agrupador_milhar_com_decimal(tabelas[tabela]["valor_total"])
+            assert f"TOTAL({ordem}){numero_para_milhar(quantidade)}R${valor}" in texto
+
+    def test_linhas_exibem_periodo_e_faixa_com_os_valores(self, folha):
+        tabelas, texto = folha
+        linhas = [
+            (linha, linha["numero_atendimentos"])
+            for linha in tabelas["alimentacao"]["linhas"]
+        ] + [
+            (linha, linha["numero_consumo"])
+            for tabela in ("dieta_a", "dieta_b")
+            for linha in tabelas[tabela]["linhas"]
+        ]
+
+        assert linhas
+        for linha, quantidade in linhas:
+            rotulo = _sem_espacos(f"{linha['periodo']} - {linha['faixa']}")
+            valor_unitario = agrupador_milhar_com_decimal(linha["valor_unitario"])
+            assert (
+                f"{rotulo}{numero_para_milhar(quantidade)}R${valor_unitario}" in texto
+            )
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+@pytest.mark.parametrize("contexto_grupo_relatorio", ["grupo_2_cemei"], indirect=True)
+def test_cemei_exibe_turma_infantil_e_os_tres_consolidados(contexto_grupo_relatorio):
+    relatorio = contexto_grupo_relatorio["relatorio"]
+    parametrizacao = contexto_grupo_relatorio["parametrizacao"]
+    _gera_medicao_final(relatorio)
+    consolidados = montar_contexto_folha_medicao_final(relatorio, parametrizacao)[
+        "consolidados"
+    ]
+
+    texto = _sem_espacos(
+        extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
+        )
+    )
+
+    _assert_em_ordem(
+        texto,
+        [
+            "TOTAL (C)",
+            "Alimentações TURMA INFANTIL da CEMEI",
+            "TOTAL (INF. A)",
+            "TOTAL (INF. B)",
+            "TOTAL (INF. C)",
+            "CONSOLIDADO CEI (A + B + C)",
+            "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
+            "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
+        ],
+    )
+    for consolidado in consolidados:
+        bloco = texto.split(_sem_espacos(consolidado["titulo"]), 1)[1]
+        bloco = bloco.split("CONSOLIDADO", 1)[0]
+        quantidade = numero_para_milhar(consolidado["quantidade"])
+        valor = agrupador_milhar_com_decimal(consolidado["valor"])
+        assert f"{quantidade}ALIMENTAÇÕES" in bloco
+        assert f"R${valor}" in bloco
