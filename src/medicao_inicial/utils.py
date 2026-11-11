@@ -3945,7 +3945,7 @@ def build_tabela_escola_aberta(solicitacao):
         "len_categorias": [len(campos)],
         "valores_campos": linhas + [linha_total],
         "ordem_periodos_grupos": [11],
-        "dias_letivos": [True] * (len(linhas) + 1),
+        "dias_letivos": [linha[1] > 0 for linha in linhas] + [False],
         "categorias_dos_periodos": {
             GrupoMedicao.ESCOLA_ABERTA: [
                 {
@@ -4591,6 +4591,43 @@ def get_somatorio_colaboradores(
     return somatorio_colaboradores
 
 
+def get_somatorio_escola_aberta(
+    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
+):
+    medicao = solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.ESCOLA_ABERTA
+    ).first()
+    if not medicao:
+        return 0
+
+    valores = _obter_valores_escola_aberta(solicitacao)
+    if not valores:
+        return 0
+
+    quantidade_dias = calendar.monthrange(int(solicitacao.ano), int(solicitacao.mes))[1]
+    campo_total = {
+        "refeicao": "total_refeicoes_pagamento",
+        "sobremesa": "total_sobremesas_pagamento",
+    }.get(campo)
+
+    if campo_total:
+        total = 0
+        for dia in range(1, quantidade_dias + 1):
+            dia_formatado = f"{dia:02d}"
+            participantes = _valor_inteiro_escola_aberta(
+                valores, "participantes", dia_formatado
+            )
+            total += _valor_campo_escola_aberta(
+                campo_total, valores, dia_formatado, participantes
+            )
+        return total
+
+    return sum(
+        _valor_inteiro_escola_aberta(valores, campo, f"{dia:02d}")
+        for dia in range(1, quantidade_dias + 1)
+    )
+
+
 def _get_nome_periodo(medicao):
     if not medicao.grupo:
         return medicao.periodo_escolar.nome
@@ -4658,6 +4695,38 @@ def _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao):
     ]
 
 
+def _adicionar_campos_somatorio_escola_aberta(unidade, campos_tipos_alimentacao):
+    for nome in unidade.tipos_alimentacao.values_list("nome", flat=True):
+        campo = _normalizar_nome_campo_escola_aberta(nome)
+        if campo not in campos_tipos_alimentacao:
+            campos_tipos_alimentacao.append(campo)
+
+
+def _adicionar_somatorio_escola_aberta(
+    solicitacao,
+    primeira_tabela_header,
+    segunda_tabela_header,
+    campos_tipos_alimentacao,
+):
+    if not (solicitacao.escola.eh_emef or solicitacao.escola.eh_ceu_gestao):
+        return
+
+    unidade = obter_unidade_escola_aberta_por_mes_ano(
+        solicitacao.escola.uuid,
+        int(solicitacao.mes),
+        int(solicitacao.ano),
+    )
+    if not unidade:
+        return
+
+    if GrupoMedicao.ESCOLA_ABERTA not in (
+        primeira_tabela_header + segunda_tabela_header
+    ):
+        primeira_tabela_header.append(GrupoMedicao.ESCOLA_ABERTA)
+
+    _adicionar_campos_somatorio_escola_aberta(unidade, campos_tipos_alimentacao)
+
+
 def _selecionar_medicoes_somatorio(solicitacao, ordem_periodos):
     todas_medicoes = list(solicitacao.medicoes.all())
     medicoes = sorted(
@@ -4688,7 +4757,10 @@ def _obter_ordem_periodos_somatorio(solicitacao):
     }
     if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
         return ordem_periodos_cemei
-    return ORDEM_PERIODOS_GRUPOS
+
+    ordem_periodos = dict(ORDEM_PERIODOS_GRUPOS)
+    ordem_periodos[GrupoMedicao.ESCOLA_ABERTA] = 13
+    return ordem_periodos
 
 
 def _ordenar_campos_somatorio(campos_tipos_alimentacao):
@@ -4746,6 +4818,13 @@ def build_tabela_somatorio_body(
 
     for medicao in medicoes_extraordinarias:
         _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao)
+
+    _adicionar_somatorio_escola_aberta(
+        solicitacao,
+        primeira_tabela_header,
+        segunda_tabela_header,
+        campos_tipos_alimentacao,
+    )
 
     campos_tipos_alimentacao = _ordenar_campos_somatorio(campos_tipos_alimentacao)
     primeira_tabela_somatorio = {"header": primeira_tabela_header, "body": []}
@@ -5225,6 +5304,7 @@ def somatorio_periodo(
         "ETEC": get_somatorio_etec,
         GrupoMedicao.RECREIO_NAS_FERIAS: get_somatorio_recreio_nas_ferias,
         GRUPO_COLABORADORES: get_somatorio_colaboradores,
+        GrupoMedicao.ESCOLA_ABERTA: get_somatorio_escola_aberta,
     }
 
     valores_somatorios_primeira_tabela = []
