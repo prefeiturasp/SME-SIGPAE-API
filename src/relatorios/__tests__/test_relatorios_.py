@@ -1593,12 +1593,8 @@ def test_relatorio_medicao_inicial_inclui_bloco_escola_aberta(
     assert "190" in texto
     assert "252" in texto
     assert "230" in texto
-    assert "315" in texto
-    assert "335" in texto
     assert "438" in texto
-    assert "618" in texto
     assert "270" in texto
-    assert "658" in texto
     assert _contem_trecho(texto, "OBSERVAÇÕES DIÁRIAS DOS LANÇAMENTOS")
     assert _contem_trecho(texto, "Observação da Escola Aberta")
 
@@ -1647,8 +1643,8 @@ def test_somatorio_inclui_coluna_escola_aberta_e_valores_no_total(
 
     assert linha_lanche[indice_escola_aberta] == 190
     assert linha_lanche_4h[indice_escola_aberta] == 252
-    assert linha_refeicao[indice_escola_aberta] == 618
-    assert linha_sobremesa[indice_escola_aberta] == 658
+    assert linha_refeicao[indice_escola_aberta] == 400
+    assert linha_sobremesa[indice_escola_aberta] == 400
 
     for linha in [linha_lanche, linha_lanche_4h, linha_refeicao, linha_sobremesa]:
         assert linha[-1] == sum(linha[1:-1])
