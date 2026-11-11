@@ -8,8 +8,8 @@ from model_bakery import baker
 from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from src.pos_recebimento.models import (
-    CronogramaTermoRecebimentoDefinitivo,
-    TermoRecebimentoDefinitivo,
+    CronogramaTermoRecebimentoProvisorio,
+    TermoRecebimentoProvisorio,
 )
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
@@ -26,7 +26,6 @@ from src.terceirizada.fixtures.factories.terceirizada_factory import (
     ContratoFactory,
     EmpresaFactory,
 )
-
 
 PRODUTO_MAMAO_PAPAYA = "MAMAO PAPAYA"
 
@@ -112,7 +111,7 @@ def tres_fiscais(django_user_model):
 
 @pytest.fixture
 def payload_termo(ficha_assinada, tres_fiscais):
-    """Payload válido para criação do Termo de Recebimento Definitivo."""
+    """Payload válido para criação do Termo de Recebimento Provisório."""
     cronograma = ficha_assinada.etapa.cronograma
     return {
         "empresa": str(cronograma.empresa.uuid),
@@ -127,7 +126,7 @@ def payload_termo(ficha_assinada, tres_fiscais):
         "fiscal_2": str(tres_fiscais[1].uuid),
         "fiscal_3": str(tres_fiscais[2].uuid),
         "valor_contrato": "150000.00",
-        "texto_termo": "<p>Termo de Recebimento Definitivo</p>",
+        "texto_termo": "<p>Termo de Recebimento Provisório</p>",
     }
 
 
@@ -145,25 +144,25 @@ def _cria_termo(
 
     ``criado_em`` é ``auto_now_add``, então só pode ser fixado via UPDATE.
     """
-    termo = TermoRecebimentoDefinitivo.objects.create(
+    termo = TermoRecebimentoProvisorio.objects.create(
         empresa=empresa,
         contrato=contrato,
         fiscal_1=fiscais[0],
         fiscal_2=fiscais[1],
         fiscal_3=fiscais[2],
         valor_contrato="150000.00",
-        texto_termo="<p>Termo de Recebimento Definitivo</p>",
-        status=TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+        texto_termo="<p>Termo de Recebimento Provisório</p>",
+        status=TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
     )
     for numero in numeros_cronogramas:
-        CronogramaTermoRecebimentoDefinitivo.objects.create(
+        CronogramaTermoRecebimentoProvisorio.objects.create(
             termo=termo,
             cronograma=CronogramaFactory(
                 contrato=contrato, empresa=empresa, numero=numero
             ),
             quantidade_total_recebida="1234.56",
         )
-    TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
+    TermoRecebimentoProvisorio.objects.filter(pk=termo.pk).update(
         criado_em=timezone.make_aware(data_cadastro)
     )
     termo.refresh_from_db()
@@ -229,10 +228,37 @@ def usuario_dilog_diretoria(django_user_model):
     return user
 
 
+@pytest.fixture
+def client_autenticado_usuario_empresa(client, django_user_model, empresa):
+    """Client autenticado com perfil USUARIO_EMPRESA na empresa do termo.
+
+    Complementa o ``client_autenticado_fornecedor`` (ADMINISTRADOR_EMPRESA):
+    os dois perfis de empresa perderam o acesso ao Pós-Recebimento, já que o
+    fornecedor não participa do Termo de Recebimento Provisório.
+    """
+    email = "usuario.empresa@test.com"
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=constants.DJANGO_ADMIN_PASSWORD,
+        email=email,
+    )
+    perfil = baker.make("Perfil", nome=constants.USUARIO_EMPRESA, ativo=True)
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=empresa,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=constants.DJANGO_ADMIN_PASSWORD)
+    return client
+
+
 def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
     """Termo para o painel de assinaturas."""
 
-    termo = TermoRecebimentoDefinitivo.objects.create(
+    termo = TermoRecebimentoProvisorio.objects.create(
         empresa=empresa,
         contrato=contrato,
         fiscal_1=fiscais[0],
@@ -246,7 +272,7 @@ def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
             tipo_produto=NomeDeProdutoEdital.LOGISTICA,
         )
         ficha_tecnica = FichaTecnicaFactory(produto=produto)
-        CronogramaTermoRecebimentoDefinitivo.objects.create(
+        CronogramaTermoRecebimentoProvisorio.objects.create(
             termo=termo,
             cronograma=CronogramaFactory(
                 contrato=contrato,
@@ -256,7 +282,7 @@ def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
             ),
             quantidade_total_recebida="1234.56",
         )
-    TermoRecebimentoDefinitivo.objects.filter(pk=termo.pk).update(
+    TermoRecebimentoProvisorio.objects.filter(pk=termo.pk).update(
         criado_em=timezone.make_aware(DATA_CADASTRO_TERMO)
     )
     termo.refresh_from_db()
@@ -285,27 +311,27 @@ def termos_painel_assinatura(usuario_fiscal, tres_fiscais):
             empresa_alfa,
             contrato_alfa,
             fiscais_com_usuario,
-            TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+            TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
             (("001/2026", PRODUTO_MAMAO_PAPAYA), ("002/2026", "ABACATE")),
         ),
         pendente_de_outro_fiscal=_cria_termo_do_painel(
             outra_empresa,
             ContratoFactory(terceirizada=outra_empresa),
             list(tres_fiscais),
-            TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+            TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
             (("003/2026", "BANANA PRATA"),),
         ),
         de_outro_status=_cria_termo_do_painel(
             empresa_alfa,
             contrato_alfa,
             fiscais_com_usuario,
-            TermoRecebimentoDefinitivo.ENVIADO_DILOG,
+            TermoRecebimentoProvisorio.ENVIADO_DILOG,
         ),
         assinado_do_fiscal=_cria_termo_do_painel(
             empresa_alfa,
             contrato_alfa,
             [tres_fiscais[0], usuario_fiscal, tres_fiscais[2]],
-            TermoRecebimentoDefinitivo.ASSINADO_FORNECEDOR,
+            TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
             # Dois cronogramas do mesmo produto: o painel deve exibir o
             # nome uma única vez.
             (("005/2026", PRODUTO_MAMAO_PAPAYA), ("006/2026", PRODUTO_MAMAO_PAPAYA)),
@@ -320,7 +346,7 @@ def termo_para_assinatura(empresa, contrato, tres_fiscais):
         empresa,
         contrato,
         list(tres_fiscais),
-        TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+        TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
     )
 
 
@@ -331,7 +357,7 @@ def termo_fiscais_repetidos(empresa, contrato, tres_fiscais):
         empresa,
         contrato,
         [tres_fiscais[0], tres_fiscais[0], tres_fiscais[2]],
-        TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+        TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
     )
 
 
@@ -342,5 +368,5 @@ def termo_fiscal_unico(empresa, contrato, tres_fiscais):
         empresa,
         contrato,
         [tres_fiscais[0], tres_fiscais[0], tres_fiscais[0]],
-        TermoRecebimentoDefinitivo.ENVIADO_FISCAIS,
+        TermoRecebimentoProvisorio.ENVIADO_FISCAIS,
     )

@@ -3,7 +3,7 @@ import json
 from datetime import date, datetime
 
 import environ
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from rest_framework import serializers
@@ -16,7 +16,11 @@ from src.dados_comuns.utils import (
     update_instance_from_dict,
 )
 from src.dados_comuns.validators import deve_ter_extensao_xls_xlsx_pdf
+from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
+    somente_digitos,
+)
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
 from src.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
 )
@@ -31,6 +35,7 @@ from src.escola.models import (
     PeriodoEscolar,
     TipoUnidadeEscolar,
 )
+from src.medicao_inicial.api.constants import CAMPOS_CONTROLADOS_PELO_FLUXO
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -39,6 +44,7 @@ from src.medicao_inicial.models import (
     DiaSobremesaDoce,
     GrupoMedicao,
     Medicao,
+    MedicaoFinal,
     OcorrenciaMedicaoInicial,
     ParametrizacaoFinanceira,
     ParametrizacaoFinanceiraTabela,
@@ -99,6 +105,8 @@ from ..validators import (
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
+    validate_finalizacao_sem_lancamentos_escola_aberta,
+    validate_lancamento_alimentacoes_escola_aberta,
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao,
     validate_lancamento_alimentacoes_medicao_cei,
@@ -373,6 +381,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_solicitacoes_etec(instance, lista_erros)
         lista_erros = validate_solicitacoes_programas_e_projetos(instance, lista_erros)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+        lista_erros = validate_lancamento_alimentacoes_escola_aberta(
+            instance, lista_erros
+        )
 
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
@@ -450,6 +461,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+        lista_erros = validate_lancamento_alimentacoes_escola_aberta(
+            instance, lista_erros
+        )
 
         if lista_erros:
             raise ValidationError(lista_erros)
@@ -1104,7 +1118,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def cria_valores_medicao_logs_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1116,7 +1130,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self.cria_valores_medicao_logs_dietas_autorizadas_cei(instance)
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def update(self, instance, validated_data):
         self._check_user_permission()
@@ -1158,7 +1172,38 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             validated_data["dre_ciencia_correcao_usuario"] = self.context[
                 "request"
             ].user
-        update_instance_from_dict(instance, validated_data, save=True)
+        update_instance_from_dict(instance, validated_data)
+        update_fields = self._campos_para_atualizacao(instance, validated_data)
+        if update_fields:
+            instance.save(update_fields=update_fields)
+
+    @staticmethod
+    def _campos_para_atualizacao(instance, validated_data):
+        """Lista os campos que um salvamento comum pode gravar.
+
+        Campos controlados pelo fluxo de aprovação (``status``) são ignorados,
+        pois uma instância carregada antes de uma transição concorrente
+        sobrescreveria o novo status com o valor antigo.
+
+        Args:
+            instance (SolicitacaoMedicaoInicial): Instância em atualização.
+            validated_data (dict): Campos recebidos na requisição.
+
+        Returns:
+            list[str]: Nomes dos campos concretos que devem ser persistidos.
+        """
+        update_fields = []
+        for nome in validated_data:
+            try:
+                campo = instance._meta.get_field(nome)
+            except FieldDoesNotExist:
+                continue
+            if not campo.concrete or campo.primary_key:
+                continue
+            if nome in CAMPOS_CONTROLADOS_PELO_FLUXO:
+                continue
+            update_fields.append(nome)
+        return update_fields
 
     def _update_responsaveis(self, instance):
         responsaveis_dict = self.context["request"].data.get("responsaveis")
@@ -1299,6 +1344,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = self._checa_se_medicao_possui_algum_lancamento(
             instance, lista_erros
         )
+        lista_erros = validate_finalizacao_sem_lancamentos_escola_aberta(
+            instance, lista_erros
+        )
 
         if not medicoes_nomes_com_solicitacoes_autorizadas and not lista_erros:
             return
@@ -1386,7 +1434,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance
         )
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(
         self, instance: SolicitacaoMedicaoInicial
@@ -1417,7 +1465,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_dietas_autorizadas_cei(instance)
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1449,7 +1497,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_cemei(instance)
         cria_valores_medicao_participantes_dietas_autorizadas_cemei(instance)
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_cemei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1537,6 +1585,22 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
     valores_medicao = ValorMedicaoCreateUpdateSerializer(many=True, required=False)
     infantil_ou_fundamental = serializers.CharField(required=False)
 
+    def _apenas_observacoes_em_correcao(self, instance, valores):
+        """Impede que salvamentos comuns/autosaves regravem valores em correção."""
+        status_correcao = (
+            instance.workflow_class.MEDICAO_CORRECAO_SOLICITADA,
+            instance.workflow_class.MEDICAO_CORRIGIDA_PELA_UE,
+            instance.workflow_class.MEDICAO_CORRECAO_SOLICITADA_CODAE,
+            instance.workflow_class.MEDICAO_CORRIGIDA_PARA_CODAE,
+        )
+        if instance.status not in status_correcao or not valores:
+            return valores
+        return [
+            valor
+            for valor in valores
+            if valor and valor.get("nome_campo") == "observacoes"
+        ]
+
     def create(self, validated_data):
         usuario = self.context["request"].user
         validated_data["criado_por"] = usuario
@@ -1601,6 +1665,9 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):  # noqa C901
         user = self.context["request"].user
         acao = instance.workflow_class.MEDICAO_CORRIGIDA_PELA_UE
+        validated_data["valores_medicao"] = self._apenas_observacoes_em_correcao(
+            instance, validated_data.get("valores_medicao", None)
+        )
         valores = validated_data.get("valores_medicao", None)
         if instance.status in [
             acao,
@@ -1661,7 +1728,7 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
         if not eh_observacao:
             instance.valores_medicao.filter(valor=-1).delete()
         instance.alterado_em = datetime.now()
-        instance.save()
+        instance.save(update_fields=["alterado_em"])
 
         return instance
 
@@ -2089,3 +2156,48 @@ class DescontoFinanceiroUpdateSerializer(serializers.ModelSerializer):
                 }
             )
         self._validar_grupo_emei(attrs)
+
+
+class GerarMedicaoFinalSerializer(serializers.ModelSerializer):
+    """Entrada do modal "Gerar Medição Final".
+
+    Espera ``relatorio_financeiro`` e ``request`` no contexto. O nome do
+    responsável não é aceito do cliente: vem da consulta do RF.
+    """
+
+    rf_responsavel_conferencia = serializers.CharField(
+        max_length=20, validators=[somente_digitos]
+    )
+
+    class Meta:
+        model = MedicaoFinal
+        fields = ("rf_responsavel_conferencia", "numero_processo_pagamento")
+
+    def validate(self, attrs):
+        relatorio = self.context["relatorio_financeiro"]
+        if hasattr(relatorio, "medicao_final"):
+            raise serializers.ValidationError(
+                "A Medição Final já foi gerada para este Relatório Financeiro."
+            )
+        if relatorio.status != relatorio.workflow_class.EM_ANALISE:
+            raise serializers.ValidationError(
+                "Só é possível gerar a Medição Final de um Relatório Financeiro com "
+                'status "Em análise".'
+            )
+
+        nome = EOLServicoSGP.get_nome_servidor(attrs["rf_responsavel_conferencia"])
+        if not nome:
+            raise serializers.ValidationError(
+                {"rf_responsavel_conferencia": MENSAGEM_RF_NAO_LOCALIZADO}
+            )
+        attrs["nome_responsavel_conferencia"] = nome
+        return attrs
+
+    def create(self, validated_data):
+        relatorio = self.context["relatorio_financeiro"]
+        usuario = self.context["request"].user
+        medicao_final = MedicaoFinal.objects.create(
+            relatorio_financeiro=relatorio, gerado_por=usuario, **validated_data
+        )
+        relatorio.gerar_medicao_final(user=usuario)
+        return medicao_final

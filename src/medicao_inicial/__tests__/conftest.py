@@ -1,14 +1,18 @@
+import calendar
 import datetime
 import json
 import random
 from io import BytesIO
 from itertools import product
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
+import sass
 from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
+from weasyprint import CSS, HTML
 
 from src.dados_comuns import constants
 from src.dados_comuns.behaviors import TempoPasseio
@@ -3161,6 +3165,17 @@ def make_valores_medicao():
 @pytest.fixture
 def usuario(django_user_model):
     return baker.make(django_user_model)
+
+
+@pytest.fixture
+def make_medicao_final(usuario):
+    def handle(relatorio_financeiro, **kwargs):
+        kwargs.setdefault("gerado_por", usuario)
+        return baker.make(
+            "MedicaoFinal", relatorio_financeiro=relatorio_financeiro, **kwargs
+        )
+
+    return handle
 
 
 @pytest.fixture
@@ -8294,3 +8309,116 @@ def informacoes_excel_writer_sem_lancamentos(solicitacao_sem_lancamento):
     finally:
         workbook.close()
         writer.close()
+
+
+@pytest.fixture
+def pdf_com_estilos(monkeypatch):
+    """Gera o PDF com o CSS real, que não é compilado nem resolvido em teste."""
+    diretorio_css = Path("src/relatorios/static/css")
+    folhas = [
+        CSS(
+            string=sass.compile(
+                filename=str(diretorio_css / nome),
+                include_paths=[str(diretorio_css)],
+            )
+        )
+        for nome in (
+            "relatorio_ateste_financeiro.scss",
+            "relatorio_folha_medicao_final.scss",
+        )
+    ]
+
+    def gerar_pdf(html_string, _nome_arquivo, is_async=False):
+        return HTML(string=html_string).write_pdf(stylesheets=folhas)
+
+    monkeypatch.setattr("src.relatorios.relatorios.html_to_pdf_file", gerar_pdf)
+
+
+RELATORIO_GRUPOS = {
+    "grupo_1_cei": dict(
+        relatorio="relatorio_financeiro_cei",
+        parametrizacao="parametrizacao_financeira_cei",
+        consumo="relatorio_consolidado_xlsx_cei",
+        tipo_calculo="faixa_etaria",
+        fixtures_extras=["faixas_etarias_ativas"],
+    ),
+    "grupo_2_cemei": dict(
+        relatorio="relatorio_financeiro_cemei",
+        parametrizacao="parametrizacao_financeira_cemei",
+        consumo="relatorio_consolidado_xlsx_cemei",
+        tipo_calculo=None,
+        fixtures_extras=["faixas_etarias_ativas", "vinculo_alimentacao_cemei"],
+    ),
+    "grupo_3_emei": dict(
+        relatorio="relatorio_financeiro_emei",
+        parametrizacao="parametrizacao_financeira_emei",
+        consumo="relatorio_consolidado_xlsx_emei",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_emei"],
+    ),
+    "grupo_4_emef": dict(
+        relatorio="relatorio_financeiro_emef",
+        parametrizacao="parametrizacao_financeira_emef",
+        consumo="relatorio_consolidado_xlsx_emef",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_emef"],
+    ),
+    "grupo_5_emebs": dict(
+        relatorio="relatorio_financeiro_emebs",
+        parametrizacao="parametrizacao_financeira_emebs",
+        consumo="relatorio_consolidado_xlsx_emebs",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_emebs"],
+    ),
+    "grupo_6_cieja_cmct": dict(
+        relatorio="relatorio_financeiro_cieja",
+        parametrizacao="parametrizacao_financeira_cieja",
+        consumo="relatorio_consolidado_xlsx_cieja",
+        tipo_calculo="tipo_alimentacao",
+        fixtures_extras=["vinculo_alimentacao_cieja"],
+    ),
+}
+
+
+def _alinha_relatorio_a_solicitacao(relatorio, parametrizacao, solicitacao):
+    relatorio.mes = solicitacao.mes
+    relatorio.ano = solicitacao.ano
+
+    escola = solicitacao.escola
+    if escola.lote.diretoria_regional_id is None:
+        escola.lote = relatorio.lote
+    tipos_do_grupo = relatorio.grupo_unidade_escolar.tipos_unidades
+    if not tipos_do_grupo.filter(pk=escola.tipo_unidade_id).exists():
+        escola.tipo_unidade = tipos_do_grupo.get(iniciais=escola.tipo_unidade.iniciais)
+    escola.save()
+
+    relatorio.lote = escola.lote
+    relatorio.save()
+
+    ano = int(solicitacao.ano)
+    mes = int(solicitacao.mes)
+    parametrizacao.lote = solicitacao.escola.lote
+    parametrizacao.data_inicial = datetime.date(ano, mes, 1)
+    parametrizacao.data_final = datetime.date(
+        ano, mes, calendar.monthrange(ano, mes)[1]
+    )
+    parametrizacao.save()
+
+
+@pytest.fixture(params=list(RELATORIO_GRUPOS))
+def contexto_grupo_relatorio(request):
+    spec = RELATORIO_GRUPOS[request.param]
+    for nome_fixture in spec["fixtures_extras"]:
+        request.getfixturevalue(nome_fixture)
+
+    relatorio = request.getfixturevalue(spec["relatorio"])
+    parametrizacao = request.getfixturevalue(spec["parametrizacao"])
+    solicitacao = request.getfixturevalue(spec["consumo"])
+    _alinha_relatorio_a_solicitacao(relatorio, parametrizacao, solicitacao)
+
+    return {
+        "nome": request.param,
+        "spec": spec,
+        "relatorio": relatorio,
+        "parametrizacao": parametrizacao,
+    }

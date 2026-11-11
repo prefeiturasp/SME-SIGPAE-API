@@ -7,6 +7,7 @@ from calendar import monthcalendar, setfirstweekday
 import numpy
 from django.db import models
 from django.db.models import Q
+from django.utils.html import format_html
 
 from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
@@ -14,7 +15,6 @@ from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
     CriadoPor,
-    TemLogs,
     Nomeavel,
     Posicao,
     TemAlteradoEm,
@@ -23,6 +23,7 @@ from ..dados_comuns.behaviors import (
     TemData,
     TemDia,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
     TemMes,
     TemSemana,
 )
@@ -549,7 +550,9 @@ class SolicitacaoMedicaoInicial(
         return f"Solicitação #{self.id_externo} -- Escola {self.escola.nome} -- {self.mes}/{self.ano}"
 
 
-class OcorrenciaMedicaoInicial(TemChaveExterna, TemLogs, FluxoSolicitacaoMedicaoInicial):
+class OcorrenciaMedicaoInicial(
+    TemChaveExterna, TemLogs, FluxoSolicitacaoMedicaoInicial
+):
     """Modelo para mapear a tabela Ocorrência e salvar objetos ocorrêcia da medição inicial."""
 
     nome_ultimo_arquivo = models.CharField(max_length=100, null=True, blank=True)
@@ -604,6 +607,7 @@ class TipoContagemAlimentacao(Nomeavel, TemChaveExterna, Ativavel):
 
 
 class GrupoMedicao(Nomeavel, TemChaveExterna, Ativavel):
+    ESCOLA_ABERTA = "Escola Aberta"
     SOLICITACOES_DE_ALIMENTACAO_EXTRAORDINARIAS = (
         "Solicitações de Alimentação Extraordinárias"
     )
@@ -1078,6 +1082,7 @@ class RelatorioFinanceiro(
     TemChaveExterna,
     CriadoEm,
     TemAlteradoEm,
+    TemLogs,
 ):
     grupo_unidade_escolar = models.ForeignKey(
         "escola.GrupoUnidadeEscolar",
@@ -1098,11 +1103,67 @@ class RelatorioFinanceiro(
         )
         return f"{self.mes} / {self.ano} | Unidades {unidades} | Lote {self.lote} | Status {self.status}"
 
+    def salvar_log_transicao(self, status_evento, usuario, **kwargs):
+        """Registra o log de transição de status do relatório financeiro."""
+        return LogSolicitacoesUsuario.objects.create(
+            descricao=str(self),
+            status_evento=status_evento,
+            solicitacao_tipo=LogSolicitacoesUsuario.RELATORIO_FINANCEIRO,
+            usuario=usuario,
+            uuid_original=self.uuid,
+            justificativa=kwargs.get("justificativa", ""),
+        )
+
     class Meta:
         verbose_name = "Relatório Financeiro"
         verbose_name_plural = "Relatórios Financeiros"
         ordering = ["-alterado_em"]
         unique_together = ("grupo_unidade_escolar", "lote", "mes", "ano")
+
+
+class MedicaoFinal(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """Dados administrativos informados ao gerar a Medição Final.
+
+    Registrados quando o Relatório Financeiro passa para o status
+    "Gerada Medição Final". O nome do responsável pela conferência é
+    sempre obtido pela consulta do RF no backend.
+    """
+
+    relatorio_financeiro = models.OneToOneField(
+        RelatorioFinanceiro,
+        on_delete=models.CASCADE,
+        related_name="medicao_final",
+    )
+    rf_responsavel_conferencia = models.CharField(max_length=20)
+    nome_responsavel_conferencia = models.CharField(max_length=255)
+    numero_processo_pagamento = models.CharField(max_length=100)
+    gerado_por = models.ForeignKey(
+        StringsCaminhoModelos.MODEL_USUARIO.value,
+        on_delete=models.PROTECT,
+        related_name="medicoes_finais_geradas",
+    )
+
+    def __str__(self):
+        return f"Medição Final | {self.relatorio_financeiro}"
+
+    @property
+    def assinatura_eletronica(self) -> str:
+        """Texto da assinatura eletrônica exibido na Folha de Medição Final."""
+        usuario = self.gerado_por
+        return format_html(
+            "Documento conferido e registrado eletronicamente por "
+            "<strong>{}</strong> - RF: {}, em {}, às {}. O registro eletrônico da "
+            "Medição Inicial é comprovação e ateste do serviço prestado às "
+            "Unidades Educacionais listadas neste relatório.",
+            usuario.nome,
+            usuario.registro_funcional or "-",
+            self.criado_em.strftime(FORMATO_DATA_BRASILEIRO),
+            self.criado_em.strftime("%H:%M"),
+        )
+
+    class Meta:
+        verbose_name = "Medição Final"
+        verbose_name_plural = "Medições Finais"
 
 
 class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):

@@ -5865,6 +5865,13 @@ def buscar_valores_medicao_por_categoria(valores_medicao, categoria):
     return valores_medicao.filter(categoria_medicao__nome=categoria)
 
 
+def get_nome_campo_log(valor_medicao):
+    """Retorna o nome usado para identificar o campo no histórico de correções."""
+    if valor_medicao.faixa_etaria:
+        return str(valor_medicao.faixa_etaria)
+    return valor_medicao.nome_campo
+
+
 def criar_dia_dict(
     valores_da_tabela, dia, medicao, dicionario_alteracoes, tabela, semana
 ):
@@ -5893,7 +5900,7 @@ def criar_dia_dict(
         vm = valores_da_tabela.get(**filtro)
 
         campo = {
-            "campo_nome": str(getattr(vm, chave)),
+            "campo_nome": get_nome_campo_log(vm),
             "de": vm.valor,
             "para": dicionario_alteracoes.get(str(vm.uuid), vm.valor),
         }
@@ -5945,7 +5952,7 @@ def criar_log_escola_corrigiu(
     log_inicial["alteracoes"].append(alteracoes_dict)
     historico.append(log_inicial)
     solicitacao.historico = json.dumps(historico)
-    solicitacao.save()
+    solicitacao.save(update_fields=["historico"])
 
 
 def get_alteracoes_log(lista_alteracoes, log_inicial, periodo_nome):
@@ -6046,11 +6053,7 @@ def atualiza_ou_cria_nome_campo_log(
             ]["semanas"][semana_idx]["dias"][dia_idx]["campos"]
         ).append(
             {
-                "campo_nome": (
-                    str(valor_medicao.faixa_etaria)
-                    if valor_medicao.faixa_etaria
-                    else valor_medicao.nome_campo
-                ),
+                "campo_nome": get_nome_campo_log(valor_medicao),
                 "de": valor_medicao.valor,
                 "para": value,
             }
@@ -6126,7 +6129,7 @@ def atualizar_log_escola_corrigiu(
 
         lista_campos = list(
             filter(
-                lambda c: c["campo_nome"] == valor_medicao.nome_campo,
+                lambda c: c["campo_nome"] == get_nome_campo_log(valor_medicao),
                 cp_dias_dict["campos"],
             )
         )
@@ -6149,7 +6152,7 @@ def atualizar_log_escola_corrigiu(
             ]["semanas"][semana_idx]["dias"][dia_idx]["campos"][campo_idx]["para"]
         ) = value
     solicitacao.historico = json.dumps(historico)
-    solicitacao.save()
+    solicitacao.save(update_fields=["historico"])
 
 
 def log_alteracoes_escola_corrige_periodo(user, medicao, acao, data):

@@ -228,6 +228,26 @@ def test_data_pertence_faixa_etaria_hoje(datas_e_faixas):
     )
 
 
+def test_faixa_etaria_respeita_29_de_fevereiro_em_ano_bissexto():
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=1, ativo=True)
+    referencia = datetime.date(2024, 3, 29)
+    assert faixa.data_pertence_a_faixa(datetime.date(2024, 2, 28), referencia) is False
+    assert faixa.data_pertence_a_faixa(datetime.date(2024, 2, 29), referencia) is True
+
+
+def test_faixa_etaria_fevereiro_de_ano_comum_termina_no_dia_28():
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=1, ativo=True)
+    referencia = datetime.date(2023, 3, 29)
+    assert faixa.data_pertence_a_faixa(datetime.date(2023, 2, 27), referencia) is False
+    assert faixa.data_pertence_a_faixa(datetime.date(2023, 2, 28), referencia) is True
+
+
+def test_faixa_etaria_seculo_nao_bissexto_nao_usa_29_de_fevereiro():
+    faixa = baker.make("FaixaEtaria", inicio=0, fim=1, ativo=True)
+    referencia = datetime.date(1900, 3, 30)
+    assert faixa.data_pertence_a_faixa(datetime.date(1900, 2, 28), referencia) is True
+
+
 def test_escola_periodo_escolar_alunos_por_faixa_etaria(
     faixas_etarias,
     escola_periodo_escolar,

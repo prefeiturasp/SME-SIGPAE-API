@@ -1,0 +1,160 @@
+@import "variaveis";
+
+$altura-cabecalho: 55mm;
+$margem-pagina: 5mm;
+
+.folha-medicao-final {
+  .cabecalho-folha {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+
+    background-color: $cinza-claro !important;
+    margin: (-($altura-cabecalho + $margem-pagina)) (-$margem-pagina) 0
+      (-$margem-pagina);
+    padding: ($margem-pagina + 8px) ($margem-pagina + 12px) 8px;
+
+    .topo {
+      gap: 16px;
+    }
+
+    .logo img {
+      height: 40px;
+    }
+
+    .linha-superior {
+      font-size: 10px;
+      font-weight: 700;
+      color: $cinza-meio-escuro;
+
+      .separador {
+        margin: 0 10px;
+      }
+    }
+
+    .titulo-principal {
+      font-size: 14px;
+      font-weight: 600;
+      color: $cinza-escuro;
+      margin-top: 6px;
+    }
+
+    .info-folha {
+      width: 100%;
+      margin-top: 14px;
+      padding: 6px 4px;
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+      background-color: $branco;
+      border: 1px solid $cinza-escuro;
+      border-radius: 4px;
+      font-size: 9.5px;
+      color: $cinza-escuro;
+      text-transform: uppercase;
+
+      td {
+        padding: 5px 8px;
+        vertical-align: top;
+      }
+
+      strong {
+        font-weight: 700;
+      }
+    }
+  }
+
+  .tabela-alimentacao {
+    page-break-inside: auto;
+    break-inside: auto;
+  }
+
+  .tabela-relatorio thead {
+    display: table-header-group;
+  }
+
+  .tabela-relatorio tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .tabela-relatorio .linha-total {
+    page-break-before: avoid;
+    break-before: avoid;
+  }
+
+  .titulo-tabela {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .consolidado-total {
+    padding: 6px 0;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  .responsaveis {
+    page-break-before: always;
+    break-before: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    font-family: "Roboto", sans-serif;
+    font-size: 11px;
+
+    .nota {
+      text-align: justify;
+      margin-bottom: 16px;
+    }
+
+    .responsavel-conferencia {
+      margin-bottom: 16px;
+    }
+
+    .caixas-assinatura {
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+
+      td {
+        padding: 20px 0 0;
+        vertical-align: bottom;
+
+        &:first-child {
+          padding-right: 12mm;
+        }
+      }
+    }
+
+    .titulo-assinatura {
+      font-size: 9px;
+      font-weight: 700;
+      margin: 0 0 4px;
+    }
+
+    .caixa-assinatura {
+      height: 22mm;
+      border: 1px solid $cinza-escuro;
+      border-radius: 4px;
+      padding: 8px;
+    }
+
+    .assinatura-eletronica {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9px;
+
+      img {
+        height: 34px;
+      }
+    }
+  }
+}
+
+@page {
+  size: A4;
+  margin: ($altura-cabecalho + $margem-pagina) $margem-pagina 14mm $margem-pagina;
+  padding: 0 !important;
+}

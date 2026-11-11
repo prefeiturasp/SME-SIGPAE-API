@@ -7,8 +7,13 @@ router = routers.DefaultRouter()
 
 router.register(
     "termos",
-    viewsets.TermoRecebimentoDefinitivoViewSet,
-    basename="termos-recebimento-definitivo",
+    viewsets.TermoRecebimentoProvisorioViewSet,
+    basename="termos-recebimento-provisorio",
+)
+router.register(
+    "memorandos-ocorrencia",
+    viewsets.MemorandoOcorrenciaViewSet,
+    basename="memorandos-ocorrencia",
 )
 
 

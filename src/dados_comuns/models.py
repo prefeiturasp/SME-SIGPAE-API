@@ -151,11 +151,13 @@ class LogSolicitacoesUsuario(models.Model):
         MEDICAO_CODAE_REABRIU_LANCAMENTO,
         CODAE_MANTEVE_PRODUTO_SUSPENSO,
         DOCUMENTO_REPROVADO,
-        # TERMO DE RECEBIMENTO DEFINITIVO
-        TERMO_RECEBIMENTO_DEFINITIVO_ENVIADO_AOS_FISCAIS,
-        TERMO_RECEBIMENTO_DEFINITIVO_ASSINADO_PELO_FISCAL,
-        TERMO_RECEBIMENTO_DEFINITIVO_ETAPA_FISCAIS_CONCLUIDA,
-    ) = range(121)
+        # TERMO DE RECEBIMENTO PROVISÓRIO
+        TERMO_RECEBIMENTO_PROVISORIO_ENVIADO_AOS_FISCAIS,
+        TERMO_RECEBIMENTO_PROVISORIO_ASSINADO_PELO_FISCAL,
+        TERMO_RECEBIMENTO_PROVISORIO_ETAPA_FISCAIS_CONCLUIDA,
+        # RELATÓRIO FINANCEIRO (MEDIÇÃO INICIAL)
+        MEDICAO_FINAL_GERADA,
+    ) = range(122)
 
     STATUS_POSSIVEIS = (
         (INICIO_FLUXO, "Solicitação Realizada"),
@@ -346,17 +348,18 @@ class LogSolicitacoesUsuario(models.Model):
         (CODAE_MANTEVE_PRODUTO_SUSPENSO, "CODAE manteve o produto suspenso"),
         (DOCUMENTO_REPROVADO, "Documento de Recebimento reprovado"),
         (
-            TERMO_RECEBIMENTO_DEFINITIVO_ENVIADO_AOS_FISCAIS,
-            "Termo de Recebimento Definitivo enviado aos Fiscais",
+            TERMO_RECEBIMENTO_PROVISORIO_ENVIADO_AOS_FISCAIS,
+            "Termo de Recebimento Provisório enviado aos Fiscais",
         ),
         (
-            TERMO_RECEBIMENTO_DEFINITIVO_ASSINADO_PELO_FISCAL,
-            "Termo de Recebimento Definitivo assinado pelo Fiscal",
+            TERMO_RECEBIMENTO_PROVISORIO_ASSINADO_PELO_FISCAL,
+            "Termo de Recebimento Provisório assinado pelo Fiscal",
         ),
         (
-            TERMO_RECEBIMENTO_DEFINITIVO_ETAPA_FISCAIS_CONCLUIDA,
-            "Etapa de assinatura dos Fiscais do Termo de Recebimento Definitivo concluída",
+            TERMO_RECEBIMENTO_PROVISORIO_ETAPA_FISCAIS_CONCLUIDA,
+            "Etapa de assinatura dos Fiscais do Termo de Recebimento Provisório concluída",
         ),
+        (MEDICAO_FINAL_GERADA, "Gerada Medição Final"),
     )
     (  # DA ESCOLA
         SOLICITACAO_KIT_LANCHE_AVULSA,
@@ -389,8 +392,9 @@ class LogSolicitacoesUsuario(models.Model):
         FICHA_TECNICA_DO_PRODUTO,
         FORMULARIO_SUPERVISAO,
         FICHA_RECEBIMENTO,
-        TERMO_RECEBIMENTO_DEFINITIVO,
-    ) = range(27)
+        TERMO_RECEBIMENTO_PROVISORIO,
+        RELATORIO_FINANCEIRO,
+    ) = range(28)
 
     TIPOS_SOLICITACOES = (
         (SOLICITACAO_KIT_LANCHE_AVULSA, "Solicitação de kit lanche avulsa"),
@@ -419,7 +423,8 @@ class LogSolicitacoesUsuario(models.Model):
         (FICHA_TECNICA_DO_PRODUTO, "Ficha técnica do produto"),
         (FORMULARIO_SUPERVISAO, "Formulário Supervisão"),
         (FICHA_RECEBIMENTO, "Ficha de Recebimento"),
-        (TERMO_RECEBIMENTO_DEFINITIVO, "Termo de Recebimento Definitivo"),
+        (TERMO_RECEBIMENTO_PROVISORIO, "Termo de Recebimento Provisório"),
+        (RELATORIO_FINANCEIRO, "Relatório Financeiro"),
     )
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)

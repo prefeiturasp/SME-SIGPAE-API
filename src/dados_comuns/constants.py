@@ -1625,7 +1625,7 @@ class StringsVerboseNameModels(Enum):
     )
     TEM_ADITIVOS_ALERGENICOS = "Tem aditivos alergênicos"
     TEM_GLUTEN = "Tem Glúten?"
-    TERMO_DE_RECEBIMENTO_DEFINITIVO = "Termo de Recebimento Definitivo"
+    TERMO_DE_RECEBIMENTO_PROVISORIO = "Termo de Recebimento Provisório"
     TEXTO_DO_TERMO = "Texto do Termo"
     TIPO = "Tipo"
     TIPO_DE_CALENDARIO = "Tipo de Calendário"
@@ -1653,6 +1653,14 @@ class StringsVerboseNameModels(Enum):
     VALOR_DO_CONTRATO = "Valor do Contrato"
     VISAO = "Visão"
     VOLUME = "Volume"
+    DATA_DE_FABRICACAO = "Data de Fabricação"
+    DATA_DE_VALIDADE = "Data de Validade"
+    ESCOLA = "Escola"
+    LOTE = "Lote"
+    MARCA = "Marca"
+    MEMORANDO_DE_OCORRENCIA = "Memorando de Ocorrência"
+    PRODUTO = "Produto"
+    QUANTIDADE_COM_PROBLEMA_DEVOLUCAO = "Quantidade com Problema / Devolução"
 
     @classmethod
     def choices(cls):

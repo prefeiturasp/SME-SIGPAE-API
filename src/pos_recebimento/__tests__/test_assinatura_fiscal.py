@@ -7,8 +7,8 @@ from rest_framework import status
 from src.dados_comuns import constants as const
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pos_recebimento.models import (
-    AssinaturaTermoRecebimentoDefinitivo,
-    TermoRecebimentoDefinitivo,
+    AssinaturaTermoRecebimentoProvisorio,
+    TermoRecebimentoProvisorio,
 )
 
 pytestmark = pytest.mark.django_db
@@ -52,16 +52,16 @@ def test_fiscal_assina_termo_registra_assinatura(
     response = _assinar(client, termo_para_assinatura)
 
     assert response.status_code == status.HTTP_200_OK
-    assinatura = AssinaturaTermoRecebimentoDefinitivo.objects.get(
+    assinatura = AssinaturaTermoRecebimentoProvisorio.objects.get(
         termo=termo_para_assinatura, usuario=tres_fiscais[0]
     )
-    assert assinatura.etapa == AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO
+    assert assinatura.etapa == AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO
     termo_para_assinatura.refresh_from_db()
-    assert termo_para_assinatura.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert termo_para_assinatura.status == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
     assert LogSolicitacoesUsuario.objects.filter(
         uuid_original=termo_para_assinatura.uuid,
         status_evento=(
-            LogSolicitacoesUsuario.TERMO_RECEBIMENTO_DEFINITIVO_ASSINADO_PELO_FISCAL
+            LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO_ASSINADO_PELO_FISCAL
         ),
         usuario=tres_fiscais[0],
     ).exists()
@@ -74,7 +74,7 @@ def test_fiscal_assina_termo_senha_incorreta_retorna_401(
     response = _assinar(client, termo_para_assinatura, password=SENHA_INCORRETA)
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
-    assert not AssinaturaTermoRecebimentoDefinitivo.objects.exists()
+    assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
 
 
 def test_fiscal_assina_termo_usuario_nao_e_fiscal_do_termo_retorna_403(
@@ -83,16 +83,24 @@ def test_fiscal_assina_termo_usuario_nao_e_fiscal_do_termo_retorna_403(
     response = _assinar(client_autenticado_qualidade, termo_para_assinatura)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert not AssinaturaTermoRecebimentoDefinitivo.objects.exists()
+    assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
 
 
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_dilog_cronograma",
+        "client_autenticado_fornecedor",
+        "client_autenticado_usuario_empresa",
+    ],
+)
 def test_fiscal_assina_termo_perfil_sem_permissao_retorna_403(
-    client_autenticado_dilog_cronograma, termo_para_assinatura
+    request, nome_client, termo_para_assinatura
 ):
-    response = _assinar(client_autenticado_dilog_cronograma, termo_para_assinatura)
+    response = _assinar(request.getfixturevalue(nome_client), termo_para_assinatura)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
-    assert not AssinaturaTermoRecebimentoDefinitivo.objects.exists()
+    assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
 
 
 def test_fiscal_assina_termo_duas_vezes_retorna_400(
@@ -104,7 +112,7 @@ def test_fiscal_assina_termo_duas_vezes_retorna_400(
     response = _assinar(client, termo_para_assinatura)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert AssinaturaTermoRecebimentoDefinitivo.objects.count() == 1
+    assert AssinaturaTermoRecebimentoProvisorio.objects.count() == 1
 
 
 def test_fiscal_assina_termo_corrida_duplicada_retorna_400(
@@ -112,14 +120,14 @@ def test_fiscal_assina_termo_corrida_duplicada_retorna_400(
 ):
     """Corrida: a validação passa, mas o registro já existe no banco."""
     _login(client, tres_fiscais[0])
-    AssinaturaTermoRecebimentoDefinitivo.objects.create(
+    AssinaturaTermoRecebimentoProvisorio.objects.create(
         termo=termo_para_assinatura,
         usuario=tres_fiscais[0],
-        etapa=AssinaturaTermoRecebimentoDefinitivo.FISCAL_CONTRATO,
+        etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
     )
 
     with patch.object(
-        TermoRecebimentoDefinitivo,
+        TermoRecebimentoProvisorio,
         "usuario_ja_assinou_fiscal",
         return_value=False,
     ):
@@ -127,7 +135,7 @@ def test_fiscal_assina_termo_corrida_duplicada_retorna_400(
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "já assinou" in response.json()["detail"]
-    assert AssinaturaTermoRecebimentoDefinitivo.objects.count() == 1
+    assert AssinaturaTermoRecebimentoProvisorio.objects.count() == 1
 
 
 def test_assinaturas_dos_fiscais_podem_ocorrer_em_qualquer_ordem(
@@ -143,16 +151,16 @@ def test_assinaturas_dos_fiscais_podem_ocorrer_em_qualquer_ordem(
         assert response.status_code == status.HTTP_200_OK
         termo_para_assinatura.refresh_from_db()
         esperado = (
-            TermoRecebimentoDefinitivo.ENVIADO_DILOG
+            TermoRecebimentoProvisorio.ENVIADO_DILOG
             if indice == 2
-            else TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+            else TermoRecebimentoProvisorio.ENVIADO_FISCAIS
         )
         assert termo_para_assinatura.status == esperado
 
     assert LogSolicitacoesUsuario.objects.filter(
         uuid_original=termo_para_assinatura.uuid,
         status_evento=(
-            LogSolicitacoesUsuario.TERMO_RECEBIMENTO_DEFINITIVO_ETAPA_FISCAIS_CONCLUIDA
+            LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO_ETAPA_FISCAIS_CONCLUIDA
         ),
     ).exists()
 
@@ -180,7 +188,7 @@ def test_etapa_conclui_com_fiscal_repetido_em_dois_papeis(
     assert _assinar(client, termo_fiscais_repetidos).status_code == status.HTTP_200_OK
 
     termo_fiscais_repetidos.refresh_from_db()
-    assert termo_fiscais_repetidos.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert termo_fiscais_repetidos.status == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
 
     resposta_repetida = _assinar(client, termo_fiscais_repetidos)
     assert resposta_repetida.status_code == status.HTTP_400_BAD_REQUEST
@@ -189,7 +197,7 @@ def test_etapa_conclui_com_fiscal_repetido_em_dois_papeis(
     assert _assinar(client, termo_fiscais_repetidos).status_code == status.HTTP_200_OK
 
     termo_fiscais_repetidos.refresh_from_db()
-    assert termo_fiscais_repetidos.status == TermoRecebimentoDefinitivo.ENVIADO_DILOG
+    assert termo_fiscais_repetidos.status == TermoRecebimentoProvisorio.ENVIADO_DILOG
     assert termo_fiscais_repetidos.etapa_fiscais_concluida is True
 
 
@@ -201,7 +209,7 @@ def test_etapa_conclui_com_o_mesmo_fiscal_nos_tres_papeis(
     assert _assinar(client, termo_fiscal_unico).status_code == status.HTTP_200_OK
 
     termo_fiscal_unico.refresh_from_db()
-    assert termo_fiscal_unico.status == TermoRecebimentoDefinitivo.ENVIADO_DILOG
+    assert termo_fiscal_unico.status == TermoRecebimentoProvisorio.ENVIADO_DILOG
     assert termo_fiscal_unico.etapa_fiscais_concluida is True
 
 
@@ -222,15 +230,15 @@ def test_assinados_traz_termo_com_fiscais_repetidos(
 def test_fiscal_assina_termo_fora_da_etapa_dos_fiscais_retorna_400(
     client, tres_fiscais, termo_para_assinatura
 ):
-    TermoRecebimentoDefinitivo.objects.filter(pk=termo_para_assinatura.pk).update(
-        status=TermoRecebimentoDefinitivo.ENVIADO_DILOG
+    TermoRecebimentoProvisorio.objects.filter(pk=termo_para_assinatura.pk).update(
+        status=TermoRecebimentoProvisorio.ENVIADO_DILOG
     )
 
     _login(client, tres_fiscais[0])
     response = _assinar(client, termo_para_assinatura)
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert not AssinaturaTermoRecebimentoDefinitivo.objects.exists()
+    assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
 
 
 def test_pendentes_assinatura_exclui_termo_ja_assinado_pelo_fiscal(

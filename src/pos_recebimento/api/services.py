@@ -2,13 +2,13 @@ from src.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from src.terceirizada.models import Terceirizada
 
 
-class TermoRecebimentoDefinitivoService:
+class TermoRecebimentoProvisorioService:
     """Regra de negócio do Pós-Recebimento referente ao modelo novo.
 
     As listagens de empresas, contratos, cronogramas e fiscais foram
     movidas para os services/viewsets dos seus respectivos módulos
     (terceirizada, pre_recebimento e perfil). Aqui permanece apenas a
-    regra utilizada na criação do Termo de Recebimento Definitivo.
+    regra utilizada na criação do Termo de Recebimento Provisório.
     """
 
     @staticmethod

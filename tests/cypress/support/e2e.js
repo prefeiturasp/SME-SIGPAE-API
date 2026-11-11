@@ -199,3 +199,12 @@ import './step_definitions/inclusoes_alimentacao_continua'
 
 import './commands_api/commands_inclusoes_alimentacao_da_cei'
 import './step_definitions/inclusoes_alimentacao_da_cei'
+
+import './commands_api/commands_insucesso_de_entrega'
+import './step_definitions/insucesso_de_entrega'
+
+import './commands_api/commands_interrupcao_programada_entrega'
+import './step_definitions/interrupcao_programada_entrega'
+
+import './commands_api/commands_inversoes_dia_cardapio'
+import './step_definitions/inversoes_dia_cardapio'
