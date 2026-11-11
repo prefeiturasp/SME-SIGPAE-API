@@ -1,3 +1,4 @@
+import datetime
 import re
 from unittest.mock import patch
 
@@ -8,11 +9,12 @@ from model_bakery import baker
 
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
+    TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     ContentTypesParaRequests,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.medicao_inicial.models import GrupoMedicao
+from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
@@ -1475,3 +1477,131 @@ def test_relatorio_ficha_recebimento_placa_nao_informada(
     assert veiculo.numero in texto
     assert "Placa do Veículo: None" not in texto
     assert "Placa do Veículo: null" not in texto
+
+
+def _criar_cadastro_escola_aberta_para_pdf(solicitacao):
+    tipo_unidade = baker.make(
+        "TipoUnidadeEscolar", iniciais=TIPOS_UNIDADE_ESCOLAR.EMEF.value
+    )
+    solicitacao.escola.tipo_unidade = tipo_unidade
+    solicitacao.escola.save()
+
+    cadastro = baker.make(
+        "EscolaAberta",
+        data_inicial=datetime.date(2025, 10, 6),
+        data_final=datetime.date(2025, 10, 7),
+        dias_semana=["0", "1"],
+    )
+    tipos_alimentacao = [
+        baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.LANCHE.value),
+        baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.LANCHE_4H.value),
+        baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.REFEICAO.value),
+        baker.make("TipoAlimentacao", nome=TIPOS_ALIMENTACAO.SOBREMESA.value),
+    ]
+    unidade = baker.make(
+        "EscolaAbertaUnidadeParticipante",
+        escola_aberta=cadastro,
+        lote=solicitacao.escola.lote,
+        unidade_educacional=solicitacao.escola,
+        num_participantes=200,
+    )
+    unidade.tipos_alimentacao.set(tipos_alimentacao)
+    return unidade
+
+
+def _criar_medicao_escola_aberta_para_pdf(solicitacao):
+    grupo, _ = GrupoMedicao.objects.get_or_create(
+        nome=GrupoMedicao.ESCOLA_ABERTA,
+        defaults={"ativo": True},
+    )
+    categoria, _ = CategoriaMedicao.objects.get_or_create(
+        nome=CategoriaMedicao.ALIMENTACAO,
+        defaults={"ativo": True},
+    )
+    medicao = baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=grupo,
+    )
+    valores_por_dia = {
+        "06": {
+            "participantes": 200,
+            "lanche": 95,
+            "lanche_4h": 126,
+            "refeicao": 115,
+            "repeticao_refeicao": 250,
+            "sobremesa": 135,
+            "repeticao_sobremesa": 250,
+        },
+        "07": {
+            "participantes": 200,
+            "lanche": 95,
+            "lanche_4h": 126,
+            "refeicao": 115,
+            "repeticao_refeicao": 188,
+            "sobremesa": 135,
+            "repeticao_sobremesa": 188,
+        },
+    }
+    for dia, valores in valores_por_dia.items():
+        for nome_campo, valor in valores.items():
+            baker.make(
+                "ValorMedicao",
+                medicao=medicao,
+                dia=dia,
+                nome_campo=nome_campo,
+                categoria_medicao=categoria,
+                valor=str(valor),
+            )
+
+    baker.make(
+        "ValorMedicao",
+        medicao=medicao,
+        dia="06",
+        nome_campo="observacoes",
+        categoria_medicao=categoria,
+        valor="<p>Observação da Escola Aberta</p>",
+    )
+    return medicao
+
+
+def test_relatorio_medicao_inicial_inclui_bloco_escola_aberta(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    solicitacao = solicitacao_medicao_inicial_aprovada_codae
+    _criar_cadastro_escola_aberta_para_pdf(solicitacao)
+    _criar_medicao_escola_aberta_para_pdf(solicitacao)
+
+    relatorio = relatorio_solicitacao_medicao_por_escola(solicitacao)
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert _contem_trecho(texto, "ESCOLA ABERTA")
+    assert _contem_trecho(texto, "Participantes")
+    assert _contem_trecho(texto, "Lanche 4h")
+    assert _contem_trecho(texto, "Repetição de Refeição")
+    assert _contem_trecho(texto, "Total de Refeições para Pagamento")
+    assert _contem_trecho(texto, "Repetição de Sobremesa")
+    assert _contem_trecho(texto, "Total de Sobremesas para Pagamento")
+
+    assert "400" in texto
+    assert "190" in texto
+    assert "252" in texto
+    assert "230" in texto
+    assert "315" in texto
+    assert "335" in texto
+    assert "438" in texto
+    assert "618" in texto
+    assert "270" in texto
+    assert "658" in texto
+    assert _contem_trecho(texto, "Observação da Escola Aberta")
+
+
+def test_relatorio_medicao_inicial_nao_inclui_escola_aberta_sem_cadastro(
+    solicitacao_medicao_inicial_aprovada_codae,
+):
+    relatorio = relatorio_solicitacao_medicao_por_escola(
+        solicitacao_medicao_inicial_aprovada_codae
+    )
+    texto = extrair_texto_de_pdf(relatorio)
+
+    assert not _contem_trecho(texto, "ESCOLA ABERTA")
