@@ -3,11 +3,14 @@ import io
 from decimal import Decimal
 
 import pytest
+from django.template import Context
+from django.template.loader import get_template
+from django.template.loader_tags import ExtendsNode
 from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfReader
 
-from src.escola.models import FaixaEtaria
+from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import MedicaoFinal, ParametrizacaoFinanceiraTabelaValor
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
@@ -23,7 +26,11 @@ from src.relatorios.relatorios import (
     gerar_relatorio_ateste_financeiro,
     gerar_relatorio_folha_medicao_final,
 )
-from src.relatorios.templatetags.index import percentual_br
+from src.relatorios.templatetags.index import (
+    agrupador_milhar_com_decimal,
+    numero_para_milhar,
+    percentual_br,
+)
 from src.relatorios.utils import extrair_texto_de_pdf
 
 pytestmark = pytest.mark.django_db
@@ -146,6 +153,41 @@ class TestCabecalhoEArquivo:
 )
 def test_percentual_br_sem_zeros_decimais(valor, esperado):
     assert percentual_br(valor) == esperado
+
+
+TEMPLATE_FOLHA = "relatorio_financeiro/relatorio_folha_medicao_final.html"
+
+
+def _template_pai_da_folha(contexto):
+    template = get_template(TEMPLATE_FOLHA).template
+    extends = template.nodelist.get_nodes_by_type(ExtendsNode)[0]
+    context = Context(contexto)
+    context.template = template
+    return extends.get_parent(context).origin.template_name
+
+
+def test_template_da_folha_estende_o_base_sem_contexto():
+    assert (
+        _template_pai_da_folha({})
+        == "relatorio_financeiro/relatorio_ateste_financeiro_base.html"
+    )
+
+
+@pytest.mark.parametrize(
+    "grupo",
+    [
+        GrupoUnidadeEscolar.GRUPO_1,
+        GrupoUnidadeEscolar.GRUPO_2,
+        GrupoUnidadeEscolar.GRUPO_3,
+        GrupoUnidadeEscolar.GRUPO_5,
+    ],
+)
+def test_template_da_folha_estende_o_template_do_grupo(grupo):
+    template_grupo = obter_config_grupo(grupo)["template"]
+
+    assert _template_pai_da_folha({"template_ateste": template_grupo}) == (
+        template_grupo
+    )
 
 
 @pytest.mark.usefixtures("pdf_com_estilos")
