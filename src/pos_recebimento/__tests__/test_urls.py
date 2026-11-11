@@ -370,6 +370,7 @@ def test_termo_list_pagina_resultados(
     ("nome_client", "status_esperado"),
     [
         ("client_autenticado_dilog_cronograma", status.HTTP_200_OK),
+        ("client_autenticado_codae_dilog", status.HTTP_200_OK),
         ("client_autenticado_qualidade", status.HTTP_200_OK),
         ("client_autenticado_dilog_diretoria", status.HTTP_200_OK),
         ("client_autenticado_distribuidor", status.HTTP_403_FORBIDDEN),
@@ -383,13 +384,7 @@ def test_termo_list_e_detalhe_por_perfil(
     status_esperado,
     termo_listagem,
 ):
-    """Visualização é liberada para mais perfis do que o cadastro, e negada
-    fora da CODAE.
-
-    Os perfis de empresa (ADMINISTRADOR_EMPRESA e USUARIO_EMPRESA) estão
-    vinculados à própria empresa do termo e mesmo assim recebem 403: o
-    fornecedor não participa mais do Termo de Recebimento Provisório.
-    """
+    """A grid segue liberada para os perfis da CODAE; fornecedor fica fora."""
     client = request.getfixturevalue(nome_client)
 
     assert client.get("/pos-recebimento/termos/").status_code == status_esperado
@@ -566,10 +561,25 @@ def test_pendentes_assinatura_nao_duplica_termo_com_varios_cronogramas(
 
 
 @pytest.mark.parametrize("url", [URL_PENDENTES_ASSINATURA, URL_ASSINADOS])
-def test_painel_assinatura_negado_para_perfil_fora_da_codae(
-    client_autenticado_distribuidor,
+@pytest.mark.parametrize(
+    ("nome_client", "status_esperado"),
+    [
+        ("client_autenticado_qualidade", status.HTTP_200_OK),
+        ("client_autenticado_dilog_cronograma", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_codae_dilog", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_dilog_diretoria", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_distribuidor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_fornecedor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_usuario_empresa", status.HTTP_403_FORBIDDEN),
+    ],
+)
+def test_painel_assinatura_por_perfil(
+    request,
+    nome_client,
+    status_esperado,
     url,
 ):
-    response = client_autenticado_distribuidor.get(url)
+    """O Painel de Assinaturas é exclusivo de DILOG_QUALIDADE."""
+    response = request.getfixturevalue(nome_client).get(url)
 
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.status_code == status_esperado
