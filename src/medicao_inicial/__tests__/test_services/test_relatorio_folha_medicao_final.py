@@ -381,3 +381,110 @@ class TestPaginacao:
             assert pagina.count("FOLHA DE MEDIÇÃO FINAL") == 1
             assert f"Página {numero}/{len(paginas)}" in pagina
         assert "Coordenador SME/CODAE" in paginas[-1]
+
+
+def _sem_espacos(texto):
+    return "".join(texto.split())
+
+
+def _assert_em_ordem(texto, trechos):
+    posicao = 0
+    for trecho in trechos:
+        posicao = texto.index(_sem_espacos(trecho), posicao)
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+@pytest.mark.parametrize(
+    "contexto_grupo_relatorio", ["grupo_1_cei", "grupo_2_cemei"], indirect=True
+)
+class TestGruposPorFaixaEtaria:
+    @pytest.fixture
+    def folha(self, contexto_grupo_relatorio):
+        relatorio = contexto_grupo_relatorio["relatorio"]
+        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
+        _gera_medicao_final(relatorio)
+        contexto = montar_contexto_folha_medicao_final(relatorio, parametrizacao)
+        texto = extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
+        )
+        return contexto.get("cei", contexto), _sem_espacos(texto)
+
+    def test_tabelas_na_ordem_com_os_totais(self, folha):
+        tabelas, texto = folha
+
+        _assert_em_ordem(
+            texto,
+            [
+                "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS",
+                "TOTAL (A)",
+                "DIETA ESPECIAL - TIPO A",
+                "TOTAL (B)",
+                "DIETA ESPECIAL - TIPO B",
+                "TOTAL (C)",
+            ],
+        )
+        totais = (
+            ("A", tabelas["alimentacao"]["total_atendimentos"], "alimentacao"),
+            ("B", tabelas["dieta_a"]["total_consumo"], "dieta_a"),
+            ("C", tabelas["dieta_b"]["total_consumo"], "dieta_b"),
+        )
+        for ordem, quantidade, tabela in totais:
+            valor = agrupador_milhar_com_decimal(tabelas[tabela]["valor_total"])
+            assert f"TOTAL({ordem}){numero_para_milhar(quantidade)}R${valor}" in texto
+
+    def test_linhas_exibem_periodo_e_faixa_com_os_valores(self, folha):
+        tabelas, texto = folha
+        linhas = [
+            (linha, linha["numero_atendimentos"])
+            for linha in tabelas["alimentacao"]["linhas"]
+        ] + [
+            (linha, linha["numero_consumo"])
+            for tabela in ("dieta_a", "dieta_b")
+            for linha in tabelas[tabela]["linhas"]
+        ]
+
+        assert linhas
+        for linha, quantidade in linhas:
+            rotulo = _sem_espacos(f"{linha['periodo']} - {linha['faixa']}")
+            valor_unitario = agrupador_milhar_com_decimal(linha["valor_unitario"])
+            assert (
+                f"{rotulo}{numero_para_milhar(quantidade)}R${valor_unitario}" in texto
+            )
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+@pytest.mark.parametrize("contexto_grupo_relatorio", ["grupo_2_cemei"], indirect=True)
+def test_cemei_exibe_turma_infantil_e_os_tres_consolidados(contexto_grupo_relatorio):
+    relatorio = contexto_grupo_relatorio["relatorio"]
+    parametrizacao = contexto_grupo_relatorio["parametrizacao"]
+    _gera_medicao_final(relatorio)
+    consolidados = montar_contexto_folha_medicao_final(relatorio, parametrizacao)[
+        "consolidados"
+    ]
+
+    texto = _sem_espacos(
+        extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
+        )
+    )
+
+    _assert_em_ordem(
+        texto,
+        [
+            "TOTAL (C)",
+            "Alimentações TURMA INFANTIL da CEMEI",
+            "TOTAL (INF. A)",
+            "TOTAL (INF. B)",
+            "TOTAL (INF. C)",
+            "CONSOLIDADO CEI (A + B + C)",
+            "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
+            "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
+        ],
+    )
+    for consolidado in consolidados:
+        bloco = texto.split(_sem_espacos(consolidado["titulo"]), 1)[1]
+        bloco = bloco.split("CONSOLIDADO", 1)[0]
+        quantidade = numero_para_milhar(consolidado["quantidade"])
+        valor = agrupador_milhar_com_decimal(consolidado["valor"])
+        assert f"{quantidade}ALIMENTAÇÕES" in bloco
+        assert f"R${valor}" in bloco
