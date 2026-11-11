@@ -3889,12 +3889,12 @@ def _valor_campo_escola_aberta(campo, valores, dia, participantes):
     if campo == "total_refeicoes_pagamento":
         refeicao = _valor_inteiro_escola_aberta(valores, "refeicao", dia)
         repeticao = _valor_inteiro_escola_aberta(valores, "repeticao_refeicao", dia)
-        return refeicao + min(repeticao, participantes)
+        return min(refeicao + repeticao, participantes)
 
     if campo == "total_sobremesas_pagamento":
         sobremesa = _valor_inteiro_escola_aberta(valores, "sobremesa", dia)
         repeticao = _valor_inteiro_escola_aberta(valores, "repeticao_sobremesa", dia)
-        return sobremesa + min(repeticao, participantes)
+        return min(sobremesa + repeticao, participantes)
 
     return _valor_inteiro_escola_aberta(valores, campo, dia)
 
