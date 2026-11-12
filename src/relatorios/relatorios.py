@@ -72,6 +72,7 @@ from ..logistica.api.helpers import retorna_status_guia_remessa
 from ..medicao_inicial.models import ValorMedicao
 from ..medicao_inicial.utils import (
     build_lista_campos_observacoes,
+    build_tabela_escola_aberta,
     build_tabela_relatorio_consolidado,
     build_tabela_somatorio_body,
     build_tabela_somatorio_body_cei,
@@ -1717,6 +1718,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
 
+    tabela_escola_aberta = build_tabela_escola_aberta(solicitacao)
+    if tabela_escola_aberta:
+        tabelas.append(tabela_escola_aberta)
+
     tipos_contagem_alimentacao = list(
         solicitacao.tipos_contagem_alimentacao.values_list("nome", flat=True)
     )
@@ -1785,9 +1790,7 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     return html_to_pdf_watermark(
         html_string,
         NOME_ARQUIVO_DIETA_ESPECIAL,
@@ -1841,9 +1844,7 @@ def relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     return html_to_pdf_watermark(
         html_string,
         NOME_ARQUIVO_DIETA_ESPECIAL,
@@ -1909,9 +1910,7 @@ def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao)
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -1949,9 +1948,7 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2010,9 +2007,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2064,9 +2059,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitaca
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2376,9 +2369,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
