@@ -117,6 +117,24 @@ class PermissaoParaVisualizarTermoRecebimentoProvisorio(
         )
 
 
+class PermissaoParaGerarPdfTermoRecebimentoProvisorio(
+    PermissaoTermoRecebimentoProvisorio
+):
+    """Permissão para gerar o PDF do Termo de Recebimento Provisório.
+
+    Apenas os perfis contemplados na história (DILOG_QUALIDADE,
+    DILOG_DIRETORIA, DILOG_CRONOGRAMA e COORDENADOR_CODAE_DILOG_LOGISTICA)
+    podem baixar o documento. Empresas fornecedoras não têm acesso.
+    """
+
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        DILOG_DIRETORIA,
+        DILOG_CRONOGRAMA,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
+    ]
+
+
 class PermissaoParaRegistrarMemorandoOcorrencia(BasePermission):
     """Permissão para registrar ocorrências pelo Memorando de Ocorrências.
 

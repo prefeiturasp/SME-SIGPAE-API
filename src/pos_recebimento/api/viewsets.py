@@ -9,19 +9,21 @@ from src.dados_comuns.api.paginations import DefaultPagination
 from src.dados_comuns.constants import DILOG_DIRETORIA
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
+from src.relatorios.relatorios import get_pdf_termo_recebimento_provisorio
 
 from ..models import (
     AssinaturaTermoRecebimentoProvisorio,
     CronogramaTermoRecebimentoProvisorio,
-    TermoRecebimentoProvisorio,
     MemorandoOcorrencia,
+    TermoRecebimentoProvisorio,
 )
 from .filters import TermoRecebimentoProvisorioFilter
 from .permissions import (
     PermissaoParaAssinarTermoRecebimentoProvisorio,
     PermissaoParaCadastrarTermoRecebimentoProvisorio,
-    PermissaoParaVisualizarTermoRecebimentoProvisorio,
+    PermissaoParaGerarPdfTermoRecebimentoProvisorio,
     PermissaoParaRegistrarMemorandoOcorrencia,
+    PermissaoParaVisualizarTermoRecebimentoProvisorio,
     usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
@@ -34,6 +36,7 @@ from .serializers.serializers_create import (
     MemorandoOcorrenciaCreateSerializer,
     TermoRecebimentoProvisorioCreateSerializer,
 )
+
 
 class TermoRecebimentoProvisorioViewSet(
     mixins.CreateModelMixin,
@@ -84,6 +87,15 @@ class TermoRecebimentoProvisorioViewSet(
                 ],
             )
 
+        if self.action == "gerar_pdf_termo":
+            return queryset.select_related(
+                "empresa",
+                "contrato",
+                "fiscal_1",
+                "fiscal_2",
+                "fiscal_3",
+            )
+
         if self.action in ("list", *self.ACTIONS_PAINEL_ASSINATURA):
             return queryset.select_related("empresa", "contrato").prefetch_related(
                 Prefetch(
@@ -98,6 +110,8 @@ class TermoRecebimentoProvisorioViewSet(
 
     def get_permissions(self):
         """Visualização é liberada para mais perfis do que o cadastro."""
+        if self.action == "gerar_pdf_termo":
+            return [PermissaoParaGerarPdfTermoRecebimentoProvisorio()]
         if self.action in ("list", "retrieve", *self.ACTIONS_PAINEL_ASSINATURA):
             return [PermissaoParaVisualizarTermoRecebimentoProvisorio()]
         if self.action == "fiscal_assina_termo":
@@ -329,6 +343,35 @@ class TermoRecebimentoProvisorioViewSet(
             termo, context={"request": request}
         )
         return Response(serializer.data)
+
+    @action(
+        detail=True,
+        methods=["GET"],
+        url_path="gerar-pdf-termo",
+        url_name="gerar_pdf_termo",
+    )
+    def gerar_pdf_termo(self, request, uuid=None):
+        """Gera o PDF do Termo de Recebimento Provisório.
+
+        Disponível apenas após a conclusão das assinaturas dos três Fiscais
+        do Contrato (``etapa_fiscais_concluida``), quando o termo passa ao
+        status ``ENVIADO_DILOG``.
+
+        Endpoint: ``GET /pos-recebimento/termos/<uuid>/gerar-pdf-termo/``
+        """
+        termo = self.get_object()
+        if not termo.etapa_fiscais_concluida:
+            return Response(
+                dict(
+                    detail=(
+                        "O PDF só está disponível após as assinaturas dos "
+                        "três Fiscais do Contrato."
+                    )
+                ),
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        return get_pdf_termo_recebimento_provisorio(request, termo)
 
     def create(self, request, *args, **kwargs):
         """Cria o termo (valida, persiste e retorna 201 com o serializador
