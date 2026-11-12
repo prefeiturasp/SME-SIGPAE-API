@@ -23,6 +23,7 @@
       {% include "relatorio_financeiro/componentes/cabecalho.html" %}
       {% endblock %}
       {% block tabelas %}{% endblock %}
+      {% block descontos %}{% endblock %}
       {% for consolidado in consolidados %}
       {% include "relatorio_financeiro/componentes/consolidado_total.html" with
       titulo=consolidado.titulo quantidade=consolidado.quantidade
