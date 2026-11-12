@@ -228,6 +228,33 @@ def usuario_dilog_diretoria(django_user_model):
     return user
 
 
+@pytest.fixture
+def client_autenticado_usuario_empresa(client, django_user_model, empresa):
+    """Client autenticado com perfil USUARIO_EMPRESA na empresa do termo.
+
+    Complementa o ``client_autenticado_fornecedor`` (ADMINISTRADOR_EMPRESA):
+    os dois perfis de empresa perderam o acesso ao Pós-Recebimento, já que o
+    fornecedor não participa do Termo de Recebimento Provisório.
+    """
+    email = "usuario.empresa@test.com"
+    user = django_user_model.objects.create_user(
+        username=email,
+        password=constants.DJANGO_ADMIN_PASSWORD,
+        email=email,
+    )
+    perfil = baker.make("Perfil", nome=constants.USUARIO_EMPRESA, ativo=True)
+    baker.make(
+        "Vinculo",
+        usuario=user,
+        instituicao=empresa,
+        perfil=perfil,
+        data_inicial=datetime.date.today(),
+        ativo=True,
+    )
+    client.login(username=email, password=constants.DJANGO_ADMIN_PASSWORD)
+    return client
+
+
 def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
     """Termo para o painel de assinaturas."""
 

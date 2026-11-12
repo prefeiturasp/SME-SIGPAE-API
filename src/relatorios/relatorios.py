@@ -33,6 +33,14 @@ from src.medicao_inicial.models import (
     GrupoMedicao,
     SolicitacaoMedicaoInicial,
 )
+from src.medicao_inicial.services.relatorio_ateste_financeiro import (
+    montar_relatorio_financeiro,
+    parametrizacao_possui_reajuste,
+    prepara_relatorio_para_template,
+)
+from src.medicao_inicial.services.relatorio_folha_medicao_final import (
+    montar_contexto_folha_medicao_final,
+)
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pos_recebimento.models import AssinaturaTermoRecebimentoProvisorio
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
@@ -65,6 +73,7 @@ from ..logistica.api.helpers import retorna_status_guia_remessa
 from ..medicao_inicial.models import ValorMedicao
 from ..medicao_inicial.utils import (
     build_lista_campos_observacoes,
+    build_tabela_escola_aberta,
     build_tabela_relatorio_consolidado,
     build_tabela_somatorio_body,
     build_tabela_somatorio_body_cei,
@@ -77,7 +86,6 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
-    calcula_totais_consumo_por_grupo,
 )
 from ..pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
@@ -1726,6 +1734,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
 
+    tabela_escola_aberta = build_tabela_escola_aberta(solicitacao)
+    if tabela_escola_aberta:
+        tabelas.append(tabela_escola_aberta)
+
     tipos_contagem_alimentacao = list(
         solicitacao.tipos_contagem_alimentacao.values_list("nome", flat=True)
     )
@@ -3040,31 +3052,27 @@ def gerar_relatorio_ateste_financeiro(
     template,
     tipo_calculo=None,
 ):
-    kwargs_consumo = {}
+    """Gera o PDF do Ateste Financeiro do relatório financeiro.
 
-    if tipo_calculo:
-        kwargs_consumo["tipo_calculo"] = tipo_calculo
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+        parametrizacao (Model): Parametrização financeira vigente.
+        builder (Callable): Builder do grupo de unidade escolar.
+        template (str): Template do Ateste Financeiro do grupo.
+        tipo_calculo (str | None): Tipo de cálculo dos totais de consumo.
 
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-        **kwargs_consumo,
-    )
-
-    tabelas = parametrizacao.tabelas.all()
-
-    relatorio = builder(
-        relatorio_financeiro,
-        tabelas,
-        totais_consumo,
+    Returns:
+        File: Arquivo PDF a ser registrado na Central de Downloads.
+    """
+    relatorio = montar_relatorio_financeiro(
+        relatorio_financeiro, parametrizacao, builder, tipo_calculo
     )
 
     html_string = render_to_string(
         template,
         {
-            **relatorio,
+            **prepara_relatorio_para_template(relatorio),
+            "possui_reajuste": parametrizacao_possui_reajuste(parametrizacao),
             "relatorio": relatorio_financeiro,
         },
     )
@@ -3079,6 +3087,39 @@ def gerar_relatorio_ateste_financeiro(
         ),
         (
             f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf"
+        ),
+        is_async=True,
+    )
+
+
+def gerar_relatorio_folha_medicao_final(relatorio_financeiro, parametrizacao):
+    """Gera o PDF da Folha de Medição Final do relatório financeiro.
+
+    As tabelas e os consolidados usam os mesmos cálculos do Ateste Financeiro,
+    acrescidos dos dados contratuais e da página de responsáveis.
+
+    Args:
+        relatorio_financeiro (Model): Relatório com Medição Final gerada.
+        parametrizacao (Model): Parametrização financeira vigente.
+
+    Returns:
+        File: Arquivo PDF a ser registrado na Central de Downloads.
+    """
+    contexto = montar_contexto_folha_medicao_final(relatorio_financeiro, parametrizacao)
+    html_string = render_to_string(
+        "relatorio_financeiro/relatorio_folha_medicao_final.html", contexto
+    )
+
+    cabecalho = contexto["cabecalho"]
+    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
+
+    return html_to_pdf_file(
+        html_string.replace(
+            "dt_file",
+            f'{cabecalho["data_geracao"]} às {cabecalho["hora_geracao"]}',
+        ),
+        (
+            f"folha_medicao_final_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf"
         ),
         is_async=True,
     )

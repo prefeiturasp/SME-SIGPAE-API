@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import re
+import unicodedata
 from calendar import monthrange
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
@@ -68,6 +69,7 @@ from src.escola.models import (
     PeriodoEscolar,
 )
 from src.escola.utils import string_to_faixa
+from src.escola_aberta.services import obter_unidade_escola_aberta_por_mes_ano
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoNormal,
@@ -1662,8 +1664,13 @@ def adiciona_campo_total_faixa_etaria(tabelas, nome_periodo, indice_atual):
 
 
 def get_medicoes_ordenadas(solicitacao, ordem_campos):
+    medicoes = [
+        medicao
+        for medicao in solicitacao.medicoes.all()
+        if medicao.nome_periodo_grupo in ordem_campos
+    ]
     return sorted(
-        solicitacao.medicoes.all(),
+        medicoes,
         key=lambda k: ordem_campos[k.nome_periodo_grupo],
     )
 
@@ -3807,6 +3814,149 @@ def build_tabelas_relatorio_medicao(solicitacao, ordem_periodos=None):
     return tabelas_populadas
 
 
+def _normalizar_nome_campo_escola_aberta(nome):
+    nome_sem_acentos = "".join(
+        caractere
+        for caractere in unicodedata.normalize("NFD", nome)
+        if not unicodedata.combining(caractere)
+    )
+    return nome_sem_acentos.lower().replace(" ", "_")
+
+
+def _obter_campos_escola_aberta(unidade):
+    tipos_alimentacao = [
+        _normalizar_nome_campo_escola_aberta(nome)
+        for nome in unidade.tipos_alimentacao.values_list("nome", flat=True)
+    ]
+    campos = ["participantes"]
+
+    for campo in ["lanche", "lanche_4h"]:
+        if campo in tipos_alimentacao:
+            campos.append(campo)
+
+    if "refeicao" in tipos_alimentacao:
+        campos += [
+            "refeicao",
+            "repeticao_refeicao",
+            "total_refeicoes_pagamento",
+        ]
+
+    if "sobremesa" in tipos_alimentacao:
+        campos += [
+            "sobremesa",
+            "repeticao_sobremesa",
+            "total_sobremesas_pagamento",
+        ]
+
+    campos_padrao = {
+        "lanche",
+        "lanche_4h",
+        "refeicao",
+        "sobremesa",
+        "repeticao_refeicao",
+        "repeticao_sobremesa",
+        "total_refeicoes_pagamento",
+        "total_sobremesas_pagamento",
+    }
+    campos += [campo for campo in tipos_alimentacao if campo not in campos_padrao]
+
+    return campos
+
+
+def _obter_valores_escola_aberta(solicitacao):
+    medicao = solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.ESCOLA_ABERTA
+    ).first()
+    if not medicao:
+        return {}
+
+    return {
+        (valor["nome_campo"], valor["dia"]): valor["valor"]
+        for valor in medicao.valores_medicao.filter(
+            categoria_medicao__nome=CategoriaMedicao.ALIMENTACAO
+        ).values("nome_campo", "dia", "valor")
+    }
+
+
+def _valor_inteiro_escola_aberta(valores, nome_campo, dia):
+    try:
+        return int(valores.get((nome_campo, dia), 0))
+    except (TypeError, ValueError):
+        return 0
+
+
+def _valor_campo_escola_aberta(campo, valores, dia, participantes):
+    if campo == "total_refeicoes_pagamento":
+        refeicao = _valor_inteiro_escola_aberta(valores, "refeicao", dia)
+        repeticao = _valor_inteiro_escola_aberta(valores, "repeticao_refeicao", dia)
+        return min(refeicao + repeticao, participantes)
+
+    if campo == "total_sobremesas_pagamento":
+        sobremesa = _valor_inteiro_escola_aberta(valores, "sobremesa", dia)
+        repeticao = _valor_inteiro_escola_aberta(valores, "repeticao_sobremesa", dia)
+        return min(sobremesa + repeticao, participantes)
+
+    return _valor_inteiro_escola_aberta(valores, campo, dia)
+
+
+def _montar_linhas_escola_aberta(campos, valores, quantidade_dias):
+    linhas = []
+
+    for dia in range(1, quantidade_dias + 1):
+        dia_formatado = f"{dia:02d}"
+        participantes = _valor_inteiro_escola_aberta(
+            valores, "participantes", dia_formatado
+        )
+        linha = [dia, participantes]
+        linha += [
+            _valor_campo_escola_aberta(campo, valores, dia_formatado, participantes)
+            for campo in campos[1:]
+        ]
+        linhas.append(linha)
+
+    return linhas
+
+
+def build_tabela_escola_aberta(solicitacao):
+    escola = solicitacao.escola
+    if not (escola.eh_emef or escola.eh_ceu_gestao):
+        return None
+
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    unidade = obter_unidade_escola_aberta_por_mes_ano(escola.uuid, mes, ano)
+    if not unidade:
+        return None
+
+    campos = _obter_campos_escola_aberta(unidade)
+    valores = _obter_valores_escola_aberta(solicitacao)
+    quantidade_dias = calendar.monthrange(ano, mes)[1]
+    linhas = _montar_linhas_escola_aberta(campos, valores, quantidade_dias)
+
+    linha_total = ["Total"] + [
+        sum(linha[indice] for linha in linhas) for indice in range(1, len(campos) + 1)
+    ]
+
+    return {
+        "periodos": [GrupoMedicao.ESCOLA_ABERTA],
+        "categorias": [CategoriaMedicao.ALIMENTACAO],
+        "nomes_campos": campos,
+        "len_periodos": [len(campos)],
+        "len_categorias": [len(campos)],
+        "valores_campos": linhas + [linha_total],
+        "ordem_periodos_grupos": [11],
+        "dias_letivos": [linha[1] > 0 for linha in linhas] + [False],
+        "categorias_dos_periodos": {
+            GrupoMedicao.ESCOLA_ABERTA: [
+                {
+                    "categoria": CategoriaMedicao.ALIMENTACAO,
+                    "numero_campos": len(campos),
+                }
+            ]
+        },
+    }
+
+
 def build_tabelas_relatorio_medicao_cei(solicitacao):
     tabelas_com_headers = build_headers_tabelas_cei(solicitacao)
     tabelas_populadas = popula_tabelas_cei(solicitacao, tabelas_com_headers)
@@ -4441,6 +4591,43 @@ def get_somatorio_colaboradores(
     return somatorio_colaboradores
 
 
+def get_somatorio_escola_aberta(
+    campo, solicitacao, dict_total_refeicoes, dict_total_sobremesas, tipo_turma=None
+):
+    medicao = solicitacao.medicoes.filter(
+        grupo__nome=GrupoMedicao.ESCOLA_ABERTA
+    ).first()
+    if not medicao:
+        return 0
+
+    valores = _obter_valores_escola_aberta(solicitacao)
+    if not valores:
+        return 0
+
+    quantidade_dias = calendar.monthrange(int(solicitacao.ano), int(solicitacao.mes))[1]
+    campo_total = {
+        "refeicao": "total_refeicoes_pagamento",
+        "sobremesa": "total_sobremesas_pagamento",
+    }.get(campo)
+
+    if campo_total:
+        total = 0
+        for dia in range(1, quantidade_dias + 1):
+            dia_formatado = f"{dia:02d}"
+            participantes = _valor_inteiro_escola_aberta(
+                valores, "participantes", dia_formatado
+            )
+            total += _valor_campo_escola_aberta(
+                campo_total, valores, dia_formatado, participantes
+            )
+        return total
+
+    return sum(
+        _valor_inteiro_escola_aberta(valores, campo, f"{dia:02d}")
+        for dia in range(1, quantidade_dias + 1)
+    )
+
+
 def _get_nome_periodo(medicao):
     if not medicao.grupo:
         return medicao.periodo_escolar.nome
@@ -4508,6 +4695,38 @@ def _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao):
     ]
 
 
+def _adicionar_campos_somatorio_escola_aberta(unidade, campos_tipos_alimentacao):
+    for nome in unidade.tipos_alimentacao.values_list("nome", flat=True):
+        campo = _normalizar_nome_campo_escola_aberta(nome)
+        if campo not in campos_tipos_alimentacao:
+            campos_tipos_alimentacao.append(campo)
+
+
+def _adicionar_somatorio_escola_aberta(
+    solicitacao,
+    primeira_tabela_header,
+    segunda_tabela_header,
+    campos_tipos_alimentacao,
+):
+    if not (solicitacao.escola.eh_emef or solicitacao.escola.eh_ceu_gestao):
+        return
+
+    unidade = obter_unidade_escola_aberta_por_mes_ano(
+        solicitacao.escola.uuid,
+        int(solicitacao.mes),
+        int(solicitacao.ano),
+    )
+    if not unidade:
+        return
+
+    if GrupoMedicao.ESCOLA_ABERTA not in (
+        primeira_tabela_header + segunda_tabela_header
+    ):
+        primeira_tabela_header.append(GrupoMedicao.ESCOLA_ABERTA)
+
+    _adicionar_campos_somatorio_escola_aberta(unidade, campos_tipos_alimentacao)
+
+
 def _selecionar_medicoes_somatorio(solicitacao, ordem_periodos):
     todas_medicoes = list(solicitacao.medicoes.all())
     medicoes = sorted(
@@ -4538,7 +4757,10 @@ def _obter_ordem_periodos_somatorio(solicitacao):
     }
     if solicitacao.escola.eh_cemei_data(solicitacao.data_referencia):
         return ordem_periodos_cemei
-    return ORDEM_PERIODOS_GRUPOS
+
+    ordem_periodos = dict(ORDEM_PERIODOS_GRUPOS)
+    ordem_periodos[GrupoMedicao.ESCOLA_ABERTA] = 13
+    return ordem_periodos
 
 
 def _ordenar_campos_somatorio(campos_tipos_alimentacao):
@@ -4596,6 +4818,13 @@ def build_tabela_somatorio_body(
 
     for medicao in medicoes_extraordinarias:
         _adicionar_campos_somatorio(medicao, tipo_turma, campos_tipos_alimentacao)
+
+    _adicionar_somatorio_escola_aberta(
+        solicitacao,
+        primeira_tabela_header,
+        segunda_tabela_header,
+        campos_tipos_alimentacao,
+    )
 
     campos_tipos_alimentacao = _ordenar_campos_somatorio(campos_tipos_alimentacao)
     primeira_tabela_somatorio = {"header": primeira_tabela_header, "body": []}
@@ -5075,6 +5304,7 @@ def somatorio_periodo(
         "ETEC": get_somatorio_etec,
         GrupoMedicao.RECREIO_NAS_FERIAS: get_somatorio_recreio_nas_ferias,
         GRUPO_COLABORADORES: get_somatorio_colaboradores,
+        GrupoMedicao.ESCOLA_ABERTA: get_somatorio_escola_aberta,
     }
 
     valores_somatorios_primeira_tabela = []
@@ -5952,7 +6182,7 @@ def criar_log_escola_corrigiu(
     log_inicial["alteracoes"].append(alteracoes_dict)
     historico.append(log_inicial)
     solicitacao.historico = json.dumps(historico)
-    solicitacao.save()
+    solicitacao.save(update_fields=["historico"])
 
 
 def get_alteracoes_log(lista_alteracoes, log_inicial, periodo_nome):
@@ -6152,7 +6382,7 @@ def atualizar_log_escola_corrigiu(
             ]["semanas"][semana_idx]["dias"][dia_idx]["campos"][campo_idx]["para"]
         ) = value
     solicitacao.historico = json.dumps(historico)
-    solicitacao.save()
+    solicitacao.save(update_fields=["historico"])
 
 
 def log_alteracoes_escola_corrige_periodo(user, medicao, acao, data):

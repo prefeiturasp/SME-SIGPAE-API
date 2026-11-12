@@ -86,10 +86,20 @@ def test_fiscal_assina_termo_usuario_nao_e_fiscal_do_termo_retorna_403(
     assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
 
 
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_dilog_cronograma",
+        "client_autenticado_codae_dilog",
+        "client_autenticado_dilog_diretoria",
+        "client_autenticado_fornecedor",
+        "client_autenticado_usuario_empresa",
+    ],
+)
 def test_fiscal_assina_termo_perfil_sem_permissao_retorna_403(
-    client_autenticado_dilog_cronograma, termo_para_assinatura
+    request, nome_client, termo_para_assinatura
 ):
-    response = _assinar(client_autenticado_dilog_cronograma, termo_para_assinatura)
+    response = _assinar(request.getfixturevalue(nome_client), termo_para_assinatura)
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
     assert not AssinaturaTermoRecebimentoProvisorio.objects.exists()
@@ -274,21 +284,20 @@ def test_assinados_nao_traz_termo_com_etapa_dos_fiscais_pendente(
     assert str(termo_para_assinatura.uuid) not in _uuids(response)
 
 
-def test_pendentes_assinatura_dilog_diretoria_apos_etapa_dos_fiscais(
+def test_pendentes_assinatura_negado_para_dilog_diretoria(
     client, usuario_dilog_diretoria, tres_fiscais, termo_para_assinatura
 ):
-    """O termo só aparece para a Diretoria após as três assinaturas."""
-    _login(client, usuario_dilog_diretoria)
-    antes = client.get(URL_PENDENTES)
-    assert str(termo_para_assinatura.uuid) not in _uuids(antes)
-
+    """Nem com a etapa dos fiscais concluída a Diretoria acessa o Painel."""
     for fiscal in tres_fiscais:
         _login(client, fiscal)
         _assinar(client, termo_para_assinatura)
 
+    termo_para_assinatura.refresh_from_db()
+    assert termo_para_assinatura.status == TermoRecebimentoProvisorio.ENVIADO_DILOG
+
     _login(client, usuario_dilog_diretoria)
-    depois = client.get(URL_PENDENTES)
-    assert str(termo_para_assinatura.uuid) in _uuids(depois)
+
+    assert client.get(URL_PENDENTES).status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_retrieve_pode_assinar_true_para_fiscal_com_assinatura_pendente(

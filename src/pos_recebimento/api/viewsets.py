@@ -19,6 +19,7 @@ from ..models import (
 )
 from .filters import TermoRecebimentoProvisorioFilter
 from .permissions import (
+    PermissaoParaAcessarPainelAssinaturas,
     PermissaoParaAssinarTermoRecebimentoProvisorio,
     PermissaoParaCadastrarTermoRecebimentoProvisorio,
     PermissaoParaGerarPdfTermoRecebimentoProvisorio,
@@ -70,9 +71,6 @@ class TermoRecebimentoProvisorioViewSet(
     def get_queryset(self):
         """Termos ordenados por data de criação (decrescente).
 
-        Usuários vinculados a empresa fornecedora veem apenas os termos
-        da própria empresa com status do fluxo de envio (exibidos como
-        "Recebido") ou ``ASSINADO_FORNECEDOR`` (exibido como "Assinado").
         Na listagem, os relacionamentos exibidos no grid são
         pré-carregados para evitar N+1.
         """
@@ -114,6 +112,8 @@ class TermoRecebimentoProvisorioViewSet(
             return [PermissaoParaGerarPdfTermoRecebimentoProvisorio()]
         if self.action in ("list", "retrieve", *self.ACTIONS_PAINEL_ASSINATURA):
             return [PermissaoParaVisualizarTermoRecebimentoProvisorio()]
+        if self.action in self.ACTIONS_PAINEL_ASSINATURA:
+            return [PermissaoParaAcessarPainelAssinaturas()]
         if self.action == "fiscal_assina_termo":
             return [PermissaoParaAssinarTermoRecebimentoProvisorio()]
 

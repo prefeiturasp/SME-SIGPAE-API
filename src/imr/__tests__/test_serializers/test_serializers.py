@@ -1,6 +1,11 @@
+from datetime import date
+
 import pytest
 
-from src.imr.api.serializers.serializers import ConsultaOcorrenciasDiretorSerializer
+from src.imr.api.serializers.serializers import (
+    ConsultaOcorrenciasDiretorSerializer,
+    FormularioSupervisaoSimplesSerializer
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -81,3 +86,28 @@ def test_consulta_ocorrencias_diretor_rejeita_uuid_invalido(uuid_medicao):
 
     assert serializer.is_valid() is False
     assert "solicitacao_medicao_inicial" in serializer.errors
+
+
+def test_formulario_supervisao_simples_serializer_retorna_dados_da_listagem(
+    formulario_supervisao_factory
+):
+    relatorio = formulario_supervisao_factory.create(
+        escola__nome="EMEI ESCOLA DE TESTE",
+        escola__codigo_eol="000054",
+        escola__tipo_unidade__iniciais="EMEI",
+        escola__diretoria_regional__nome="DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
+        formulario_base__data=date(2026, 9, 2),
+        status="NUTRIMANIFESTACAO_A_VALIDAR"
+    )
+
+    serializador = FormularioSupervisaoSimplesSerializer(relatorio)
+
+    assert serializador.data == {
+        "uuid": str(relatorio.uuid),
+        "diretoria_regional": "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
+        "unidade_educacional": "EMEI ESCOLA DE TESTE",
+        "codigo_eol": "000054",
+        "tipo_unidade": "EMEI",
+        "data": "02/09/2026",
+        "status": "Enviado para CODAE"
+    }

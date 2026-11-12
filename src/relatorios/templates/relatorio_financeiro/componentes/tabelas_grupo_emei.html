@@ -1,0 +1,12 @@
+{% include "relatorio_financeiro/componentes/tabela_alimentacao.html" with
+linhas=alimentacao.linhas ordem=ordem_a|default:"A"
+total_atendimentos=alimentacao.total_atendimentos
+valor_total=alimentacao.valor_total %}
+{% include "relatorio_financeiro/componentes/tabela_dieta.html" with
+linhas=dieta_a.linhas tipoDieta="TIPO A" tipo_class="cor-tipo-a"
+ordem=ordem_b|default:"B" total_consumo=dieta_a.total_consumo
+valor_total=dieta_a.valor_total %}
+{% include "relatorio_financeiro/componentes/tabela_dieta.html" with
+linhas=dieta_b.linhas tipoDieta="TIPO B" tipo_class="cor-tipo-b"
+ordem=ordem_c|default:"C" total_consumo=dieta_b.total_consumo
+valor_total=dieta_b.valor_total %}

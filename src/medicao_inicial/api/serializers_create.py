@@ -3,7 +3,7 @@ import json
 from datetime import date, datetime
 
 import environ
-from django.core.exceptions import ValidationError
+from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.db.models import Q, QuerySet
 from django.utils import timezone
 from rest_framework import serializers
@@ -20,6 +20,7 @@ from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
     somente_digitos,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
+from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
 from src.escola.api.serializers_create import (
     AlunoPeriodoParcialCreateSerializer,
 )
@@ -34,6 +35,7 @@ from src.escola.models import (
     PeriodoEscolar,
     TipoUnidadeEscolar,
 )
+from src.medicao_inicial.api.constants import CAMPOS_CONTROLADOS_PELO_FLUXO
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
@@ -74,7 +76,6 @@ from src.medicao_inicial.recreio_nas_ferias.validators.recreio_emef_emei_ceu_ges
     validate_lancamento_alimentacoes_medicao_recreio,
     validate_lancamento_dietas_medicao_recreio,
 )
-from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
 from src.medicao_inicial.utils import process_anexos_from_request
 from src.perfil.models import Usuario
 from src.terceirizada.models import Edital
@@ -104,6 +105,8 @@ from ..validators import (
     valida_medicoes_inexistentes_cei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
+    validate_finalizacao_sem_lancamentos_escola_aberta,
+    validate_lancamento_alimentacoes_escola_aberta,
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao,
     validate_lancamento_alimentacoes_medicao_cei,
@@ -378,6 +381,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_solicitacoes_etec(instance, lista_erros)
         lista_erros = validate_solicitacoes_programas_e_projetos(instance, lista_erros)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+        lista_erros = validate_lancamento_alimentacoes_escola_aberta(
+            instance, lista_erros
+        )
 
         if lista_erros:
             raise serializers.ValidationError(lista_erros)
@@ -455,6 +461,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
         lista_erros = validate_lanches_emergenciais_diarios(instance, lista_erros)
+        lista_erros = validate_lancamento_alimentacoes_escola_aberta(
+            instance, lista_erros
+        )
 
         if lista_erros:
             raise ValidationError(lista_erros)
@@ -1109,7 +1118,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def cria_valores_medicao_logs_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1121,7 +1130,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self.cria_valores_medicao_logs_dietas_autorizadas_cei(instance)
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def update(self, instance, validated_data):
         self._check_user_permission()
@@ -1163,7 +1172,38 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             validated_data["dre_ciencia_correcao_usuario"] = self.context[
                 "request"
             ].user
-        update_instance_from_dict(instance, validated_data, save=True)
+        update_instance_from_dict(instance, validated_data)
+        update_fields = self._campos_para_atualizacao(instance, validated_data)
+        if update_fields:
+            instance.save(update_fields=update_fields)
+
+    @staticmethod
+    def _campos_para_atualizacao(instance, validated_data):
+        """Lista os campos que um salvamento comum pode gravar.
+
+        Campos controlados pelo fluxo de aprovação (``status``) são ignorados,
+        pois uma instância carregada antes de uma transição concorrente
+        sobrescreveria o novo status com o valor antigo.
+
+        Args:
+            instance (SolicitacaoMedicaoInicial): Instância em atualização.
+            validated_data (dict): Campos recebidos na requisição.
+
+        Returns:
+            list[str]: Nomes dos campos concretos que devem ser persistidos.
+        """
+        update_fields = []
+        for nome in validated_data:
+            try:
+                campo = instance._meta.get_field(nome)
+            except FieldDoesNotExist:
+                continue
+            if not campo.concrete or campo.primary_key:
+                continue
+            if nome in CAMPOS_CONTROLADOS_PELO_FLUXO:
+                continue
+            update_fields.append(nome)
+        return update_fields
 
     def _update_responsaveis(self, instance):
         responsaveis_dict = self.context["request"].data.get("responsaveis")
@@ -1304,6 +1344,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = self._checa_se_medicao_possui_algum_lancamento(
             instance, lista_erros
         )
+        lista_erros = validate_finalizacao_sem_lancamentos_escola_aberta(
+            instance, lista_erros
+        )
 
         if not medicoes_nomes_com_solicitacoes_autorizadas and not lista_erros:
             return
@@ -1391,7 +1434,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             instance
         )
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_emef_emei_cieja_ceugestao(
         self, instance: SolicitacaoMedicaoInicial
@@ -1422,7 +1465,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_dietas_autorizadas_cei(instance)
 
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_cei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1454,7 +1497,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         cria_valores_medicao_participantes_cemei(instance)
         cria_valores_medicao_participantes_dietas_autorizadas_cemei(instance)
         instance.logs_salvos = True
-        instance.save()
+        instance.save(update_fields=["logs_salvos"])
 
     def valida_finalizar_medicao_recreio_cemei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1685,7 +1728,7 @@ class MedicaoCreateUpdateSerializer(serializers.ModelSerializer):
         if not eh_observacao:
             instance.valores_medicao.filter(valor=-1).delete()
         instance.alterado_em = datetime.now()
-        instance.save()
+        instance.save(update_fields=["alterado_em"])
 
         return instance
 

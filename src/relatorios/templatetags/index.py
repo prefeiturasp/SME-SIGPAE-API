@@ -649,7 +649,7 @@ def formatar_observacoes(observacoes, tipo_unidade=None):
     dias = get_dias(observacoes_tuple)
 
     def order_by_periodo(obs):
-        return order_key[obs[4]]
+        return order_key.get(obs[4], len(order_key) + 1)
 
     observacoes_ordenadas_corretamente = []
     for dia in dias:
@@ -1122,6 +1122,12 @@ def decimal_br(value, casas=2):
         )
     except (InvalidOperation, TypeError):
         return "0,00"
+
+
+@register.filter
+def percentual_br(value):
+    """Formata percentual sem zeros decimais à direita, ex.: 10.50 -> "10,5%"."""
+    return f"{decimal_br(value).rstrip('0').rstrip(',')}%"
 
 
 @register.filter
