@@ -1,5 +1,6 @@
 import re
 from decimal import Decimal
+from types import SimpleNamespace
 
 import pytest
 from model_bakery import baker
@@ -19,6 +20,7 @@ from src.medicao_inicial.models import (
 )
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     _build_consolidado_total,
+    _buscar_valor_por_tipo,
     arredonda_centavos,
     build_relatorio_financeiro_grupo_cei,
     build_relatorio_financeiro_grupo_cemei,
@@ -29,6 +31,7 @@ from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     obter_config_grupo,
     obter_parametrizacao_vigente,
     prepara_relatorio_para_template,
+    rotulo_tipo_alimentacao,
     serializa_relatorio_calculado,
 )
 from src.medicao_inicial.utils import normalizar_nome_campo
@@ -1437,3 +1440,45 @@ class TestObterParametrizacaoVigente:
         relatorio_financeiro_cei.ano = "2000"
 
         assert obter_parametrizacao_vigente(relatorio_financeiro_cei) is None
+
+
+def _valor_parametrizado(nome_campo, valor, tipo_alimentacao=None):
+    return SimpleNamespace(
+        nome_campo=nome_campo,
+        valor=valor,
+        tipo_alimentacao=tipo_alimentacao,
+        tipo_valor=SimpleNamespace(nome="UNITARIO"),
+    )
+
+
+class TestBuscarValorPorTipo:
+    @pytest.fixture
+    def valores(self):
+        return [
+            _valor_parametrizado("kit_lanche", "6.88"),
+            _valor_parametrizado(
+                "refeicao", "10.00", SimpleNamespace(uuid="uuid-refeicao")
+            ),
+        ]
+
+    def test_kit_lanche_cadastrado_antes_nao_e_usado_para_outro_tipo(self, valores):
+        tipo = {"uuid": "uuid-refeicao", "nome": "Refeição"}
+
+        assert _buscar_valor_por_tipo(valores, tipo, "UNITARIO") == Decimal("10.00")
+
+    def test_busca_o_valor_do_kit_lanche(self, valores):
+        tipo = {"uuid": "kit_lanche", "nome": "KIT LANCHE"}
+
+        assert _buscar_valor_por_tipo(valores, tipo, "UNITARIO") == Decimal("6.88")
+
+
+@pytest.mark.parametrize(
+    "nome_tipo, grupo_nome, esperado",
+    [
+        ("Refeição", GrupoUnidadeEscolar.GRUPO_6.upper(), "REFEIÇÃO CIEJA E CMCT"),
+        ("Lanche 4h", GrupoUnidadeEscolar.GRUPO_6.upper(), "LANCHE 4H"),
+        ("Refeição", GrupoUnidadeEscolar.GRUPO_3.upper(), "REFEIÇÃO"),
+    ],
+)
+def test_rotulo_tipo_alimentacao(nome_tipo, grupo_nome, esperado):
+    assert rotulo_tipo_alimentacao(nome_tipo, grupo_nome) == esperado
