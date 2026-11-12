@@ -25,7 +25,6 @@ from .permissions import (
     PermissaoParaGerarPdfTermoRecebimentoProvisorio,
     PermissaoParaRegistrarMemorandoOcorrencia,
     PermissaoParaVisualizarTermoRecebimentoProvisorio,
-    usuario_vinculado_a_empresa_fornecedor,
 )
 from .serializers.serializers import (
     MemorandoOcorrenciaSerializer,
@@ -76,15 +75,6 @@ class TermoRecebimentoProvisorioViewSet(
         """
         queryset = TermoRecebimentoProvisorio.objects.all().order_by("-criado_em")
 
-        if usuario_vinculado_a_empresa_fornecedor(self.request.user):
-            queryset = queryset.filter(
-                empresa=self.request.user.vinculo_atual.instituicao,
-                status__in=[
-                    *TermoRecebimentoProvisorio.STATUS_RECEBIDO_FORNECEDOR,
-                    TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
-                ],
-            )
-
         if self.action == "gerar_pdf_termo":
             return queryset.select_related(
                 "empresa",
@@ -110,7 +100,7 @@ class TermoRecebimentoProvisorioViewSet(
         """Visualização é liberada para mais perfis do que o cadastro."""
         if self.action == "gerar_pdf_termo":
             return [PermissaoParaGerarPdfTermoRecebimentoProvisorio()]
-        if self.action in ("list", "retrieve", *self.ACTIONS_PAINEL_ASSINATURA):
+        if self.action in ("list", "retrieve"):
             return [PermissaoParaVisualizarTermoRecebimentoProvisorio()]
         if self.action in self.ACTIONS_PAINEL_ASSINATURA:
             return [PermissaoParaAcessarPainelAssinaturas()]
