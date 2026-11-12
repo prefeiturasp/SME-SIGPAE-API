@@ -42,6 +42,7 @@ from src.medicao_inicial.services.relatorio_folha_medicao_final import (
     montar_contexto_folha_medicao_final,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
+from src.pos_recebimento.models import AssinaturaTermoRecebimentoProvisorio
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
@@ -124,6 +125,21 @@ ARQUIVO_MARCA_DAGUA_PRELIMINAR = "preliminar.pdf"
 
 FORMATO_DATA_HORA_PDF = "%d/%m/%Y às %H:%M"
 NOME_ARQUIVO_DIETA_ESPECIAL = "relatorio_dieta_especial.pdf"
+
+MESES_POR_EXTENSO = (
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+)
 
 
 def valida_request_method_get(request):
@@ -2816,6 +2832,66 @@ def get_pdf_ficha_recebimento(request, ficha):
     return html_to_pdf_response(
         html_string.replace("dt_file", data_arquivo),
         f"ficha_recebimento_{ficha.etapa.cronograma.numero}.pdf",
+    )
+
+
+def get_pdf_termo_recebimento_provisorio(request, termo):
+    """
+    Gera o PDF do Termo de Recebimento Provisório.
+
+    Parametros:
+        request: Objeto de requisição HTTP
+        termo: Instância de TermoRecebimentoProvisorio
+
+    Retorno:
+        HttpResponse: Resposta HTTP com o PDF do Termo de Recebimento Provisório
+    """
+    cronogramas_termo = list(
+        termo.cronogramas_termo.select_related(
+            "cronograma__ficha_tecnica__produto",
+            "cronograma__unidade_medida",
+        ).order_by("cronograma__numero")
+    )
+    cronogramas = [
+        item
+        for item in cronogramas_termo
+        if item.cronograma.ficha_tecnica and item.cronograma.ficha_tecnica.produto
+    ]
+
+    assinaturas_por_usuario = {
+        assinatura.usuario_id: assinatura
+        for assinatura in termo.assinaturas.filter(
+            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO
+        ).select_related("usuario")
+    }
+    blocos_assinatura = [
+        {
+            "fiscal": fiscal,
+            "assinatura": assinaturas_por_usuario.get(fiscal.id),
+        }
+        for fiscal in (termo.fiscal_1, termo.fiscal_2, termo.fiscal_3)
+    ]
+
+    html_string = render_to_string(
+        "pos_recebimento/termo_recebimento_provisorio/termo.html",
+        {
+            "termo": termo,
+            "cronogramas": cronogramas,
+            "numeros_cronogramas": " | ".join(
+                item.cronograma.numero for item in cronogramas_termo
+            ),
+            "data_termo": (
+                f"{termo.criado_em.day:02d} de "
+                f"{MESES_POR_EXTENSO[termo.criado_em.month - 1]} de "
+                f"{termo.criado_em.year}"
+            ),
+            "blocos_assinatura": blocos_assinatura,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime(FORMATO_DATA_HORA_PDF)
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"termo_recebimento_provisorio_{termo.uuid}.pdf",
     )
 
 

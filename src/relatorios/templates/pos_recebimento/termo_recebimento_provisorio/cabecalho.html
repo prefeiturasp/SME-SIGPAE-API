@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="pt-BR">
+<head>
+  <title>SIGPAE</title>
+</head>
+<body>
+  <header class="header">
+    <section class="titulo-e-logo flex-between">
+      <img src="{% static 'images/LOGO_FUNDO_CLARO.png' %}" alt="Prefeitura de São Paulo" />
+      <h1 class="titulo">SECRETARIA MUNICIPAL DE EDUCAÇÃO | COORDENADORIA DE ALIMENTAÇÃO ESCOLAR - CODAE</h1>
+    </section>
+    <section>
+      <h2 class="subtitulo">TERMO DE RECEBIMENTO PROVISÓRIO</h2>
+    </section>
+    <div class="info mt-2 border border-dark">
+      <div class="row">
+        <div class="col pt-2 pb-2 grow-2"> EMPRESA CONTRATADA: </div>
+        <div class="col pt-2 pb-2 grow-2"> CRONOGRAMA(S): </div>
+      </div>
+      <div class="row green-important-text">
+        <div class="col pb-2 grow-2"> {{ termo.empresa.nome_fantasia }} </div>
+        <div class="col pb-2 grow-2"> {{ numeros_cronogramas }} </div>
+      </div>
+    </div>
+  </header>
+</body>
+</html>

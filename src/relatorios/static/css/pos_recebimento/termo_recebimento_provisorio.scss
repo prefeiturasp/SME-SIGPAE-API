@@ -1,0 +1,64 @@
+@import "../variaveis";
+
+@page {
+  padding-top: 4.8cm;
+}
+
+.header {
+  height: auto;
+  min-height: 150px;
+}
+
+.titulo-e-logo img {
+  width: auto;
+  height: 48px;
+}
+
+.page-container {
+  .titulo-secao {
+    margin-top: 0;
+    margin-bottom: 0.5em;
+  }
+
+  .objeto-contrato {
+    line-height: 18px;
+    text-align: justify;
+  }
+
+  .dados-contrato {
+    background: #f5f5f5;
+    margin-left: -2em;
+    margin-right: -2em;
+    padding: 1em 2em;
+  }
+
+  .data-termo {
+    margin-top: 2em;
+    text-align: center;
+  }
+}
+
+.assinaturas {
+  justify-content: flex-start;
+}
+
+.assinaturas .assinatura {
+  flex-basis: 49%;
+  margin-right: 2%;
+}
+
+.assinaturas .assinatura:nth-child(2n) {
+  margin-right: 0;
+}
+
+.assinaturas .assinatura .assinatura-container .logo-sigpae {
+  flex: 0 0 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assinaturas .assinatura .assinatura-container .texto-assinatura-container {
+  flex: 1;
+  margin-left: 12px;
+}
