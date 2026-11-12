@@ -322,7 +322,8 @@ def _buscar_valor_por_tipo(valores, tipo_alimentacao, tipo_valor):
                     and str(v.tipo_alimentacao.uuid) == str(tipo_alimentacao["uuid"])
                 )
                 or (
-                    not getattr(v, "tipo_alimentacao", None)
+                    str(tipo_alimentacao["uuid"]) == "kit_lanche"
+                    and not getattr(v, "tipo_alimentacao", None)
                     and str(getattr(v, "nome_campo", "")) == "kit_lanche"
                 )
             )
@@ -333,6 +334,25 @@ def _buscar_valor_por_tipo(valores, tipo_alimentacao, tipo_valor):
     )
 
     return Decimal("0") if valor is None else to_decimal_safe(valor)
+
+
+def rotulo_tipo_alimentacao(nome_tipo, grupo_nome):
+    """Retorna o nome do tipo de alimentação exibido nas linhas do relatório.
+
+    Args:
+        nome_tipo (str): Nome do tipo de alimentação.
+        grupo_nome (str): Nome do grupo de unidade escolar em maiúsculas.
+
+    Returns:
+        str: Nome em maiúsculas, com sufixo "CIEJA E CMCT" na Refeição do Grupo 6.
+    """
+    nome = nome_tipo.upper()
+    if (
+        grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
+        and nome == TIPOS_ALIMENTACAO.REFEICAO.value.upper()
+    ):
+        return f"{nome} CIEJA E CMCT"
+    return nome
 
 
 def _build_consolidado_total(alimentacao, dieta_a, dieta_b):
@@ -697,15 +717,9 @@ def _build_tabela_alimentacao_emei(
         total_atendimentos += numero_atendimentos
         valor_total_geral += valor_total
 
-        alimentacao_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": (
-                    f"{alimentacao_nome} CIEJA E CMCT"
-                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
-                    and alimentacao_nome == TIPOS_ALIMENTACAO.REFEICAO.value.upper()
-                    else alimentacao_nome
-                ),
+                "tipo": rotulo_tipo_alimentacao(tipo["nome"], grupo_nome),
                 "valor_unitario": valor_unitario,
                 "valor_reajuste": valor_reajuste,
                 "total_unitario": total_unitario,
@@ -793,15 +807,9 @@ def _build_tabela_dieta_emei(
         total_consumo += numero_consumo
         valor_total_geral += valor_total
 
-        dieta_nome = tipo["nome"].upper()
         linhas.append(
             {
-                "tipo": (
-                    f"{dieta_nome} CIEJA E CMCT"
-                    if grupo_nome == GrupoUnidadeEscolar.GRUPO_6.upper()
-                    and dieta_nome == TIPOS_ALIMENTACAO.REFEICAO.value.upper()
-                    else dieta_nome
-                ),
+                "tipo": rotulo_tipo_alimentacao(tipo["nome"], grupo_nome),
                 "valor_unitario": valor_unitario,
                 "valor_acrescimo": valor_acrescimo,
                 "total_unitario": total_unitario,

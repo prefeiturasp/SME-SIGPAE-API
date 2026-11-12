@@ -89,10 +89,95 @@ $margem-pagina: 5mm;
     break-after: avoid;
   }
 
+  .tabela-descontos {
+    font-size: 8.5px;
+
+    th,
+    td {
+      padding: 4px 2px;
+    }
+
+    th:nth-child(1),
+    td:nth-child(1) {
+      width: 26%;
+    }
+
+    td:first-child {
+      text-align: left;
+      padding-left: 6px;
+    }
+
+    th:nth-child(2),
+    td:nth-child(2) {
+      width: 13%;
+    }
+
+    th:nth-child(3),
+    td:nth-child(3) {
+      width: 15%;
+    }
+
+    th:nth-child(4),
+    td:nth-child(4) {
+      width: 14%;
+    }
+
+    th:nth-child(5),
+    td:nth-child(5) {
+      width: 11%;
+    }
+
+    th:nth-child(6),
+    td:nth-child(6) {
+      width: 9%;
+    }
+
+    th:nth-child(7),
+    td:nth-child(7) {
+      width: 12%;
+    }
+
+    td:nth-child(6),
+    td:nth-child(7),
+    .linha-total td:first-child {
+      white-space: nowrap;
+    }
+  }
+
   .consolidado-total {
     padding: 6px 0;
     page-break-inside: avoid;
     break-inside: avoid;
+
+    .consolidado-conteudo {
+      align-items: flex-end;
+    }
+
+    .bloco {
+      display: block;
+    }
+
+    .bloco-titulo {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .bloco-quantidade {
+      min-width: 210px;
+      flex-shrink: 0;
+
+      .bloco-titulo {
+        white-space: nowrap;
+      }
+    }
+
+    .bloco-valor {
+      min-width: 0;
+    }
+  }
+
+  .consolidado-descontos .unidade {
+    text-align: right;
   }
 
   .responsaveis {
