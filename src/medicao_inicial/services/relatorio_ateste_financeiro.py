@@ -322,7 +322,8 @@ def _buscar_valor_por_tipo(valores, tipo_alimentacao, tipo_valor):
                     and str(v.tipo_alimentacao.uuid) == str(tipo_alimentacao["uuid"])
                 )
                 or (
-                    not getattr(v, "tipo_alimentacao", None)
+                    str(tipo_alimentacao["uuid"]) == "kit_lanche"
+                    and not getattr(v, "tipo_alimentacao", None)
                     and str(getattr(v, "nome_campo", "")) == "kit_lanche"
                 )
             )
