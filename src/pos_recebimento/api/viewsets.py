@@ -34,6 +34,7 @@ from .serializers.serializers_create import (
     MemorandoOcorrenciaCreateSerializer,
     TermoRecebimentoProvisorioCreateSerializer,
 )
+from .services import TermoRecebimentoProvisorioService
 
 
 class TermoRecebimentoProvisorioViewSet(
@@ -232,6 +233,12 @@ class TermoRecebimentoProvisorioViewSet(
                 quantidade_total_recebida=item["quantidade_total_recebida"],
             )
         instance.inicia_fluxo(user=self.request.user)
+        transaction.on_commit(
+            lambda: TermoRecebimentoProvisorioService.envia_email_assinatura_fiscais(
+                instance
+            ),
+            robust=True,
+        )
 
     def _valida_assinatura_fiscal(self, termo, usuario):
         """Valida se o usuário pode assinar o termo como Fiscal do Contrato.
