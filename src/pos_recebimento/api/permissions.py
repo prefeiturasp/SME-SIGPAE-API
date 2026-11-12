@@ -54,6 +54,12 @@ class PermissaoParaAssinarTermoRecebimentoProvisorio(
     PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
 
 
+class PermissaoParaAcessarPainelAssinaturas(PermissaoTermoRecebimentoProvisorio):
+    """Permissão para o Painel de Assinaturas, exclusiva de DILOG_QUALIDADE."""
+
+    PERFIS_PERMITIDOS = [DILOG_QUALIDADE]
+
+
 class PermissaoParaVisualizarTermoRecebimentoProvisorio(
     PermissaoTermoRecebimentoProvisorio
 ):
@@ -68,6 +74,24 @@ class PermissaoParaVisualizarTermoRecebimentoProvisorio(
         COORDENADOR_CODAE_DILOG_LOGISTICA,
         DILOG_QUALIDADE,
         DILOG_DIRETORIA,
+    ]
+
+
+class PermissaoParaGerarPdfTermoRecebimentoProvisorio(
+    PermissaoTermoRecebimentoProvisorio
+):
+    """Permissão para gerar o PDF do Termo de Recebimento Provisório.
+
+    Apenas os perfis contemplados na história (DILOG_QUALIDADE,
+    DILOG_DIRETORIA, DILOG_CRONOGRAMA e COORDENADOR_CODAE_DILOG_LOGISTICA)
+    podem baixar o documento. Empresas fornecedoras não têm acesso.
+    """
+
+    PERFIS_PERMITIDOS = [
+        DILOG_QUALIDADE,
+        DILOG_DIRETORIA,
+        DILOG_CRONOGRAMA,
+        COORDENADOR_CODAE_DILOG_LOGISTICA,
     ]
 
 

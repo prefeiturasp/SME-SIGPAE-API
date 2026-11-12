@@ -1,0 +1,27 @@
+{% extends 'email_base.html' %}
+
+{% block conteudo %}
+<p style="text-align: left">
+  Olá, <strong>{{ nome_destinatario }}</strong>!
+
+  <br/><br/>
+
+  Um novo <strong>{{ nome_termo|upper }}</strong> foi criado e necessita de sua assinatura, pedimos que acesse o
+  <a href="{{ url_sigpae }}" target="_blank" style="color: #198459; font-weight: bold;">SIGPAE</a>, verifique as informações e
+  realize a assinatura do termo.
+</p>
+
+<table role="presentation" style="width: 100%; border-collapse: collapse; border-spacing: 0;">
+  <tr>
+    <td align="left" style="text-align: left; padding: 0;">
+      <a href="{{ url_termo }}" target="_blank" style="color: #198459; font-weight: bold; text-decoration: underline;">Acessar Termo</a>
+    </td>
+  </tr>
+</table>
+
+<br/>
+
+<p style="text-align: left">
+  Contamos com <strong>você</strong> para que o abastecimento da Rede Municipal de Ensino seja sempre um sucesso!
+</p>
+{% endblock %}

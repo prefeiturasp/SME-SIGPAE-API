@@ -1,4 +1,4 @@
-{% extends template_ateste %}
+{% extends template_ateste|default:"relatorio_financeiro/relatorio_ateste_financeiro_base.html" %}
 {% load sass_tags static %}
 
 {% block estilos %}
@@ -67,7 +67,18 @@
 </div>
 {% endblock %}
 
+{% block descontos %}
+{% if descontos.linhas %}
+{% include "relatorio_financeiro/componentes/tabela_descontos.html" with
+titulo_faixa_ou_alimentacao=descontos.titulo_faixa_ou_alimentacao
+linhas=descontos.linhas total=descontos.total %}
+{% endif %}
+{% endblock %}
+
 {% block complemento %}
+{% include "relatorio_financeiro/componentes/consolidado_descontos.html" with
+total_descontos=descontos.total faturamento=faturamento_final %}
+
 <div class="responsaveis">
   <p class="nota">
     <strong>Nota</strong>: na presente medição final estão totalizadas as

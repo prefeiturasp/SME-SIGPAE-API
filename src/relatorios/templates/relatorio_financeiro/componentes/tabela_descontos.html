@@ -1,0 +1,43 @@
+{% load index %}
+<div class="tabela-descontos-container">
+  <h2 class="titulo-tabela">TABELA DE DESCONTO</h2>
+  <table class="tabela-relatorio tabela-descontos">
+    <thead>
+      <tr>
+        <th>NOME DA UNIDADE</th>
+        <th>TIPO DE LANÇAMENTO</th>
+        <th>{{ titulo_faixa_ou_alimentacao }}</th>
+        <th>CLÁUSULA DO DESCONTO</th>
+        <th>QUANTIDADE</th>
+        <th>VALOR<br />UNITÁRIO</th>
+        <th>TOTAL DO DESCONTO</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {% for linha in linhas %}
+      <tr>
+        <td>
+          {% for unidade in linha.unidades %}{{ unidade }}{% if not forloop.last %}<br />{% endif %}{% endfor %}
+        </td>
+        <td>{{ linha.tipo_lancamento }}</td>
+        <td>{{ linha.faixa_ou_alimentacao }}</td>
+        <td>{{ linha.clausula }}</td>
+        <td>{{ linha.quantidade|numero_para_milhar }}</td>
+        <td>R$ {{ linha.valor_unitario|agrupador_milhar_com_decimal }}</td>
+        <td>R$ {{ linha.total|agrupador_milhar_com_decimal }}</td>
+      </tr>
+      {% endfor %}
+
+      <tr class="linha-total">
+        <td>TOTAL DE DESCONTOS DOS ITENS (D)</td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>R$ {{ total|agrupador_milhar_com_decimal }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

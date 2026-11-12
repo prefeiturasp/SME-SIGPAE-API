@@ -649,7 +649,7 @@ def formatar_observacoes(observacoes, tipo_unidade=None):
     dias = get_dias(observacoes_tuple)
 
     def order_by_periodo(obs):
-        return order_key[obs[4]]
+        return order_key.get(obs[4], len(order_key) + 1)
 
     observacoes_ordenadas_corretamente = []
     for dia in dias:
