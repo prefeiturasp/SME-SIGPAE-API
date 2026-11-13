@@ -435,6 +435,76 @@ def test_termo_retrieve_retorna_cronogramas_com_valores_do_vinculo(
     assert all(item["quantidade_total_recebida"] == "1234.56" for item in cronogramas)
 
 
+def test_termo_retrieve_logs_do_termo_recem_criado(
+    client_autenticado_dilog_cronograma,
+    payload_termo,
+):
+    """Termo criado pela API já nasce com o primeiro passo da linha do tempo.
+
+    Trava também os nomes dos campos de cada log, que são o contrato
+    consumido pelo front.
+    """
+    uuid_termo = _post_json(
+        client_autenticado_dilog_cronograma,
+        "/pos-recebimento/termos/",
+        payload_termo,
+    ).json()["uuid"]
+
+    response = client_autenticado_dilog_cronograma.get(
+        f"/pos-recebimento/termos/{uuid_termo}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    logs = response.json()["logs"]
+    assert [log["status_evento_explicacao"] for log in logs] == ["Termo Criado"]
+    assert set(logs[0]) == {
+        "status_evento_explicacao",
+        "usuario",
+        "criado_em",
+        "justificativa",
+    }
+    assert set(logs[0]["usuario"]) == {"uuid", "nome"}
+
+
+def test_termo_list_filtra_pelos_status_do_fluxo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    url = "/pos-recebimento/termos/"
+
+    enviado = client_autenticado_dilog_cronograma.get(
+        url, {"status": "ENVIADO_FISCAIS"}
+    )
+    assinado = client_autenticado_dilog_cronograma.get(
+        url, {"status": "TERMO_ASSINADO"}
+    )
+
+    assert enviado.json()["count"] == 1
+    assert assinado.json()["count"] == 0
+
+
+@pytest.mark.parametrize(
+    "status_removido",
+    [
+        "ENVIADO_DILOG",
+        "ENVIADO_COORDENADOR",
+        "ENVIADO_FORNECEDOR",
+        "ASSINADO_FORNECEDOR",
+    ],
+)
+def test_termo_list_rejeita_status_que_saiu_do_fluxo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+    status_removido,
+):
+    """Os status removidos não são mais aceitos no filtro."""
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/", {"status": status_removido}
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
 def test_termo_retrieve_uuid_inexistente_retorna_404(
     client_autenticado_dilog_cronograma,
 ):
