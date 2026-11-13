@@ -42,7 +42,6 @@ from src.medicao_inicial.services.relatorio_folha_medicao_final import (
     montar_contexto_folha_medicao_final,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
-from src.pos_recebimento.models import AssinaturaTermoRecebimentoProvisorio
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
@@ -2860,9 +2859,7 @@ def get_pdf_termo_recebimento_provisorio(request, termo):
 
     assinaturas_por_usuario = {
         assinatura.usuario_id: assinatura
-        for assinatura in termo.assinaturas.filter(
-            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO
-        ).select_related("usuario")
+        for assinatura in termo.assinaturas.select_related("usuario")
     }
     blocos_assinatura = [
         {

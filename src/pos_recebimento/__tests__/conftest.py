@@ -8,6 +8,7 @@ from model_bakery import baker
 from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
 from src.pos_recebimento.models import (
+    AssinaturaTermoRecebimentoProvisorio,
     CronogramaTermoRecebimentoProvisorio,
     TermoRecebimentoProvisorio,
 )
@@ -255,8 +256,14 @@ def client_autenticado_usuario_empresa(client, django_user_model, empresa):
     return client
 
 
-def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
-    """Termo para o painel de assinaturas."""
+def _cria_termo_do_painel(
+    empresa, contrato, fiscais, status, cronogramas=(), assinado=False
+):
+    """Termo para o painel de assinaturas.
+
+    Com ``assinado=True``, registra a assinatura dos fiscais distintos, que
+    é o que faz o termo aparecer na action ``assinados``.
+    """
 
     termo = TermoRecebimentoProvisorio.objects.create(
         empresa=empresa,
@@ -266,6 +273,11 @@ def _cria_termo_do_painel(empresa, contrato, fiscais, status, cronogramas=()):
         fiscal_3=fiscais[2],
         status=status,
     )
+    if assinado:
+        for fiscal in set(fiscais):
+            AssinaturaTermoRecebimentoProvisorio.objects.create(
+                termo=termo, usuario=fiscal
+            )
     for numero, nome_produto in cronogramas:
         produto, _ = NomeDeProdutoEdital.objects.get_or_create(
             nome=nome_produto,
@@ -295,8 +307,9 @@ def termos_painel_assinatura(usuario_fiscal, tres_fiscais):
 
     - ``pendente_do_fiscal``: ENVIADO_FISCAIS, usuário é o fiscal_1;
     - ``pendente_de_outro_fiscal``: ENVIADO_FISCAIS, usuário não é fiscal;
-    - ``de_outro_status``: ENVIADO_DILOG, usuário é o fiscal_1;
-    - ``assinado_do_fiscal``: ASSINADO_FORNECEDOR, usuário é o fiscal_2.
+    - ``de_outro_status``: TERMO_ASSINADO sem assinaturas, usuário é o fiscal_1;
+    - ``assinado_do_fiscal``: TERMO_ASSINADO com as 3 assinaturas, usuário é
+      o fiscal_2.
     """
     fiscais_com_usuario = [usuario_fiscal, tres_fiscais[1], tres_fiscais[2]]
 
@@ -325,16 +338,17 @@ def termos_painel_assinatura(usuario_fiscal, tres_fiscais):
             empresa_alfa,
             contrato_alfa,
             fiscais_com_usuario,
-            TermoRecebimentoProvisorio.ENVIADO_DILOG,
+            TermoRecebimentoProvisorio.TERMO_ASSINADO,
         ),
         assinado_do_fiscal=_cria_termo_do_painel(
             empresa_alfa,
             contrato_alfa,
             [tres_fiscais[0], usuario_fiscal, tres_fiscais[2]],
-            TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR,
+            TermoRecebimentoProvisorio.TERMO_ASSINADO,
             # Dois cronogramas do mesmo produto: o painel deve exibir o
             # nome uma única vez.
             (("005/2026", PRODUTO_MAMAO_PAPAYA), ("006/2026", PRODUTO_MAMAO_PAPAYA)),
+            assinado=True,
         ),
     )
 
