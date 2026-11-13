@@ -9,7 +9,6 @@ from ....dados_comuns.mixins.serializer_context import (
     EscolaNomeHistoricoSerializerMixin,
 )
 from ....terceirizada.models import Edital
-from ...api.serializers_base import TipoGestaoSerializer
 from ...diretoria_regional.api.serializers import (
     DiretoriaRegionalParaFiltroSerializer,
     DiretoriaRegionalSimplissimaSerializer,
@@ -32,6 +31,7 @@ from ...models import (
     PeriodoEscolar,
     TipoUnidadeEscolar,
 )
+from .serializers_base import TipoGestaoSerializer
 
 
 class TipoAlimentacaoSerializer(serializers.ModelSerializer):

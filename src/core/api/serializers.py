@@ -21,7 +21,6 @@ from ..aluno.api.serializers import (
     FaixaEtariaSerializer,
     ReponsavelSerializer,
 )
-from ..api.serializers_base import TipoGestaoSerializer
 from ..codae.api.serializers import CODAESerializer
 from ..diretoria_regional.api.serializers import (
     DiretoriaRegionalLookUpSerializer,
@@ -63,6 +62,7 @@ from ..escola.api.serializers import (
     TipoUnidadeEscolarSimplesSerializer,
     TipoUnidadeParaFiltroSerializer,
 )
+from ..escola.api.serializers_base import TipoGestaoSerializer
 from ..logs.api.serializers import (
     LogAlunosMatriculadosFaixaEtariaDiaSerializer,
     LogAlunosMatriculadosPeriodoEscolaSerializer,

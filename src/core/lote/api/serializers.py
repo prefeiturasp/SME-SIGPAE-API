@@ -9,11 +9,11 @@ from ....terceirizada.api.serializers.serializers import (
     ContratoEditalSerializer,
     TerceirizadaSimplesSerializer,
 )
-from ...api.serializers_base import TipoGestaoSerializer
 from ...diretoria_regional.api.serializers import (
     DiretoriaRegionalParaFiltroSerializer,
     DiretoriaRegionalSimplissimaSerializer,
 )
+from ...escola.api.serializers_base import TipoGestaoSerializer
 from ...models import Escola, Lote
 from ...subprefeitura.api.serializers import SubprefeituraSerializer
 
