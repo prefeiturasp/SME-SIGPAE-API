@@ -28,18 +28,12 @@ class TermoRecebimentoProvisorio(
 
     RASCUNHO = "RASCUNHO"
     ENVIADO_FISCAIS = "ENVIADO_FISCAIS"
-    ENVIADO_DILOG = "ENVIADO_DILOG"
-    ENVIADO_COORDENADOR = "ENVIADO_COORDENADOR"
-    ENVIADO_FORNECEDOR = "ENVIADO_FORNECEDOR"
-    ASSINADO_FORNECEDOR = "ASSINADO_FORNECEDOR"
+    TERMO_ASSINADO = "TERMO_ASSINADO"
 
     STATUS_CHOICES = (
         (RASCUNHO, "Rascunho"),
         (ENVIADO_FISCAIS, "Enviado Fiscais"),
-        (ENVIADO_DILOG, "Enviado DILOG"),
-        (ENVIADO_COORDENADOR, "Enviado Coordenador"),
-        (ENVIADO_FORNECEDOR, "Enviado Fornecedor"),
-        (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
+        (TERMO_ASSINADO, "Termo Assinado"),
     )
 
     empresa = models.ForeignKey(
@@ -112,11 +106,7 @@ class TermoRecebimentoProvisorio(
         então a assinatura do usuário repetido cobre todos os papéis dele.
         """
         fiscais = {self.fiscal_1_id, self.fiscal_2_id, self.fiscal_3_id}
-        assinantes = set(
-            self.assinaturas.filter(
-                etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO
-            ).values_list("usuario_id", flat=True)
-        )
+        assinantes = set(self.assinaturas.values_list("usuario_id", flat=True))
         return fiscais <= assinantes
 
     def eh_fiscal(self, usuario):
@@ -124,11 +114,8 @@ class TermoRecebimentoProvisorio(
         return usuario in (self.fiscal_1, self.fiscal_2, self.fiscal_3)
 
     def usuario_ja_assinou_fiscal(self, usuario):
-        """O usuário já registrou assinatura na etapa dos Fiscais?"""
-        return self.assinaturas.filter(
-            usuario=usuario,
-            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
-        ).exists()
+        """O usuário já assinou o termo?"""
+        return self.assinaturas.filter(usuario=usuario).exists()
 
     def pode_assinar(self, usuario):
         """O usuário pode assinar o termo como Fiscal do Contrato agora?
@@ -181,25 +168,7 @@ class CronogramaTermoRecebimentoProvisorio(models.Model):
 
 
 class AssinaturaTermoRecebimentoProvisorio(ModeloBase):
-    """Assinatura registrada em um Termo de Recebimento Provisório.
-
-    Cada assinatura é individual (um usuário por etapa), permitindo que os
-    três Fiscais do Contrato assinem em qualquer ordem. As etapas seguintes
-    do fluxo (DILOG Diretoria, Coordenador CODAE e Empresa Fornecedora)
-    serão contempladas em histórias futuras.
-    """
-
-    FISCAL_CONTRATO = "FISCAL_CONTRATO"
-    DILOG_DIRETORIA = "DILOG_DIRETORIA"
-    COORDENADOR_CODAE = "COORDENADOR_CODAE"
-    EMPRESA_FORNECEDORA = "EMPRESA_FORNECEDORA"
-
-    ETAPA_CHOICES = (
-        (FISCAL_CONTRATO, "Fiscal do Contrato"),
-        (DILOG_DIRETORIA, "DILOG Diretoria"),
-        (COORDENADOR_CODAE, "Coordenador CODAE"),
-        (EMPRESA_FORNECEDORA, "Empresa Fornecedora"),
-    )
+    """Assinatura de um Fiscal do Contrato no Termo, uma por usuário."""
 
     termo = models.ForeignKey(
         TermoRecebimentoProvisorio,
@@ -213,11 +182,6 @@ class AssinaturaTermoRecebimentoProvisorio(ModeloBase):
         verbose_name=StringsVerboseNameModels.USUARIO.value,
         related_name="assinaturas_termo_recebimento_provisorio",
     )
-    etapa = models.CharField(
-        "Etapa do fluxo de assinaturas",
-        max_length=30,
-        choices=ETAPA_CHOICES,
-    )
 
     def __str__(self):
         return f"Assinatura de {self.usuario.nome} no Termo {self.termo.uuid}"
@@ -225,7 +189,7 @@ class AssinaturaTermoRecebimentoProvisorio(ModeloBase):
     class Meta:
         verbose_name = "Assinatura do Termo de Recebimento Provisório"
         verbose_name_plural = "Assinaturas dos Termos de Recebimento Provisório"
-        unique_together = [("termo", "usuario", "etapa")]
+        unique_together = [("termo", "usuario")]
 
 
 class MemorandoOcorrencia(ModeloBase, CriadoPor):
