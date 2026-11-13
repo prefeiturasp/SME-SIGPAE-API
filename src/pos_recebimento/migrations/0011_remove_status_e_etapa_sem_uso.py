@@ -16,20 +16,26 @@ def migra_status_removidos(apps, schema_editor):
     """Reposiciona os termos nos status que sobraram no fluxo.
 
     Termos cujos três fiscais já assinaram vão para ``TERMO_ASSINADO``
-    (antigo ``ENVIADO_DILOG``); os demais voltam para ``ENVIADO_FISCAIS``,
-    a fila de assinatura onde de fato estão.
+    (antigo ``ENVIADO_DILOG``); os demais voltam para ``ENVIADO_FISCAIS``.
 
-    Lê por ``values_list`` e grava por ``update`` para não instanciar o
-    ``StateField``, que rejeitaria os status antigos.
+    Usa SQL cru para não passar pela validação do ``StateField``, que neste
+    ponto ainda conhece apenas os status antigos (o ``AlterField`` só roda
+    depois) e, portanto, rejeitaria o novo valor ``TERMO_ASSINADO``.
     """
-    Termo = apps.get_model("pos_recebimento", "TermoRecebimentoProvisorio")
     Assinatura = apps.get_model(
         "pos_recebimento", "AssinaturaTermoRecebimentoProvisorio"
     )
+    connection = schema_editor.connection
 
-    legados = Termo.objects.filter(status__in=STATUS_REMOVIDOS).values_list(
-        "id", "fiscal_1_id", "fiscal_2_id", "fiscal_3_id"
-    )
+    with connection.cursor() as cursor:
+        placeholders = ",".join(["%s"] * len(STATUS_REMOVIDOS))
+        cursor.execute(
+            f"SELECT id, fiscal_1_id, fiscal_2_id, fiscal_3_id "  # nosec B608
+            f"FROM pos_recebimento_termorecebimentoprovisorio "
+            f"WHERE status IN ({placeholders})",
+            STATUS_REMOVIDOS,
+        )
+        legados = cursor.fetchall()
 
     assinados = []
     pendentes = []
@@ -43,10 +49,21 @@ def migra_status_removidos(apps, schema_editor):
         destino = assinados if fiscais <= assinantes else pendentes
         destino.append(termo_id)
 
-    if assinados:
-        Termo.objects.filter(id__in=assinados).update(status="TERMO_ASSINADO")
-    if pendentes:
-        Termo.objects.filter(id__in=pendentes).update(status="ENVIADO_FISCAIS")
+    with connection.cursor() as cursor:
+        if assinados:
+            placeholders = ",".join(["%s"] * len(assinados))
+            cursor.execute(
+                f"UPDATE pos_recebimento_termorecebimentoprovisorio "  # nosec B608
+                f"SET status = %s WHERE id IN ({placeholders})",
+                ["TERMO_ASSINADO", *assinados],
+            )
+        if pendentes:
+            placeholders = ",".join(["%s"] * len(pendentes))
+            cursor.execute(
+                f"UPDATE pos_recebimento_termorecebimentoprovisorio "  # nosec B608
+                f"SET status = %s WHERE id IN ({placeholders})",
+                ["ENVIADO_FISCAIS", *pendentes],
+            )
 
 
 class Migration(migrations.Migration):
