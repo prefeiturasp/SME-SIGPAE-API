@@ -1,5 +1,6 @@
 import calendar
 import json
+from collections import defaultdict
 from datetime import date, datetime
 
 import environ
@@ -88,6 +89,7 @@ from ...dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
     PayloadVariaveis,
+    StringsValoresMedicao,
 )
 from ...inclusao_alimentacao.models import InclusaoAlimentacaoContinua
 from ..recreio_nas_ferias.models import (
@@ -516,86 +518,103 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         self, instance: SolicitacaoMedicaoInicial
     ) -> None:
         escola = instance.escola
-        valores_medicao_a_criar = []
-        logs_do_mes = escola.logs_alunos_matriculados_por_periodo.filter(
-            criado_em__month=instance.mes,
-            criado_em__year=instance.ano,
-            tipo_turma="REGULAR",
-        )
         categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
-        quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
-            1
-        ]
-        periodos_escolares = escola.periodos_escolares(
-            ano=instance.ano, mes=instance.mes
-        ).values_list("nome", flat=True)
-        for dia in range(1, quantidade_dias_mes + 1):
+        dias = self._dias_do_mes(instance)
+        periodos_escolares = list(
+            escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
+                "nome", flat=True
+            )
+        )
+        medicoes = self._medicoes_por_periodo(instance, periodos_escolares)
+        existentes = self._valores_existentes_por_medicao(
+            medicoes,
+            categoria,
+            StringsValoresMedicao.MATRICULADOS.value,
+            dias,
+        )
+        logs_por_periodo_dia = self._logs_matriculados_por_periodo_e_dia(instance)
+
+        valores_medicao_a_criar = []
+        for dia in dias:
             for periodo_escolar in periodos_escolares:
-                medicao, _ = Medicao.objects.get_or_create(
-                    solicitacao_medicao_inicial=instance,
-                    periodo_escolar=PeriodoEscolar.objects.get(nome=periodo_escolar),
-                )
-                if not medicao.valores_medicao.filter(
-                    categoria_medicao=categoria,
-                    dia=f"{dia:02d}",
-                    nome_campo="matriculados",
-                ).exists():
-                    log = logs_do_mes.filter(
-                        periodo_escolar__nome=periodo_escolar, criado_em__day=dia
-                    ).first()
-                    valor_medicao = ValorMedicao(
+                medicao = medicoes[periodo_escolar]
+                if (medicao.id, dia) in existentes:
+                    continue
+                valores_medicao_a_criar.append(
+                    ValorMedicao(
                         medicao=medicao,
                         categoria_medicao=categoria,
-                        dia=f"{dia:02d}",
-                        nome_campo="matriculados",
-                        valor=log.quantidade_alunos if log else 0,
+                        dia=dia,
+                        nome_campo=StringsValoresMedicao.MATRICULADOS.value,
+                        valor=logs_por_periodo_dia.get((periodo_escolar, int(dia)), 0),
                     )
-                    valores_medicao_a_criar.append(valor_medicao)
+                )
 
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
-    def analisa_periodos_por_dia_matriculados(
-        self,
-        logs_do_mes,
-        dia,
-        periodo_escolar,
-        medicao,
-        categoria,
-        valores_medicao_a_criar,
-    ):
-        for log in logs_do_mes.filter(
-            data__day=dia, periodo_escolar__nome=periodo_escolar
-        ):
-            if not medicao.valores_medicao.filter(
+    @staticmethod
+    def _dias_do_mes(instance: SolicitacaoMedicaoInicial) -> list[str]:
+        """Retorna os dias do mês da solicitação no formato ``DD``."""
+        quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
+            1
+        ]
+        return [f"{dia:02d}" for dia in range(1, quantidade_dias_mes + 1)]
+
+    def _medicoes_por_periodo(
+        self, instance: SolicitacaoMedicaoInicial, periodos_escolares: list[str]
+    ) -> dict:
+        """Retorna (criando quando necessário) a medição de cada período."""
+        medicoes = {}
+        for nome_periodo in periodos_escolares:
+            medicao, _ = Medicao.objects.get_or_create(
+                solicitacao_medicao_inicial=instance,
+                periodo_escolar=PeriodoEscolar.objects.get(nome=nome_periodo),
+            )
+            medicoes[nome_periodo] = medicao
+        return medicoes
+
+    @staticmethod
+    def _valores_existentes_por_medicao(
+        medicoes: dict,
+        categoria: CategoriaMedicao,
+        nome_campo: str,
+        dias: list[str],
+    ) -> set:
+        """Retorna as chaves ``(medicao_id, dia)`` já lançadas."""
+        return set(
+            ValorMedicao.objects.filter(
+                medicao__in=medicoes.values(),
                 categoria_medicao=categoria,
-                dia=f"{dia:02d}",
-                nome_campo="matriculados",
-                faixa_etaria=log.faixa_etaria,
-            ).exists():
-                valor_medicao = ValorMedicao(
-                    medicao=medicao,
-                    categoria_medicao=categoria,
-                    dia=f"{dia:02d}",
-                    nome_campo="matriculados",
-                    valor=log.quantidade,
-                    faixa_etaria=log.faixa_etaria,
-                )
-                valores_medicao_a_criar.append(valor_medicao)
-        return valores_medicao_a_criar
+                nome_campo=nome_campo,
+                dia__in=dias,
+            ).values_list("medicao_id", "dia")
+        )
+
+    @staticmethod
+    def _logs_matriculados_por_periodo_e_dia(
+        instance: SolicitacaoMedicaoInicial,
+    ) -> dict:
+        """Agrupa a quantidade de alunos do mês por período e dia.
+
+        O dicionário preserva a ordenação padrão do modelo (mais recente
+        primeiro), replicando o ``first()`` usado anteriormente.
+        """
+        logs = defaultdict(int)
+        logs_do_mes = instance.escola.logs_alunos_matriculados_por_periodo.filter(
+            criado_em__month=instance.mes,
+            criado_em__year=instance.ano,
+            tipo_turma="REGULAR",
+        ).values_list("periodo_escolar__nome", "criado_em__day", "quantidade_alunos")
+        for periodo_escolar, dia, quantidade in logs_do_mes:
+            logs.setdefault((periodo_escolar, dia), quantidade)
+        return logs
 
     def cria_valores_medicao_logs_alunos_matriculados_cei(
         self, instance: SolicitacaoMedicaoInicial
     ) -> None:
         escola = instance.escola
-        valores_medicao_a_criar = []
-        logs_do_mes = escola.logs_alunos_matriculados_por_faixa_etaria.filter(
-            data__month=instance.mes,
-            data__year=instance.ano,
-        )
         categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
-        quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
-            1
-        ]
+        dias = self._dias_do_mes(instance)
         periodos_escolares = list(
             escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
                 "nome", flat=True
@@ -603,248 +622,413 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         if instance.ue_possui_alunos_periodo_parcial:
             periodos_escolares.append("PARCIAL")
-        for dia in range(1, quantidade_dias_mes + 1):
-            for periodo_escolar in periodos_escolares:
-                medicao, _ = Medicao.objects.get_or_create(
-                    solicitacao_medicao_inicial=instance,
-                    periodo_escolar=PeriodoEscolar.objects.get(nome=periodo_escolar),
+
+        medicoes = self._medicoes_por_periodo(instance, periodos_escolares)
+        existentes = self._valores_existentes_por_medicao_faixa(
+            medicoes, categoria, StringsValoresMedicao.MATRICULADOS.value, dias
+        )
+        logs_do_mes = escola.logs_alunos_matriculados_por_faixa_etaria.filter(
+            data__month=instance.mes,
+            data__year=instance.ano,
+        ).values_list(
+            "periodo_escolar__nome",
+            "data__day",
+            "faixa_etaria_id",
+            "quantidade",
+        )
+
+        valores_medicao_a_criar = []
+        for periodo_escolar, dia, faixa_etaria_id, quantidade in logs_do_mes:
+            medicao = medicoes.get(periodo_escolar)
+            if not medicao:
+                continue
+            dia_formatado = f"{dia:02d}"
+            if (medicao.id, dia_formatado, faixa_etaria_id) in existentes:
+                continue
+            valores_medicao_a_criar.append(
+                ValorMedicao(
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    dia=dia_formatado,
+                    nome_campo=StringsValoresMedicao.MATRICULADOS.value,
+                    valor=quantidade,
+                    faixa_etaria_id=faixa_etaria_id,
                 )
-                valores_medicao_a_criar = self.analisa_periodos_por_dia_matriculados(
-                    logs_do_mes,
-                    dia,
-                    periodo_escolar,
-                    medicao,
-                    categoria,
-                    valores_medicao_a_criar,
-                )
+            )
 
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
-    def checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
-        self, categoria: CategoriaMedicao, logs_do_mes: QuerySet, periodo_escolar: str
-    ) -> bool:
-        if categoria == CategoriaMedicao.objects.get(
-            nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
-        ):
-            if not logs_do_mes.filter(
-                classificacao__nome__in=[
-                    ClassificacaoDieta.TIPO_A_ENTERAL,
-                    ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
-                ],
-                periodo_escolar__nome=periodo_escolar,
-                quantidade__gt=0,
-            ).exists():
-                return True
-        else:
-            if (
-                not logs_do_mes.filter(
-                    classificacao__nome__icontains=categoria.nome.split(" - ")[1],
-                    periodo_escolar__nome=periodo_escolar,
-                    quantidade__gt=0,
-                )
-                .exclude(
-                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
-                )
-                .exclude(
-                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS
-                )
-                .exists()
-            ):
-                return True
-        return False
-
-    def retorna_valor_para_log_dieta_autorizada(
-        self,
+    @staticmethod
+    def _valores_existentes_por_medicao_faixa(
+        medicoes: dict,
         categoria: CategoriaMedicao,
+        nome_campo: str,
+        dias: list[str],
+    ) -> set:
+        """Retorna as chaves ``(medicao_id, dia, faixa_etaria_id)`` existentes."""
+        return set(
+            ValorMedicao.objects.filter(
+                medicao__in=medicoes.values(),
+                categoria_medicao=categoria,
+                nome_campo=nome_campo,
+                dia__in=dias,
+            ).values_list("medicao_id", "dia", "faixa_etaria_id")
+        )
+
+    @staticmethod
+    def _medicoes_existentes_por_periodo(
+        instance: SolicitacaoMedicaoInicial, periodos_escolares: list[str]
+    ) -> dict:
+        """Retorna a medição já existente de cada período informado."""
+        return {
+            nome_periodo: instance.medicoes.get(periodo_escolar__nome=nome_periodo)
+            for nome_periodo in periodos_escolares
+        }
+
+    @staticmethod
+    def _valores_existentes_por_medicao_categoria(
+        medicoes: dict,
+        categorias: list[CategoriaMedicao],
+        nome_campo: str,
+        dias: list[str],
+    ) -> set:
+        """Retorna as chaves ``(medicao_id, categoria_id, dia)`` existentes."""
+        return set(
+            ValorMedicao.objects.filter(
+                medicao__in=medicoes.values(),
+                categoria_medicao__in=categorias,
+                nome_campo=nome_campo,
+                dia__in=dias,
+            ).values_list("medicao_id", "categoria_medicao_id", "dia")
+        )
+
+    @staticmethod
+    def _valores_existentes_por_medicao_categoria_faixa(
+        medicoes: dict,
+        categorias: list[CategoriaMedicao],
+        nome_campo: str,
+        dias: list[str],
+    ) -> set:
+        """Retorna as chaves ``(medicao_id, categoria_id, dia, faixa_id)``."""
+        return set(
+            ValorMedicao.objects.filter(
+                medicao__in=medicoes.values(),
+                categoria_medicao__in=categorias,
+                nome_campo=nome_campo,
+                dia__in=dias,
+            ).values_list(
+                "medicao_id", "categoria_medicao_id", "dia", "faixa_etaria_id"
+            )
+        )
+
+    @staticmethod
+    def _logs_dietas_autorizadas_por_periodo_e_dia(
         logs_do_mes: QuerySet,
-        periodo_escolar: str,
-        dia: int,
-    ) -> int:
-        if categoria == CategoriaMedicao.objects.get(
-            nome=CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+    ) -> tuple:
+        """Agrupa os logs de dietas por período e por ``(período, dia)``."""
+        por_periodo = defaultdict(list)
+        por_periodo_e_dia = defaultdict(list)
+        itens = logs_do_mes.values_list(
+            "periodo_escolar__nome", "data__day", "classificacao__nome", "quantidade"
+        )
+        for periodo_escolar, dia, classificacao, quantidade in itens:
+            item = (classificacao, quantidade)
+            por_periodo[periodo_escolar].append(item)
+            por_periodo_e_dia[(periodo_escolar, dia)].append(item)
+        return por_periodo, por_periodo_e_dia
+
+    @staticmethod
+    def _logs_dietas_autorizadas_cei_por_periodo_e_dia(
+        logs_do_mes: QuerySet,
+    ) -> tuple:
+        """Agrupa os logs CEI por período e por ``(período, dia)``."""
+        por_periodo = defaultdict(list)
+        por_periodo_e_dia = defaultdict(list)
+        itens = logs_do_mes.values_list(
+            "periodo_escolar__nome",
+            "data__day",
+            "classificacao__nome",
+            "faixa_etaria_id",
+            "quantidade",
+        )
+        for periodo_escolar, dia, classificacao, faixa_etaria_id, quantidade in itens:
+            item = (classificacao, faixa_etaria_id, quantidade)
+            por_periodo[periodo_escolar].append(item)
+            por_periodo_e_dia[(periodo_escolar, dia)].append(item)
+        return por_periodo, por_periodo_e_dia
+
+    @staticmethod
+    def _classificacao_corresponde_a_categoria(
+        classificacao: str, categoria: CategoriaMedicao
+    ) -> bool:
+        """Replica o filtro de classificação usado para detectar lançamentos."""
+        nome_classificacao = classificacao.lower()
+        tipo_dieta = categoria.nome.split(" - ")[1].lower()
+        return (
+            tipo_dieta in nome_classificacao
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL.lower()
+            not in nome_classificacao
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS.lower()
+            not in nome_classificacao
+        )
+
+    def _possui_log_positivo(
+        self, categoria: CategoriaMedicao, logs_do_periodo: list
+    ) -> bool:
+        """Indica se o período possui algum log com quantidade positiva.
+
+        A quantidade é o último item da tupla, pois os logs de EMEF/EMEI não
+        possuem faixa etária e os do CEI possuem.
+        """
+        logs_com_quantidade = [
+            (log[0], log[-1]) for log in logs_do_periodo if log[-1] > 0
+        ]
+        if (
+            categoria.nome
+            == CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
         ):
-            log_enteral = logs_do_mes.filter(
-                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL,
-                periodo_escolar__nome=periodo_escolar,
-                data__day=dia,
-            ).first()
-            log_restricao_aminoacidos = logs_do_mes.filter(
-                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS,
-                periodo_escolar__nome=periodo_escolar,
-                data__day=dia,
-            ).first()
-            valor = (log_enteral.quantidade if log_enteral else 0) + (
-                log_restricao_aminoacidos.quantidade if log_restricao_aminoacidos else 0
+            classificacoes = {
+                ClassificacaoDieta.TIPO_A_ENTERAL,
+                ClassificacaoDieta.TIPO_A_RESTRICAO_AMINOACIDOS,
+            }
+            return any(
+                classificacao in classificacoes
+                for classificacao, _ in logs_com_quantidade
             )
-        else:
-            log = (
-                logs_do_mes.filter(
-                    classificacao__nome__icontains=categoria.nome.split(" - ")[1],
-                    periodo_escolar__nome=periodo_escolar,
-                    data__day=dia,
-                )
-                .exclude(
-                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
-                )
-                .exclude(
-                    classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS
-                )
-                .first()
+        return any(
+            self._classificacao_corresponde_a_categoria(classificacao, categoria)
+            for classificacao, _ in logs_com_quantidade
+        )
+
+    def _valor_log_dieta_autorizada(
+        self, categoria: CategoriaMedicao, logs_do_dia: list
+    ) -> int:
+        """Calcula o valor do dia a partir dos logs de dietas autorizadas."""
+        if (
+            categoria.nome
+            == CategoriaMedicao.DIETA_ESPECIAL_TIPO_A_ENTERAL_RESTRICAO_AMINOACIDOS
+        ):
+            return self._primeira_quantidade_por_classificacao(
+                logs_do_dia, ClassificacaoDieta.CLASSIFICACAO_CONTEM_ENTERAL
+            ) + self._primeira_quantidade_por_classificacao(
+                logs_do_dia, ClassificacaoDieta.CLASSIFICACAO_CONTEM_AMINOACIDOS
             )
-            valor = log.quantidade if log else 0
-        return valor
+        return self._primeira_quantidade_da_categoria(categoria, logs_do_dia)
+
+    @staticmethod
+    def _primeira_quantidade_por_classificacao(
+        logs_do_dia: list, termo_classificacao: str
+    ) -> int:
+        """Retorna a quantidade do primeiro log cuja classificação contém o termo."""
+        termo_classificacao = termo_classificacao.lower()
+        for classificacao, quantidade in logs_do_dia:
+            if termo_classificacao in classificacao.lower():
+                return quantidade
+        return 0
+
+    def _primeira_quantidade_da_categoria(
+        self, categoria: CategoriaMedicao, logs_do_dia: list
+    ) -> int:
+        """Retorna a quantidade do primeiro log correspondente à categoria."""
+        for classificacao, quantidade in logs_do_dia:
+            if self._classificacao_corresponde_a_categoria(classificacao, categoria):
+                return quantidade
+        return 0
 
     def cria_valores_medicao_logs_dietas_autorizadas_emef_emei(
         self, instance: SolicitacaoMedicaoInicial
     ) -> None:
         escola = instance.escola
-        valores_medicao_a_criar = []
-        logs_do_mes = escola.logs_dietas_autorizadas.filter(
-            data__month=instance.mes, data__year=instance.ano
+        dias = self._dias_do_mes(instance)
+        categorias = list(CategoriaMedicao.objects.filter(nome__icontains="dieta"))
+        periodos_escolares = list(
+            escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
+                "nome", flat=True
+            )
         )
-        categorias = CategoriaMedicao.objects.filter(nome__icontains="dieta")
-        quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
-            1
-        ]
-        periodos_escolares = escola.periodos_escolares(
-            ano=instance.ano, mes=instance.mes
-        ).values_list("nome", flat=True)
-        for dia in range(1, quantidade_dias_mes + 1):
+        medicoes = self._medicoes_existentes_por_periodo(instance, periodos_escolares)
+        existentes = self._valores_existentes_por_medicao_categoria(
+            medicoes, categorias, StringsValoresMedicao.DIETAS_AUTORIZADAS.value, dias
+        )
+        logs_por_periodo, logs_por_periodo_e_dia = (
+            self._logs_dietas_autorizadas_por_periodo_e_dia(
+                escola.logs_dietas_autorizadas.filter(
+                    data__month=instance.mes, data__year=instance.ano
+                )
+            )
+        )
+
+        valores_medicao_a_criar = []
+        for dia in dias:
             for categoria in categorias:
                 for periodo_escolar in periodos_escolares:
-                    medicao = instance.medicoes.get(
-                        periodo_escolar__nome=periodo_escolar
-                    )
-                    if self.checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
-                        categoria, logs_do_mes, periodo_escolar
+                    medicao = medicoes[periodo_escolar]
+                    if not self._possui_log_positivo(
+                        categoria, logs_por_periodo[periodo_escolar]
                     ):
                         continue
-                    if not medicao.valores_medicao.filter(
-                        categoria_medicao=categoria,
-                        dia=f"{dia:02d}",
-                        nome_campo="dietas_autorizadas",
-                    ).exists():
-                        valor = self.retorna_valor_para_log_dieta_autorizada(
-                            categoria, logs_do_mes, periodo_escolar, dia
-                        )
-                        valor_medicao = ValorMedicao(
+                    if (medicao.id, categoria.id, dia) in existentes:
+                        continue
+                    valores_medicao_a_criar.append(
+                        ValorMedicao(
                             medicao=medicao,
                             categoria_medicao=categoria,
-                            dia=f"{dia:02d}",
-                            nome_campo="dietas_autorizadas",
-                            valor=valor,
+                            dia=dia,
+                            nome_campo=StringsValoresMedicao.DIETAS_AUTORIZADAS.value,
+                            valor=self._valor_log_dieta_autorizada(
+                                categoria,
+                                logs_por_periodo_e_dia[(periodo_escolar, int(dia))],
+                            ),
                         )
-                        valores_medicao_a_criar.append(valor_medicao)
+                    )
+
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
-    def logs_filtrados_cei(self, categoria, logs_do_mes, dia, periodo_escolar):
-        if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
-            logs = logs_do_mes.filter(
-                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A,
-                data__day=dia,
-                periodo_escolar__nome=periodo_escolar,
-            )
-            return logs
-        else:
-            logs = logs_do_mes.filter(
-                data__day=dia,
-                periodo_escolar__nome=periodo_escolar,
-                classificacao__nome__icontains=categoria.nome.split(" - ")[1],
-            ).exclude(
-                classificacao__nome__icontains=ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A
-            )
-            return logs
-
-    def valor_log_dietas_autorizadas_cei(
-        self, categoria, log, logs, valores_medicao_a_criar
-    ):
-        if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
-            return sum(
-                logs.filter(faixa_etaria=log.faixa_etaria).values_list(
-                    "quantidade", flat=True
+    @staticmethod
+    def _logs_filtrados_dietas_cei(
+        categoria: CategoriaMedicao, logs_do_dia: list
+    ) -> list:
+        """Replica o filtro de logs de dietas autorizadas do CEI."""
+        if categoria.nome == DIETA_ESPECIAL_TIPO_A:
+            return [
+                log
+                for log in logs_do_dia
+                if SolicitacaoMedicaoInicialCreateSerializer._classificacao_contem_tipo_a(
+                    log[0]
                 )
-            )
-        else:
-            return log.quantidade
-
-    def checa_se_ja_existe_valor_dieta_tipo_a(self, valores_medicao_a_criar, log):
+            ]
         return [
-            v.faixa_etaria
-            for v in valores_medicao_a_criar
-            if ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A.upper()
-            in v.categoria_medicao.nome
-            and v.medicao.nome_periodo_grupo == log.periodo_escolar.nome
-            and v.faixa_etaria == log.faixa_etaria
-            and v.dia == f"{log.data.day:02d}"
+            log
+            for log in logs_do_dia
+            if SolicitacaoMedicaoInicialCreateSerializer._log_corresponde_dieta_cei(
+                categoria, log[0]
+            )
         ]
 
-    def append_valores_medicao_a_criar(
-        self, valores_medicao_a_criar, medicao, categoria, dia, log, logs
-    ):
-        if not medicao.valores_medicao.filter(
-            categoria_medicao=categoria,
-            dia=f"{dia:02d}",
-            nome_campo="dietas_autorizadas",
-            faixa_etaria=log.faixa_etaria,
-        ).exists():
-            valor = self.valor_log_dietas_autorizadas_cei(
-                categoria, log, logs, valores_medicao_a_criar
+    @staticmethod
+    def _classificacao_contem_tipo_a(classificacao: str) -> bool:
+        return (
+            ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A.lower()
+            in classificacao.lower()
+        )
+
+    @staticmethod
+    def _log_corresponde_dieta_cei(
+        categoria: CategoriaMedicao, classificacao: str
+    ) -> bool:
+        tipo_dieta = categoria.nome.split(" - ")[1].lower()
+        nome_classificacao = classificacao.lower()
+        return (
+            tipo_dieta in nome_classificacao
+            and ClassificacaoDieta.CLASSIFICACAO_CONTEM_TIPO_A.lower()
+            not in nome_classificacao
+        )
+
+    @staticmethod
+    def _somas_por_faixa_etaria(logs_do_dia: list) -> dict:
+        """Soma as quantidades dos logs agrupando por faixa etária."""
+        somas = defaultdict(int)
+        for _, faixa_etaria_id, quantidade in logs_do_dia:
+            somas[faixa_etaria_id] += quantidade
+        return somas
+
+    @staticmethod
+    def _valor_dieta_cei(
+        eh_tipo_a: bool, somas_por_faixa: dict, faixa_etaria_id: int, quantidade: int
+    ) -> int:
+        """Retorna o valor do log, somando o tipo A por faixa etária."""
+        if eh_tipo_a:
+            return somas_por_faixa[faixa_etaria_id]
+        return quantidade
+
+    def _cria_valores_dieta_cei_do_periodo(
+        self,
+        dia: str,
+        categoria: CategoriaMedicao,
+        periodo_escolar: str,
+        medicoes: dict,
+        logs_por_periodo_e_dia: dict,
+        existentes: set,
+        adicionados_tipo_a: set,
+    ) -> list:
+        """Cria os valores de dietas do CEI de um período em um dia."""
+        medicao = medicoes[periodo_escolar]
+        logs_do_dia = self._logs_filtrados_dietas_cei(
+            categoria, logs_por_periodo_e_dia[(periodo_escolar, int(dia))]
+        )
+        eh_tipo_a = categoria.nome == DIETA_ESPECIAL_TIPO_A
+        somas_por_faixa = self._somas_por_faixa_etaria(logs_do_dia)
+        nome_periodo_grupo = medicao.nome_periodo_grupo
+
+        valores_medicao_a_criar = []
+        for _, faixa_etaria_id, quantidade in logs_do_dia:
+            if (medicao.id, categoria.id, dia, faixa_etaria_id) in existentes:
+                continue
+            chave_pendente = (
+                categoria.id,
+                nome_periodo_grupo,
+                faixa_etaria_id,
+                dia,
             )
-            valor_medicao = ValorMedicao(
-                medicao=medicao,
-                categoria_medicao=categoria,
-                dia=f"{dia:02d}",
-                nome_campo="dietas_autorizadas",
-                valor=valor,
-                faixa_etaria=log.faixa_etaria,
+            if eh_tipo_a and chave_pendente in adicionados_tipo_a:
+                continue
+            if eh_tipo_a:
+                adicionados_tipo_a.add(chave_pendente)
+            valores_medicao_a_criar.append(
+                ValorMedicao(
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    dia=dia,
+                    nome_campo=StringsValoresMedicao.DIETAS_AUTORIZADAS.value,
+                    valor=self._valor_dieta_cei(
+                        eh_tipo_a, somas_por_faixa, faixa_etaria_id, quantidade
+                    ),
+                    faixa_etaria_id=faixa_etaria_id,
+                )
             )
-            if categoria == CategoriaMedicao.objects.get(nome=DIETA_ESPECIAL_TIPO_A):
-                if not self.checa_se_ja_existe_valor_dieta_tipo_a(
-                    valores_medicao_a_criar, log
-                ):
-                    valores_medicao_a_criar.append(valor_medicao)
-            else:
-                valores_medicao_a_criar.append(valor_medicao)
         return valores_medicao_a_criar
 
-    def analisa_periodos_por_dia_dietas_autorizadas(
+    def _cria_valores_dieta_cei_da_categoria(
         self,
-        periodos_escolares,
-        instance,
-        categoria,
-        logs_do_mes,
-        dia,
-        valores_medicao_a_criar,
-    ):
+        dia: str,
+        categoria: CategoriaMedicao,
+        periodos_escolares: list[str],
+        medicoes: dict,
+        logs_por_periodo: dict,
+        logs_por_periodo_e_dia: dict,
+        existentes: set,
+        adicionados_tipo_a: set,
+    ) -> list:
+        """Cria os valores de dietas do CEI de uma categoria em um dia."""
+        valores_medicao_a_criar = []
         for periodo_escolar in periodos_escolares:
-            medicao = instance.medicoes.get(periodo_escolar__nome=periodo_escolar)
-            if self.checa_se_existe_ao_menos_um_log_quantidade_maior_que_0(
-                categoria, logs_do_mes, periodo_escolar
+            if not self._possui_log_positivo(
+                categoria, logs_por_periodo[periodo_escolar]
             ):
                 continue
-            logs = self.logs_filtrados_cei(categoria, logs_do_mes, dia, periodo_escolar)
-            for log in logs:
-                valores_medicao_a_criar = self.append_valores_medicao_a_criar(
-                    valores_medicao_a_criar, medicao, categoria, dia, log, logs
+            valores_medicao_a_criar.extend(
+                self._cria_valores_dieta_cei_do_periodo(
+                    dia,
+                    categoria,
+                    periodo_escolar,
+                    medicoes,
+                    logs_por_periodo_e_dia,
+                    existentes,
+                    adicionados_tipo_a,
                 )
+            )
         return valores_medicao_a_criar
 
     def cria_valores_medicao_logs_dietas_autorizadas_cei(
         self, instance: SolicitacaoMedicaoInicial
     ) -> None:
         escola = instance.escola
-        valores_medicao_a_criar = []
-        logs_do_mes = escola.logs_dietas_autorizadas_cei.filter(
-            data__month=instance.mes,
-            data__year=instance.ano,
-            faixa_etaria__isnull=False,
+        dias = self._dias_do_mes(instance)
+        categorias = list(
+            CategoriaMedicao.objects.filter(
+                nome__in=[DIETA_ESPECIAL_TIPO_A, DIETA_ESPECIAL_TIPO_B]
+            )
         )
-        categorias = CategoriaMedicao.objects.filter(
-            nome__in=[DIETA_ESPECIAL_TIPO_A, DIETA_ESPECIAL_TIPO_B]
-        )
-        quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
-            1
-        ]
         periodos_escolares = list(
             escola.periodos_escolares(ano=instance.ano, mes=instance.mes).values_list(
                 "nome", flat=True
@@ -852,18 +1036,38 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         )
         if instance.ue_possui_alunos_periodo_parcial:
             periodos_escolares.append("PARCIAL")
-        for dia in range(1, quantidade_dias_mes + 1):
+
+        medicoes = self._medicoes_existentes_por_periodo(instance, periodos_escolares)
+        existentes = self._valores_existentes_por_medicao_categoria_faixa(
+            medicoes, categorias, StringsValoresMedicao.DIETAS_AUTORIZADAS.value, dias
+        )
+        logs_por_periodo, logs_por_periodo_e_dia = (
+            self._logs_dietas_autorizadas_cei_por_periodo_e_dia(
+                escola.logs_dietas_autorizadas_cei.filter(
+                    data__month=instance.mes,
+                    data__year=instance.ano,
+                    faixa_etaria__isnull=False,
+                )
+            )
+        )
+
+        valores_medicao_a_criar = []
+        adicionados_tipo_a = set()
+        for dia in dias:
             for categoria in categorias:
-                valores_medicao_a_criar = (
-                    self.analisa_periodos_por_dia_dietas_autorizadas(
-                        periodos_escolares,
-                        instance,
-                        categoria,
-                        logs_do_mes,
+                valores_medicao_a_criar.extend(
+                    self._cria_valores_dieta_cei_da_categoria(
                         dia,
-                        valores_medicao_a_criar,
+                        categoria,
+                        periodos_escolares,
+                        medicoes,
+                        logs_por_periodo,
+                        logs_por_periodo_e_dia,
+                        existentes,
+                        adicionados_tipo_a,
                     )
                 )
+
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
 
     def retorna_medicao_por_nome_grupo(
@@ -924,20 +1128,24 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             return
         categoria = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
         medicao = self.retorna_medicao_por_nome_grupo(instance, nome_grupo)
+        dias = [f"{dia:02d}" for dia in valores_por_dia]
+        existentes = set(
+            medicao.valores_medicao.filter(
+                categoria_medicao=categoria,
+                nome_campo=StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
+                dia__in=dias,
+            ).values_list("dia", flat=True)
+        )
         valores_medicao_a_criar = []
         for dia, numero_alunos in valores_por_dia.items():
-            if medicao.valores_medicao.filter(
-                categoria_medicao=categoria,
-                dia=f"{dia:02d}",
-                nome_campo="numero_de_alunos",
-            ).exists():
+            if f"{dia:02d}" in existentes:
                 continue
             valores_medicao_a_criar = self.cria_valor_medicao(
                 numero_alunos,
                 medicao,
                 categoria,
                 dia,
-                "numero_de_alunos",
+                StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
                 valores_medicao_a_criar,
             )
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
@@ -948,17 +1156,53 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         inclusoes_do_motivo: QuerySet,
         quantidade_dias_mes: int,
     ) -> dict:
+        inclusoes = list(inclusoes_do_motivo.prefetch_related("quantidades_periodo"))
         valores_por_dia = {}
         for dia in range(1, quantidade_dias_mes + 1):
             data = date(year=int(instance.ano), month=int(instance.mes), day=dia)
-            numero_alunos = 0
-            for inclusao in inclusoes_do_motivo:
-                if not (inclusao.data_inicial <= data <= inclusao.data_final):
-                    continue
-                numero_alunos += self.retorna_numero_alunos_dia(inclusao, data)
+            numero_alunos = self._numero_alunos_do_dia(inclusoes, data)
             if numero_alunos > 0:
                 valores_por_dia[dia] = numero_alunos
         return valores_por_dia
+
+    def _numero_alunos_do_dia(
+        self, inclusoes: list[InclusaoAlimentacaoContinua], data: date
+    ) -> int:
+        """Soma os alunos das inclusões contínuas ativas na data informada."""
+        dia_semana = data.weekday()
+        numero_alunos = 0
+        for inclusao in inclusoes:
+            if not (inclusao.data_inicial <= data <= inclusao.data_final):
+                continue
+            numero_alunos += self._soma_quantidades_ativas(inclusao, data, dia_semana)
+        return numero_alunos
+
+    @staticmethod
+    def _soma_quantidades_ativas(
+        inclusao: InclusaoAlimentacaoContinua, data: date, dia_semana: int
+    ) -> int:
+        numero_alunos = 0
+        for quantidade_periodo in inclusao.quantidades_periodo.all():
+            if not SolicitacaoMedicaoInicialCreateSerializer._quantidade_periodo_ativa(
+                quantidade_periodo, data, dia_semana
+            ):
+                continue
+            numero_alunos += quantidade_periodo.numero_alunos
+        return numero_alunos
+
+    @staticmethod
+    def _quantidade_periodo_ativa(
+        quantidade_periodo, data: date, dia_semana: int
+    ) -> bool:
+        """Replica em memória o filtro de quantidade por período ativa."""
+        if quantidade_periodo.cancelado:
+            return False
+        if dia_semana not in (quantidade_periodo.dias_semana or []):
+            return False
+        return (
+            quantidade_periodo.encerrado_a_partir_de is None
+            or quantidade_periodo.encerrado_a_partir_de >= data
+        )
 
     def cria_valores_medicao_logs_numero_alunos_inclusoes_continuas_emef_emei(
         self, instance: SolicitacaoMedicaoInicial
@@ -1002,39 +1246,55 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
     def cria_valores_medicao_kit_lanches_emef_emei_escola_sem_alunos_regulares(
         self, instance, kits_lanche, kits_lanche_unificado
     ):
-        valores_medicao_a_criar = []
         medicao = self.retorna_medicao_por_nome_grupo(
             instance, GrupoMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
         categoria = CategoriaMedicao.objects.get(
             nome=CategoriaMedicao.SOLICITACOES_DE_ALIMENTACAO
         )
-        quantidade_dias_mes = calendar.monthrange(int(instance.ano), int(instance.mes))[
-            1
-        ]
-        for dia in range(1, quantidade_dias_mes + 1):
-            if medicao.valores_medicao.filter(
+        dias = self._dias_do_mes(instance)
+        existentes = set(
+            medicao.valores_medicao.filter(
                 categoria_medicao=categoria,
-                dia=f"{dia:02d}",
-                nome_campo="kit_lanche",
-            ).exists():
+                nome_campo=StringsValoresMedicao.KIT_LANCHE.value,
+                dia__in=dias,
+            ).values_list("dia", flat=True)
+        )
+        totais_por_dia = self._totais_kit_lanche_por_dia(
+            kits_lanche, kits_lanche_unificado
+        )
+
+        valores_medicao_a_criar = []
+        for dia in dias:
+            total_dia = totais_por_dia.get(int(dia), 0)
+            if dia in existentes or total_dia <= 0:
                 continue
-            total_dia = 0
-            for kit_lanche in kits_lanche.filter(solicitacao_kit_lanche__data__day=dia):
-                total_dia += kit_lanche.quantidade_alimentacoes
-            for kit_lanche in kits_lanche_unificado.filter(
-                solicitacao_unificada__solicitacao_kit_lanche__data__day=dia
-            ):
-                total_dia += kit_lanche.total_kit_lanche
-            valores_medicao_a_criar = self.cria_valor_medicao(
-                total_dia,
-                medicao,
-                categoria,
-                dia,
-                "kit_lanche",
-                valores_medicao_a_criar,
+            valores_medicao_a_criar.append(
+                ValorMedicao(
+                    medicao=medicao,
+                    categoria_medicao=categoria,
+                    dia=dia,
+                    nome_campo=StringsValoresMedicao.KIT_LANCHE.value,
+                    valor=total_dia,
+                )
             )
         ValorMedicao.objects.bulk_create(valores_medicao_a_criar)
+
+    @staticmethod
+    def _totais_kit_lanche_por_dia(
+        kits_lanche: QuerySet, kits_lanche_unificado: QuerySet
+    ) -> dict:
+        """Totaliza os kits lanche (avulsos e unificados) por dia do mês."""
+        totais_por_dia = defaultdict(int)
+        kits_avulsos = kits_lanche.prefetch_related("solicitacao_kit_lanche__kits")
+        for kit_lanche in kits_avulsos:
+            totais_por_dia[
+                kit_lanche.solicitacao_kit_lanche.data.day
+            ] += kit_lanche.quantidade_alimentacoes
+        for kit_lanche in kits_lanche_unificado.prefetch_related("kits"):
+            data = kit_lanche.solicitacao_unificada.solicitacao_kit_lanche.data
+            totais_por_dia[data.day] += kit_lanche.total_kit_lanche
+        return totais_por_dia
 
     def cria_valores_medicao_logs_kit_lanche_lanches_emergenciais_emef_emei(
         self, instance: SolicitacaoMedicaoInicial

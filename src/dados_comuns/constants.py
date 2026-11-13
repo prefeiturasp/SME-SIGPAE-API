@@ -360,14 +360,27 @@ ORDEM_PERIODOS_GRUPOS_RECREIO_NAS_FERIAS = {
 
 MAX_COLUNAS = 15
 
+
+# Nomes dos campos de `ValorMedicao` preenchidos automaticamente na finalização.
+class StringsValoresMedicao(Enum):
+    MATRICULADOS = "matriculados"
+    DIETAS_AUTORIZADAS = "dietas_autorizadas"
+    NUMERO_DE_ALUNOS = "numero_de_alunos"
+    KIT_LANCHE = "kit_lanche"
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
+
 #
 # MEDICAO INICIAL - EXCEL RELATÓRIO CONSOLIDADO
 #
 
 ORDEM_CAMPOS = [
-    "numero_de_alunos",
+    StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
     "participantes",
-    "matriculados",
+    StringsValoresMedicao.MATRICULADOS.value,
     "aprovadas",
     "frequencia",
     "solicitado",
@@ -383,7 +396,7 @@ ORDEM_CAMPOS = [
     "repeticao_refeicao",
     "2_refeicao_1_oferta",
     "repeticao_2_refeicao",
-    "kit_lanche",
+    StringsValoresMedicao.KIT_LANCHE.value,
     "total_refeicoes_pagamento",
     "sobremesa",
     "repeticao_sobremesa",
@@ -403,7 +416,7 @@ NOMES_CAMPOS = {
     "repeticao_refeicao": "Repetição de Refeição",
     "2_refeicao_1_oferta": "2ª Refeição 1ª Oferta",
     "repeticao_2_refeicao": "Repetição 2ª Refeição",
-    "kit_lanche": "Kit Lanche",
+    StringsValoresMedicao.KIT_LANCHE.value: "Kit Lanche",
     "total_refeicoes_pagamento": "Total de Refeições para Pagamento",
     "sobremesa": "Sobremesa",
     "repeticao_sobremesa": "Repetição de Sobremesa",
@@ -556,9 +569,9 @@ ORDEM_HEADERS_CIEJA_CMCT = {
 
 # Para o recreio nas Férias
 ORDEM_CAMPOS_RECREIO = [
-    "numero_de_alunos",
+    StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
     "participantes",
-    "matriculados",
+    StringsValoresMedicao.MATRICULADOS.value,
     "aprovadas",
     "frequencia",
     "solicitado",
@@ -581,7 +594,7 @@ ORDEM_CAMPOS_RECREIO = [
     "repeticao_2_sobremesa",
     "total_sobremesas_pagamento",
     "lanche_emergencial",
-    "kit_lanche",
+    StringsValoresMedicao.KIT_LANCHE.value,
 ]
 
 ORDEM_HEADERS_RECREIO_EMEI_EMEF = {
