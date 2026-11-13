@@ -8,17 +8,17 @@ from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
+from src.core.models import Escola
+from src.core.services import (
+    NovoSGPServicoLogado,
+    NovoSGPServicoLogadoException,
+)
 from src.dados_comuns.constants import (
     ADMINISTRADOR_UE,
     DIRETOR_UE,
     StringsValidationErrors,
 )
 from src.eol_servico.utils import EOLException, EOLServicoSGP
-from src.escola.models import Escola
-from src.escola.services import (
-    NovoSGPServicoLogado,
-    NovoSGPServicoLogadoException,
-)
 from src.perfil.models import Perfil, Vinculo
 from src.perfil.services.autenticacao_service import AutenticacaoService
 from utility.carga_dados.perfil.importa_dados import (

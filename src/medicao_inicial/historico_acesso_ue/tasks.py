@@ -2,7 +2,7 @@ import datetime
 
 from celery import shared_task
 
-from src.escola.models import ESCOLA_TIPO_GESTAO_NOME, Escola
+from src.core.models import ESCOLA_TIPO_GESTAO_NOME, Escola
 from src.medicao_inicial.historico_acesso_ue.models import (
     HistoricoAcessoMedicaoInicialUE,
 )

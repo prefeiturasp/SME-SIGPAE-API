@@ -3,6 +3,7 @@ import math
 from django.db.models import FloatField, Q, Sum
 from django.db.models.functions import Cast
 
+from src.core.models import PeriodoEscolar
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
@@ -12,7 +13,6 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
-from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 from src.medicao_inicial.services.utils import (

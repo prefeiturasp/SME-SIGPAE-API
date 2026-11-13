@@ -8,7 +8,7 @@ validacao usados pela DRE.
 import datetime
 
 from django.core.exceptions import ValidationError
-from django.db.models import Case, IntegerField, Value, When, Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -32,10 +32,10 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.utils import ordem_periodos
+from src.core.api.viewsets import PeriodoEscolarViewSet
+from src.core.constants import PERIODOS_ESPECIAIS_CEMEI
+from src.core.models import Escola, PeriodoEscolar
 from src.dados_comuns import constants
-from src.escola.api.viewsets import PeriodoEscolarViewSet
-from src.escola.constants import PERIODOS_ESPECIAIS_CEMEI
-from src.escola.models import Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     InclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,

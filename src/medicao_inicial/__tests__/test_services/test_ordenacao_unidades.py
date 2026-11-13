@@ -5,6 +5,12 @@ from django.utils import timezone
 from model_bakery import baker
 from rest_framework.test import APIClient
 
+from src.core.models import (
+    DiretoriaRegional,
+    Escola,
+    TipoGestao,
+    TipoUnidadeEscolar,
+)
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_TREINAMENTO_PASSWORD,
     TIPO_UNIDADE_CEI_DIRET,
@@ -13,12 +19,6 @@ from src.dados_comuns.constants import (
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.models import (
-    DiretoriaRegional,
-    Escola,
-    TipoGestao,
-    TipoUnidadeEscolar,
-)
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.ordenacao_unidades import ordenar_unidades
 

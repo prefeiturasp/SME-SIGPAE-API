@@ -5,6 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 
+from src.core.models import FaixaEtaria, PeriodoEscolar
 from src.dados_comuns.utils import quantidade_meses
 from src.dieta_especial.constants import ETAPA_INFANTIL
 from src.dieta_especial.logs_models.models import (
@@ -16,7 +17,6 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
 )
-from src.escola.models import FaixaEtaria, PeriodoEscolar
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 
 

@@ -8,6 +8,7 @@ from rest_framework import status
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.core.models import PeriodoEscolar
 from src.dados_comuns import constants as dados_comuns_constants
 from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
@@ -16,7 +17,6 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     StringsCaminhoModelos,
 )
-from src.escola.models import PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     DiasMotivosInclusaoDeAlimentacaoCEMEI,
     InclusaoDeAlimentacaoCEMEI,
@@ -510,8 +510,7 @@ def test_url_vinculos_cemei_medicao_inclusao_nao_vigente_nao_retorna_noite(
         client_autenticado_vinculo_dre_cardapio, vinculos_cemei_medicao["escola"]
     )
     assert [resultado["uuid"] for resultado in resultados] == [
-        str(vinculo.uuid)
-        for vinculo in vinculos_cemei_medicao["vinculos_regulares"]
+        str(vinculo.uuid) for vinculo in vinculos_cemei_medicao["vinculos_regulares"]
     ]
 
 
@@ -544,9 +543,7 @@ def test_url_vinculos_medicao_escola_emef_mantem_tipo_e_vinculos_ativos(
         client_autenticado_vinculo_dre_cardapio, escola
     )
     assert resultados == resultados_anteriores
-    assert [resultado["uuid"] for resultado in resultados] == [
-        str(vinculo_manha.uuid)
-    ]
+    assert [resultado["uuid"] for resultado in resultados] == [str(vinculo_manha.uuid)]
     assert (
         resultados[0]["tipo_unidade_escolar"]["iniciais"]
         == TIPOS_UNIDADE_ESCOLAR.EMEF.value

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from ....escola.models import Escola
+from ....core.models import Escola
 from ...models import (
     SolicitacaoKitLancheAvulsa,
     SolicitacaoKitLancheCEIAvulsa,

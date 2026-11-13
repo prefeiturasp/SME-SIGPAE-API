@@ -4,9 +4,9 @@ from datetime import timedelta
 
 from django.db.models import QuerySet
 
+from src.core.models import Escola
 from src.dados_comuns.constants import TIPOS_ALIMENTACAO, StringsValidationErrors
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.models import Escola
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,

@@ -113,7 +113,7 @@ THIRD_PARTY_APPS = [
 LOCAL_APPS = [
     "src.perfil.apps.PerfilConfig",
     "src.dados_comuns.apps.DadosComunsConfig",
-    "src.escola.apps.EscolaConfig",
+    "src.core.apps.CoreConfig",
     "src.kit_lanche.apps.KitLancheConfig",
     "src.inclusao_alimentacao.apps.InclusaoAlimentacaoConfig",
     "src.cardapio.apps.CardapioConfig",

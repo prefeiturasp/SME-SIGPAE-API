@@ -3,12 +3,12 @@ import datetime
 
 from django.core.management import BaseCommand
 
+from src.core.models import Escola, LogAlunosMatriculadosPeriodoEscola
 from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.escola.models import Escola, LogAlunosMatriculadosPeriodoEscola
 
 
 class Command(BaseCommand):

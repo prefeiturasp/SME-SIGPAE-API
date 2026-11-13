@@ -39,6 +39,7 @@ from src.produto.utils.genericos import (
     get_filtros_data,
 )
 
+from ...core.models import DiretoriaRegional, Escola, Lote
 from ...dados_comuns import constants
 from ...dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
@@ -76,7 +77,6 @@ from ...dados_comuns.utils import (
     url_configs,
 )
 from ...dieta_especial.protocolo_padrao.models import Alimento
-from ...escola.models import DiretoriaRegional, Escola, Lote
 from ...relatorios.relatorios import (
     relatorio_produto_analise_sensorial,
     relatorio_produto_analise_sensorial_recebimento,

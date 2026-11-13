@@ -1,6 +1,6 @@
 from django_filters.rest_framework import DateFilter, FilterSet, ModelChoiceFilter
 
-from ...escola.models import EscolaPeriodoEscolar
+from ...core.models import EscolaPeriodoEscolar
 
 
 class LancamentoDiarioFilter(FilterSet):

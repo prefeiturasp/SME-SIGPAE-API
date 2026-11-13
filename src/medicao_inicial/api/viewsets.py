@@ -61,6 +61,19 @@ from src.medicao_inicial.services.relatorio_folha_medicao_final import (
 from src.medicao_inicial.utils import process_anexos_from_request
 
 from ...cardapio.base.models import TipoAlimentacao
+from ...core.api.permissions import (
+    PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada,
+)
+from ...core.models import (
+    DiretoriaRegional,
+    Escola,
+    FaixaEtaria,
+    GrupoUnidadeEscolar,
+    HistoricoEscola,
+    LogAlunosMatriculadosPeriodoEscola,
+    Lote,
+    TipoTurma,
+)
 from ...dados_comuns import constants
 from ...dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from ...dados_comuns.constants import (
@@ -87,19 +100,6 @@ from ...dados_comuns.permissions import (
     ViewSetActionPermissionMixin,
 )
 from ...dados_comuns.utils import convert_dict_to_querydict, get_ultimo_dia_mes
-from ...escola.api.permissions import (
-    PodeCriarAdministradoresDaCODAEGestaoAlimentacaoTerceirizada,
-)
-from ...escola.models import (
-    DiretoriaRegional,
-    Escola,
-    FaixaEtaria,
-    GrupoUnidadeEscolar,
-    HistoricoEscola,
-    LogAlunosMatriculadosPeriodoEscola,
-    Lote,
-    TipoTurma,
-)
 from ..models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,

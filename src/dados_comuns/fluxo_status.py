@@ -16,7 +16,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from src.dados_comuns import constants
 from src.dados_comuns.constants import ContentTypesParaRequests
 
-from ..escola import models as m
+from ..core import models as m
 from ..perfil.models import Usuario
 from ..relatorios.utils import html_to_pdf_email_anexo
 from .constants import (
@@ -2237,7 +2237,7 @@ class FluxoAprovacaoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model):
         )
 
     def get_dias_suspensao(self):
-        from src.escola.models import DiaSuspensaoAtividades
+        from src.core.models import DiaSuspensaoAtividades
 
         dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
             self.escola, self.DIAS_UTEIS_PARA_CANCELAR
@@ -2655,7 +2655,7 @@ class FluxoAprovacaoPartindoDaDiretoriaRegional(
         self.save()
 
     def get_dias_suspensao(self):
-        from src.escola.models import DiaSuspensaoAtividades
+        from src.core.models import DiaSuspensaoAtividades
 
         dias_suspensao = (
             DiaSuspensaoAtividades.get_dias_com_suspensao_solicitacao_unificada(
@@ -2994,7 +2994,7 @@ class FluxoInformativoPartindoDaEscola(xwf_models.WorkflowEnabled, models.Model)
         )
 
     def get_dias_suspensao(self):
-        from src.escola.models import DiaSuspensaoAtividades
+        from src.core.models import DiaSuspensaoAtividades
 
         dias_suspensao = DiaSuspensaoAtividades.get_dias_com_suspensao_escola(
             self.escola, self.DIAS_UTEIS_PARA_CANCELAR

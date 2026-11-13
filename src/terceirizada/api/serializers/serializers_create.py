@@ -3,9 +3,9 @@ import datetime
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from src.core.models import DiretoriaRegional, Lote
 from src.dados_comuns.api.serializers import ContatoSerializer
 from src.dados_comuns.utils import update_instance_from_dict
-from src.escola.models import DiretoriaRegional, Lote
 from src.terceirizada.api.validators import valida_cnpj_unico
 from src.terceirizada.models import (
     Contrato,

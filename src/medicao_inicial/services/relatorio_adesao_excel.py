@@ -4,9 +4,9 @@ from typing import List
 
 import pandas as pd
 
+from src.core.models import DiretoriaRegional, Escola, Lote
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
-from src.escola.models import DiretoriaRegional, Escola, Lote
 
 
 def _insere_tabela_periodo_na_planilha(aba, refeicoes, colunas, proxima_linha, writer):

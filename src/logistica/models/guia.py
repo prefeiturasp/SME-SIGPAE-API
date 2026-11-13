@@ -5,16 +5,16 @@ from multiselectfield import MultiSelectField
 
 from src.dados_comuns.constants import StringsVerboseNameModels
 
+from ...core.models import Escola
 from ...dados_comuns.behaviors import (
     CriadoPor,
-    TemLogs,
     ModeloBase,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
 )
 from ...dados_comuns.fluxo_status import FluxoGuiaRemessa, FluxoNotificacaoOcorrencia
 from ...dados_comuns.models import LogSolicitacoesUsuario
 from ...dados_comuns.utils import convert_image_to_base64
-from ...escola.models import Escola
 from ...terceirizada.models import Terceirizada
 from .solicitacao import SolicitacaoRemessa
 

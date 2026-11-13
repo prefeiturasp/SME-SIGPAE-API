@@ -10,8 +10,8 @@ from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfReader
 
+from src.core.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.dados_comuns.constants import StringsParametrizacaoFinanceiraTabela
-from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     DescontoFinanceiro,
     MedicaoFinal,

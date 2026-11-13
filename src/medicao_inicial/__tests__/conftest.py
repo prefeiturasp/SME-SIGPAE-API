@@ -14,6 +14,14 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from model_bakery import baker
 from weasyprint import CSS, HTML
 
+from src.core.models import (
+    DiaCalendario,
+    Escola,
+    GrupoUnidadeEscolar,
+    LogAlunosMatriculadosPeriodoEscola,
+    PeriodoEscolar,
+    TipoTurma,
+)
 from src.dados_comuns import constants
 from src.dados_comuns.behaviors import TempoPasseio
 from src.dados_comuns.constants import (
@@ -27,14 +35,6 @@ from src.dados_comuns.constants import (
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.models import (
-    DiaCalendario,
-    Escola,
-    GrupoUnidadeEscolar,
-    LogAlunosMatriculadosPeriodoEscola,
-    PeriodoEscolar,
-    TipoTurma,
-)
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,

@@ -5,6 +5,20 @@ from datetime import datetime
 from rest_framework import serializers
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.api.filters import (
+    dres_no_escopo,
+    instituicao_da_requisicao_usuario,
+    uuids_de_lista,
+)
+from src.core.models import (
+    Codae,
+    DiretoriaRegional,
+    Escola,
+    GrupoUnidadeEscolar,
+    Lote,
+    Subprefeitura,
+    TipoUnidadeEscolar,
+)
 from src.dados_comuns.constants import (
     ADMINISTRADOR_CODAE_GABINETE,
     ADMINISTRADOR_EMPRESA,
@@ -20,20 +34,6 @@ from src.dados_comuns.constants import (
     USUARIO_EMPRESA,
     USUARIO_RELATORIOS,
     StringsValidationErrors,
-)
-from src.escola.api.filters import (
-    dres_no_escopo,
-    instituicao_da_requisicao_usuario,
-    uuids_de_lista,
-)
-from src.escola.models import (
-    Codae,
-    DiretoriaRegional,
-    Escola,
-    GrupoUnidadeEscolar,
-    Lote,
-    Subprefeitura,
-    TipoUnidadeEscolar,
 )
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.terceirizada.models import Terceirizada

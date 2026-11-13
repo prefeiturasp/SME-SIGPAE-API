@@ -3,8 +3,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import Escola, Lote
 from src.dados_comuns.utils import parse_date
-from src.escola.models import Escola, Lote
 
 from ..models import (
     EscolaAberta,

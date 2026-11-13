@@ -44,7 +44,7 @@ def test_solicitacoes_ativas_inativas_por_aluno_viewset(
 
 
 def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory):
-    from src.escola.models import Aluno
+    from src.core.models import Aluno
 
     aluno_factory.create(codigo_eol="1234567")
 
@@ -77,7 +77,7 @@ def test_calculo_totais_solicitacoes_sem_filtros(aluno_factory):
 def test_calculo_totais_solicitacoes_aluno_especifico(aluno_factory):
     from django.db.models import Q
 
-    from src.escola.models import Aluno
+    from src.core.models import Aluno
 
     aluno_factory.create(codigo_eol="1234567", nome="João Silva")
     aluno_factory.create(codigo_eol=None, nome="Maria Santos")

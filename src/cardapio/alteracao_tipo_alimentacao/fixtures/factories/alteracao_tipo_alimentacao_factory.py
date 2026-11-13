@@ -15,7 +15,7 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     MotivoAlteracaoCardapio,
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     LoteFactory,

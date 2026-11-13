@@ -6,14 +6,14 @@ import numpy as np
 from django.http import QueryDict
 from django.template.loader import render_to_string
 
+from src.core.models import DiretoriaRegional, PeriodoEscolar
+from src.core.utils import faixa_to_string
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
     PayloadVariaveis,
 )
-from src.escola.models import DiretoriaRegional, PeriodoEscolar
-from src.escola.utils import faixa_to_string
 from src.relatorios.utils import html_to_pdf_file
 
 

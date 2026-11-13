@@ -11,6 +11,7 @@ from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from src.core.models import Aluno, Lote
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
@@ -26,7 +27,6 @@ from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Aluno, Lote
 from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.perfil.models.usuario import Usuario
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (

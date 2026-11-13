@@ -13,23 +13,23 @@ from django.db import models
 from src.dados_comuns.constants import StringsVerboseNameModels
 
 from ..cardapio.base.models import TipoAlimentacao
+from ..core.models import Escola, FaixaEtaria, PeriodoEscolar
 from ..dados_comuns.behaviors import (
     ArquivoCargaBase,
     CriadoPor,
     Grupo,
-    TemLogs,
     ModeloBase,
     Nomeavel,
     PerfilDiretorSupervisao,
     Posicao,
     StatusAtivoInativo,
+    TemLogs,
     TemNomeMaior,
 )
 from ..dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsCaminhoModelos
 from ..dados_comuns.fluxo_status import FluxoFormularioSupervisao
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..dados_comuns.validators import validate_file_size_10mb
-from ..escola.models import Escola, FaixaEtaria, PeriodoEscolar
 from ..medicao_inicial.models import SolicitacaoMedicaoInicial
 from ..perfil.models import Usuario
 

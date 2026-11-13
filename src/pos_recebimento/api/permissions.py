@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission
 
+from src.core.models import Codae, Escola
 from src.dados_comuns.constants import (
     ADMINISTRADOR_UE,
     COORDENADOR_CODAE_DILOG_LOGISTICA,
@@ -8,7 +9,6 @@ from src.dados_comuns.constants import (
     DILOG_QUALIDADE,
     DIRETOR_UE,
 )
-from src.escola.models import Codae, Escola
 
 
 class PermissaoTermoRecebimentoProvisorio(BasePermission):

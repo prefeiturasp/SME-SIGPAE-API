@@ -4,6 +4,14 @@ import random
 import pytest
 
 from config.celery import app
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    DiretoriaRegionalFactory,
+    EscolaFactory,
+    LoteFactory,
+    PeriodoEscolarFactory,
+    TipoUnidadeEscolarFactory,
+)
 from src.dados_comuns.constants import (
     TIPO_SOLICITACAO_DIETA,
     TIPOS_GESTAO,
@@ -23,14 +31,6 @@ from src.dieta_especial.tasks import (
     cancela_dietas_ativas_automaticamente_task,
     cancela_dietas_pendente_autorizacao_task,
     processa_dietas_especiais_task,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    DiretoriaRegionalFactory,
-    EscolaFactory,
-    LoteFactory,
-    PeriodoEscolarFactory,
-    TipoUnidadeEscolarFactory,
 )
 from src.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,

@@ -13,7 +13,7 @@ from src.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     PeriodoEscolarFactory,
     TipoUnidadeEscolarFactory,
 )

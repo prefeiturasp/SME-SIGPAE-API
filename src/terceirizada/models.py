@@ -11,6 +11,7 @@ from ..cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ..cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
 from ..cardapio.inversao_dia_cardapio.models import InversaoCardapio
 from ..cardapio.suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
+from ..core.models import DiretoriaRegional, Escola, Lote
 from ..dados_comuns.behaviors import (
     Ativavel,
     IntervaloDeDia,
@@ -25,7 +26,6 @@ from ..dados_comuns.constants import (
     FORMATO_DATA_HORA_BRASILEIRO,
 )
 from ..dados_comuns.utils import queryset_por_data
-from ..escola.models import DiretoriaRegional, Escola, Lote
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,

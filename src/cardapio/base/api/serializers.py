@@ -13,7 +13,7 @@ from src.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from src.escola.api.serializers import (
+from src.core.api.serializers import (
     EscolaListagemSimplesSelializer,
     PeriodoEscolarSimplesSerializer,
     TipoUnidadeEscolarSerializerSimples,

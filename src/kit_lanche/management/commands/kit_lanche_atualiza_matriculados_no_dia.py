@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from src.escola.models import EscolaPeriodoEscolar
+from src.core.models import EscolaPeriodoEscolar
 from src.kit_lanche.models import (
     FaixaEtariaSolicitacaoKitLancheCEIAvulsa,
     SolicitacaoKitLancheCEIAvulsa,

@@ -6,7 +6,7 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
-from src.escola.models import Escola
+from src.core.models import Escola
 
 
 def nao_pode_existir_solicitacao_igual_para_mesma_escola(

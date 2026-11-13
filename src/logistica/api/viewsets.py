@@ -95,12 +95,12 @@ from src.logistica.services import (
     envia_email_e_notificacao_confirmacao_guias,
 )
 
+from ...core.models import DiretoriaRegional, Escola
 from ...dados_comuns.constants import (
     COGESTOR_DRE,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     StringsValidationErrors,
 )
-from ...escola.models import DiretoriaRegional, Escola
 from ...relatorios.relatorios import relatorio_guia_de_remessa
 from ..models.guia import InsucessoEntregaGuia
 from ..tasks import gera_pdf_async, gera_xlsx_async, gera_xlsx_entregas_async

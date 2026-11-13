@@ -6,6 +6,11 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import serializers
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunosMatriculadosPeriodoEscolaFactory,
+    LogAlunosMatriculadosPeriodoEscolaFactory,
+    PeriodoEscolarFactory,
+)
 from src.dados_comuns.constants import (
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
@@ -15,11 +20,6 @@ from src.dieta_especial.logs_models.models import (
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    AlunosMatriculadosPeriodoEscolaFactory,
-    LogAlunosMatriculadosPeriodoEscolaFactory,
-    PeriodoEscolarFactory,
 )
 from src.medicao_inicial.api.serializers import (
     ParametrizacaoFinanceiraSerializer,

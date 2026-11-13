@@ -7,12 +7,12 @@ from src.cardapio.suspensao_alimentacao.models import (
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from src.core.models import Escola, PeriodoEscolar
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
     deve_ser_no_mesmo_ano_corrente,
     nao_pode_ser_no_passado,
 )
-from src.escola.models import Escola, PeriodoEscolar
 
 
 class SuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
@@ -109,8 +109,12 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
 
         uuid_atual = getattr(self.instance, "uuid", None)
 
-        if getattr(escola, "eh_cei", False):  # confirmar se essa é a flag de tipo de escola
-            self._validar_duplicidade_cei(escola, suspensoes_alimentacao_array, uuid_atual)
+        if getattr(
+            escola, "eh_cei", False
+        ):  # confirmar se essa é a flag de tipo de escola
+            self._validar_duplicidade_cei(
+                escola, suspensoes_alimentacao_array, uuid_atual
+            )
         else:
             self._validar_duplicidade(
                 escola,
@@ -122,7 +126,11 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
         return attrs
 
     def _validar_duplicidade(
-        self, escola, quantidades_por_periodo_array, suspensoes_alimentacao_array, uuid_atual
+        self,
+        escola,
+        quantidades_por_periodo_array,
+        suspensoes_alimentacao_array,
+        uuid_atual,
     ):
         """Valida cada combinação Data + Período + Tipo de Alimentação (EMEF/EMEI)."""
         conflitos = []
@@ -159,7 +167,7 @@ class GrupoSuspensaoAlimentacaoCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {
                     "message": "Já existe uma Solicitação de Suspensão de Alimentação para a data, período e tipo de alimentação selecionados. Verifique os dados informados.",
-                    "conflitos": conflitos
+                    "conflitos": conflitos,
                 }
             )
 

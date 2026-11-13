@@ -4,7 +4,7 @@ import pytest
 from faker import Faker
 from model_bakery import baker
 
-import src.escola.models as models
+import src.core.models as models
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 
 fake = Faker("pt_BR")

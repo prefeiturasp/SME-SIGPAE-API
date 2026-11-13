@@ -4,8 +4,8 @@ import datetime
 import environ
 from django.core.management import BaseCommand, CommandError, call_command
 
-from src.escola.models import Escola
-from src.escola.tasks import matriculados_por_escola_e_periodo_regulares
+from src.core.models import Escola
+from src.core.tasks import matriculados_por_escola_e_periodo_regulares
 from utility.carga_dados.medicao.insere_informacoes_lancamento_inicial import (
     dados_usuario_periodos,
     escolas_validas,

@@ -120,7 +120,7 @@ class SolicitacoesViewSet(viewsets.GenericViewSet):
 
     def _prefetch_tipo_unidades(self, records):
         """Faz batch lookup de TipoUnidadeEscolar para evitar N+1 queries."""
-        from ...escola.models import TipoUnidadeEscolar
+        from ...core.models import TipoUnidadeEscolar
 
         uuids = set()
         for obj in records:

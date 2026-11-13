@@ -4,7 +4,7 @@ from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     ClassificacaoDietaSerializer,
 )
 
-from ...escola.models import EscolaPeriodoEscolar
+from ...core.models import EscolaPeriodoEscolar
 from ..models import LancamentoDiario, Refeicao
 
 

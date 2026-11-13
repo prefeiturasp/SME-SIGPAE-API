@@ -8,7 +8,7 @@ from src.cardapio.base.models import (
     HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolar,
     TipoAlimentacao,
 )
-from src.escola.models import Escola, PeriodoEscolar
+from src.core.models import Escola, PeriodoEscolar
 
 
 def hora_inicio_nao_pode_ser_maior_que_hora_final(

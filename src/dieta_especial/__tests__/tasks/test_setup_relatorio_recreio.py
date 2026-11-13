@@ -1,5 +1,13 @@
 import datetime
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    DiretoriaRegionalFactory,
+    EscolaFactory,
+    LoteFactory,
+    PeriodoEscolarFactory,
+    TipoUnidadeEscolarFactory,
+)
 from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
@@ -8,14 +16,6 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    DiretoriaRegionalFactory,
-    EscolaFactory,
-    LoteFactory,
-    PeriodoEscolarFactory,
-    TipoUnidadeEscolarFactory,
 )
 from src.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,

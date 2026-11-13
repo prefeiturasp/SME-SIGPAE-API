@@ -5,6 +5,8 @@ import pytest
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.__tests__.conftest import mocked_response
+from src.core.services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
 from src.dados_comuns.constants import (
     ADMINISTRADOR_UE,
     DIRETOR_UE,
@@ -13,8 +15,6 @@ from src.dados_comuns.constants import (
     StringsValidationErrors,
 )
 from src.eol_servico.utils import EOLServicoSGP
-from src.escola.__tests__.conftest import mocked_response
-from src.escola.services import NovoSGPServicoLogado, NovoSGPServicoLogadoException
 from src.perfil.__tests__.conftest import (
     mocked_response_autentica_coresso_adm_ue,
     mocked_response_autentica_coresso_cogestor,

@@ -10,16 +10,17 @@ from sequences import get_last_value, get_next_value
 
 from src.dados_comuns.constants import StringsVerboseNameModels
 
+from ..core.models import Escola
 from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
     CriadoPor,
     EhCopia,
-    TemLogs,
     Nomeavel,
     TemAlteradoEm,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
 )
 from ..dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
@@ -40,7 +41,6 @@ from ..dados_comuns.utils import (
     cria_copias_fk,
     cria_copias_m2m,
 )
-from ..escola.models import Escola
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 

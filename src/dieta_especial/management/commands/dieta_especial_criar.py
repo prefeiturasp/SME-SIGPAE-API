@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 from faker import Faker
 
+from src.core.models import Aluno, Escola
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Aluno, Escola
 from src.perfil.models import Usuario
 
 faker = Faker()

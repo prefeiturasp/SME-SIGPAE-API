@@ -10,6 +10,7 @@ from django.db.models import F, Func, Q, Value
 from openpyxl import Workbook, load_workbook, styles
 from rest_framework import status
 
+from src.core.models import Codae, DiretoriaRegional, Escola
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_TREINAMENTO_PASSWORD,
     EmailsParaTeste,
@@ -17,7 +18,6 @@ from src.dados_comuns.constants import (
 )
 from src.dados_comuns.models import Contato
 from src.eol_servico.utils import EOLException, EOLServicoSGP
-from src.escola.models import Codae, DiretoriaRegional, Escola
 from src.perfil.data.perfis import data_perfis
 from src.perfil.models import (
     ImportacaoPlanilhaUsuarioPerfilCodae,

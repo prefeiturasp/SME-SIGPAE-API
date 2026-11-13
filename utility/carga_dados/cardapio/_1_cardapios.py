@@ -7,8 +7,8 @@ import datetime
 from faker import Faker
 
 from src.cardapio.base.models import Cardapio, TipoAlimentacao
+from src.core.models import TipoUnidadeEscolar
 from src.dados_comuns.utils import eh_dia_util
-from src.escola.models import TipoUnidadeEscolar
 from src.terceirizada.models import Edital
 
 f = Faker("pt-br")

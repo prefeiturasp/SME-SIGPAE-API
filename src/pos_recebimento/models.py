@@ -2,10 +2,10 @@ from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from src.core.models import Escola
 from src.dados_comuns.behaviors import CriadoPor, ModeloBase, TemLogs
 from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoTermoRecebimentoProvisorio
-from src.escola.models import Escola
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Contrato, Terceirizada
 

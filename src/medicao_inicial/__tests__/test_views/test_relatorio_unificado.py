@@ -7,16 +7,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework.test import APIClient
 
-from src.dados_comuns.constants import (
-    DJANGO_ADMIN_PASSWORD,
-    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
-    TIPOS_GESTAO,
-    TIPOS_UNIDADE_ESCOLAR,
-    NomesParaTesteDiretoriaRegional,
-)
-from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
-from src.dados_comuns.models import CentralDeDownload
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     GrupoUnidadeEscolarFactory,
@@ -26,6 +17,15 @@ from src.escola.fixtures.factories.escola_factory import (
     TipoGestaoFactory,
     TipoUnidadeEscolarFactory,
 )
+from src.dados_comuns.constants import (
+    DJANGO_ADMIN_PASSWORD,
+    MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
+)
+from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
+from src.dados_comuns.models import CentralDeDownload
 from src.medicao_inicial.fixtures.factories.base_factory import (
     CategoriaMedicaoFactory,
 )

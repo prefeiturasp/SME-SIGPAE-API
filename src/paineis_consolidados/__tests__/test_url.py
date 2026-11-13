@@ -5,11 +5,11 @@ from rest_framework import status
 
 from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
 
+from ...core.models import TipoUnidadeEscolar
 from ...dados_comuns.constants import (
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
     SEM_FILTRO,
 )
-from ...escola.models import TipoUnidadeEscolar
 from ...terceirizada.models import Terceirizada
 from ..api.constants import (
     AGUARDANDO_CODAE,

@@ -12,13 +12,13 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
-from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from src.escola.api.serializers import (
+from src.core.api.serializers import (
     EscolaSimplesSerializer,
     FaixaEtariaSerializer,
     PeriodoEscolarSerializer,
     TipoAlimentacaoSerializer,
 )
+from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from src.terceirizada.api.serializers.serializers import (
     TerceirizadaSimplesSerializer,
 )

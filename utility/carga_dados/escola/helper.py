@@ -49,7 +49,7 @@ def busca_sigla_lote(sigla):
     # Butanta > Não tem escola associada a esse lote OBS: "BTT" eh nao existe
 
     fixture_data = json.load(
-        open("{0}/src/escola/fixtures/lotes.json".format(settings.ROOT_DIR))
+        open("{0}/src/core/fixtures/lotes.json".format(settings.ROOT_DIR))
     )
 
     def _get_id(data):

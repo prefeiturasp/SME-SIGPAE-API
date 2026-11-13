@@ -3,11 +3,11 @@ import uuid
 import pytest
 from rest_framework import status
 
+from src.core.models import Lote, TipoUnidadeEscolar
 from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.escola.models import Lote, TipoUnidadeEscolar
 
 pytestmark = pytest.mark.django_db
 

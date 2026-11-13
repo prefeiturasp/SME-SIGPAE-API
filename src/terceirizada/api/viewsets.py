@@ -10,9 +10,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
+from ...core.api.serializers import TerceirizadaSerializer
 from ...dados_comuns.api.paginations import DefaultPagination
 from ...dados_comuns.fluxo_status import FichaDeRecebimentoWorkflow
-from ...escola.api.serializers import TerceirizadaSerializer
 from ...pos_recebimento.api.permissions import (
     PermissaoParaCadastrarTermoRecebimentoProvisorio,
 )

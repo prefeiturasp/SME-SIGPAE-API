@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
+from ....core.models import DiretoriaRegional, Lote
 from ....dados_comuns.api.serializers import ContatoSerializer
-from ....escola.models import DiretoriaRegional, Lote
 from ...models import (
     Contrato,
     Edital,

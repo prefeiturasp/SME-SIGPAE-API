@@ -10,6 +10,7 @@ from model_bakery import baker
 
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 
+from ...core.models import Aluno, FaixaEtaria
 from ...dados_comuns.constants import (
     NOME_ESCOLA_CEI_DIRET,
     NOME_ESCOLA_CEMEI,
@@ -25,7 +26,6 @@ from ...dados_comuns.constants import (
     FaixasEtarias,
 )
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
-from ...escola.models import Aluno, FaixaEtaria
 from ...terceirizada.models import Edital
 from ..protocolo_padrao.services.dados_protocolo_padrao import (
     preparar_dados_protocolo_padrao,

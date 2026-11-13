@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.dias_letivos.models import DiaLetivoSIGPAE
 from src.dados_comuns import constants
 from src.dados_comuns.constants import (
     PEDIDOS_CODAE,
@@ -14,7 +15,6 @@ from src.dados_comuns.constants import (
     ContentTypesParaRequests,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 

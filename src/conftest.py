@@ -48,28 +48,13 @@ from .cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao_fa
     QuantidadePorPeriodoSuspensaoAlimentacaoFactory,
     SuspensaoAlimentacaoFactory,
 )
-from .dados_comuns import constants
-from .dados_comuns.fixtures.factories.dados_comuns_factories import (
-    ContatoFactory,
-    LogSolicitacoesUsuarioFactory,
-)
-from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
-    AlergiaIntoleranciaFactory,
-    AlimentoFactory,
-    ClassificacaoDietaFactory,
-    MotivoAlteracaoUEFactory,
-    ProtocoloPadraoDietaEspecialFactory,
-    SolicitacaoDietaEspecialFactory,
-    SubstituicaoAlimentoFactory,
-)
-from .eol_servico.utils import EOLServicoSGP
-from .escola.dias_letivos.fixtures.factories.dias_letivos_factory import (
+from .core.dias_letivos.fixtures.factories.dias_letivos_factory import (
     DiaLetivoSIGPAEFactory,
 )
-from .escola.fixtures.factories.dia_suspensao_atividades_factory import (
+from .core.fixtures.factories.dia_suspensao_atividades_factory import (
     DiaSuspensaoAtividadesFactory,
 )
-from .escola.fixtures.factories.escola_factory import (
+from .core.fixtures.factories.escola_factory import (
     AlunoFactory,
     AlunosMatriculadosPeriodoEscolaFactory,
     DiaCalendarioFactory,
@@ -86,6 +71,21 @@ from .escola.fixtures.factories.escola_factory import (
     TipoGestaoFactory,
     TipoUnidadeEscolarFactory,
 )
+from .dados_comuns import constants
+from .dados_comuns.fixtures.factories.dados_comuns_factories import (
+    ContatoFactory,
+    LogSolicitacoesUsuarioFactory,
+)
+from .dieta_especial.fixtures.factories.dieta_especial_base_factory import (
+    AlergiaIntoleranciaFactory,
+    AlimentoFactory,
+    ClassificacaoDietaFactory,
+    MotivoAlteracaoUEFactory,
+    ProtocoloPadraoDietaEspecialFactory,
+    SolicitacaoDietaEspecialFactory,
+    SubstituicaoAlimentoFactory,
+)
+from .eol_servico.utils import EOLServicoSGP
 from .imr.fixtures.factories.imr_base_factory import (
     AnexosFormularioBaseFactory,
     CategoriaOcorrenciaFactory,
@@ -822,7 +822,7 @@ def arquivo_base64():
 
 @pytest.fixture
 def eolservicosgp_get_lista_alunos(monkeypatch):
-    with open("src/escola/__tests__/massa_eolservicosgp_lista_alunos.json") as jsfile:
+    with open("src/core/__tests__/massa_eolservicosgp_lista_alunos.json") as jsfile:
         js = json.load(jsfile)
     return monkeypatch.setattr(
         EOLServicoSGP, "get_alunos_por_escola_por_ano_letivo", lambda x: js

@@ -3,11 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from src.core.api.serializers import UsuarioDetalheSerializer
+from src.core.models import Aluno
 from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
     somente_digitos,
 )
-from src.escola.api.serializers import UsuarioDetalheSerializer
-from src.escola.models import Aluno
 
 from ..utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLException, EOLServicoSGP
 

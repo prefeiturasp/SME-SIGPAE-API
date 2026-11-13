@@ -156,7 +156,7 @@ class Vinculo(Ativavel, TemChaveExterna):
 
     @classmethod  # noqa
     def get_instituicao(cls, dados_usuario):
-        from ...escola.models import Codae, DiretoriaRegional, Escola
+        from ...core.models import Codae, DiretoriaRegional, Escola
         from ...terceirizada.models import Terceirizada
 
         if dados_usuario["visao"] == Perfil.ESCOLA:

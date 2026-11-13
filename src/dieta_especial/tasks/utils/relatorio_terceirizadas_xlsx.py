@@ -1,12 +1,12 @@
 import numpy as np
 
+from src.core.models import Lote
 from src.dieta_especial.protocolo_padrao.models import (
     ProtocoloPadraoDietaEspecial,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
 )
-from src.escola.models import Lote
 
 
 def build_titulo(lotes, status, classificacoes, protocolos, data_inicial, data_final):

@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ViewSet
 from workalendar.america import BrazilSaoPauloCity
 
-from ...escola.models import DiaSuspensaoAtividades, Escola
+from ...core.models import DiaSuspensaoAtividades, Escola
 from ..behaviors import DiasSemana, TempoPasseio
 from ..constants import (
     FORMATO_DATA_BRASILEIRO,

@@ -1,8 +1,8 @@
 import environ
 from rest_framework import serializers
 
+from src.core.api.serializers import EscolaFormIMRSelializer
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
-from src.escola.api.serializers import EscolaFormIMRSelializer
 from src.imr.models import (
     AnexosFormularioBase,
     CategoriaOcorrencia,
@@ -129,7 +129,9 @@ class FormularioSupervisaoSimplesSerializer(serializers.ModelSerializer):
     diretoria_regional = serializers.CharField(source="escola.diretoria_regional.nome")
     unidade_educacional = serializers.CharField(source="escola.nome")
     codigo_eol = serializers.CharField(source="escola.codigo_eol", read_only=True)
-    tipo_unidade = serializers.CharField(source="escola.tipo_unidade.iniciais", read_only=True)
+    tipo_unidade = serializers.CharField(
+        source="escola.tipo_unidade.iniciais", read_only=True
+    )
     data = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
 

@@ -3,6 +3,7 @@ import datetime
 import pytest
 from freezegun import freeze_time
 
+from src.core.dias_letivos.models import DiaLetivoSIGPAE
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_B,
     TIPOS_ALIMENTACAO,
@@ -11,7 +12,6 @@ from src.dados_comuns.constants import (
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.utils import (
     build_tabela_somatorio_body,

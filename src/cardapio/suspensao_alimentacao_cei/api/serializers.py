@@ -6,11 +6,11 @@ from src.cardapio.suspensao_alimentacao.api.serializers import (
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
-from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from src.escola.api.serializers import (
+from src.core.api.serializers import (
     EscolaSimplesSerializer,
     PeriodoEscolarSimplesSerializer,
 )
+from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from src.terceirizada.api.serializers.serializers import (
     TerceirizadaSimplesSerializer,
 )

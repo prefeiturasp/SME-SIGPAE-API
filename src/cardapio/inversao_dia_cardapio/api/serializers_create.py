@@ -10,13 +10,13 @@ from src.cardapio.inversao_dia_cardapio.api.validators import (
     nao_pode_ter_mais_que_60_dias_diferenca,
 )
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from src.core.models import Escola
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
     deve_ser_dia_letivo_e_dia_da_semana,
     deve_ser_no_mesmo_ano_corrente,
     nao_pode_ser_no_passado,
 )
-from src.escola.models import Escola
 
 
 class InversaoCardapioSerializerCreate(serializers.ModelSerializer):

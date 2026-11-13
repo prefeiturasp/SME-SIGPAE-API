@@ -5,6 +5,16 @@ from django.db.models import Q
 from drf_base64.serializers import ModelSerializer
 from rest_framework import serializers, status
 
+from src.core.api.serializers import (
+    AlunoSerializer,
+    AlunoSimplesSerializer,
+    EscolaNomeCodigoEOLSerializer,
+    LoteNomeSerializer,
+    LoteSerializer,
+    TipoGestaoSerializer,
+)
+from src.core.models import DiretoriaRegional, Escola
+from src.core.services import NovoSGPServicoLogadoException
 from src.dados_comuns.api.serializers import (
     ContatoSerializer,
     LogSolicitacoesUsuarioSerializer,
@@ -41,16 +51,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
-from src.escola.api.serializers import (
-    AlunoSerializer,
-    AlunoSimplesSerializer,
-    EscolaNomeCodigoEOLSerializer,
-    LoteNomeSerializer,
-    LoteSerializer,
-    TipoGestaoSerializer,
-)
-from src.escola.models import DiretoriaRegional, Escola
-from src.escola.services import NovoSGPServicoLogadoException
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.produto.models import Produto, SolicitacaoCadastroProdutoDieta
 

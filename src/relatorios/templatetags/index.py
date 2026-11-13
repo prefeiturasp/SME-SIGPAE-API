@@ -17,11 +17,11 @@ from ...cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from ...core.models import Escola
 from ...dados_comuns import constants
 from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import DietaEspecialWorkflow
 from ...dados_comuns.models import LogSolicitacoesUsuario
-from ...escola.models import Escola
 from ...imr.models import (
     FormularioOcorrenciasBase,
     ParametrizacaoOcorrencia,
@@ -529,7 +529,7 @@ def aluno_nessa_faixa_etaria(dia, aluno, dias):
 def eh_dia_nao_letivo(dia, escola_nome, mes_ano):
     from workalendar.america import BrazilSaoPauloCity
 
-    from src.escola.models import DiaSuspensaoAtividades
+    from src.core.models import DiaSuspensaoAtividades
 
     escola = Escola.objects.get(nome=escola_nome)
     mes, ano = mes_ano.split("_")

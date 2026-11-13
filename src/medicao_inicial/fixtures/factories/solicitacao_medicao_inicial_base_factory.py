@@ -6,7 +6,7 @@ from faker import Faker
 from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     EscolaFactory,
     FaixaEtariaFactory,
     PeriodoEscolarFactory,

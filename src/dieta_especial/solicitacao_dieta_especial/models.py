@@ -20,15 +20,17 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 from django.db import models
 from django.db.models import Q, QuerySet
 
+from src.core.api.serializers import AlunoSerializer
+from src.core.models import Aluno, Escola
 from src.dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
     CriadoPor,
     Descritivel,
-    TemLogs,
     Nomeavel,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
     TemPrioridade,
 )
 from src.dados_comuns.constants import (
@@ -40,8 +42,6 @@ from src.dados_comuns.constants import (
 from src.dados_comuns.fluxo_status import FluxoDietaEspecialPartindoDaEscola
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import convert_base64_to_contentfile
-from src.escola.api.serializers import AlunoSerializer
-from src.escola.models import Aluno, Escola
 
 PENDENTES_EVENTO_DIETA_ESPECIAL: list[int] = [
     LogSolicitacoesUsuario.INICIO_FLUXO,
@@ -535,7 +535,7 @@ class SolicitacaoDietaEspecial(
 
         Returns:
             dict: Dicionário com os dados do aluno retornados pelo
-            :class:`~src.escola.api.serializers.AlunoSerializer`.
+            :class:`~src.core.api.serializers.AlunoSerializer`.
         """
         return AlunoSerializer(self.aluno).data
 

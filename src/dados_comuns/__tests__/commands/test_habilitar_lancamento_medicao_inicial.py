@@ -32,7 +32,7 @@ def mocks_modulo_habilitar():
 
 
 @override_settings(DJANGO_ENV="development")
-@mock.patch("src.escola.models.Escola.objects.get")
+@mock.patch("src.core.models.Escola.objects.get")
 def test_executa_com_sucesso(
     mock_get_escola,
     mocks_modulo_habilitar,
@@ -202,7 +202,7 @@ def test_data_lanche_emergencial_invalido_lanca_erro():
 @mock.patch(
     "utility.carga_dados.medicao.insere_informacoes_lancamento_inicial.calendario_sgp"
 )
-@mock.patch("src.escola.models.Escola.objects.get")
+@mock.patch("src.core.models.Escola.objects.get")
 def test_executa_com_atualizar_escolas(
     mock_get_escola,
     mock_calendario_sgp,

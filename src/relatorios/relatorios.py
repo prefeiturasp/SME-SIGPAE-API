@@ -54,6 +54,11 @@ from src.produto.utils.relatorio_reclamacao_produto import (
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from ..core.constants import (
+    PERIODOS_CEMEI_EVENTO_ESPECIFICO,
+    PERIODOS_ESPECIAIS_CEMEI,
+)
+from ..core.models import Codae, DiretoriaRegional, Escola, Lote
 from ..dados_comuns.fluxo_status import (
     DietaEspecialWorkflow,
 )
@@ -62,11 +67,6 @@ from ..dados_comuns.fluxo_status import (
     SolicitacaoMedicaoInicialWorkflow,
 )
 from ..dados_comuns.models import LogSolicitacoesUsuario
-from ..escola.constants import (
-    PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-    PERIODOS_ESPECIAIS_CEMEI,
-)
-from ..escola.models import Codae, DiretoriaRegional, Escola, Lote
 from ..imr.models import TipoOcorrencia
 from ..kit_lanche.models import EscolaQuantidade
 from ..logistica.api.helpers import retorna_status_guia_remessa

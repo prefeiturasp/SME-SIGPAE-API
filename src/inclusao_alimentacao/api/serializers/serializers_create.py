@@ -5,6 +5,7 @@ from rest_framework.exceptions import ValidationError
 from workalendar.america import BrazilSaoPauloCity
 
 from ....cardapio.base.models import TipoAlimentacao
+from ....core.models import Escola, FaixaEtaria, PeriodoEscolar
 from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.utils import update_instance_from_dict
 from ....dados_comuns.validators import (
@@ -12,7 +13,6 @@ from ....dados_comuns.validators import (
     deve_ser_no_mesmo_ano_corrente,
     nao_pode_ser_no_passado,
 )
-from ....escola.models import Escola, FaixaEtaria, PeriodoEscolar
 from ...models import (
     DiasMotivosInclusaoDeAlimentacaoCEI,
     DiasMotivosInclusaoDeAlimentacaoCEMEI,

@@ -4,16 +4,14 @@ import environ
 from django.db.models import Q
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.dados_comuns.constants import ColunasPlanilhaEscola
-from src.dados_comuns.models import Contato
-from src.escola.data.diretorias_regionais import (  # noqa
+from src.core.data.diretorias_regionais import (  # noqa
     data_diretorias_regionais,
 )
-from src.escola.data.lotes import data_lotes
-from src.escola.data.periodo_escolar import data_periodo_escolar
-from src.escola.data.subprefeituras import data_subprefeituras
-from src.escola.data.tipos_gestao import data_tipos_gestao
-from src.escola.models import (
+from src.core.data.lotes import data_lotes
+from src.core.data.periodo_escolar import data_periodo_escolar
+from src.core.data.subprefeituras import data_subprefeituras
+from src.core.data.tipos_gestao import data_tipos_gestao
+from src.core.models import (
     DiretoriaRegional,
     Escola,
     EscolaPeriodoEscolar,
@@ -23,6 +21,8 @@ from src.escola.models import (
     TipoGestao,
     TipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import ColunasPlanilhaEscola
+from src.dados_comuns.models import Contato
 from src.perfil.models import Perfil, Usuario
 from src.terceirizada.data.terceirizadas import data_terceirizadas  # noqa
 from src.terceirizada.models import Terceirizada

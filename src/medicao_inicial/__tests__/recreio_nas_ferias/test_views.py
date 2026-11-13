@@ -5,13 +5,13 @@ from django.urls import reverse
 from rest_framework import status
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
-from src.escola.models import (
+from src.core.models import (
     DiretoriaRegional,
     Escola,
     Lote,
     TipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.medicao_inicial.recreio_nas_ferias.models import (
     CategoriaAlimentacao,
     RecreioNasFerias,

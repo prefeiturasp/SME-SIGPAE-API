@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.escola.models import Escola, Lote
+from src.core.models import Escola, Lote
 from src.medicao_inicial.recreio_nas_ferias.models import (
     CategoriaAlimentacao,
     RecreioNasFerias,

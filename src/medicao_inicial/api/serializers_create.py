@@ -10,6 +10,20 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
+from src.core.api.serializers_create import (
+    AlunoPeriodoParcialCreateSerializer,
+)
+from src.core.models import (
+    Aluno,
+    AlunoPeriodoParcial,
+    DiretoriaRegional,
+    Escola,
+    FaixaEtaria,
+    GrupoUnidadeEscolar,
+    Lote,
+    PeriodoEscolar,
+    TipoUnidadeEscolar,
+)
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from src.dados_comuns.constants import StringsValidationErrors
 from src.dados_comuns.utils import (
@@ -22,20 +36,6 @@ from src.dieta_especial.solicitacao_dieta_especial.api.validators import (
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from src.eol_servico.utils import MENSAGEM_RF_NAO_LOCALIZADO, EOLServicoSGP
-from src.escola.api.serializers_create import (
-    AlunoPeriodoParcialCreateSerializer,
-)
-from src.escola.models import (
-    Aluno,
-    AlunoPeriodoParcial,
-    DiretoriaRegional,
-    Escola,
-    FaixaEtaria,
-    GrupoUnidadeEscolar,
-    Lote,
-    PeriodoEscolar,
-    TipoUnidadeEscolar,
-)
 from src.medicao_inicial.api.constants import CAMPOS_CONTROLADOS_PELO_FLUXO
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,

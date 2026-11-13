@@ -4,9 +4,9 @@ from collections import defaultdict
 from django.db.models import Prefetch, Q
 from rest_framework.pagination import PageNumberPagination
 
+from src.core.models import Aluno
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.models import Aluno
 from src.kit_lanche.models import (
     KitLanche,
     SolicitacaoKitLancheCEIAvulsa,

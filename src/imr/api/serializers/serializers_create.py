@@ -4,12 +4,12 @@ import datetime
 from rest_framework import serializers
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import Escola
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     StringsValidationErrors,
 )
 from src.dados_comuns.utils import convert_base64_to_contentfile
-from src.escola.models import Escola
 from src.imr.models import (
     AnexosFormularioBase,
     Equipamento,

@@ -10,15 +10,15 @@ import environ
 import numpy as np
 import pandas as pd
 
-from src.dados_comuns.constants import ColunasPlanilhaEscola
-from src.dados_comuns.models import Contato
-from src.escola.models import (
+from src.core.models import (
     DiretoriaRegional,
     Escola,
     Lote,
     TipoGestao,
     TipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import ColunasPlanilhaEscola
+from src.dados_comuns.models import Contato
 from utility.carga_dados.escola.helper import (
     bcolors,
     busca_sigla_lote,

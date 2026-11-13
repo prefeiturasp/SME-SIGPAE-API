@@ -8,6 +8,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db import transaction
 from faker import Faker
 
+from src.core.models import Aluno, Escola
 from src.dados_comuns.constants import EmailsParaTeste
 from src.dieta_especial.protocolo_padrao.models import (
     Alimento,
@@ -20,7 +21,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Aluno, Escola
 from src.perfil.models import Usuario
 
 f = Faker("pt-br")

@@ -7,18 +7,18 @@ from django.db.models import Q
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
-from src.escola.constants import (
+from src.core.constants import (
     PERIODOS_CEMEI_EVENTO_ESPECIFICO,
     PERIODOS_ESPECIAIS_CEI_CEU_CCI,
     PERIODOS_ESPECIAIS_CEI_DIRET,
 )
-from src.escola.models import (
+from src.core.models import (
     AlunosMatriculadosPeriodoEscola,
     EscolaPeriodoEscolar,
     PeriodoEscolar,
     TipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
 
 logger = logging.getLogger("sigpae.taskCardapio")
 

@@ -33,7 +33,7 @@ from utility.carga_dados.escola.importa_dados import (
 )
 from utility.carga_dados.terceirizada.importa_dados import cria_terceirizadas
 
-from ...escola import models
+from ...core import models
 from ..constants import (
     COORDENADOR_LOGISTICA,
     DJANGO_ADMIN_PASSWORD,

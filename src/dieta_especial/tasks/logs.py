@@ -5,6 +5,8 @@ import environ
 from celery import shared_task
 from django.db.models import Q
 
+from src.core.models import Escola
+from src.core.utils import datas_para_gerar_logs
 from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
@@ -27,8 +29,6 @@ from src.dieta_especial.tasks.utils.logs import (
     gera_logs_dietas_recreio_ferias_escolas_comuns,
     gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
 )
-from src.escola.models import Escola
-from src.escola.utils import datas_para_gerar_logs
 
 logger = logging.getLogger(__name__)
 

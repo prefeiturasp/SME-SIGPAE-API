@@ -2,8 +2,8 @@ import environ
 import numpy as np
 import pandas as pd
 
+from src.core.models import Codae
 from src.dados_comuns.constants import ColunasPlanilhaEscola
-from src.escola.models import Codae
 from src.perfil.models import Perfil, Usuario
 from utility.carga_dados.escola.helper import (
     bcolors,

@@ -2,6 +2,7 @@ from datetime import date
 
 from django.template.loader import render_to_string
 
+from src.core.models import Aluno
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     MODULO_DIETA_ESPECIAL,
@@ -15,7 +16,6 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Aluno
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.perfil.models import Usuario
 

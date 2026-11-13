@@ -3,6 +3,7 @@ from django.db.models import Q
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+from src.core.models import FaixaEtaria
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     NOMES_CAMPOS,
@@ -11,7 +12,6 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_CEMEI,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,

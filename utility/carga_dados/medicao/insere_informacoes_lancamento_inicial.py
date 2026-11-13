@@ -14,6 +14,14 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.api.serializers_create import
     AlteracaoCardapioCEMEISerializerCreate,
 )
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import (
+    FaixaEtaria,
+    LogAlunosMatriculadosFaixaEtariaDia,
+    LogAlunosMatriculadosPeriodoEscola,
+    PeriodoEscolar,
+    TipoTurma,
+)
+from src.core.utils import calendario_sgp
 from src.dados_comuns.constants import (
     JUSTIFICATIVA_SEM_OBSERVACOES_PARTE_CODAE,
     MSG_SCRIPT_CANCELADO,
@@ -28,14 +36,6 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
 )
-from src.escola.models import (
-    FaixaEtaria,
-    LogAlunosMatriculadosFaixaEtariaDia,
-    LogAlunosMatriculadosPeriodoEscola,
-    PeriodoEscolar,
-    TipoTurma,
-)
-from src.escola.utils import calendario_sgp
 from src.inclusao_alimentacao.api.serializers.serializers_create import (
     GrupoInclusaoAlimentacaoNormalCreationSerializer,
     InclusaoAlimentacaoContinuaCreationSerializer,

@@ -9,8 +9,8 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     FaixaEtariaSubstituicaoAlimentacaoCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
+from src.core.models import EscolaPeriodoEscolar
 from src.dados_comuns.constants import TIPOS_UNIDADE_ESCOLAR
-from src.escola.models import EscolaPeriodoEscolar
 
 
 class Command(BaseCommand):

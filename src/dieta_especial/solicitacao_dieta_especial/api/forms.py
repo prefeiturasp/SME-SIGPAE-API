@@ -1,6 +1,6 @@
 from django import forms
 
-from src.escola.models import DiretoriaRegional, Escola
+from src.core.models import DiretoriaRegional, Escola
 
 from ..models import (
     AlergiaIntolerancia,

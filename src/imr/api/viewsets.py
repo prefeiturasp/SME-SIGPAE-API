@@ -8,8 +8,8 @@ from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import (
     PermissionDenied,
-    ValidationError as ErroValidacaoAPI,
 )
+from rest_framework.exceptions import ValidationError as ErroValidacaoAPI
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
@@ -22,6 +22,7 @@ from src.dados_comuns.permissions import (
 from src.medicao_inicial.models import SolicitacaoMedicaoInicial
 from src.terceirizada.models import Edital, Terceirizada
 
+from ...core.models import DiretoriaRegional, Escola
 from ...dados_comuns.constants import (
     ADMINISTRADOR_SUPERVISAO_NUTRICAO,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
@@ -30,7 +31,6 @@ from ...dados_comuns.constants import (
     StringsValidationErrors,
 )
 from ...dados_comuns.fluxo_status import FormularioSupervisaoWorkflow
-from ...escola.models import DiretoriaRegional, Escola
 from ..models import (
     Equipamento,
     FormularioDiretor,
@@ -159,9 +159,7 @@ class FormularioSupervisaoModelViewSet(
 
         if self.action == "list":
             queryset = queryset.select_related(
-                "escola__diretoria_regional",
-                "escola__tipo_unidade",
-                "formulario_base"
+                "escola__diretoria_regional", "escola__tipo_unidade", "formulario_base"
             )
 
         if usuario.vinculo_atual.perfil.nome == ADMINISTRADOR_SUPERVISAO_NUTRICAO:
@@ -272,24 +270,17 @@ class FormularioSupervisaoModelViewSet(
                 return "Todos os Relatórios"
 
         rotulos = {
-            FormularioSupervisaoWorkflow.EM_PREENCHIMENTO:
-                "Em preenchimento pela Supervisão",
-            FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR:
-                "Enviados pela Supervisão",
-            FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE:
-                "Devolvidos com comentários",
-            FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO:
-                "Corrigidos pela Supervisão",
-            FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE:
-                "Validados pela CODAE",
+            FormularioSupervisaoWorkflow.EM_PREENCHIMENTO: "Em preenchimento pela Supervisão",
+            FormularioSupervisaoWorkflow.NUTRIMANIFESTACAO_A_VALIDAR: "Enviados pela Supervisão",
+            FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE: "Devolvidos com comentários",
+            FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO: "Corrigidos pela Supervisão",
+            FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE: "Validados pela CODAE",
             FormularioSupervisaoWorkflow.APROVADO: "Aprovados",
             "TODOS_OS_RELATORIOS": "Todos os Relatórios",
         }
         return rotulos.get(workflow, "Todos os Relatórios")
 
-    def dados_dashboard(
-        self, query_set: QuerySet, novo_painel: bool = True
-    ) -> list:
+    def dados_dashboard(self, query_set: QuerySet, novo_painel: bool = True) -> list:
         sumario = []
 
         for workflow in self.get_lista_status(novo_painel=novo_painel):
@@ -313,9 +304,7 @@ class FormularioSupervisaoModelViewSet(
         url_path="dashboard",
     )
     def dashboard(self, request):
-        novo_painel = (
-            request.query_params.get("novo_painel", "true").lower() == "true"
-        )
+        novo_painel = request.query_params.get("novo_painel", "true").lower() == "true"
         query_set = (
             self._filtrar_relatorios_dashboard(request)
             if novo_painel

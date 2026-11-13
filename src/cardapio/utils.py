@@ -1,11 +1,11 @@
 import datetime
 
+from src.core.models import Escola
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.escola.models import Escola
 
 
 def converter_data(formato: str) -> str:

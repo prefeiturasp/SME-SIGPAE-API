@@ -20,8 +20,8 @@ from src.cardapio.suspensao_alimentacao.models import (
     QuantidadePorPeriodoSuspensaoAlimentacao,
     SuspensaoAlimentacao,
 )
+from src.core.models import DiretoriaRegional, Escola, PeriodoEscolar
 from src.dados_comuns.constants import EmailsParaTeste
-from src.escola.models import DiretoriaRegional, Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,

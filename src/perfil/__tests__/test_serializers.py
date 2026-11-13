@@ -1,7 +1,7 @@
 import pytest
 from model_bakery import baker
 
-from src.escola.__tests__.conftest import mocked_response
+from src.core.__tests__.conftest import mocked_response
 
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ..__tests__.conftest import mocked_request_api_eol

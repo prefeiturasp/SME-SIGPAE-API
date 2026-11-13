@@ -7,18 +7,18 @@ from model_bakery import baker
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from src.dados_comuns.constants import (
-    TIPO_UNIDADE_CEI_DIRET,
-    TIPOS_ALIMENTACAO,
-    TIPOS_UNIDADE_ESCOLAR,
-    StringsCaminhoModelos,
-)
-from src.escola.models import (
+from src.core.models import (
     AlunosMatriculadosPeriodoEscola,
     Escola,
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
     TipoTurma,
+)
+from src.dados_comuns.constants import (
+    TIPO_UNIDADE_CEI_DIRET,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    StringsCaminhoModelos,
 )
 
 
@@ -336,9 +336,7 @@ def vinculos_cemei_medicao(vinculo_alimentacao_periodo_escolar_cemei, escola):
 def inclusao_continua_cemei_medicao(vinculos_cemei_medicao):
     escola = vinculos_cemei_medicao["escola"]
     vinculo = vinculos_cemei_medicao["vinculo_noite"]
-    motivo = baker.make(
-        "MotivoInclusaoContinua", nome="Programas/Projetos Específicos"
-    )
+    motivo = baker.make("MotivoInclusaoContinua", nome="Programas/Projetos Específicos")
     inclusao = baker.make(
         "InclusaoAlimentacaoContinua",
         escola=escola,

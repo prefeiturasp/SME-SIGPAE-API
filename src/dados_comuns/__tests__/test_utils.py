@@ -7,11 +7,11 @@ import httpx
 import pytest
 from freezegun import freeze_time
 
+from src.core.models import LogAlunosMatriculadosPeriodoEscola
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.escola.models import LogAlunosMatriculadosPeriodoEscola
 
 from ..constants import (
     DAQUI_A_SETE_DIAS,

@@ -33,12 +33,12 @@ from src.medicao_inicial.services.relatorio_historio_correcoes_pdf import (
 )
 from src.perfil.models.usuario import Usuario
 
+from ..core.models import AlunoPeriodoParcial, Escola
 from ..dados_comuns.utils import (
     atualiza_central_download,
     atualiza_central_download_com_erro,
     gera_objeto_na_central_download,
 )
-from ..escola.models import AlunoPeriodoParcial, Escola
 from ..relatorios.relatorios import (
     gerar_relatorio_ateste_financeiro,
     gerar_relatorio_folha_medicao_final,
@@ -102,7 +102,9 @@ def _processa_escola(escola, data_hoje, data_mes_anterior):
             .first()
         )
         if not escola_locked:
-            logger.info(f"Escola {escola.nome} sendo processada por outro worker. Pulando.")
+            logger.info(
+                f"Escola {escola.nome} sendo processada por outro worker. Pulando."
+            )
             return
 
         if solicitacao_medicao_atual_existe(escola_locked, data_hoje):

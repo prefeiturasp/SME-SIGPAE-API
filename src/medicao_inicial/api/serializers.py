@@ -4,17 +4,7 @@ import json
 import environ
 from rest_framework import serializers
 
-from src.dados_comuns.api.serializers import (
-    LogSolicitacoesUsuarioComAnexosSerializer,
-    LogSolicitacoesUsuarioSerializer,
-)
-from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
-from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.dados_comuns.utils import converte_numero_em_mes
-from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
-    EscolaSerializer,
-)
-from src.escola.api.serializers import (
+from src.core.api.serializers import (
     AlunoPeriodoParcialSimplesSerializer,
     DiretoriaRegionalSimplissimaSerializer,
     EscolaSimplissimaSerializer,
@@ -24,6 +14,16 @@ from src.escola.api.serializers import (
     PeriodoEscolarSerializer,
     TipoAlimentacaoSerializer,
     TipoUnidadeEscolarSimplesSerializer,
+)
+from src.dados_comuns.api.serializers import (
+    LogSolicitacoesUsuarioComAnexosSerializer,
+    LogSolicitacoesUsuarioSerializer,
+)
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
+from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.dados_comuns.utils import converte_numero_em_mes
+from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
+    EscolaSerializer,
 )
 from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from django.template.loader import render_to_string
 
+from src.core.models import Lote
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
-from src.escola.models import Lote
 from src.relatorios.utils import html_to_pdf_file
 
 

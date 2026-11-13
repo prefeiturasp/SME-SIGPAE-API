@@ -1,11 +1,11 @@
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import FaixaEtaria
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     TIPOS_UNIDADE_ESCOLAR,
     StringsValidationErrors,
 )
-from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,

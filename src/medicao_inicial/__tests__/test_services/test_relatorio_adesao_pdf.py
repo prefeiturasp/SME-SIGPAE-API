@@ -4,7 +4,7 @@ import pytest
 from freezegun import freeze_time
 from pypdf import PdfReader
 
-from src.escola.models import Lote
+from src.core.models import Lote
 from src.medicao_inicial.services.relatorio_adesao_pdf import (
     _formata_filtros,
     gera_relatorio_adesao_pdf,

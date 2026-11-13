@@ -7,6 +7,7 @@ from django.db.models.functions import Cast
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+from src.core.models import FaixaEtaria
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
@@ -14,7 +15,6 @@ from src.dados_comuns.constants import (
     ORDEM_CAMPOS_RECREIO,
     ORDEM_HEADERS_RECREIO_CEI,
 )
-from src.escola.models import FaixaEtaria
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,

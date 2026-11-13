@@ -7,6 +7,7 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO,
@@ -16,7 +17,6 @@ from src.dados_comuns.constants import (
     StringsValidationErrors,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.models import LogAlunosMatriculadosFaixaEtariaDia
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,

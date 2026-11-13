@@ -4,6 +4,11 @@ from unittest import TestCase
 import pytest
 from django.core.management import call_command
 
+from src.core.fixtures.factories.escola_factory import (
+    EscolaFactory,
+    FaixaEtariaFactory,
+    PeriodoEscolarFactory,
+)
 from src.dados_comuns.constants import ClassificacoesDietasDeprecadas
 from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
     ClassificacaoDietaFactory,
@@ -20,11 +25,6 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    EscolaFactory,
-    FaixaEtariaFactory,
-    PeriodoEscolarFactory,
 )
 
 

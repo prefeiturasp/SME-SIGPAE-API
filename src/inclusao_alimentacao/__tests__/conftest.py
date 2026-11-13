@@ -4,8 +4,8 @@ import pytest
 from faker import Faker
 from model_bakery import baker
 
+from src.core.__tests__.conftest import mocked_response
 from src.dados_comuns.constants import StringsCaminhoModelos
-from src.escola.__tests__.conftest import mocked_response
 
 from ...dados_comuns import constants
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow

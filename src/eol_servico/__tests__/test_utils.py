@@ -5,17 +5,17 @@ from unittest.mock import patch
 import pytest
 from freezegun.api import freeze_time
 
+from src.core.__tests__.conftest import mocked_response
+from src.core.fixtures.factories.escola_factory import (
+    EscolaFactory,
+    FaixaEtariaFactory,
+    PeriodoEscolarFactory,
+)
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, TIPO_UNIDADE_CEI_DIRET
 from src.eol_servico.utils import (
     EOLException,
     EOLServicoSGP,
     dt_nascimento_from_api,
-)
-from src.escola.__tests__.conftest import mocked_response
-from src.escola.fixtures.factories.escola_factory import (
-    EscolaFactory,
-    FaixaEtariaFactory,
-    PeriodoEscolarFactory,
 )
 
 
@@ -49,7 +49,7 @@ class TestEOLServicoSGP(TestCase):
         self.set_up_faixas_etarias()
 
         with open(
-            "src/escola/__tests__/commands/mocks/mock_ue_400509_dados_alunos_2025.json",
+            "src/core/__tests__/commands/mocks/mock_ue_400509_dados_alunos_2025.json",
             "r",
         ) as file:
             self.mocked_chamada_externa_alunos_por_escola_por_ano_letivo = (
@@ -57,7 +57,7 @@ class TestEOLServicoSGP(TestCase):
             )
 
         with open(
-            "src/escola/__tests__/commands/mocks/mock_dre_108100_matriculas_escolas_quantidades.json",
+            "src/core/__tests__/commands/mocks/mock_dre_108100_matriculas_escolas_quantidades.json",
             "r",
         ) as file:
             self.mocked_response_matricula_por_escola = mocked_response(

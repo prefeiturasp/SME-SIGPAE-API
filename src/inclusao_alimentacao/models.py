@@ -10,6 +10,10 @@ from src.dados_comuns.constants import (
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from ..core.constants import (
+    PERIODOS_CEMEI_EVENTO_ESPECIFICO,
+    PERIODOS_ESPECIAIS_CEMEI,
+)
 from ..dados_comuns.behaviors import (
     CanceladoIndividualmente,
     CriadoEm,
@@ -17,13 +21,13 @@ from ..dados_comuns.behaviors import (
     Descritivel,
     DiasSemana,
     IntervaloDeDia,
-    TemLogs,
     MatriculadosQuandoCriado,
     Nomeavel,
     SolicitacaoForaDoPrazo,
     TemChaveExterna,
     TemData,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
     TemPrioridade,
     TemTerceirizadaConferiuGestaoAlimentacao,
 )
@@ -35,10 +39,6 @@ from ..dados_comuns.constants import (
 )
 from ..dados_comuns.fluxo_status import FluxoAprovacaoPartindoDaEscola
 from ..dados_comuns.models import LogSolicitacoesUsuario
-from ..escola.constants import (
-    PERIODOS_CEMEI_EVENTO_ESPECIFICO,
-    PERIODOS_ESPECIAIS_CEMEI,
-)
 from .managers import (
     GrupoInclusoesDeAlimentacaoNormalDestaSemanaManager,
     GrupoInclusoesDeAlimentacaoNormalDesteMesManager,

@@ -4,7 +4,7 @@ import environ
 import numpy as np
 import pandas as pd
 
-from src.escola.models import DiretoriaRegional
+from src.core.models import DiretoriaRegional
 from src.perfil.models import Perfil, Usuario
 from utility.carga_dados.escola.helper import (
     bcolors,

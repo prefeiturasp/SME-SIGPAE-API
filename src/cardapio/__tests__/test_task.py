@@ -7,7 +7,7 @@ from src.cardapio.tasks import (
     ativa_desativa_vinculos_alimentacao_com_periodo_escolar_e_tipo_unidade_escolar,
     bypass_ativa_vinculos,
 )
-from src.escola.models import (
+from src.core.models import (
     EscolaPeriodoEscolar,
     PeriodoEscolar,
     TipoUnidadeEscolar,

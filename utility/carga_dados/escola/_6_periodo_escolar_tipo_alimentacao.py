@@ -2,7 +2,7 @@ from src.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from src.escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from src.core.models import PeriodoEscolar, TipoUnidadeEscolar
 from utility.carga_dados.escola.helper import printa_pontinhos
 
 

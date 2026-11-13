@@ -20,7 +20,7 @@ from utility.carga_dados.perfil.importa_dados import (
     valida_arquivo_importacao_usuarios,
 )
 
-from ..escola.models import Escola
+from ..core.models import Escola
 from .api.viewsets import (
     exportar_planilha_importacao_usuarios_externos_coresso,
     exportar_planilha_importacao_usuarios_perfil_codae,

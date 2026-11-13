@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.query import QuerySet
 from django.http import QueryDict
 
+from src.core.models import Escola, GrupoUnidadeEscolar, TipoUnidadeEscolar
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     ORDEM_UNIDADES_GRUPO_CEI,
@@ -16,7 +17,6 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     PayloadVariaveis,
 )
-from src.escola.models import Escola, GrupoUnidadeEscolar, TipoUnidadeEscolar
 from src.medicao_inicial.models import Medicao, ValorMedicao
 
 ORDEM_PERIODOS = {

@@ -13,6 +13,7 @@ from src.cardapio.alteracao_tipo_alimentacao_cei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
 )
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import Escola, FaixaEtaria
 from src.dados_comuns.validators import (
     deve_pedir_com_antecedencia,
     deve_ser_no_mesmo_ano_corrente,
@@ -20,7 +21,6 @@ from src.dados_comuns.validators import (
     valida_dia_letivo_ou_inclusao_alimentacao_rpl,
     valida_duplicidade_solicitacoes_cei,
 )
-from src.escola.models import Escola, FaixaEtaria
 from src.inclusao_alimentacao.models import InclusaoAlimentacaoDaCEI
 
 

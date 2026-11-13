@@ -1,7 +1,7 @@
 from django import forms
 
+from src.core.models import DiretoriaRegional, Escola
 from src.dieta_especial.solicitacao_dieta_especial.models import AlergiaIntolerancia
-from src.escola.models import DiretoriaRegional, Escola
 
 
 class RelatorioDietaForm(forms.Form):

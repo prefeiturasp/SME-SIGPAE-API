@@ -9,11 +9,11 @@ from src.cardapio.alteracao_tipo_alimentacao_cei.models import (
     FaixaEtariaSubstituicaoAlimentacaoCEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEI,
 )
-from src.escola.api.serializers import (
+from src.core.api.serializers import (
     FaixaEtariaSerializer,
     TipoAlimentacaoSerializer,
 )
-from src.escola.models import FaixaEtaria
+from src.core.models import FaixaEtaria
 from src.terceirizada.api.serializers.serializers import (
     TerceirizadaSimplesSerializer,
 )

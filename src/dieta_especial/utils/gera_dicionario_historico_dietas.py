@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from src.escola.utils import faixa_to_string
+from src.core.utils import faixa_to_string
 
 from ..constants import (
     UNIDADES_CEI,

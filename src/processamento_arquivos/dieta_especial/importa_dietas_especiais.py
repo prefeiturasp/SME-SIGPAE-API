@@ -8,6 +8,7 @@ from django.db import transaction
 from django.db.models import Q
 from openpyxl import Workbook, load_workbook, styles
 
+from src.core.models import Aluno, Escola
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from src.dieta_especial.carga_dados.models import (
     ArquivoCargaDietaEspecial,
@@ -22,7 +23,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Aluno, Escola
 from src.perfil.models.perfil import Perfil, Vinculo
 from src.perfil.models.usuario import Usuario
 from src.terceirizada.models import Edital

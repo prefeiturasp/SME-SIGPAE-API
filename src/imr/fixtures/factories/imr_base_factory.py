@@ -4,7 +4,7 @@ from factory.django import DjangoModelFactory
 from factory.fuzzy import FuzzyInteger
 from faker import Faker
 
-from src.escola.fixtures.factories.escola_factory import EscolaFactory
+from src.core.fixtures.factories.escola_factory import EscolaFactory
 from src.imr.models import (
     AnexosFormularioBase,
     CategoriaOcorrencia,
