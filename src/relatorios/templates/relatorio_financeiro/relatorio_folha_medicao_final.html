@@ -76,8 +76,10 @@ linhas=descontos.linhas total=descontos.total %}
 {% endblock %}
 
 {% block complemento %}
+{% if descontos.linhas %}
 {% include "relatorio_financeiro/componentes/consolidado_descontos.html" with
 total_descontos=descontos.total faturamento=faturamento_final %}
+{% endif %}
 
 <div class="responsaveis">
   <p class="nota">
