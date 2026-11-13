@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSimplesSerializer
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.perfil.api.serializers import UsuarioSimplesSerializer
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
@@ -12,9 +13,9 @@ from src.terceirizada.api.serializers.serializers import (
 
 from ...models import (
     CronogramaTermoRecebimentoProvisorio,
-    TermoRecebimentoProvisorio,
     LoteMemorandoOcorrencia,
     MemorandoOcorrencia,
+    TermoRecebimentoProvisorio,
 )
 
 
@@ -160,6 +161,7 @@ class TermoRecebimentoProvisorioSerializer(serializers.ModelSerializer):
     fiscal_2 = UsuarioSimplesSerializer(read_only=True)
     fiscal_3 = UsuarioSimplesSerializer(read_only=True)
     pode_assinar = serializers.SerializerMethodField()
+    logs = LogSolicitacoesUsuarioSimplesSerializer(many=True, read_only=True)
 
     def get_pode_assinar(self, obj):
         """O usuário logado pode assinar o termo agora?"""
@@ -182,6 +184,7 @@ class TermoRecebimentoProvisorioSerializer(serializers.ModelSerializer):
             "texto_termo",
             "status",
             "pode_assinar",
+            "logs",
             "criado_em",
             "alterado_em",
         )
