@@ -404,18 +404,6 @@ class DiretoriaRegional(
         ordering = ("nome",)
 
 
-class FaixaIdadeEscolar(Nomeavel, Ativavel, TemChaveExterna):
-    """de 1 a 2 anos, de 2 a 5 anos, de 7 a 18 anos, etc."""
-
-    def __str__(self):
-        return self.nome
-
-    class Meta:
-        verbose_name = "Idade escolar"
-        verbose_name_plural = "Idades escolares"
-        ordering = ("nome",)
-
-
 class TipoUnidadeEscolar(Iniciais, Ativavel, TemChaveExterna):
     """EMEF, CIEJA, EMEI, EMEBS, CEI, CEMEI..."""
 
@@ -547,7 +535,6 @@ class Escola(
         null=True,
         default=None,
     )
-    idades = models.ManyToManyField(FaixaIdadeEscolar, blank=True)
     endereco = models.ForeignKey(
         "dados_comuns.Endereco", blank=True, null=True, on_delete=models.DO_NOTHING
     )

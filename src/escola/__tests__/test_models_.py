@@ -119,16 +119,10 @@ def test_escola(escola):
     assert isinstance(escola.tipo_unidade, TipoUnidadeEscolar)
     assert isinstance(escola.tipo_gestao, TipoGestao)
     assert escola.lote is not None
-    assert escola.idades.all() is not None
     assert escola.periodos_escolares().all() is not None
 
     assert escola.grupos_inclusoes is not None
     assert escola.inclusoes_continuas is not None
-
-
-def test_faixa_idade_escolar(faixa_idade_escolar):
-    assert isinstance(str(faixa_idade_escolar), str)
-    assert faixa_idade_escolar.nome is not None
 
 
 def test_codae(codae):

@@ -20,7 +20,6 @@ from .models import (
     DiretoriaRegional,
     Escola,
     EscolaPeriodoEscolar,
-    FaixaIdadeEscolar,
     GrupoUnidadeEscolar,
     HistoricoEscola,
     HistoricoMatriculaAluno,
@@ -395,7 +394,6 @@ class AlunoPeriodoParcialAdmin(admin.ModelAdmin):
 
 admin.site.register(Codae)
 admin.site.register(EscolaPeriodoEscolar, EscolaPeriodoEscolarAdmin)
-admin.site.register(FaixaIdadeEscolar)
 admin.site.register(LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar)
 admin.site.register(LogRotinaDiariaAlunos)
 admin.site.register(Responsavel)

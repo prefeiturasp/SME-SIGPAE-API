@@ -63,31 +63,6 @@ Unidade escolar. EMEF, CIEJA, EMEI, EMEBS, CEI, CEMEI]]></comment>
 	</constraint>
 </table>
 
-<table name="faixa_idade_escolar" layer="0" collapse-mode="2" max-obj-count="3">
-	<schema name="&quot;escola[revisado]&quot;"/>
-	<role name="postgres"/>
-	<comment><![CDATA[[o cardapio so varia por idade quando é CEI, tirando isso nao é interessante a faixa.]
-
-Tabela utilizada para registrar faixa etária de idade.
-Ex. de 1 a 2 anos
-de 2 a 5 anos
-de 7 a 18 anos.
-de 6meses a 1 ano]]></comment>
-	<position x="5162.42" y="257.143"/>
-	<column name="idade_id" not-null="true">
-		<type name="serial" length="0"/>
-	</column>
-	<column name="nome" not-null="true">
-		<type name="varchar" length="30"/>
-	</column>
-	<column name="ativo" not-null="true" default-value="true">
-		<type name="bool" length="0"/>
-	</column>
-	<constraint name="idade_pk" type="pk-constr" table="&quot;escola[revisado]&quot;.faixa_idade_escolar">
-		<columns names="idade_id" ref-type="src-columns"/>
-	</constraint>
-</table>
-
 <schema name="codae" layer="0" rect-visible="true" fill-color="#00aaff">
 	<role name="postgres"/>
 </schema>
@@ -1171,17 +1146,6 @@ quando é multipla: todas as escolas vao ter a mesma opcao de kits, com numero d
 	 dst-table="kit_lanche.kit_lanche"
 	 src-required="false" dst-required="false"
 	 table-name="many_escola_quantidade_has_many_kit_lanche"/>
-
-<relationship name="many_faixa_idade_escolar_has_many_escola[revisado]" type="relnn" layer="0"
-	 src-col-pattern="{sc}_{st}" dst-col-pattern="{sc}_{dt}"
-	 pk-pattern="{gt}_pk" uq-pattern="{gt}_uq"
-	 src-fk-pattern="{st}_fk" dst-fk-pattern="{dt}_fk"
-	 pk-col-pattern="id"
-	 custom-color="#ff0000"
-	 src-table="&quot;escola[revisado]&quot;.faixa_idade_escolar"
-	 dst-table="&quot;escola[revisado]&quot;.&quot;escola[revisado]&quot;"
-	 src-required="false" dst-required="false"
-	 table-name="many_faixa_idade_escolar_has_many_escola[revisado]"/>
 
 <table name="endereco" layer="0" collapse-mode="2" max-obj-count="3">
 	<schema name="dados_comuns"/>

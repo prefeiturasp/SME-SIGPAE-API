@@ -29,7 +29,6 @@ from ..models import (
     Escola,
     EscolaPeriodoEscolar,
     FaixaEtaria,
-    FaixaIdadeEscolar,
     GrupoUnidadeEscolar,
     LogAlunosMatriculadosFaixaEtariaDia,
     LogAlunosMatriculadosPeriodoEscola,
@@ -192,12 +191,6 @@ class TipoUnidadeEscolarSerializerSimples(serializers.ModelSerializer):
     class Meta:
         model = TipoUnidadeEscolar
         exclude = ("id", "periodos_escolares")
-
-
-class FaixaIdadeEscolarSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FaixaIdadeEscolar
-        exclude = ("id",)
 
 
 class DiretoriaRegionalSimplissimaSerializer(serializers.ModelSerializer):
@@ -439,7 +432,6 @@ class EscolaCompletaSerializer(
 ):
     nome = serializers.SerializerMethodField()
     diretoria_regional = DiretoriaRegionalSimplesSerializer()
-    idades = FaixaIdadeEscolarSerializer(many=True)
     tipo_unidade = TipoUnidadeEscolarSerializer()
     tipo_gestao = TipoGestaoSerializer()
     periodos_escolares = PeriodoEscolarSerializer(many=True)

@@ -257,11 +257,6 @@ def escola_simplissima_serializer(escola):
 
 
 @pytest.fixture
-def faixa_idade_escolar():
-    return baker.make(models.FaixaIdadeEscolar, nome=fake.name())
-
-
-@pytest.fixture
 def codae(escola):
     return baker.make(models.Codae, make_m2m=True)
 
