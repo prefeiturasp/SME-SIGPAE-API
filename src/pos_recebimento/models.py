@@ -100,10 +100,10 @@ class TermoRecebimentoProvisorio(
     def etapa_fiscais_concluida(self):
         """A etapa de assinatura dos Fiscais do Contrato está concluída?
 
-        Concluída quando todos os fiscais distintos já registraram a
-        assinatura ``FISCAL_CONTRATO``. O cadastro permite o mesmo usuário
-        em mais de um dos três papéis e cada usuário assina uma única vez,
-        então a assinatura do usuário repetido cobre todos os papéis dele.
+        Concluída quando todos os fiscais distintos já assinaram. O cadastro
+        permite o mesmo usuário em mais de um dos três papéis e cada usuário
+        assina uma única vez, então a assinatura do usuário repetido cobre
+        todos os papéis dele.
         """
         fiscais = {self.fiscal_1_id, self.fiscal_2_id, self.fiscal_3_id}
         assinantes = set(self.assinaturas.values_list("usuario_id", flat=True))

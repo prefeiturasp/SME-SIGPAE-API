@@ -331,7 +331,7 @@ class TermoRecebimentoProvisorioViewSet(
 
         Disponível apenas após a conclusão das assinaturas dos três Fiscais
         do Contrato (``etapa_fiscais_concluida``), quando o termo passa ao
-        status ``ENVIADO_DILOG``.
+        status ``TERMO_ASSINADO``.
 
         Endpoint: ``GET /pos-recebimento/termos/<uuid>/gerar-pdf-termo/``
         """

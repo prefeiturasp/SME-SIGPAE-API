@@ -23,10 +23,9 @@ def _assina_fiscais(termo):
         AssinaturaTermoRecebimentoProvisorio.objects.get_or_create(
             termo=termo,
             usuario=fiscal,
-            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
         )
     TermoRecebimentoProvisorio.objects.filter(pk=termo.pk).update(
-        status=TermoRecebimentoProvisorio.ENVIADO_DILOG
+        status=TermoRecebimentoProvisorio.TERMO_ASSINADO
     )
     termo.refresh_from_db()
     return termo
