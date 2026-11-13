@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from src.core.utils_escola import get_escolas
+from src.core.escola.utils_escola import get_escolas
 from src.dieta_especial.carga_dados.models import PlanilhaDietasAtivas
 
 

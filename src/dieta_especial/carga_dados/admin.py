@@ -3,8 +3,8 @@ from datetime import date
 from django.contrib import admin, messages
 from django.http import HttpResponse
 
+from src.core.escola.utils_escola import create_tempfile, escreve_escolas_json
 from src.core.utils_analise_dietas_ativas import main
-from src.core.utils_escola import create_tempfile, escreve_escolas_json
 from src.dados_comuns.constants import StringsValidationErrors
 from src.dieta_especial.tasks.admin_actions import get_escolas_task
 from src.processamento_arquivos.dieta_especial import (

@@ -8,7 +8,7 @@ from celery import shared_task
 from django.core import management
 from django.template.loader import render_to_string
 
-from src.core.utils_escola import (
+from src.core.escola.utils_escola import (
     atualiza_codigo_codae_das_escolas,
     atualiza_tipo_gestao_das_escolas,
 )
@@ -45,13 +45,13 @@ from ..kit_lanche.models import (
 from ..paineis_consolidados.models import SolicitacoesDRE
 from ..perfil.models import Usuario
 from ..relatorios.utils import html_to_pdf_file
+from .escola.utils_montar_planilha_matriculados import build_xlsx_alunos_matriculados
 from .utils import (
     calendario_sgp,
     duplica_logs_ultimo_dia_letivo,
     ordenar_alunos_matriculados,
     registro_quantidade_alunos_matriculados_por_escola_periodo,
 )
-from .utils_montar_planilha_matriculados import build_xlsx_alunos_matriculados
 
 # https://docs.celeryproject.org/en/latest/userguide/tasks.html
 logger = logging.getLogger("sigpae.taskEscola")

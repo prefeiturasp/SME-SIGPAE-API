@@ -11,6 +11,12 @@ from freezegun import freeze_time
 from model_bakery import baker
 
 from src.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from src.core.escola.utils_escola import (
+    dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_escola,
+)
+from src.core.escola.utils_escola import (
+    dict_codigos_escolas as dict_escola_utils_escola,
+)
 from src.core.utils import cria_arquivo_excel
 from src.core.utils_analise_dietas_ativas import (
     dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_dieta,
@@ -18,10 +24,6 @@ from src.core.utils_analise_dietas_ativas import (
 from src.core.utils_analise_dietas_ativas import (
     dict_codigos_escolas as dict_escola_utils_dieta,
 )
-from src.core.utils_escola import (
-    dict_codigo_aluno_por_codigo_escola as dict_aluno_utils_escola,
-)
-from src.core.utils_escola import dict_codigos_escolas as dict_escola_utils_escola
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
     TIPO_UNIDADE_CEI_DIRET,
@@ -42,11 +44,9 @@ from src.dados_comuns.fluxo_status import (
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 
-from ...core.api.serializers import (
-    Aluno,
-    EscolaSimplissimaSerializer,
-    VinculoInstituicaoSerializer,
-)
+from ...core.api.serializers import VinculoInstituicaoSerializer
+from ...core.escola.api.serializers import EscolaSimplissimaSerializer
+from ...core.models import Aluno
 from ...eol_servico.utils import dt_nascimento_from_api
 from ...medicao_inicial.models import SolicitacaoMedicaoInicial
 from ...perfil.models import Vinculo

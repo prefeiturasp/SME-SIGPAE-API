@@ -4,7 +4,7 @@ import pytest
 from freezegun import freeze_time
 from openpyxl import Workbook, load_workbook
 
-from src.core.utils_montar_planilha_matriculados import (
+from src.core.escola.utils_montar_planilha_matriculados import (
     build_xlsx_alunos_matriculados,
     monta_celulas_faixas_periodos,
     montar_cabecalho_padrao,

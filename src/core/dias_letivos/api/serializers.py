@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
-from src.core.api.serializers import (
+from src.core.models import Lote
+
+from ...escola.api.serializers import (
     PeriodoEscolarParaFiltroSerializer,
     TipoUnidadeParaFiltroSerializer,
 )
-from src.core.models import Lote
-
 from ..models import DiaLetivoSIGPAE
 
 

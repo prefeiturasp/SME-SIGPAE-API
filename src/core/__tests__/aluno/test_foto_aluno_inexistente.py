@@ -3,7 +3,7 @@ from unittest.mock import Mock
 import pytest
 from rest_framework import status
 
-from src.core.api import viewsets
+from src.core.aluno.api import viewsets
 from src.core.models import Aluno
 from src.core.services import NovoSGPServicoLogadoException
 

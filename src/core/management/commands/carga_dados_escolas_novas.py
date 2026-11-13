@@ -45,7 +45,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Importando dados...")
 
-        arquivo_escolas_novas = "src/core/data/escolas_novas_codigo_eol.csv"
+        arquivo_escolas_novas = "src/core/carga_dados/data/escolas_novas_codigo_eol.csv"
 
         escolas_novas = csv_to_list(arquivo_escolas_novas)
 

@@ -4,13 +4,13 @@ import environ
 from django.db.models import Q
 
 from src.cardapio.base.models import TipoAlimentacao
-from src.core.data.diretorias_regionais import (  # noqa
+from src.core.carga_dados.data.diretorias_regionais import (  # noqa
     data_diretorias_regionais,
 )
-from src.core.data.lotes import data_lotes
-from src.core.data.periodo_escolar import data_periodo_escolar
-from src.core.data.subprefeituras import data_subprefeituras
-from src.core.data.tipos_gestao import data_tipos_gestao
+from src.core.carga_dados.data.lotes import data_lotes
+from src.core.carga_dados.data.periodo_escolar import data_periodo_escolar
+from src.core.carga_dados.data.subprefeituras import data_subprefeituras
+from src.core.carga_dados.data.tipos_gestao import data_tipos_gestao
 from src.core.models import (
     DiretoriaRegional,
     Escola,

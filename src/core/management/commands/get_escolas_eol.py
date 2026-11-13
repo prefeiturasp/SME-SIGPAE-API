@@ -2,7 +2,7 @@ import tempfile
 
 from django.core.management.base import BaseCommand
 
-from src.core.utils_escola import get_escolas
+from src.core.escola.utils_escola import get_escolas
 
 
 class Command(BaseCommand):

@@ -1,108 +1,124 @@
 from django.urls import include, path
 from rest_framework import routers
 
-from .api import viewsets
+from .aluno.api import viewsets as aluno_viewsets
+from .codae.api import viewsets as codae_viewsets
+from .diretoria_regional.api import viewsets as diretoria_regional_viewsets
+from .escola.api import viewsets as escola_viewsets
+from .logs.api import viewsets as logs_viewsets
+from .lote.api import viewsets as lote_viewsets
+from .subprefeitura.api import viewsets as subprefeitura_viewsets
 
 router = routers.DefaultRouter()
 
 router.register(
-    "faixas-etarias", viewsets.FaixaEtariaViewSet, basename="Faixas Etárias"
+    "faixas-etarias", aluno_viewsets.FaixaEtariaViewSet, basename="Faixas Etárias"
 )
 router.register(
     "escola-quantidade-alunos-por-periodo-e-faixa-etaria",
-    viewsets.EscolaQuantidadeAlunosPorPeriodoEFaixaViewSet,
+    escola_viewsets.EscolaQuantidadeAlunosPorPeriodoEFaixaViewSet,
     basename="escola-quantidade-alunos-por-periodo-e-faixa-etaria",
 )
 router.register(
-    "escolas-simples", viewsets.EscolaSimplesViewSet, basename="escolas-simples"
+    "escolas-simples", escola_viewsets.EscolaSimplesViewSet, basename="escolas-simples"
 )
 router.register(
     "escolas-para-filtros",
-    viewsets.EscolaParaFiltrosViewSet,
+    escola_viewsets.EscolaParaFiltrosViewSet,
     basename="escolas-para-filtros",
 )
 router.register(
     "escolas-simplissima",
-    viewsets.EscolaSimplissimaViewSet,
+    escola_viewsets.EscolaSimplissimaViewSet,
     basename="escolas-simplissima",
 )
 router.register(
     "escolas-simplissima-com-dre",
-    viewsets.EscolaSimplissimaComDREViewSet,
+    escola_viewsets.EscolaSimplissimaComDREViewSet,
     basename="escolas-simplissima-com-dre",
 )
 router.register(
     "escolas-simplissima-com-eol",
-    viewsets.EscolaSimplissimaComEolViewSet,
+    escola_viewsets.EscolaSimplissimaComEolViewSet,
     basename="escolas-simplissima-com-eol",
 )
 router.register(
     "escolas-simplissima-com-dre-unpaginated",
-    viewsets.EscolaSimplissimaComDREUnpaginatedViewSet,
+    escola_viewsets.EscolaSimplissimaComDREUnpaginatedViewSet,
     basename="escolas-simplissima-unpaginated",
 )
 router.register(
-    "periodos-escolares", viewsets.PeriodoEscolarViewSet, basename="periodos"
+    "periodos-escolares", escola_viewsets.PeriodoEscolarViewSet, basename="periodos"
 )
 router.register(
     "periodos-com-matriculados-por-ue",
-    viewsets.PeriodosComMatriculadosPorUEViewSet,
+    escola_viewsets.PeriodosComMatriculadosPorUEViewSet,
     basename="periodos-com-matriculados",
 )
 router.register(
-    "diretorias-regionais", viewsets.DiretoriaRegionalViewSet, basename="dres"
+    "diretorias-regionais",
+    diretoria_regional_viewsets.DiretoriaRegionalViewSet,
+    basename="dres",
 )
 router.register(
     "diretorias-regionais-simplissima",
-    viewsets.DiretoriaRegionalSimplissimaViewSet,
+    diretoria_regional_viewsets.DiretoriaRegionalSimplissimaViewSet,
     basename="dres-simplissima",
 )
-router.register("lotes-simples", viewsets.LoteSimplesViewSet, basename="lotes-simples")
-router.register("lotes", viewsets.LoteViewSet, basename="lotes")
-router.register("tipos-gestao", viewsets.TipoGestaoViewSet, basename="tipos-gestao")
 router.register(
-    "subprefeituras", viewsets.SubprefeituraViewSet, basename="subprefeituras"
+    "lotes-simples", lote_viewsets.LoteSimplesViewSet, basename="lotes-simples"
 )
-router.register("codae", viewsets.CODAESimplesViewSet, basename="codae")
+router.register("lotes", lote_viewsets.LoteViewSet, basename="lotes")
+router.register(
+    "tipos-gestao", escola_viewsets.TipoGestaoViewSet, basename="tipos-gestao"
+)
+router.register(
+    "subprefeituras",
+    subprefeitura_viewsets.SubprefeituraViewSet,
+    basename="subprefeituras",
+)
+router.register("codae", codae_viewsets.CODAESimplesViewSet, basename="codae")
 router.register(
     "tipos-unidade-escolar",
-    viewsets.TipoUnidadeEscolarViewSet,
+    escola_viewsets.TipoUnidadeEscolarViewSet,
     basename="tipos-unidade-escolar",
 )
 router.register(
     "quantidade-alunos-por-periodo",
-    viewsets.EscolaPeriodoEscolarViewSet,
+    escola_viewsets.EscolaPeriodoEscolarViewSet,
     basename="quantidade-alunos-por-periodo",
 )
-router.register("alunos", viewsets.AlunoViewSet, basename="alunos")
+router.register("alunos", aluno_viewsets.AlunoViewSet, basename="alunos")
 router.register(
     "matriculados-no-mes",
-    viewsets.LogAlunosMatriculadosPeriodoEscolaViewSet,
+    logs_viewsets.LogAlunosMatriculadosPeriodoEscolaViewSet,
     basename="matriculados-no-mes",
 )
 router.register(
-    "dias-calendario", viewsets.DiaCalendarioViewSet, basename="dias-calendario"
+    "dias-calendario", escola_viewsets.DiaCalendarioViewSet, basename="dias-calendario"
 )
 router.register(
     "relatorio-alunos-matriculados",
-    viewsets.RelatorioAlunosMatriculadosViewSet,
+    escola_viewsets.RelatorioAlunosMatriculadosViewSet,
     basename="relatorio-alunos-matriculados",
 )
 router.register(
     "log-alunos-matriculados-faixa-etaria-dia",
-    viewsets.LogAlunosMatriculadosFaixaEtariaDiaViewSet,
+    logs_viewsets.LogAlunosMatriculadosFaixaEtariaDiaViewSet,
     basename="log-alunos-matriculados-faixa-etaria-dia",
 )
-router.register("dias-suspensao-atividades", viewsets.DiaSuspensaoAtividadesViewSet)
-router.register("grupos-unidade-escolar", viewsets.GrupoUnidadeEscolarViewSet)
+router.register(
+    "dias-suspensao-atividades", escola_viewsets.DiaSuspensaoAtividadesViewSet
+)
+router.register("grupos-unidade-escolar", escola_viewsets.GrupoUnidadeEscolarViewSet)
 router.register(
     "relatorio-controle-frequencia",
-    viewsets.RelatorioControleDeFrequenciaViewSet,
+    escola_viewsets.RelatorioControleDeFrequenciaViewSet,
     basename="relatorio-controle-frequencia",
 )
 router.register(
     "historico-escola",
-    viewsets.HistoricoEscolaViewSet,
+    escola_viewsets.HistoricoEscolaViewSet,
     basename="historico-escola",
 )
 

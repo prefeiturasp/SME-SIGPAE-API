@@ -9,8 +9,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from django.conf import settings
 
-from src.core.utils import cria_arquivo_excel
-from src.core.utils_escola import (
+from src.core.escola.utils_escola import (
     EOLException,
     ajustes_no_arquivo,
     atualiza_codigo_codae_das_escolas,
@@ -27,6 +26,7 @@ from src.core.utils_escola import (
     get_informacoes_escola_turma_aluno,
     grava_codescola_nao_existentes,
 )
+from src.core.utils import cria_arquivo_excel
 from src.dados_comuns.constants import StatusProcessamentoArquivo
 
 pytestmark = pytest.mark.django_db
