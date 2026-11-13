@@ -42,6 +42,7 @@ from src.medicao_inicial.services.relatorio_folha_medicao_final import (
     montar_contexto_folha_medicao_final,
 )
 from src.paineis_consolidados.models import SolicitacoesCODAE
+from src.pos_recebimento.models import AssinaturaTermoRecebimentoProvisorio
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
 )
@@ -72,6 +73,7 @@ from ..logistica.api.helpers import retorna_status_guia_remessa
 from ..medicao_inicial.models import ValorMedicao
 from ..medicao_inicial.utils import (
     build_lista_campos_observacoes,
+    build_tabela_escola_aberta,
     build_tabela_relatorio_consolidado,
     build_tabela_somatorio_body,
     build_tabela_somatorio_body_cei,
@@ -123,6 +125,21 @@ ARQUIVO_MARCA_DAGUA_PRELIMINAR = "preliminar.pdf"
 
 FORMATO_DATA_HORA_PDF = "%d/%m/%Y às %H:%M"
 NOME_ARQUIVO_DIETA_ESPECIAL = "relatorio_dieta_especial.pdf"
+
+MESES_POR_EXTENSO = (
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+)
 
 
 def valida_request_method_get(request):
@@ -1717,6 +1734,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
 
+    tabela_escola_aberta = build_tabela_escola_aberta(solicitacao)
+    if tabela_escola_aberta:
+        tabelas.append(tabela_escola_aberta)
+
     tipos_contagem_alimentacao = list(
         solicitacao.tipos_contagem_alimentacao.values_list("nome", flat=True)
     )
@@ -1785,9 +1806,7 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     return html_to_pdf_watermark(
         html_string,
         NOME_ARQUIVO_DIETA_ESPECIAL,
@@ -1841,9 +1860,7 @@ def relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     return html_to_pdf_watermark(
         html_string,
         NOME_ARQUIVO_DIETA_ESPECIAL,
@@ -1909,9 +1926,7 @@ def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao)
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -1949,9 +1964,7 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2010,9 +2023,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2064,9 +2075,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitaca
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2376,9 +2385,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2825,6 +2832,66 @@ def get_pdf_ficha_recebimento(request, ficha):
     return html_to_pdf_response(
         html_string.replace("dt_file", data_arquivo),
         f"ficha_recebimento_{ficha.etapa.cronograma.numero}.pdf",
+    )
+
+
+def get_pdf_termo_recebimento_provisorio(request, termo):
+    """
+    Gera o PDF do Termo de Recebimento Provisório.
+
+    Parametros:
+        request: Objeto de requisição HTTP
+        termo: Instância de TermoRecebimentoProvisorio
+
+    Retorno:
+        HttpResponse: Resposta HTTP com o PDF do Termo de Recebimento Provisório
+    """
+    cronogramas_termo = list(
+        termo.cronogramas_termo.select_related(
+            "cronograma__ficha_tecnica__produto",
+            "cronograma__unidade_medida",
+        ).order_by("cronograma__numero")
+    )
+    cronogramas = [
+        item
+        for item in cronogramas_termo
+        if item.cronograma.ficha_tecnica and item.cronograma.ficha_tecnica.produto
+    ]
+
+    assinaturas_por_usuario = {
+        assinatura.usuario_id: assinatura
+        for assinatura in termo.assinaturas.filter(
+            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO
+        ).select_related("usuario")
+    }
+    blocos_assinatura = [
+        {
+            "fiscal": fiscal,
+            "assinatura": assinaturas_por_usuario.get(fiscal.id),
+        }
+        for fiscal in (termo.fiscal_1, termo.fiscal_2, termo.fiscal_3)
+    ]
+
+    html_string = render_to_string(
+        "pos_recebimento/termo_recebimento_provisorio/termo.html",
+        {
+            "termo": termo,
+            "cronogramas": cronogramas,
+            "numeros_cronogramas": " | ".join(
+                item.cronograma.numero for item in cronogramas_termo
+            ),
+            "data_termo": (
+                f"{termo.criado_em.day:02d} de "
+                f"{MESES_POR_EXTENSO[termo.criado_em.month - 1]} de "
+                f"{termo.criado_em.year}"
+            ),
+            "blocos_assinatura": blocos_assinatura,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime(FORMATO_DATA_HORA_PDF)
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"termo_recebimento_provisorio_{termo.uuid}.pdf",
     )
 
 

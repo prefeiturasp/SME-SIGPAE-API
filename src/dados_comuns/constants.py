@@ -1240,6 +1240,7 @@ class StringsSearchHelpText(Enum):
     PESQUISE_POR_NOME_DA_ESCOLA_CODIGO_EOL_DA_ESCOLA_OU_NOME_DO_LOTE = (
         "Pesquise por: nome da escola, código eol da escola ou nome do lote"
     )
+    PESQUISE_POR_RF_OU_NOME_DO_RESPONSAVEL_PROCESSO_DE_PAGAMENTO_OU_NOME_DO_LOTE = "Pesquise por: RF ou nome do responsável pela conferência, número do processo de pagamento ou nome do lote"
 
     @classmethod
     def choices(cls):

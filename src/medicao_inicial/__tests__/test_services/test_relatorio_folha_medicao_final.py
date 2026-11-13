@@ -3,12 +3,20 @@ import io
 from decimal import Decimal
 
 import pytest
+from django.template import Context
+from django.template.loader import get_template
+from django.template.loader_tags import ExtendsNode
 from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfReader
 
-from src.escola.models import FaixaEtaria
-from src.medicao_inicial.models import MedicaoFinal, ParametrizacaoFinanceiraTabelaValor
+from src.dados_comuns.constants import StringsParametrizacaoFinanceiraTabela
+from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
+from src.medicao_inicial.models import (
+    DescontoFinanceiro,
+    MedicaoFinal,
+    ParametrizacaoFinanceiraTabelaValor,
+)
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
     obter_config_grupo,
@@ -16,17 +24,25 @@ from src.medicao_inicial.services.relatorio_ateste_financeiro import (
 from src.medicao_inicial.services.relatorio_folha_medicao_final import (
     montar_cabecalho_folha,
     montar_contexto_folha_medicao_final,
+    montar_faturamento_final,
     nome_arquivo_folha_medicao_final,
     obter_dados_contratuais,
+    titulo_coluna_faixa_ou_alimentacao,
 )
 from src.relatorios.relatorios import (
     gerar_relatorio_ateste_financeiro,
     gerar_relatorio_folha_medicao_final,
 )
-from src.relatorios.templatetags.index import percentual_br
+from src.relatorios.templatetags.index import (
+    agrupador_milhar_com_decimal,
+    numero_para_milhar,
+    percentual_br,
+)
 from src.relatorios.utils import extrair_texto_de_pdf
 
 pytestmark = pytest.mark.django_db
+
+ALIMENTACOES = StringsParametrizacaoFinanceiraTabela.ALIMENTACOES.value
 
 
 def _gera_medicao_final(relatorio, nome="MARIA DA SILVA", rf="8785571"):
@@ -148,6 +164,41 @@ def test_percentual_br_sem_zeros_decimais(valor, esperado):
     assert percentual_br(valor) == esperado
 
 
+TEMPLATE_FOLHA = "relatorio_financeiro/relatorio_folha_medicao_final.html"
+
+
+def _template_pai_da_folha(contexto):
+    template = get_template(TEMPLATE_FOLHA).template
+    extends = template.nodelist.get_nodes_by_type(ExtendsNode)[0]
+    context = Context(contexto)
+    context.template = template
+    return extends.get_parent(context).origin.template_name
+
+
+def test_template_da_folha_estende_o_base_sem_contexto():
+    assert (
+        _template_pai_da_folha({})
+        == "relatorio_financeiro/relatorio_ateste_financeiro_base.html"
+    )
+
+
+@pytest.mark.parametrize(
+    "grupo",
+    [
+        GrupoUnidadeEscolar.GRUPO_1,
+        GrupoUnidadeEscolar.GRUPO_2,
+        GrupoUnidadeEscolar.GRUPO_3,
+        GrupoUnidadeEscolar.GRUPO_5,
+    ],
+)
+def test_template_da_folha_estende_o_template_do_grupo(grupo):
+    template_grupo = obter_config_grupo(grupo)["template"]
+
+    assert _template_pai_da_folha({"template_ateste": template_grupo}) == (
+        template_grupo
+    )
+
+
 @pytest.mark.usefixtures("pdf_com_estilos")
 class TestAssinatura:
     def test_preserva_a_data_da_geracao_ao_regerar_o_pdf(
@@ -209,8 +260,10 @@ class TestConteudoFolha:
             "Responsável pela Empresa Contratada",
         ):
             assert trecho in texto
-        assert "DESCONTO" not in texto.upper()
-        assert "FATURAMENTO FINAL" not in texto
+        assert "TABELA DE DESCONTO" not in texto
+        assert "TOTAL DE DESCONTOS DOS ITENS (D)" not in texto
+        assert "DESCONTOSTOTAIS(D)" not in _sem_espacos(texto)
+        assert "FATURAMENTOFINAL" not in _sem_espacos(texto)
         assert "ATESTE FINANCEIRO" not in texto
 
     def test_numeros_iguais_aos_da_api_e_do_ateste(self, contexto_grupo_relatorio):
@@ -306,6 +359,20 @@ class TestPaginacao:
             assert "Diretor de Divisão Técnica" not in pagina
             assert "Responsável pela Empresa Contratada" not in pagina
 
+    def test_responsaveis_na_pagina_do_consolidado_quando_cabem(
+        self, relatorio_financeiro_cei, parametrizacao_financeira_cei
+    ):
+        _gera_medicao_final(relatorio_financeiro_cei)
+
+        ultima = _paginas(
+            gerar_relatorio_folha_medicao_final(
+                relatorio_financeiro_cei, parametrizacao_financeira_cei
+            )
+        )[-1]
+
+        assert "CONSOLIDADO TOTAL (A + B + C)" in ultima
+        assert "Responsável pela Empresa Contratada" in ultima
+
     def test_nenhuma_linha_de_faixa_etaria_e_perdida(self, documento_longo):
         texto = "\n".join(documento_longo)
         faixas_ativas = FaixaEtaria.objects.filter(ativo=True).count()
@@ -339,3 +406,651 @@ class TestPaginacao:
             assert pagina.count("FOLHA DE MEDIÇÃO FINAL") == 1
             assert f"Página {numero}/{len(paginas)}" in pagina
         assert "Coordenador SME/CODAE" in paginas[-1]
+
+
+def _sem_espacos(texto):
+    return "".join(texto.split())
+
+
+def _assert_em_ordem(texto, trechos):
+    posicao = 0
+    for trecho in trechos:
+        posicao = texto.index(_sem_espacos(trecho), posicao)
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+@pytest.mark.parametrize(
+    "contexto_grupo_relatorio", ["grupo_1_cei", "grupo_2_cemei"], indirect=True
+)
+class TestGruposPorFaixaEtaria:
+    @pytest.fixture
+    def folha(self, contexto_grupo_relatorio):
+        relatorio = contexto_grupo_relatorio["relatorio"]
+        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
+        _gera_medicao_final(relatorio)
+        contexto = montar_contexto_folha_medicao_final(relatorio, parametrizacao)
+        texto = extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
+        )
+        return contexto.get("cei", contexto), _sem_espacos(texto)
+
+    def test_tabelas_na_ordem_com_os_totais(self, folha):
+        tabelas, texto = folha
+
+        _assert_em_ordem(
+            texto,
+            [
+                "ALIMENTAÇÕES FAIXAS ETÁRIAS - SEM DIETAS",
+                "TOTAL (A)",
+                "DIETA ESPECIAL - TIPO A",
+                "TOTAL (B)",
+                "DIETA ESPECIAL - TIPO B",
+                "TOTAL (C)",
+            ],
+        )
+        totais = (
+            ("A", tabelas["alimentacao"]["total_atendimentos"], "alimentacao"),
+            ("B", tabelas["dieta_a"]["total_consumo"], "dieta_a"),
+            ("C", tabelas["dieta_b"]["total_consumo"], "dieta_b"),
+        )
+        for ordem, quantidade, tabela in totais:
+            valor = agrupador_milhar_com_decimal(tabelas[tabela]["valor_total"])
+            assert f"TOTAL({ordem}){numero_para_milhar(quantidade)}R${valor}" in texto
+
+    def test_linhas_exibem_periodo_e_faixa_com_os_valores(self, folha):
+        tabelas, texto = folha
+        linhas = [
+            (linha, linha["numero_atendimentos"])
+            for linha in tabelas["alimentacao"]["linhas"]
+        ] + [
+            (linha, linha["numero_consumo"])
+            for tabela in ("dieta_a", "dieta_b")
+            for linha in tabelas[tabela]["linhas"]
+        ]
+
+        assert linhas
+        for linha, quantidade in linhas:
+            rotulo = _sem_espacos(f"{linha['periodo']} - {linha['faixa']}")
+            valor_unitario = agrupador_milhar_com_decimal(linha["valor_unitario"])
+            assert (
+                f"{rotulo}{numero_para_milhar(quantidade)}R${valor_unitario}" in texto
+            )
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+@pytest.mark.parametrize("contexto_grupo_relatorio", ["grupo_2_cemei"], indirect=True)
+def test_cemei_exibe_turma_infantil_e_os_tres_consolidados(contexto_grupo_relatorio):
+    relatorio = contexto_grupo_relatorio["relatorio"]
+    parametrizacao = contexto_grupo_relatorio["parametrizacao"]
+    _gera_medicao_final(relatorio)
+    consolidados = montar_contexto_folha_medicao_final(relatorio, parametrizacao)[
+        "consolidados"
+    ]
+
+    texto = _sem_espacos(
+        extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
+        )
+    )
+
+    _assert_em_ordem(
+        texto,
+        [
+            "TOTAL (C)",
+            "Alimentações TURMA INFANTIL da CEMEI",
+            "TOTAL (INF. A)",
+            "TOTAL (INF. B)",
+            "TOTAL (INF. C)",
+            "CONSOLIDADO CEI (A + B + C)",
+            "CONSOLIDADO INFANTIL - EMEI (INF. A + INF. B + INF. C)",
+            "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
+        ],
+    )
+    for consolidado in consolidados:
+        bloco = texto.split(_sem_espacos(consolidado["titulo"]), 1)[1]
+        bloco = bloco.split("CONSOLIDADO", 1)[0]
+        quantidade = numero_para_milhar(consolidado["quantidade"])
+        valor = agrupador_milhar_com_decimal(consolidado["valor"])
+        assert f"{quantidade}ALIMENTAÇÕES" in bloco
+        assert f"R${valor}" in bloco
+
+
+def _clausula(edital, porcentagem="50.00", numero="7.2.2", item="item a"):
+    return baker.make(
+        "ClausulaDeDesconto",
+        edital=edital,
+        numero_clausula=numero,
+        item_clausula=item,
+        porcentagem_desconto=Decimal(porcentagem),
+    )
+
+
+def _cria_desconto(relatorio, clausula, quantidade, unidades=("EMEF TESTE",), **kw):
+    return baker.make(
+        DescontoFinanceiro,
+        relatorio_financeiro=relatorio,
+        clausula_desconto=clausula,
+        quantidade=quantidade,
+        unidades_educacionais=[baker.make("Escola", nome=nome) for nome in unidades],
+        **kw,
+    )
+
+
+def _altera_unitario(parametrizacao, valor, nome_tabela=ALIMENTACOES, **filtros):
+    atualizados = ParametrizacaoFinanceiraTabelaValor.objects.filter(
+        tabela__parametrizacao_financeira=parametrizacao,
+        tabela__nome__startswith=nome_tabela,
+        tipo_valor__nome="UNITARIO",
+        **filtros,
+    ).update(valor=valor)
+    assert atualizados
+
+
+def _descontos(relatorio, parametrizacao):
+    _gera_medicao_final(relatorio)
+    return montar_contexto_folha_medicao_final(relatorio, parametrizacao)["descontos"]
+
+
+class TestTabelaDescontos:
+    def test_cei_por_faixa_etaria_segue_a_regra_do_modal(
+        self,
+        edital,
+        relatorio_financeiro_cei,
+        parametrizacao_financeira_cei,
+        periodo_escolar_integral,
+    ):
+        faixa = FaixaEtaria.objects.filter(ativo=True).first()
+        _altera_unitario(
+            parametrizacao_financeira_cei,
+            "9.70",
+            tabela__periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa,
+        )
+        _cria_desconto(
+            relatorio_financeiro_cei,
+            _clausula(edital),
+            3,
+            unidades=("CEI DIRET JARDIM SANTA TEREZA",),
+            tipo_lancamento="ALIMENTACOES",
+            faixa_etaria=faixa,
+            periodo_escolar=periodo_escolar_integral,
+        )
+
+        descontos = _descontos(relatorio_financeiro_cei, parametrizacao_financeira_cei)
+
+        assert descontos["linhas"] == [
+            {
+                "unidades": ["CEI DIRET JARDIM SANTA TEREZA"],
+                "tipo_lancamento": "ALIMENTAÇÃO",
+                "faixa_ou_alimentacao": f"Integral - {faixa}",
+                "clausula": "7.2.2. item a - (50%)",
+                "quantidade": 3,
+                "valor_unitario": Decimal("9.70"),
+                "total": Decimal("14.55"),
+            }
+        ]
+        assert descontos["total"] == Decimal("14.55")
+
+    def test_cei_dieta_usa_o_unitario_sem_acrescimo(
+        self,
+        edital,
+        relatorio_financeiro_cei,
+        parametrizacao_financeira_cei,
+        periodo_escolar_parcial,
+    ):
+        faixa = FaixaEtaria.objects.filter(ativo=True).last()
+        _altera_unitario(
+            parametrizacao_financeira_cei,
+            "12.00",
+            nome_tabela=StringsParametrizacaoFinanceiraTabela.DIETA_B.value,
+            tabela__periodo_escolar=periodo_escolar_parcial,
+            faixa_etaria=faixa,
+        )
+        _cria_desconto(
+            relatorio_financeiro_cei,
+            _clausula(edital, porcentagem="10.00"),
+            2,
+            tipo_lancamento="DIETAS_TIPO_B",
+            faixa_etaria=faixa,
+            periodo_escolar=periodo_escolar_parcial,
+        )
+
+        [linha] = _descontos(relatorio_financeiro_cei, parametrizacao_financeira_cei)[
+            "linhas"
+        ]
+
+        assert linha["tipo_lancamento"] == "DIETA ESPECIAL TIPO B"
+        assert linha["faixa_ou_alimentacao"] == f"Parcial - {faixa}"
+        assert linha["valor_unitario"] == Decimal("12.00")
+        assert linha["total"] == Decimal("2.40")
+
+    def test_emef_diferencia_refeicao_e_refeicao_eja(
+        self,
+        edital,
+        vinculo_alimentacao_emef,
+        relatorio_financeiro_emef,
+        parametrizacao_financeira_emef,
+        tipo_alimentacao_refeicao,
+        periodo_escolar_noite,
+    ):
+        clausula = _clausula(edital, porcentagem="100.00", item="item c")
+        _cria_desconto(
+            relatorio_financeiro_emef,
+            clausula,
+            5,
+            tipo_lancamento="ALIMENTACOES",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+        )
+        _cria_desconto(
+            relatorio_financeiro_emef,
+            clausula,
+            2,
+            tipo_lancamento="ALIMENTACOES",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+            periodo_escolar=periodo_escolar_noite,
+        )
+
+        descontos = _descontos(
+            relatorio_financeiro_emef, parametrizacao_financeira_emef
+        )
+
+        assert [
+            (linha["faixa_ou_alimentacao"], linha["valor_unitario"], linha["total"])
+            for linha in descontos["linhas"]
+        ] == [
+            ("REFEIÇÃO", Decimal("21.00"), Decimal("105.00")),
+            ("REFEIÇÃO - EJA", Decimal("25.00"), Decimal("50.00")),
+        ]
+        assert descontos["linhas"][0]["clausula"] == "7.2.2. item c - (100%)"
+        assert descontos["total"] == Decimal("155.00")
+
+    def test_cemei_busca_o_valor_na_turma_do_desconto(
+        self,
+        edital,
+        vinculo_alimentacao_cemei,
+        relatorio_financeiro_cemei,
+        parametrizacao_financeira_cemei,
+        tipo_alimentacao_refeicao,
+        periodo_escolar_integral,
+    ):
+        faixa = FaixaEtaria.objects.filter(ativo=True).first()
+        _altera_unitario(
+            parametrizacao_financeira_cemei,
+            "9.70",
+            tabela__periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa,
+        )
+        clausula = _clausula(edital)
+        _cria_desconto(
+            relatorio_financeiro_cemei,
+            clausula,
+            3,
+            tipo_lancamento="ALIMENTACOES",
+            cei_ou_emei="CEI",
+            faixa_etaria=faixa,
+            periodo_escolar=periodo_escolar_integral,
+        )
+        _cria_desconto(
+            relatorio_financeiro_cemei,
+            clausula,
+            4,
+            tipo_lancamento="ALIMENTACOES",
+            cei_ou_emei="EMEI",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+        )
+        _cria_desconto(
+            relatorio_financeiro_cemei,
+            clausula,
+            1,
+            tipo_lancamento="ALIMENTACOES",
+            cei_ou_emei="EMEI",
+        )
+
+        descontos = _descontos(
+            relatorio_financeiro_cemei, parametrizacao_financeira_cemei
+        )
+
+        assert [
+            (
+                linha["tipo_lancamento"],
+                linha["faixa_ou_alimentacao"],
+                linha["valor_unitario"],
+                linha["total"],
+            )
+            for linha in descontos["linhas"]
+        ] == [
+            (
+                "ALIMENTAÇÃO - CEI",
+                f"Integral - {faixa}",
+                Decimal("9.70"),
+                Decimal("14.55"),
+            ),
+            ("ALIMENTAÇÃO - EMEI", "REFEIÇÃO", Decimal("10.00"), Decimal("20.00")),
+            ("ALIMENTAÇÃO - EMEI", "KIT LANCHE", Decimal("6.88"), Decimal("3.44")),
+        ]
+        assert descontos["total"] == Decimal("37.99")
+
+    def test_emebs_busca_o_valor_na_turma_do_desconto(
+        self,
+        edital,
+        vinculo_alimentacao_emebs,
+        relatorio_financeiro_emebs,
+        parametrizacao_financeira_emebs,
+        tipo_alimentacao_refeicao,
+    ):
+        _altera_unitario(
+            parametrizacao_financeira_emebs,
+            "15.00",
+            tabela__nome__endswith="Fundamental",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+        )
+        clausula = _clausula(edital, porcentagem="100.00")
+        for turma in ("INFANTIL", "FUNDAMENTAL"):
+            _cria_desconto(
+                relatorio_financeiro_emebs,
+                clausula,
+                1,
+                tipo_lancamento="ALIMENTACOES",
+                infantil_ou_fundamental=turma,
+                tipo_alimentacao=tipo_alimentacao_refeicao,
+            )
+
+        linhas = _descontos(
+            relatorio_financeiro_emebs, parametrizacao_financeira_emebs
+        )["linhas"]
+
+        assert [
+            (linha["tipo_lancamento"], linha["valor_unitario"]) for linha in linhas
+        ] == [
+            ("ALIMENTAÇÃO - INFANTIL", Decimal("10.00")),
+            ("ALIMENTAÇÃO - FUNDAMENTAL", Decimal("15.00")),
+        ]
+
+    def test_cieja_usa_a_linha_de_refeicao_cieja_e_cmct(
+        self,
+        edital,
+        vinculo_alimentacao_cieja,
+        relatorio_financeiro_cieja,
+        parametrizacao_financeira_cieja,
+        tipo_alimentacao_refeicao,
+    ):
+        _cria_desconto(
+            relatorio_financeiro_cieja,
+            _clausula(edital, porcentagem="100.00"),
+            1,
+            tipo_lancamento="DIETAS_TIPO_A",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+        )
+
+        [linha] = _descontos(
+            relatorio_financeiro_cieja, parametrizacao_financeira_cieja
+        )["linhas"]
+
+        assert linha["faixa_ou_alimentacao"] == "REFEIÇÃO CIEJA E CMCT"
+        assert linha["valor_unitario"] == Decimal("11.22")
+
+    def test_varias_unidades_geram_uma_linha_sem_multiplicar_o_total(
+        self,
+        edital,
+        vinculo_alimentacao_emef,
+        relatorio_financeiro_emef,
+        parametrizacao_financeira_emef,
+        tipo_alimentacao_refeicao,
+    ):
+        _cria_desconto(
+            relatorio_financeiro_emef,
+            _clausula(edital, porcentagem="100.00"),
+            1,
+            unidades=("EMEF ZETA", "EMEF ALFA"),
+            tipo_lancamento="ALIMENTACOES",
+            tipo_alimentacao=tipo_alimentacao_refeicao,
+        )
+
+        descontos = _descontos(
+            relatorio_financeiro_emef, parametrizacao_financeira_emef
+        )
+
+        assert len(descontos["linhas"]) == 1
+        assert descontos["linhas"][0]["unidades"] == ["EMEF ALFA", "EMEF ZETA"]
+        assert descontos["total"] == Decimal("21.00")
+
+    def test_total_d_soma_as_linhas_arredondadas(
+        self,
+        edital,
+        vinculo_alimentacao_emef,
+        relatorio_financeiro_emef,
+        parametrizacao_financeira_emef,
+        tipo_alimentacao_lanche_4h,
+    ):
+        clausula = _clausula(edital, porcentagem="1.00")
+        for _ in range(2):
+            _cria_desconto(
+                relatorio_financeiro_emef,
+                clausula,
+                1,
+                tipo_lancamento="ALIMENTACOES",
+                tipo_alimentacao=tipo_alimentacao_lanche_4h,
+            )
+
+        descontos = _descontos(
+            relatorio_financeiro_emef, parametrizacao_financeira_emef
+        )
+
+        assert [linha["total"] for linha in descontos["linhas"]] == [
+            Decimal("0.05"),
+            Decimal("0.05"),
+        ]
+        assert descontos["total"] == Decimal("0.10")
+
+    def test_ordena_pela_data_de_registro(
+        self,
+        edital,
+        vinculo_alimentacao_emef,
+        relatorio_financeiro_emef,
+        parametrizacao_financeira_emef,
+    ):
+        clausula = _clausula(edital)
+        with freeze_time("2026-10-02 10:00:00"):
+            _cria_desconto(
+                relatorio_financeiro_emef,
+                clausula,
+                1,
+                unidades=("EMEF SEGUNDA",),
+                tipo_lancamento="ALIMENTACOES",
+            )
+        with freeze_time("2026-10-01 10:00:00"):
+            _cria_desconto(
+                relatorio_financeiro_emef,
+                clausula,
+                1,
+                unidades=("EMEF PRIMEIRA",),
+                tipo_lancamento="ALIMENTACOES",
+            )
+
+        linhas = _descontos(relatorio_financeiro_emef, parametrizacao_financeira_emef)[
+            "linhas"
+        ]
+
+        assert [linha["unidades"] for linha in linhas] == [
+            ["EMEF PRIMEIRA"],
+            ["EMEF SEGUNDA"],
+        ]
+
+    def test_sem_descontos_retorna_tabela_vazia(
+        self, relatorio_financeiro_cei, parametrizacao_financeira_cei
+    ):
+        assert _descontos(relatorio_financeiro_cei, parametrizacao_financeira_cei) == {
+            "titulo_faixa_ou_alimentacao": "FAIXA ETÁRIA",
+            "linhas": [],
+            "total": Decimal("0"),
+        }
+
+
+@pytest.mark.parametrize(
+    "grupo_nome, titulo",
+    [
+        (GrupoUnidadeEscolar.GRUPO_1, "FAIXA ETÁRIA"),
+        (GrupoUnidadeEscolar.GRUPO_2, "FAIXA ETÁRIA OU ALIMENTAÇÃO"),
+        (GrupoUnidadeEscolar.GRUPO_3, "ALIMENTAÇÃO"),
+        (GrupoUnidadeEscolar.GRUPO_4, "ALIMENTAÇÃO"),
+        (GrupoUnidadeEscolar.GRUPO_5, "ALIMENTAÇÃO"),
+        (GrupoUnidadeEscolar.GRUPO_6, "ALIMENTAÇÃO"),
+    ],
+)
+def test_titulo_coluna_faixa_ou_alimentacao_por_grupo(grupo_nome, titulo):
+    assert titulo_coluna_faixa_ou_alimentacao(grupo_nome) == titulo
+
+
+class TestFaturamentoFinal:
+    @pytest.mark.parametrize(
+        "titulo, rotulo",
+        [
+            ("CONSOLIDADO TOTAL (A + B + C)", "(A + B + C - D)"),
+            (
+                "CONSOLIDADO TOTAL (A + B + C + INF. A + INF. B + INF. C)",
+                "(A + B + C + INF. A + INF. B + INF. C - D)",
+            ),
+            (
+                "CONSOLIDADO TOTAL (INF. A + INF. B + INF. C + FUND. A + FUND. B "
+                "+ FUND. C)",
+                "(INF. A + INF. B + INF. C + FUND. A + FUND. B + FUND. C - D)",
+            ),
+        ],
+    )
+    def test_subtrai_os_descontos_do_consolidado_geral(self, titulo, rotulo):
+        faturamento = montar_faturamento_final(
+            {"titulo": titulo, "valor": Decimal("100.00")}, Decimal("12.34")
+        )
+
+        assert faturamento == {
+            "titulo_valor": f"VALOR DO FATURAMENTO FINAL {rotulo}:",
+            "valor": Decimal("87.66"),
+            "valor_extenso": "Oitenta e sete reais e sessenta e seis centavos.",
+        }
+
+    def test_contexto_usa_o_ultimo_consolidado(self, contexto_grupo_relatorio, edital):
+        relatorio = contexto_grupo_relatorio["relatorio"]
+        _cria_desconto(
+            relatorio,
+            _clausula(edital),
+            1,
+            tipo_lancamento="ALIMENTACOES",
+        )
+        _gera_medicao_final(relatorio)
+
+        contexto = montar_contexto_folha_medicao_final(
+            relatorio, contexto_grupo_relatorio["parametrizacao"]
+        )
+
+        assert contexto["faturamento_final"]["valor"] == (
+            contexto["consolidados"][-1]["valor"] - contexto["descontos"]["total"]
+        )
+
+
+@pytest.mark.usefixtures("pdf_com_estilos")
+class TestDescontosNoPdf:
+    @pytest.fixture
+    def folha_cei(
+        self,
+        edital,
+        relatorio_financeiro_cei,
+        parametrizacao_financeira_cei,
+        periodo_escolar_integral,
+    ):
+        faixa = FaixaEtaria.objects.filter(ativo=True).first()
+        _altera_unitario(
+            parametrizacao_financeira_cei,
+            "9.70",
+            tabela__periodo_escolar=periodo_escolar_integral,
+            faixa_etaria=faixa,
+        )
+        _cria_desconto(
+            relatorio_financeiro_cei,
+            _clausula(edital),
+            3,
+            unidades=("CEI DIRET JARDIM SANTA TEREZA",),
+            tipo_lancamento="ALIMENTACOES",
+            faixa_etaria=faixa,
+            periodo_escolar=periodo_escolar_integral,
+        )
+        _gera_medicao_final(relatorio_financeiro_cei)
+        contexto = montar_contexto_folha_medicao_final(
+            relatorio_financeiro_cei, parametrizacao_financeira_cei
+        )
+        texto = extrair_texto_de_pdf(
+            gerar_relatorio_folha_medicao_final(
+                relatorio_financeiro_cei, parametrizacao_financeira_cei
+            )
+        )
+        return contexto, faixa, _sem_espacos(texto)
+
+    def test_tabela_entre_as_tabelas_do_grupo_e_os_consolidados(self, folha_cei):
+        _, _, texto = folha_cei
+
+        _assert_em_ordem(
+            texto,
+            [
+                "TOTAL (C)",
+                "TABELA DE DESCONTO",
+                "NOME DA UNIDADE",
+                "TIPO DE LANÇAMENTO",
+                "FAIXA ETÁRIA",
+                "CLÁUSULA DO DESCONTO",
+                "QUANTIDADE",
+                "VALOR UNITÁRIO",
+                "TOTAL DO DESCONTO",
+                "TOTAL DE DESCONTOS DOS ITENS (D)",
+                "CONSOLIDADO TOTAL (A + B + C)",
+                "DESCONTOS TOTAIS (D)",
+                "VALOR DO FATURAMENTO FINAL (A + B + C - D):",
+                "Responsável pela conferência das medições iniciais:",
+            ],
+        )
+
+    def test_linha_e_totais_com_os_valores_do_contexto(self, folha_cei):
+        contexto, faixa, texto = folha_cei
+        final = contexto["faturamento_final"]
+
+        assert (
+            _sem_espacos(
+                "CEI DIRET JARDIM SANTA TEREZA ALIMENTAÇÃO "
+                f"Integral - {faixa} 7.2.2. item a - (50%) 3 R$ 9,70 R$ 14,55"
+            )
+            in texto
+        )
+        assert "TOTALDEDESCONTOSDOSITENS(D)R$14,55" in texto
+        assert "FAIXAETÁRIAOUALIMENTAÇÃO" not in texto
+        assert "DESCONTOSTOTAIS(D)R$14,55CONFORMEITENSNASTABELAS" in texto
+        assert (
+            f"R${agrupador_milhar_com_decimal(final['valor'])}"
+            f"({_sem_espacos(final['valor_extenso'])})"
+        ) in texto
+
+    def test_muitos_descontos_quebram_paginas_sem_perder_linhas(
+        self, edital, relatorio_financeiro_emef, parametrizacao_financeira_emef
+    ):
+        clausula = _clausula(edital)
+        for indice in range(45):
+            _cria_desconto(
+                relatorio_financeiro_emef,
+                clausula,
+                1,
+                unidades=(f"EMEF UNIDADE {indice:02d}",),
+                tipo_lancamento="ALIMENTACOES",
+            )
+        _gera_medicao_final(relatorio_financeiro_emef)
+
+        paginas = _paginas(
+            gerar_relatorio_folha_medicao_final(
+                relatorio_financeiro_emef, parametrizacao_financeira_emef
+            )
+        )
+        texto = "\n".join(paginas)
+
+        assert len(paginas) > 2
+        for indice in range(45):
+            assert texto.count(f"EMEF UNIDADE {indice:02d}") == 1
+        for numero, pagina in enumerate(paginas, start=1):
+            assert pagina.count("FOLHA DE MEDIÇÃO FINAL") == 1
+            assert f"Página {numero}/{len(paginas)}" in pagina
+        assert "Responsável pela Empresa Contratada" in paginas[-1]
