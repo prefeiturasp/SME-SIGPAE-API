@@ -262,28 +262,9 @@ class TestConteudoFolha:
             assert trecho in texto
         assert "TABELA DE DESCONTO" not in texto
         assert "TOTAL DE DESCONTOS DOS ITENS (D)" not in texto
+        assert "DESCONTOSTOTAIS(D)" not in _sem_espacos(texto)
+        assert "FATURAMENTOFINAL" not in _sem_espacos(texto)
         assert "ATESTE FINANCEIRO" not in texto
-
-    def test_sem_descontos_faturamento_final_igual_ao_total(
-        self, contexto_grupo_relatorio
-    ):
-        relatorio = contexto_grupo_relatorio["relatorio"]
-        parametrizacao = contexto_grupo_relatorio["parametrizacao"]
-        _gera_medicao_final(relatorio)
-        consolidado_geral = montar_contexto_folha_medicao_final(
-            relatorio, parametrizacao
-        )["consolidados"][-1]
-
-        texto = _sem_espacos(
-            extrair_texto_de_pdf(
-                gerar_relatorio_folha_medicao_final(relatorio, parametrizacao)
-            )
-        )
-
-        bloco_final = texto.split("DESCONTOSTOTAIS(D)", 1)[1]
-        valor = agrupador_milhar_com_decimal(consolidado_geral["valor"])
-        assert bloco_final.startswith("R$0,00CONFORMEITENSNASTABELAS")
-        assert f"-D):R${valor}" in bloco_final
 
     def test_numeros_iguais_aos_da_api_e_do_ateste(self, contexto_grupo_relatorio):
         relatorio = contexto_grupo_relatorio["relatorio"]
