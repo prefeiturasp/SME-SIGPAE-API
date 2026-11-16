@@ -8,6 +8,7 @@ from rest_framework import status
 
 from src.dados_comuns.constants import DJANGO_ADMIN_PASSWORD, ContentTypesParaRequests
 from src.dados_comuns.models import LogSolicitacoesUsuario
+from src.pre_recebimento.base.models import UnidadeMedida
 from src.pre_recebimento.cronograma_semanal.models import CronogramaSemanal
 
 pytestmark = pytest.mark.django_db
@@ -52,6 +53,49 @@ class TestCronogramaSemanalViewSet:
             "data_fim": "15/03/2026",
             "mes_programado": "03/2026",
         }
+
+    def test_dilog_abastecimento_pode_consultar_relatorio_semanal(
+        self,
+        client_autenticado_dilog_abastecimento,
+        cronograma_semanal_para_relatorio
+    ):
+        cliente = client_autenticado_dilog_abastecimento
+        cronograma = cronograma_semanal_para_relatorio
+        mensal = cronograma.cronograma_mensal
+        mensal.unidade_medida = baker.make(UnidadeMedida, abreviacao="kg")
+        mensal.save(update_fields=["unidade_medida"])
+
+        resposta = cliente.get("/cronogramas-semanais/listagem-relatorio/")
+
+        assert resposta.status_code == status.HTTP_200_OK
+        dados = resposta.json()
+        assert dados["count"] == 1
+        assert dados["results"] == [
+            {
+                "uuid": str(cronograma.uuid),
+                "numero": cronograma.numero,
+                "empresa": mensal.empresa.nome_fantasia,
+                "produto": mensal.ficha_tecnica.produto.nome,
+                "qtd_total_empenho": mensal.qtd_total_empenho,
+                "unidade_medida": "kg",
+                "status": cronograma.get_status_display(),
+                "custo_unitario_produto": mensal.custo_unitario_produto,
+                "programacoes": [
+                    {
+                        "quantidade": 50.0,
+                        "data_inicio": "01/03/2026",
+                        "data_fim": "15/03/2026",
+                        "mes_programado": "03/2026"
+                    },
+                    {
+                        "quantidade": 30.0,
+                        "data_inicio": "01/04/2026",
+                        "data_fim": "15/04/2026",
+                        "mes_programado": "04/2026"
+                    }
+                ]
+            }
+        ]
 
     def test_post_rascunho_sucesso(
         self,
@@ -1168,3 +1212,49 @@ class TestRelatorioCronogramaSemanalFiltros:
 
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["results"] == []
+
+    @pytest.mark.parametrize(
+        "mes, quantidade_esperada",
+        [("03/2026", 1), ("04/2026", 0)],
+        ids=["produto_no_mes", "outro_produto_no_mes"]
+    )
+    def test_dilog_abastecimento_filtra_relatorio_por_produto_e_mes(
+        self,
+        client_autenticado_dilog_abastecimento,
+        cronogramas_semanais_relatorio,
+        mes,
+        quantidade_esperada
+    ):
+        cliente = client_autenticado_dilog_abastecimento
+        cronograma = cronogramas_semanais_relatorio[0]
+        produto = cronograma.cronograma_mensal.ficha_tecnica.produto
+
+        resposta = cliente.get(
+            self.URL,
+            {
+                "nome_produto": produto.nome.lower(),
+                "mes_inicial": mes,
+                "mes_final": mes
+            }
+        )
+
+        assert resposta.status_code == status.HTTP_200_OK
+        dados = resposta.json()
+        assert dados["count"] == quantidade_esperada
+        assert len(dados["results"]) == quantidade_esperada
+
+        if quantidade_esperada == 0:
+            assert dados["results"] == []
+            return
+
+        linha = dados["results"][0]
+        assert linha["uuid"] == str(cronograma.uuid)
+        assert linha["produto"] == produto.nome
+        assert linha["programacoes"] == [
+            {
+                "quantidade": 50.0,
+                "data_inicio": "01/03/2026",
+                "data_fim": "15/03/2026",
+                "mes_programado": "03/2026"
+            }
+        ]

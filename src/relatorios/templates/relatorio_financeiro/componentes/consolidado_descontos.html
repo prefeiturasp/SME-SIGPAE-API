@@ -1,0 +1,24 @@
+{% load index %}
+<div class="consolidado-total consolidado-descontos">
+  <div class="consolidado-conteudo">
+    <div class="bloco bloco-quantidade">
+      <span class="bloco-titulo">DESCONTOS TOTAIS (D)</span>
+      <div class="caixa quantidade">
+        <span class="valor"
+          >R$ {{ total_descontos|agrupador_milhar_com_decimal }}</span
+        >
+        <span class="unidade">CONFORME ITENS NAS TABELAS</span>
+      </div>
+    </div>
+
+    <div class="bloco bloco-valor bloco-grande">
+      <span class="bloco-titulo">{{ faturamento.titulo_valor }}</span>
+      <div class="caixa valor">
+        <span class="valor"
+          >R$ {{ faturamento.valor|agrupador_milhar_com_decimal }}</span
+        >
+        <span class="extenso">({{ faturamento.valor_extenso }})</span>
+      </div>
+    </div>
+  </div>
+</div>

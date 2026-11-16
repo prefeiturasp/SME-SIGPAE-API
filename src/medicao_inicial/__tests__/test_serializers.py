@@ -26,6 +26,7 @@ from src.medicao_inicial.api.serializers import (
     RelatorioFinanceiroSerializer,
 )
 from src.medicao_inicial.api.serializers_create import (
+    MedicaoCreateUpdateSerializer,
     SolicitacaoMedicaoInicialCreateSerializer,
 )
 from src.medicao_inicial.fixtures.factories.base_factory import (
@@ -39,6 +40,7 @@ from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,
     Medicao,
+    SolicitacaoMedicaoInicial,
     ValorMedicao,
 )
 from src.medicao_inicial.recreio_nas_ferias.fixtures.factories.base_factory import (
@@ -722,3 +724,45 @@ def test_parametrizacao_financeira_serializer_vigente(parametrizacao_financeira_
 
     with freeze_time("2025-11-01"):
         assert _parametrizacao_vigente(parametrizacao_financeira_emef) is True
+
+
+def test_autosave_nao_sobrescreve_status_da_solicitacao():
+    """Um autosave com dados antigos não pode reverter o status do fluxo.
+
+    Cenário do bug: a requisição de envio/correção grava o novo status, mas
+    outra requisição concorrente, com a instância carregada antes da transição,
+    salvava a linha inteira e devolvia o status antigo.
+    """
+    solicitacao = SolicitacaoMedicaoInicialFactory.create()
+    solicitacao_desatualizada = SolicitacaoMedicaoInicial.objects.get(pk=solicitacao.pk)
+    novo_status = SolicitacaoMedicaoInicial.workflow_class.MEDICAO_ENVIADA_PELA_UE
+    solicitacao.status = novo_status
+    solicitacao.save(update_fields=["status"])
+
+    serializer = SolicitacaoMedicaoInicialCreateSerializer()
+    serializer._update_instance_fields(
+        solicitacao_desatualizada, {"com_ocorrencias": True}
+    )
+
+    solicitacao.refresh_from_db()
+    assert solicitacao.status == novo_status
+    assert solicitacao.com_ocorrencias is True
+
+
+def test_autosave_da_medicao_nao_sobrescreve_status():
+    """O salvamento dos valores de um período não pode reverter o status."""
+    usuario = UsuarioFactory.create()
+    solicitacao = SolicitacaoMedicaoInicialFactory.create()
+    medicao = MedicaoFactory.create(solicitacao_medicao_inicial=solicitacao)
+    medicao_desatualizada = Medicao.objects.get(pk=medicao.pk)
+    novo_status = Medicao.workflow_class.MEDICAO_ENVIADA_PELA_UE
+    medicao.status = novo_status
+    medicao.save(update_fields=["status"])
+
+    serializer = MedicaoCreateUpdateSerializer(
+        context=_serializer_recreio_context(usuario)
+    )
+    serializer.update(medicao_desatualizada, {"valores_medicao": []})
+
+    medicao.refresh_from_db()
+    assert medicao.status == novo_status

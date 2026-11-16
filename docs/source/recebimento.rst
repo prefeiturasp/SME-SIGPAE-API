@@ -39,7 +39,7 @@ ficha assinada volta para ``RASCUNHO`` (``volta_para_rascunho``) quando é
 editada pelo rascunho. Apenas documentos de recebimento com status
 ``APROVADO`` podem ser vinculados a uma ficha, e apenas fichas ``ASSINADA``
 são consideradas no cálculo do saldo do laudo e habilitam a empresa a
-constar em um termo de recebimento definitivo.
+constar em um termo de recebimento provisório.
 
 .. automodule:: src.recebimento
    :members:

@@ -991,7 +991,7 @@ class CronogramaMensalAssinadoSerializer(serializers.ModelSerializer):
 
 class CronogramaDetalhePosRecebimentoSerializer(serializers.ModelSerializer):
     """Dados do cronograma para preenchimento automático do cadastro do
-    Termo de Recebimento Definitivo (Pós-Recebimento).
+    Termo de Recebimento Provisório (Pós-Recebimento).
 
     Produto e unidade de medida vêm da ficha técnica; o número do processo
     SEI vem do contrato vinculado ao cronograma. As relações são opcionais

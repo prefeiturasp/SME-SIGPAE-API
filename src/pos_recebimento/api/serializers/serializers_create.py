@@ -1,5 +1,6 @@
 import re
 
+from django.db import transaction
 from rest_framework import serializers
 
 from src.dados_comuns.constants import DILOG_QUALIDADE
@@ -7,12 +8,16 @@ from src.perfil.models import Usuario
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Contrato, Terceirizada
 
-from ...models import TermoRecebimentoDefinitivo
-from ..services import TermoRecebimentoDefinitivoService
+from ...models import (
+    LoteMemorandoOcorrencia,
+    MemorandoOcorrencia,
+    TermoRecebimentoProvisorio,
+)
+from ..services import TermoRecebimentoProvisorioService
 
 
-class CronogramaTermoRecebimentoDefinitivoCreateSerializer(serializers.Serializer):
-    """Item de cronograma do Termo de Recebimento Definitivo.
+class CronogramaTermoRecebimentoProvisorioCreateSerializer(serializers.Serializer):
+    """Item de cronograma do Termo de Recebimento Provisório.
 
     Cada cronograma possui sua própria quantidade total recebida.
     """
@@ -28,8 +33,8 @@ class CronogramaTermoRecebimentoDefinitivoCreateSerializer(serializers.Serialize
     )
 
 
-class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
-    """Serializador de criação do Termo de Recebimento Definitivo.
+class TermoRecebimentoProvisorioCreateSerializer(serializers.ModelSerializer):
+    """Serializador de criação do Termo de Recebimento Provisório.
 
     Recebe os uuids de empresa, contrato, cronogramas (cada um com sua
     quantidade recebida) e fiscais, além do valor do contrato — único por
@@ -57,7 +62,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
         max_digits=15,
         decimal_places=2,
     )
-    cronogramas = CronogramaTermoRecebimentoDefinitivoCreateSerializer(
+    cronogramas = CronogramaTermoRecebimentoProvisorioCreateSerializer(
         many=True,
         allow_empty=False,
     )
@@ -78,7 +83,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        model = TermoRecebimentoDefinitivo
+        model = TermoRecebimentoProvisorio
         fields = (
             "empresa",
             "contrato",
@@ -93,7 +98,7 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
     def _valida_empresa_com_ficha_assinada(self, empresa):
         """Empresa deve possuir ao menos uma ficha de recebimento
         'Assinado CODAE' (FichaDeRecebimentoWorkflow.ASSINADA)."""
-        if not TermoRecebimentoDefinitivoService.empresa_tem_ficha_assinada(empresa):
+        if not TermoRecebimentoProvisorioService.empresa_tem_ficha_assinada(empresa):
             raise serializers.ValidationError(
                 "A empresa deve possuir ao menos uma ficha de recebimento "
                 "assinada pela CODAE."
@@ -182,3 +187,66 @@ class TermoRecebimentoDefinitivoCreateSerializer(serializers.ModelSerializer):
                 "O texto do termo é obrigatório e deve conter conteúdo."
             )
         return value
+
+
+class LoteMemorandoOcorrenciaCreateSerializer(serializers.ModelSerializer):
+    """Lote informado no cadastro do Memorando de Ocorrência."""
+
+    quantidade_problema_devolucao = serializers.DecimalField(
+        max_digits=15,
+        decimal_places=2,
+        min_value=0,
+    )
+
+    class Meta:
+        model = LoteMemorandoOcorrencia
+        fields = (
+            "lote",
+            "marca",
+            "data_fabricacao",
+            "data_validade",
+            "quantidade_problema_devolucao",
+        )
+
+
+class MemorandoOcorrenciaCreateSerializer(serializers.ModelSerializer):
+    """Serializador de criação do Memorando de Ocorrência.
+
+    A escola é derivada do vínculo do usuário autenticado e os lotes são
+    persistidos na ordem em que foram informados.
+    """
+
+    lotes = LoteMemorandoOcorrenciaCreateSerializer(
+        many=True,
+        allow_empty=False,
+    )
+
+    class Meta:
+        model = MemorandoOcorrencia
+        fields = (
+            "categoria",
+            "produto",
+            "tipo_ocorrencia",
+            "lotes",
+        )
+
+    @transaction.atomic
+    def create(self, validated_data):
+        lotes = validated_data.pop("lotes")
+        usuario = self.context["request"].user
+        memorando = MemorandoOcorrencia.objects.create(
+            escola=usuario.vinculo_atual.instituicao,
+            criado_por=usuario,
+            **validated_data,
+        )
+        LoteMemorandoOcorrencia.objects.bulk_create(
+            [
+                LoteMemorandoOcorrencia(
+                    memorando=memorando,
+                    ordem=ordem,
+                    **lote,
+                )
+                for ordem, lote in enumerate(lotes, start=1)
+            ]
+        )
+        return memorando

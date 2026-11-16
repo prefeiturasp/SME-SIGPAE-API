@@ -1,16 +1,16 @@
 import pytest
 
 from src.pos_recebimento.api.serializers.serializers import (
-    TermoRecebimentoDefinitivoListagemSerializer,
-    TermoRecebimentoDefinitivoPainelAssinaturaSerializer,
+    TermoRecebimentoProvisorioListagemSerializer,
+    TermoRecebimentoProvisorioPainelAssinaturaSerializer,
 )
-from src.pos_recebimento.models import TermoRecebimentoDefinitivo
+from src.pos_recebimento.models import TermoRecebimentoProvisorio
 
 pytestmark = pytest.mark.django_db
 
 
 def test_listagem_retorna_apenas_os_campos_do_grid(termo_listagem):
-    data = TermoRecebimentoDefinitivoListagemSerializer(termo_listagem).data
+    data = TermoRecebimentoProvisorioListagemSerializer(termo_listagem).data
 
     assert set(data.keys()) == {
         "uuid",
@@ -27,19 +27,19 @@ def test_listagem_retorna_apenas_os_campos_do_grid(termo_listagem):
 
 
 def test_listagem_serializa_dados_do_termo(termo_listagem, empresa, contrato):
-    data = TermoRecebimentoDefinitivoListagemSerializer(termo_listagem).data
+    data = TermoRecebimentoProvisorioListagemSerializer(termo_listagem).data
 
     assert data["uuid"] == str(termo_listagem.uuid)
     assert data["nome_empresa"] == empresa.nome_fantasia
     assert data["cnpj_empresa"] == empresa.cnpj
     assert data["numero_contrato"] == contrato.numero
-    assert data["status"] == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert data["status"] == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
     assert data["status_display"] == "Enviado Fiscais"
     assert data["data_cadastro"] == "15/03/2026"
 
 
 def test_listagem_retorna_numeros_dos_cronogramas(termo_listagem):
-    data = TermoRecebimentoDefinitivoListagemSerializer(termo_listagem).data
+    data = TermoRecebimentoProvisorioListagemSerializer(termo_listagem).data
 
     assert sorted(data["numeros_cronogramas"]) == ["111/2026", "222/2026"]
 
@@ -47,7 +47,7 @@ def test_listagem_retorna_numeros_dos_cronogramas(termo_listagem):
 def test_painel_assinatura_retorna_apenas_os_campos_do_card(
     termos_painel_assinatura,
 ):
-    data = TermoRecebimentoDefinitivoPainelAssinaturaSerializer(
+    data = TermoRecebimentoProvisorioPainelAssinaturaSerializer(
         termos_painel_assinatura.pendente_do_fiscal
     ).data
 
@@ -65,7 +65,7 @@ def test_painel_assinatura_retorna_apenas_os_campos_do_card(
 def test_painel_assinatura_serializa_dados_do_termo(termos_painel_assinatura):
     termo = termos_painel_assinatura.pendente_do_fiscal
 
-    data = TermoRecebimentoDefinitivoPainelAssinaturaSerializer(termo).data
+    data = TermoRecebimentoProvisorioPainelAssinaturaSerializer(termo).data
 
     assert data["uuid"] == str(termo.uuid)
     assert data["empresa"] == "ALFA ALIMENTOS"
@@ -78,7 +78,7 @@ def test_painel_assinatura_serializa_dados_do_termo(termos_painel_assinatura):
 
 def test_painel_assinatura_nao_repete_nome_de_produto(termos_painel_assinatura):
     """Cronogramas distintos com o mesmo produto rendem um único nome."""
-    data = TermoRecebimentoDefinitivoPainelAssinaturaSerializer(
+    data = TermoRecebimentoProvisorioPainelAssinaturaSerializer(
         termos_painel_assinatura.assinado_do_fiscal
     ).data
 

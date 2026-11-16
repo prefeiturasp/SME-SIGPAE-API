@@ -1,5 +1,5 @@
 import uuid
-from datetime import date
+from datetime import date, datetime
 from unittest.mock import MagicMock, patch
 
 import environ
@@ -74,35 +74,35 @@ def test_queryset_por_data():
     assert queryset_por_data(SEM_FILTRO, model) == model.objects
 
 
-def test_subtrai_meses_de_data():
-    data_nova = subtrai_meses_de_data(6, date(2020, 3, 15))
-    assert data_nova.year == 2019
-    assert data_nova.month == 9
-    assert data_nova.day == 15
-    data_nova = subtrai_meses_de_data(5, date(2020, 6, 15))
-    assert data_nova.year == 2020
-    assert data_nova.month == 1
-    assert data_nova.day == 15
-    data_nova = subtrai_meses_de_data(6, date(2020, 6, 15))
-    assert data_nova.year == 2019
-    assert data_nova.month == 12
-    assert data_nova.day == 15
-    data_nova = subtrai_meses_de_data(1, date(2020, 3, 30))
-    assert data_nova.year == 2020
-    assert data_nova.month == 2
-    assert data_nova.day == 29
-    data_nova = subtrai_meses_de_data(4, date(2020, 3, 31))
-    assert data_nova.year == 2019
-    assert data_nova.month == 11
-    assert data_nova.day == 30
-    data_nova = subtrai_meses_de_data(1, date(2019, 3, 30))
-    assert data_nova.year == 2019
-    assert data_nova.month == 2
-    assert data_nova.day == 28
-    data_nova = subtrai_meses_de_data(1, date(2020, 5, 31))
-    assert data_nova.year == 2020
-    assert data_nova.month == 4
-    assert data_nova.day == 30
+@pytest.mark.parametrize(
+    ("meses", "origem", "esperado"),
+    [
+        (6, date(2020, 3, 15), date(2019, 9, 15)),
+        (5, date(2020, 6, 15), date(2020, 1, 15)),
+        (6, date(2020, 6, 15), date(2019, 12, 15)),
+        (4, date(2020, 3, 31), date(2019, 11, 30)),
+        (1, date(2020, 5, 31), date(2020, 4, 30)),
+        (1, date(2024, 5, 31), date(2024, 4, 30)),
+        (1, date(2024, 1, 31), date(2023, 12, 31)),
+        (1, date(2020, 3, 30), date(2020, 2, 29)),
+        (1, date(2020, 3, 29), date(2020, 2, 29)),
+        (1, date(2024, 3, 30), date(2024, 2, 29)),
+        (1, date(2024, 3, 29), date(2024, 2, 29)),
+        (1, date(2019, 3, 30), date(2019, 2, 28)),
+        (1, date(2023, 3, 31), date(2023, 2, 28)),
+        (1, date(2000, 3, 30), date(2000, 2, 29)),
+        (1, date(1900, 3, 30), date(1900, 2, 28)),
+        (1, date(2100, 3, 31), date(2100, 2, 28)),
+    ],
+)
+def test_subtrai_meses_de_data(meses, origem, esperado):
+    assert subtrai_meses_de_data(meses, origem) == esperado
+
+
+def test_subtrai_meses_de_data_com_datetime_retorna_date():
+    resultado = subtrai_meses_de_data(1, datetime(2020, 3, 29, 15, 30))
+    assert resultado == date(2020, 2, 29)
+    assert type(resultado) is date
 
 
 def test_ordena_dias_semana_comeca_domingo():

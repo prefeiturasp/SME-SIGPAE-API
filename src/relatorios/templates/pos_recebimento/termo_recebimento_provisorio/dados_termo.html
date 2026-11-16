@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% load static %} {% load index %}
+<html lang="pt-BR">
+<head>
+  <title>SIGPAE</title>
+</head>
+<body>
+  <div class="page-container">
+    <div class="content">
+      <h5 class="title titulo-secao">OBJETO DO CONTRATO</h5>
+
+      {% if cronogramas %}
+      <p class="objeto-contrato">
+        Aquisição de<br />
+        {% for item in cronogramas %}<strong>{{ item.quantidade_total_recebida|agrupador_milhar_com_decimal }}{% if item.cronograma.unidade_medida.abreviacao %} {{ item.cronograma.unidade_medida.abreviacao }}{% endif %} de {{ item.cronograma.ficha_tecnica.produto.nome }};</strong><br />
+        {% endfor %}
+        para atendimento ao Programa Nacional de Alimentação Escolar - PNAE.
+      </p>
+      {% endif %}
+
+      <div class="dados-contrato mt-4">
+        <div class="row">
+          <div class="col-4">
+            <p><strong>TC Nº:</strong></p>
+            <p>{{ termo.contrato.numero }}</p>
+          </div>
+          <div class="col-4">
+            <p><strong>PROCESSO SEI Nº:</strong></p>
+            <p>{{ termo.contrato.processo }}</p>
+          </div>
+          <div class="col-4">
+            <p><strong>VALOR DO CONTRATO:</strong></p>
+            <p>R$ {{ termo.valor_contrato|default:0|agrupador_milhar_com_decimal }}</p>
+          </div>
+        </div>
+
+        {% if cronogramas %}
+        <div class="row mt-3">
+          <div class="col-12">
+            <p><strong>QUANTIDADE TOTAL RECEBIDA:</strong></p>
+            {% for item in cronogramas %}
+            <p>
+              {{ item.cronograma.numero }} - {{ item.cronograma.ficha_tecnica.produto.nome }}:
+              <strong>{{ item.quantidade_total_recebida|agrupador_milhar_com_decimal }}{% if item.cronograma.unidade_medida.abreviacao %} {{ item.cronograma.unidade_medida.abreviacao }}{% endif %}</strong>
+            </p>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="row my-3">
+        <div class="col-12">
+          {{ termo.texto_termo|safe }}
+        </div>
+      </div>
+
+      <p class="data-termo">São Paulo, {{ data_termo }}.</p>
+
+      <div class="assinaturas">
+        {% for bloco in blocos_assinatura %}
+        {% if bloco.assinatura %}
+        <div class="assinatura">
+          <div class="title titulo-assinatura">Assinatura Eletrônica FISCAL DO CONTRATO</div>
+          <div class="assinatura-container">
+            <div class="logo-sigpae">
+              <img src="{% static 'images/logo-sigpae.png' %}" alt="SIGPAE" />
+            </div>
+            <div class="texto-assinatura-container">
+              <span class="texto-assinatura">
+                Termo de Recebimento Provisório aceito e validado por
+                <strong>{{ bloco.fiscal.nome }}</strong>{% if bloco.fiscal.cargo %}, <strong>{{ bloco.fiscal.cargo }}</strong>{% endif %}, RF: <strong>{{ bloco.fiscal.registro_funcional|default:" " }}</strong> em {{ bloco.assinatura.criado_em|date:"d/m/Y" }}, às {{ bloco.assinatura.criado_em|time:"H:i" }}.
+              </span>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</body>
+</html>

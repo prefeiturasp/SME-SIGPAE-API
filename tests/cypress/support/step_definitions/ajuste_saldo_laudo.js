@@ -72,7 +72,7 @@ function validarQuantidade(uuid, quantidade) {
 
 Given('que estou autenticado como DILOG qualidade para ajuste de saldo do laudo', () => {
 	criados = []
-	cy.autenticar_login(Cypress.env('usuario_dilog_qualidade'), Cypress.env('senha'))
+	return cy.autenticar_login(Cypress.env('usuario_dilog_qualidade'), Cypress.env('senha'))
 })
 
 After({ tags: '@ajuste_saldo_laudo' }, () => {
@@ -240,4 +240,70 @@ When('acesso {string} de ajuste de saldo sem autenticacao', function (rota) {
 When('consulto ajustes de saldo como diretor de escola', function () {
 	cy.autenticar_login(Cypress.env('usuario_diretor_ue'), Cypress.env('senha'))
 	return guardar(this, cy.consultar_ajuste_saldo_laudo())
+})
+
+When('acesso {string} de ajuste de saldo com perfil {string}', function (operacao, perfil) {
+	criados = []
+	const usuarios = {
+		COORDENADOR_LOGISTICA: 'usuario_coordenador_logistica',
+		COORDENADOR_CODAE_DILOG_LOGISTICA: 'usuario_coordenador_codae_dilog_logistica',
+		COORDENADOR_SUPERVISAO_NUTRICAO: 'usuario_coordenador_supervisao_nutricao',
+		DILOG_CRONOGRAMA: 'usuario_dilog_cronograma', DILOG_QUALIDADE: 'usuario_dilog_qualidade',
+		ABASTECIMENTO: 'usuario_abastecimento', DIRETOR_UE: 'usuario_diretor_ue',
+		CODAE: 'usuario_codae', GPCODAE: 'usuario_gpcodae', DRE: 'usuario_dre',
+		CLASSIFICACOES_DIETA: 'usuario_classificacoes_dieta', USUARIO_ESCOLA_CEI_ADMIN: 'usuario_escola_cei_admin',
+		MEDICAO: 'usuario_medicao', DISTRIBUIDOR: 'usuario_distribuidor',
+		EMEF: 'usuario_emef', CEMEI: 'usuario_cemei', CEI: 'usuario_cei', CCI: 'usuario_cci',
+		DILOG_DIRETORIA: 'usuario_dilog_diretoria', ADMINISTRADOR_EMPRESA: 'usuario_administrador_empresa',
+	}
+	expect(usuarios).to.have.property(perfil)
+	const usuario = Cypress.env(usuarios[perfil])
+	expect(usuario, 'credencial de ' + perfil).to.be.a('string').and.not.be.empty
+	this.operacaoPerfilAjuste = operacao
+	const executar = (uuid = inexistente) => {
+		const comandos = {
+			listar: () => cy.consultar_ajuste_saldo_laudo({ page: 1, page_size: 2 }),
+			cadastrar: () => cy.cadastrar_ajuste_saldo_laudo({}),
+			detalhar: () => cy.consultar_ajuste_saldo_laudo_por_uuid(uuid),
+			atualizar: () => cy.atualizar_ajuste_saldo_laudo(inexistente, {}),
+			parcial: () => cy.atualizar_ajuste_saldo_laudo_patch(uuid, { quantidade_descontada: 'invalida' }),
+			excluir: () => cy.excluir_ajuste_saldo_laudo(inexistente),
+			cronogramas: () => cy.consultar_cronogramas_ajuste_saldo_laudo(),
+			documentos: () => cy.consultar_documentos_ajuste_saldo_laudo(),
+		}
+		expect(comandos).to.have.property(operacao)
+		return guardar(this, comandos[operacao]())
+	}
+	return cy.autenticar_login(usuario, Cypress.env('senha')).then(() => {
+		if (perfil !== 'DILOG_QUALIDADE' || !['detalhar', 'parcial'].includes(operacao)) return executar()
+		return cy.consultar_ajuste_saldo_laudo({ page: 1, page_size: 1 }).then((response) => {
+			expect(response.status).to.eq(200)
+			expect(response.body.results, 'ajuste existente para validar leitura e PATCH invalido').to.be.an('array').and.not.be.empty
+			this.ajusteReferenciaPerfil = response.body.results[0]
+			return executar(this.ajusteReferenciaPerfil.uuid)
+		})
+	})
+})
+
+Then('o retorno de ajuste de saldo respeita o acesso do perfil', function () {
+	if (this.response.status === 200) {
+		if (this.operacaoPerfilAjuste === 'listar') {
+			expect(this.response.body).to.include.all.keys('count', 'next', 'previous', 'results')
+			expect(this.response.body.results).to.be.an('array').and.have.length.at.most(2)
+		} else if (this.operacaoPerfilAjuste === 'detalhar') {
+			expect(this.response.body.uuid).to.eq(this.ajusteReferenciaPerfil.uuid)
+		} else if (this.operacaoPerfilAjuste === 'cronogramas') {
+			expect(this.response.body).to.be.an('array')
+		}
+	} else if (this.response.status === 400) {
+		if (this.operacaoPerfilAjuste === 'cadastrar') {
+			expect(this.response.body.documento_recebimento).to.be.an('array').and.not.be.empty
+			expect(this.response.body.quantidade_descontada).to.be.an('array').and.not.be.empty
+		} else if (this.operacaoPerfilAjuste === 'parcial') {
+			expect(this.response.body.quantidade_descontada).to.be.an('array').and.not.be.empty
+			return validarQuantidade(this.ajusteReferenciaPerfil.uuid, this.ajusteReferenciaPerfil.quantidade_descontada)
+		} else if (this.operacaoPerfilAjuste === 'documentos') {
+			expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+		}
+	}
 })

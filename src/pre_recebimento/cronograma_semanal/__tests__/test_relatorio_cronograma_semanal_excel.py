@@ -230,3 +230,41 @@ def test_endpoint_enfileira_com_ids_filtrados_e_mes(
     assert ids_cronogramas == [cronograma_semanal_completo_para_excel.id]
     assert cronograma_semanal_sem_programacoes.id not in ids_cronogramas
     assert filtros == {"mes_inicial": "06/2026", "mes_final": None}
+
+
+def test_dilog_abastecimento_solicita_excel_com_filtros_do_relatorio(
+    client_autenticado_dilog_abastecimento,
+    cronograma_semanal_completo_para_excel,
+    cronograma_semanal_sem_programacoes,
+    monkeypatch
+):
+    cliente = client_autenticado_dilog_abastecimento
+    chamadas = []
+    monkeypatch.setattr(
+        "src.pre_recebimento.cronograma_semanal.api.viewsets"
+        ".gerar_relatorio_cronogramas_semanais_xlsx_async.delay",
+        lambda *argumentos: chamadas.append(argumentos)
+    )
+
+    resposta = cliente.get(
+        URL_EXPORTAR,
+        {
+            "numero_cronograma_semanal": "012/2026P",
+            "mes_inicial": "06/2026",
+            "mes_final": "06/2026"
+        }
+    )
+
+    assert resposta.status_code == status.HTTP_200_OK
+    assert resposta.json() == {
+        "detail": MENSAGEM_SOLICITACAO_GERACAO_ARQUIVO
+    }
+    assert len(chamadas) == 1
+    usuario, ids_cronogramas, filtros = chamadas[0]
+    assert usuario == resposta.wsgi_request.user.username
+    assert ids_cronogramas == [cronograma_semanal_completo_para_excel.id]
+    assert cronograma_semanal_sem_programacoes.id not in ids_cronogramas
+    assert filtros == {
+        "mes_inicial": "06/2026",
+        "mes_final": "06/2026"
+    }

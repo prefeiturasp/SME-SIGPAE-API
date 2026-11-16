@@ -5,7 +5,7 @@ from model_bakery import baker
 from rest_framework import status
 
 from src.dados_comuns import constants as const
-from src.pos_recebimento.models import TermoRecebimentoDefinitivo
+from src.pos_recebimento.models import TermoRecebimentoProvisorio
 from src.pre_recebimento.cronograma_entrega.fixtures.factories.cronograma_factory import (
     CronogramaFactory,
 )
@@ -56,8 +56,8 @@ def test_termo_create_retorna_201(
     )
 
     assert response.status_code == status.HTTP_201_CREATED
-    termo = TermoRecebimentoDefinitivo.objects.get(uuid=response.json()["uuid"])
-    assert termo.status == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    termo = TermoRecebimentoProvisorio.objects.get(uuid=response.json()["uuid"])
+    assert termo.status == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
     assert termo.criado_por is not None
     assert termo.alterado_por is not None
     assert termo.cronogramas_termo.count() == 1
@@ -70,12 +70,21 @@ def test_termo_create_retorna_201(
     assert response.json()["cronogramas"][0]["quantidade_total_recebida"] == "1234.56"
 
 
+@pytest.mark.parametrize(
+    "nome_client",
+    [
+        "client_autenticado_qualidade",
+        "client_autenticado_fornecedor",
+        "client_autenticado_usuario_empresa",
+    ],
+)
 def test_termo_create_negado_para_perfil_sem_permissao(
-    client_autenticado_qualidade,
+    request,
+    nome_client,
     payload_termo,
 ):
     response = _post_json(
-        client_autenticado_qualidade,
+        request.getfixturevalue(nome_client),
         "/pos-recebimento/termos/",
         payload_termo,
     )
@@ -358,35 +367,31 @@ def test_termo_list_pagina_resultados(
 
 
 @pytest.mark.parametrize(
-    "nome_client",
+    ("nome_client", "status_esperado"),
     [
-        "client_autenticado_dilog_cronograma",
-        "client_autenticado_qualidade",
-        "client_autenticado_dilog_diretoria",
+        ("client_autenticado_dilog_cronograma", status.HTTP_200_OK),
+        ("client_autenticado_codae_dilog", status.HTTP_200_OK),
+        ("client_autenticado_qualidade", status.HTTP_200_OK),
+        ("client_autenticado_dilog_diretoria", status.HTTP_200_OK),
+        ("client_autenticado_distribuidor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_fornecedor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_usuario_empresa", status.HTTP_403_FORBIDDEN),
     ],
 )
-def test_termo_list_e_detalhe_liberados_para_perfis_de_visualizacao(
+def test_termo_list_e_detalhe_por_perfil(
     request,
     nome_client,
+    status_esperado,
     termo_listagem,
 ):
-    """Visualização é liberada para mais perfis do que o cadastro."""
+    """A grid segue liberada para os perfis da CODAE; fornecedor fica fora."""
     client = request.getfixturevalue(nome_client)
 
-    assert client.get("/pos-recebimento/termos/").status_code == status.HTTP_200_OK
+    assert client.get("/pos-recebimento/termos/").status_code == status_esperado
     assert (
         client.get(f"/pos-recebimento/termos/{termo_listagem.uuid}/").status_code
-        == status.HTTP_200_OK
+        == status_esperado
     )
-
-
-def test_termo_list_negado_para_perfil_fora_da_codae(
-    client_autenticado_distribuidor,
-    termo_listagem,
-):
-    response = client_autenticado_distribuidor.get("/pos-recebimento/termos/")
-
-    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 def test_termo_retrieve_retorna_detalhe_do_termo(
@@ -407,7 +412,7 @@ def test_termo_retrieve_retorna_detalhe_do_termo(
     assert detalhe["contrato"]["uuid"] == str(contrato.uuid)
     assert detalhe["texto_termo"] == termo_listagem.texto_termo
     assert detalhe["valor_contrato"] == "150000.00"
-    assert detalhe["status"] == TermoRecebimentoDefinitivo.ENVIADO_FISCAIS
+    assert detalhe["status"] == TermoRecebimentoProvisorio.ENVIADO_FISCAIS
     assert [detalhe[f"fiscal_{i}"]["uuid"] for i in (1, 2, 3)] == [
         str(fiscal.uuid) for fiscal in tres_fiscais
     ]
@@ -428,6 +433,76 @@ def test_termo_retrieve_retorna_cronogramas_com_valores_do_vinculo(
         "222/2026",
     ]
     assert all(item["quantidade_total_recebida"] == "1234.56" for item in cronogramas)
+
+
+def test_termo_retrieve_logs_do_termo_recem_criado(
+    client_autenticado_dilog_cronograma,
+    payload_termo,
+):
+    """Termo criado pela API já nasce com o primeiro passo da linha do tempo.
+
+    Trava também os nomes dos campos de cada log, que são o contrato
+    consumido pelo front.
+    """
+    uuid_termo = _post_json(
+        client_autenticado_dilog_cronograma,
+        "/pos-recebimento/termos/",
+        payload_termo,
+    ).json()["uuid"]
+
+    response = client_autenticado_dilog_cronograma.get(
+        f"/pos-recebimento/termos/{uuid_termo}/"
+    )
+
+    assert response.status_code == status.HTTP_200_OK
+    logs = response.json()["logs"]
+    assert [log["status_evento_explicacao"] for log in logs] == ["Termo Criado"]
+    assert set(logs[0]) == {
+        "status_evento_explicacao",
+        "usuario",
+        "criado_em",
+        "justificativa",
+    }
+    assert set(logs[0]["usuario"]) == {"uuid", "nome"}
+
+
+def test_termo_list_filtra_pelos_status_do_fluxo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+):
+    url = "/pos-recebimento/termos/"
+
+    enviado = client_autenticado_dilog_cronograma.get(
+        url, {"status": "ENVIADO_FISCAIS"}
+    )
+    assinado = client_autenticado_dilog_cronograma.get(
+        url, {"status": "TERMO_ASSINADO"}
+    )
+
+    assert enviado.json()["count"] == 1
+    assert assinado.json()["count"] == 0
+
+
+@pytest.mark.parametrize(
+    "status_removido",
+    [
+        "ENVIADO_DILOG",
+        "ENVIADO_COORDENADOR",
+        "ENVIADO_FORNECEDOR",
+        "ASSINADO_FORNECEDOR",
+    ],
+)
+def test_termo_list_rejeita_status_que_saiu_do_fluxo(
+    client_autenticado_dilog_cronograma,
+    termo_listagem,
+    status_removido,
+):
+    """Os status removidos não são mais aceitos no filtro."""
+    response = client_autenticado_dilog_cronograma.get(
+        "/pos-recebimento/termos/", {"status": status_removido}
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 def test_termo_retrieve_uuid_inexistente_retorna_404(
@@ -556,10 +631,25 @@ def test_pendentes_assinatura_nao_duplica_termo_com_varios_cronogramas(
 
 
 @pytest.mark.parametrize("url", [URL_PENDENTES_ASSINATURA, URL_ASSINADOS])
-def test_painel_assinatura_negado_para_perfil_fora_da_codae(
-    client_autenticado_distribuidor,
+@pytest.mark.parametrize(
+    ("nome_client", "status_esperado"),
+    [
+        ("client_autenticado_qualidade", status.HTTP_200_OK),
+        ("client_autenticado_dilog_cronograma", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_codae_dilog", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_dilog_diretoria", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_distribuidor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_fornecedor", status.HTTP_403_FORBIDDEN),
+        ("client_autenticado_usuario_empresa", status.HTTP_403_FORBIDDEN),
+    ],
+)
+def test_painel_assinatura_por_perfil(
+    request,
+    nome_client,
+    status_esperado,
     url,
 ):
-    response = client_autenticado_distribuidor.get(url)
+    """O Painel de Assinaturas é exclusivo de DILOG_QUALIDADE."""
+    response = request.getfixturevalue(nome_client).get(url)
 
-    assert response.status_code == status.HTTP_403_FORBIDDEN
+    assert response.status_code == status_esperado

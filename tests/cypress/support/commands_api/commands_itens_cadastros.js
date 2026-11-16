@@ -1,5 +1,13 @@
 /// <reference types='cypress' />
 
+Cypress.Commands.add('executar_itens_cadastros', ({ method = 'GET', caminho = '', token = globalThis.token, qs, body } = {}) => {
+	return cy.request({
+		method, url: Cypress.config('baseUrl') + 'api/itens-cadastros/' + caminho,
+		qs, body, headers: token ? { Authorization: 'JWT ' + token } : {},
+		failOnStatusCode: false, timeout: 120000, log: false,
+	})
+})
+
 Cypress.Commands.add('consultar_itens_cadastros', () => {
 	cy.request({
 		method: 'GET',

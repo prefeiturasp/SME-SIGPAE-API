@@ -128,6 +128,8 @@ class FormularioSupervisaoRetrieveSerializer(serializers.ModelSerializer):
 class FormularioSupervisaoSimplesSerializer(serializers.ModelSerializer):
     diretoria_regional = serializers.CharField(source="escola.diretoria_regional.nome")
     unidade_educacional = serializers.CharField(source="escola.nome")
+    codigo_eol = serializers.CharField(source="escola.codigo_eol", read_only=True)
+    tipo_unidade = serializers.CharField(source="escola.tipo_unidade.iniciais", read_only=True)
     data = serializers.SerializerMethodField()
     status = serializers.CharField(source="get_status_display")
 
@@ -142,6 +144,8 @@ class FormularioSupervisaoSimplesSerializer(serializers.ModelSerializer):
             "unidade_educacional",
             "data",
             "status",
+            "codigo_eol",
+            "tipo_unidade",
         )
 
 

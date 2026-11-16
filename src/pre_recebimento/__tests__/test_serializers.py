@@ -148,15 +148,39 @@ def test_painel_cronograma_serializer(cronograma, cronogramas_multiplos_status_c
     assert serializer.data["programa_leve_leite"] is None
 
 
-@freeze_time((timezone.now() + timezone.timedelta(2)))
-def test_painel_cronograma_serializer_log_recente(cronogramas_multiplos_status_com_log):
-    cronograma_completo = Cronograma.objects.filter(numero="002/2023A").first()
-    serializer = PainelCronogramaSerializer(cronograma_completo)
+@freeze_time("2026-03-12 15:30:00")
+def test_painel_cronograma_serializer_log_recente_de_outro_dia(
+    cronogramas_multiplos_status_com_log,
+):
+    cronograma_completo = Cronograma.objects.get(numero="002/2023A")
+    LogSolicitacoesUsuario.objects.filter(
+        pk=cronograma_completo.log_mais_recente.pk
+    ).update(criado_em=timezone.now() - timezone.timedelta(days=2))
 
-    expected_date = (timezone.now() - timezone.timedelta(2)).strftime(
-        FORMATO_DATA_BRASILEIRO
+    serializer = PainelCronogramaSerializer(
+        Cronograma.objects.get(pk=cronograma_completo.pk)
     )
-    assert serializer.data["log_mais_recente"] == expected_date
+
+    assert serializer.data["log_mais_recente"] == "10/03/2026"
+
+
+@freeze_time("2026-03-12 15:30:00")
+def test_painel_cronograma_serializer_log_recente_no_mesmo_dia(
+    cronogramas_multiplos_status_com_log,
+):
+    cronograma_completo = Cronograma.objects.get(numero="002/2023A")
+    LogSolicitacoesUsuario.objects.filter(
+        pk=cronograma_completo.log_mais_recente.pk
+    ).update(criado_em=timezone.now())
+    log = LogSolicitacoesUsuario.objects.get(pk=cronograma_completo.log_mais_recente.pk)
+
+    serializer = PainelCronogramaSerializer(
+        Cronograma.objects.get(pk=cronograma_completo.pk)
+    )
+
+    assert serializer.data["log_mais_recente"] == log.criado_em.strftime(
+        "%d/%m/%Y %H:%M"
+    )
 
 
 def test_gera_proximo_numero_cronograma_sem_ultimo_cronograma():

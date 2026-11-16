@@ -266,7 +266,7 @@ Regras de negócio:
 - O saldo do laudo considera apenas fichas ``ASSINADA``
   (``calcular_saldo_laudo``).
 - A empresa precisa de ao menos uma ficha ``ASSINADA`` para constar em um
-  termo de recebimento definitivo.
+  termo de recebimento provisório.
 
 .. autoclass:: FichaDeRecebimento
    :members:

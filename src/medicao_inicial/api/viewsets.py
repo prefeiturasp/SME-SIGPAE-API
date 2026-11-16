@@ -51,7 +51,12 @@ from src.medicao_inicial.services.relatorio_alimentacoes_servidas_dados import (
 )
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     montar_relatorio_calculado,
+    obter_parametrizacao_vigente,
     parametrizacao_possui_reajuste,
+)
+from src.medicao_inicial.services.relatorio_folha_medicao_final import (
+    nome_arquivo_folha_medicao_final,
+    obter_dados_contratuais,
 )
 from src.medicao_inicial.utils import process_anexos_from_request
 
@@ -123,7 +128,7 @@ from ..tasks import (
     exporta_relatorio_consolidado_xlsx,
     exporta_relatorio_historico_correcoes_pdf,
     gera_pdf_historico_ocorrencias_medicao_inicial_async,
-    gera_pdf_relatorio_financeiro_consolidado_async,
+    gera_pdf_relatorio_financeiro_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
 )
@@ -185,6 +190,7 @@ from .serializers_create import (
     ClausulaDeDescontoCreateUpdateSerializer,
     DescontoFinanceiroUpdateSerializer,
     DiaSobremesaDoceCreateManySerializer,
+    GerarMedicaoFinalSerializer,
     InformacoesBasicasMedicaoInicialUpdateSerializer,
     MedicaoCreateUpdateSerializer,
     ParametrizacaoFinanceiraWriteModelSerializer,
@@ -1182,7 +1188,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1214,7 +1220,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1261,7 +1267,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1293,7 +1299,7 @@ class SolicitacaoMedicaoInicialViewSet(
                     historico = json.loads(solicitacao_medicao_inicial.historico)
                     historico.append(log)
                 solicitacao_medicao_inicial.historico = json.dumps(historico)
-                solicitacao_medicao_inicial.save()
+                solicitacao_medicao_inicial.save(update_fields=["historico"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -1464,7 +1470,7 @@ class SolicitacaoMedicaoInicialViewSet(
                 solicitacao_medicao_inicial.ocorrencia.escola_exclui_ocorrencia(
                     user=request.user, justificativa=justificativa
                 )
-            solicitacao_medicao_inicial.save()
+            solicitacao_medicao_inicial.save(update_fields=["com_ocorrencias"])
             serializer = self.get_serializer(solicitacao_medicao_inicial)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except InvalidTransitionError as e:
@@ -2764,7 +2770,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         | UsuarioCODAENutriManifestacao
         | UsuarioDinutreDiretoria
     ]
-    queryset = RelatorioFinanceiro.objects.all()
+    queryset = RelatorioFinanceiro.objects.select_related("medicao_final")
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = RelatorioFinanceiroFilter
     pagination_class = CustomPagination
@@ -2815,23 +2821,7 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 uuid=uuid_relatorio_financeiro
             )
 
-            mes = int(relatorio_financeiro.mes)
-            ano = int(relatorio_financeiro.ano)
-
-            parametrizacao = (
-                ParametrizacaoFinanceira.objects.filter(
-                    lote=relatorio_financeiro.lote,
-                    grupo_unidade_escolar=relatorio_financeiro.grupo_unidade_escolar,
-                    data_inicial__lte=datetime.date(
-                        ano, mes, calendar.monthrange(ano, mes)[1]
-                    ),
-                )
-                .filter(
-                    Q(data_final__gte=datetime.date(ano, mes, 1))
-                    | Q(data_final__isnull=True)
-                )
-                .first()
-            )
+            parametrizacao = obter_parametrizacao_vigente(relatorio_financeiro)
 
             if not parametrizacao:
                 return Response(
@@ -2880,6 +2870,9 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
         executada de forma assíncrona, permitindo que a requisição HTTP
         seja concluída sem aguardar o processamento do arquivo.
 
+        O documento é a Folha de Medição Final quando o relatório possui
+        Medição Final e o Ateste Financeiro nos demais casos.
+
         O nome do arquivo gerado é composto pela diretoria regional,
         grupo de unidade escolar e período de referência do relatório.
 
@@ -2908,10 +2901,17 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-        gera_pdf_relatorio_financeiro_consolidado_async.delay(
+        if hasattr(relatorio_financeiro, "medicao_final"):
+            nome_arquivo = nome_arquivo_folha_medicao_final(relatorio_financeiro)
+        else:
+            nome_arquivo = (
+                f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
+                f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf"
+            )
+
+        gera_pdf_relatorio_financeiro_async.delay(
             user=user,
-            nome_arquivo=f"Ateste Financeiro - Medição Inicial {relatorio_financeiro.lote.diretoria_regional.nome} - {relatorio_financeiro.grupo_unidade_escolar.nome} - "
-            f"{relatorio_financeiro.mes}/{relatorio_financeiro.ano}.pdf",
+            nome_arquivo=nome_arquivo,
             uuid_relatorio_financeiro=uuid_relatorio_financeiro,
         )
 
@@ -3012,6 +3012,30 @@ class RelatorioFinanceiroViewSet(ModelViewSet):
                 {"Erro": str(e)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+
+    @action(detail=True, methods=["GET"], url_path="dados-medicao-final")
+    def dados_medicao_final(self, request, uuid=None):
+        """Dados somente leitura exibidos no modal "Gerar Medição Final"."""
+        return Response(obter_dados_contratuais(self.get_object()))
+
+    @action(
+        detail=True,
+        methods=["POST"],
+        url_path="gerar-medicao-final",
+        permission_classes=[UsuarioMedicao],
+    )
+    def gerar_medicao_final(self, request, uuid=None):
+        """Registra a Medição Final e muda o status para "Gerada Medição Final"."""
+        relatorio_financeiro = get_object_or_404(
+            self.get_queryset().select_for_update(of=("self",)), uuid=uuid
+        )
+        serializer = GerarMedicaoFinalSerializer(
+            data=request.data,
+            context={"request": request, "relatorio_financeiro": relatorio_financeiro},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(self.get_serializer(relatorio_financeiro).data)
 
 
 class DescontoFinanceiroViewSet(ModelViewSet):

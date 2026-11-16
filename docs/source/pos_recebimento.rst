@@ -2,16 +2,16 @@ pos_recebimento
 ===============
 
 Módulo de pós-recebimento do sistema SIGPAE. Gerencia a formalização do
-recebimento definitivo de produtos de uma empresa/contrato por meio do
-Termo de Recebimento Definitivo, documento que vincula um ou mais
+recebimento provisório de produtos de uma empresa/contrato por meio do
+Termo de Recebimento Provisório, documento que vincula um ou mais
 cronogramas de entrega, os fiscais responsáveis (perfil
 ``DILOG_QUALIDADE``) e o texto do termo.
 
 O módulo é composto por:
 
-- **Modelos**: :class:`~src.pos_recebimento.models.TermoRecebimentoDefinitivo`
+- **Modelos**: :class:`~src.pos_recebimento.models.TermoRecebimentoProvisorio`
   (termo em si) e o modelo intermediário
-  :class:`~src.pos_recebimento.models.CronogramaTermoRecebimentoDefinitivo`
+  :class:`~src.pos_recebimento.models.CronogramaTermoRecebimentoProvisorio`
   (cronograma do termo, com valor de contrato e quantidade total recebida
   próprios).
 - **API**: endpoint único de criação (``POST /pos-recebimento/termos/``),

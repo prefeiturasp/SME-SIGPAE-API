@@ -10,6 +10,11 @@ router.register(
     basename="Dados Usuario EOL Completo",
 )
 router.register(
+    "dados-servidor-eol",
+    viewsets.DadosServidorEOLViewSet,
+    basename="Dados Servidor EOL",
+)
+router.register(
     "dados-alunos-eol", viewsets.DadosAlunoEOLViewSet, basename="Dados Aluno EOL"
 )
 

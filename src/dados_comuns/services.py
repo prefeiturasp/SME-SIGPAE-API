@@ -216,6 +216,16 @@ class ServiceMapeamentoLogsLinhaDoTempo:
             "Layout atualizado": STATUS_ENVIADO_PARA_ANALISE,
             "Layout aprovado": "Aprovado",
         },
+        LogSolicitacoesUsuario.TERMO_RECEBIMENTO_PROVISORIO: {
+            "Termo de Recebimento Provisório enviado aos Fiscais": "Termo Criado",
+            "Termo de Recebimento Provisório assinado pelo Fiscal": (
+                "Assinatura Fiscal do Contrato"
+            ),
+            (
+                "Etapa de assinatura dos Fiscais do Termo de Recebimento "
+                "Provisório concluída"
+            ): "Termo Assinado",
+        },
     }
 
     @classmethod

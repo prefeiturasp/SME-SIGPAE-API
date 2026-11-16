@@ -33,6 +33,14 @@ from src.medicao_inicial.models import (
     GrupoMedicao,
     SolicitacaoMedicaoInicial,
 )
+from src.medicao_inicial.services.relatorio_ateste_financeiro import (
+    montar_relatorio_financeiro,
+    parametrizacao_possui_reajuste,
+    prepara_relatorio_para_template,
+)
+from src.medicao_inicial.services.relatorio_folha_medicao_final import (
+    montar_contexto_folha_medicao_final,
+)
 from src.paineis_consolidados.models import SolicitacoesCODAE
 from src.pre_recebimento.documento_recebimento.api.serializers.serializers import (
     DocRecebimentoFichaDeRecebimentoSerializer,
@@ -64,6 +72,7 @@ from ..logistica.api.helpers import retorna_status_guia_remessa
 from ..medicao_inicial.models import ValorMedicao
 from ..medicao_inicial.utils import (
     build_lista_campos_observacoes,
+    build_tabela_escola_aberta,
     build_tabela_relatorio_consolidado,
     build_tabela_somatorio_body,
     build_tabela_somatorio_body_cei,
@@ -76,7 +85,6 @@ from ..medicao_inicial.utils import (
     build_tabelas_relatorio_medicao_cei_recreio_nas_ferias,
     build_tabelas_relatorio_medicao_cemei,
     build_tabelas_relatorio_medicao_emebs,
-    calcula_totais_consumo_por_grupo,
 )
 from ..pre_recebimento.ficha_tecnica.api.helpers import (
     formata_cnpj_ficha_tecnica,
@@ -116,6 +124,21 @@ ARQUIVO_MARCA_DAGUA_PRELIMINAR = "preliminar.pdf"
 
 FORMATO_DATA_HORA_PDF = "%d/%m/%Y às %H:%M"
 NOME_ARQUIVO_DIETA_ESPECIAL = "relatorio_dieta_especial.pdf"
+
+MESES_POR_EXTENSO = (
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+)
 
 
 def valida_request_method_get(request):
@@ -1710,6 +1733,10 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
     dict_total_refeicoes = get_total_por_periodo(tabelas, "total_refeicoes_pagamento")
     dict_total_sobremesas = get_total_por_periodo(tabelas, "total_sobremesas_pagamento")
 
+    tabela_escola_aberta = build_tabela_escola_aberta(solicitacao)
+    if tabela_escola_aberta:
+        tabelas.append(tabela_escola_aberta)
+
     tipos_contagem_alimentacao = list(
         solicitacao.tipos_contagem_alimentacao.values_list("nome", flat=True)
     )
@@ -1778,9 +1805,7 @@ def relatorio_solicitacao_medicao_por_escola(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     return html_to_pdf_watermark(
         html_string,
         NOME_ARQUIVO_DIETA_ESPECIAL,
@@ -1834,9 +1859,7 @@ def relatorio_solicitacao_medicao_por_escola_recreio_nas_ferias(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     return html_to_pdf_watermark(
         html_string,
         NOME_ARQUIVO_DIETA_ESPECIAL,
@@ -1902,9 +1925,7 @@ def relatorio_solicitacao_medicao_por_escola_cei_recreio_nas_ferias(solicitacao)
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -1942,9 +1963,7 @@ def relatorio_solicitacao_medicao_por_escola_cei(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2003,9 +2022,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2057,9 +2074,7 @@ def relatorio_solicitacao_medicao_por_escola_cemei_recreio_nas_ferias(solicitaca
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2369,9 +2384,7 @@ def relatorio_solicitacao_medicao_por_escola_emebs(solicitacao):
         solicitacao.status
         == SolicitacaoMedicaoInicialWorkflow.MEDICAO_APROVADA_PELA_CODAE
     ):
-        return html_to_pdf_file(
-            html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True
-        )
+        return html_to_pdf_file(html_string, NOME_ARQUIVO_DIETA_ESPECIAL, is_async=True)
     else:
         return html_to_pdf_watermark(
             html_string,
@@ -2821,6 +2834,64 @@ def get_pdf_ficha_recebimento(request, ficha):
     )
 
 
+def get_pdf_termo_recebimento_provisorio(request, termo):
+    """
+    Gera o PDF do Termo de Recebimento Provisório.
+
+    Parametros:
+        request: Objeto de requisição HTTP
+        termo: Instância de TermoRecebimentoProvisorio
+
+    Retorno:
+        HttpResponse: Resposta HTTP com o PDF do Termo de Recebimento Provisório
+    """
+    cronogramas_termo = list(
+        termo.cronogramas_termo.select_related(
+            "cronograma__ficha_tecnica__produto",
+            "cronograma__unidade_medida",
+        ).order_by("cronograma__numero")
+    )
+    cronogramas = [
+        item
+        for item in cronogramas_termo
+        if item.cronograma.ficha_tecnica and item.cronograma.ficha_tecnica.produto
+    ]
+
+    assinaturas_por_usuario = {
+        assinatura.usuario_id: assinatura
+        for assinatura in termo.assinaturas.select_related("usuario")
+    }
+    blocos_assinatura = [
+        {
+            "fiscal": fiscal,
+            "assinatura": assinaturas_por_usuario.get(fiscal.id),
+        }
+        for fiscal in (termo.fiscal_1, termo.fiscal_2, termo.fiscal_3)
+    ]
+
+    html_string = render_to_string(
+        "pos_recebimento/termo_recebimento_provisorio/termo.html",
+        {
+            "termo": termo,
+            "cronogramas": cronogramas,
+            "numeros_cronogramas": " | ".join(
+                item.cronograma.numero for item in cronogramas_termo
+            ),
+            "data_termo": (
+                f"{termo.criado_em.day:02d} de "
+                f"{MESES_POR_EXTENSO[termo.criado_em.month - 1]} de "
+                f"{termo.criado_em.year}"
+            ),
+            "blocos_assinatura": blocos_assinatura,
+        },
+    )
+    data_arquivo = datetime.datetime.today().strftime(FORMATO_DATA_HORA_PDF)
+    return html_to_pdf_response(
+        html_string.replace("dt_file", data_arquivo),
+        f"termo_recebimento_provisorio_{termo.uuid}.pdf",
+    )
+
+
 def cabecalho_reclamacao_produto(filtros: dict) -> dict:
     """
     Monta o cabeçalho formatado para o relatório de reclamações de produtos.
@@ -2978,31 +3049,27 @@ def gerar_relatorio_ateste_financeiro(
     template,
     tipo_calculo=None,
 ):
-    kwargs_consumo = {}
+    """Gera o PDF do Ateste Financeiro do relatório financeiro.
 
-    if tipo_calculo:
-        kwargs_consumo["tipo_calculo"] = tipo_calculo
+    Args:
+        relatorio_financeiro (Model): Instância do relatório financeiro.
+        parametrizacao (Model): Parametrização financeira vigente.
+        builder (Callable): Builder do grupo de unidade escolar.
+        template (str): Template do Ateste Financeiro do grupo.
+        tipo_calculo (str | None): Tipo de cálculo dos totais de consumo.
 
-    totais_consumo = calcula_totais_consumo_por_grupo(
-        relatorio_financeiro.lote,
-        relatorio_financeiro.grupo_unidade_escolar,
-        relatorio_financeiro.mes,
-        relatorio_financeiro.ano,
-        **kwargs_consumo,
-    )
-
-    tabelas = parametrizacao.tabelas.all()
-
-    relatorio = builder(
-        relatorio_financeiro,
-        tabelas,
-        totais_consumo,
+    Returns:
+        File: Arquivo PDF a ser registrado na Central de Downloads.
+    """
+    relatorio = montar_relatorio_financeiro(
+        relatorio_financeiro, parametrizacao, builder, tipo_calculo
     )
 
     html_string = render_to_string(
         template,
         {
-            **relatorio,
+            **prepara_relatorio_para_template(relatorio),
+            "possui_reajuste": parametrizacao_possui_reajuste(parametrizacao),
             "relatorio": relatorio_financeiro,
         },
     )
@@ -3017,6 +3084,39 @@ def gerar_relatorio_ateste_financeiro(
         ),
         (
             f"relatorio_ateste_financeiro_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf"
+        ),
+        is_async=True,
+    )
+
+
+def gerar_relatorio_folha_medicao_final(relatorio_financeiro, parametrizacao):
+    """Gera o PDF da Folha de Medição Final do relatório financeiro.
+
+    As tabelas e os consolidados usam os mesmos cálculos do Ateste Financeiro,
+    acrescidos dos dados contratuais e da página de responsáveis.
+
+    Args:
+        relatorio_financeiro (Model): Relatório com Medição Final gerada.
+        parametrizacao (Model): Parametrização financeira vigente.
+
+    Returns:
+        File: Arquivo PDF a ser registrado na Central de Downloads.
+    """
+    contexto = montar_contexto_folha_medicao_final(relatorio_financeiro, parametrizacao)
+    html_string = render_to_string(
+        "relatorio_financeiro/relatorio_folha_medicao_final.html", contexto
+    )
+
+    cabecalho = contexto["cabecalho"]
+    grupo_nome = relatorio_financeiro.grupo_unidade_escolar.nome.lower()
+
+    return html_to_pdf_file(
+        html_string.replace(
+            "dt_file",
+            f'{cabecalho["data_geracao"]} às {cabecalho["hora_geracao"]}',
+        ),
+        (
+            f"folha_medicao_final_{grupo_nome}_{relatorio_financeiro.mes}_{relatorio_financeiro.ano}.pdf"
         ),
         is_async=True,
     )

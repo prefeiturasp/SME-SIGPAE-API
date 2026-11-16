@@ -214,38 +214,10 @@ def size(b64string):
     return (len(b64string) * 3) / 4 - b64string.count("=", -2)
 
 
-ULTIMO_DIA_DO_MES = {
-    1: 31,
-    2: 28,
-    3: 31,
-    4: 30,
-    5: 31,
-    6: 30,
-    7: 31,
-    8: 31,
-    9: 30,
-    10: 31,
-    11: 30,
-    12: 31,
-}
-
-
 def subtrai_meses_de_data(meses, data):
-    sub_anos = meses // 12
-    sub_meses = meses % 12
-    if data.month <= sub_meses:
-        novo_ano = data.year - (sub_anos + 1)
-        novo_mes = 12 - (sub_meses - data.month)
-    else:
-        novo_ano = data.year - sub_anos
-        novo_mes = data.month - sub_meses
-    if novo_ano % 20 == 0 and novo_mes == 2 and data.day > 29:
-        novo_dia = 29
-    elif data.day > ULTIMO_DIA_DO_MES[novo_mes]:
-        novo_dia = ULTIMO_DIA_DO_MES[novo_mes]
-    else:
-        novo_dia = data.day
-    return datetime.date(novo_ano, novo_mes, novo_dia)
+    if isinstance(data, datetime.datetime):
+        data = data.date()
+    return data - relativedelta(months=meses)
 
 
 def ordena_dias_semana_comeca_domingo(dias_semana):

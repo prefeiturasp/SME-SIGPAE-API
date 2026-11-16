@@ -1,8 +1,17 @@
+import datetime
+import uuid
+
 from rest_framework import mixins, status, viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from ..models import EscolaAberta
-from .serializers import EscolaAbertaCreateSerializer, EscolaAbertaReadSerializer
+from ..services import obter_unidade_escola_aberta_por_mes_ano
+from .serializers import (
+    EscolaAbertaCreateSerializer,
+    EscolaAbertaPorEscolaSerializer,
+    EscolaAbertaReadSerializer,
+)
 
 
 class EscolaAbertaViewSet(
@@ -47,3 +56,38 @@ class EscolaAbertaViewSet(
             context=self.get_serializer_context(),
         ).data
         return Response(data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["GET"], url_path="por-escola")
+    def por_escola(self, request):
+        escola_uuid = request.query_params.get("escola_uuid")
+        mes = request.query_params.get("mes")
+        ano = request.query_params.get("ano")
+
+        if not all([escola_uuid, mes, ano]):
+            return Response(
+                {"detail": "Parâmetros obrigatórios: escola_uuid, mes e ano"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            escola_uuid = uuid.UUID(escola_uuid)
+            mes = int(mes)
+            ano = int(ano)
+            datetime.date(ano, mes, 1)
+        except (TypeError, ValueError):
+            return Response(
+                {"detail": "Parâmetros escola_uuid, mes ou ano inválidos"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        unidade = obter_unidade_escola_aberta_por_mes_ano(escola_uuid, mes, ano)
+        if not unidade:
+            return Response({"possui_cadastro": False}, status=status.HTTP_200_OK)
+
+        return Response(
+            {
+                "possui_cadastro": True,
+                "cadastro": EscolaAbertaPorEscolaSerializer(unidade).data,
+            },
+            status=status.HTTP_200_OK,
+        )

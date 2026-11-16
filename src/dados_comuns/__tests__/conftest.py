@@ -263,15 +263,15 @@ def dias_sem_cardapio(request):
 @pytest.fixture(
     params=[
         (
-            datetime.date(datetime.datetime.now().year - 1, 5, 26),
+            datetime.date(2018, 5, 26),
             "Solicitação deve ser solicitada no ano corrente",
         ),
         (
-            datetime.date(datetime.datetime.now().year + 1, 1, 1),
+            datetime.date(2020, 1, 1),
             "Solicitação deve ser solicitada no ano corrente",
         ),
         (
-            datetime.date(datetime.datetime.now().year + 2, 12, 1),
+            datetime.date(2021, 12, 1),
             "Solicitação deve ser solicitada no ano corrente",
         ),
     ]

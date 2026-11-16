@@ -15,6 +15,7 @@ from .models import (
     GrupoMedicao,
     LancheEmergencialDiario,
     Medicao,
+    MedicaoFinal,
     ParametrizacaoFinanceira,
     ParametrizacaoFinanceiraTabela,
     ParametrizacaoFinanceiraTabelaValor,
@@ -258,6 +259,41 @@ class RelatorioFinanceiroAdmin(admin.ModelAdmin):
 @admin.register(DescontoFinanceiro)
 class DescontoFinanceiroAdmin(admin.ModelAdmin):
     list_display = ("__str__", "relatorio_financeiro", "quantidade")
+
+
+@admin.register(MedicaoFinal)
+class MedicaoFinalAdmin(admin.ModelAdmin):
+    list_display = (
+        "relatorio_financeiro",
+        "rf_responsavel_conferencia",
+        "nome_responsavel_conferencia",
+        "numero_processo_pagamento",
+        "gerado_por",
+        "criado_em",
+    )
+    search_fields = (
+        "rf_responsavel_conferencia",
+        "nome_responsavel_conferencia",
+        "numero_processo_pagamento",
+        "relatorio_financeiro__lote__nome",
+    )
+    search_help_text = (
+        StringsSearchHelpText.PESQUISE_POR_RF_OU_NOME_DO_RESPONSAVEL_PROCESSO_DE_PAGAMENTO_OU_NOME_DO_LOTE.value
+    )
+    list_filter = (
+        ("criado_em", DateRangeFilter),
+        "relatorio_financeiro__mes",
+        "relatorio_financeiro__ano",
+        "relatorio_financeiro__lote",
+    )
+    list_select_related = (
+        "relatorio_financeiro__lote",
+        "relatorio_financeiro__grupo_unidade_escolar",
+        "gerado_por",
+    )
+    raw_id_fields = ("relatorio_financeiro", "gerado_por")
+    readonly_fields = ("uuid", "criado_em", "alterado_em")
+    ordering = ("-criado_em",)
 
 
 importlib.import_module("src.medicao_inicial.recreio_nas_ferias.admin")

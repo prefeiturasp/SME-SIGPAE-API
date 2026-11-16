@@ -99,9 +99,13 @@ class EscolaAbertaCreateSerializer(serializers.Serializer):
         if len(lotes) != len(lotes_uuids):
             raise ValidationError("Um ou mais lotes não foram encontrados")
         if len(escolas) != len(escolas_uuids):
-            raise ValidationError("Uma ou mais unidades educacionais não foram encontradas")
+            raise ValidationError(
+                "Uma ou mais unidades educacionais não foram encontradas"
+            )
         if len(alimentos) != len(alimentos_uuids):
-            raise ValidationError("Um ou mais tipos de alimentação não foram encontrados")
+            raise ValidationError(
+                "Um ou mais tipos de alimentação não foram encontrados"
+            )
         return lotes, escolas, alimentos
 
     def _criar_unidades(self, escola_aberta, unidades):
@@ -189,4 +193,36 @@ class EscolaAbertaReadSerializer(serializers.ModelSerializer):
             "dias_semana",
             "unidades_participantes",
             "criado_em",
+        )
+
+
+class EscolaAbertaPorEscolaSerializer(serializers.ModelSerializer):
+    uuid = serializers.UUIDField(source="escola_aberta.uuid", read_only=True)
+    data_inicial = serializers.DateField(
+        source="escola_aberta.data_inicial", format="%d/%m/%Y", read_only=True
+    )
+    data_final = serializers.DateField(
+        source="escola_aberta.data_final", format="%d/%m/%Y", read_only=True
+    )
+    dias_semana = serializers.ListField(
+        source="escola_aberta.dias_semana",
+        child=serializers.CharField(),
+        read_only=True,
+    )
+    tipos_alimentacao = serializers.SerializerMethodField()
+
+    def get_tipos_alimentacao(self, obj):
+        return [
+            {"uuid": str(t.uuid), "nome": t.nome} for t in obj.tipos_alimentacao.all()
+        ]
+
+    class Meta:
+        model = EscolaAbertaUnidadeParticipante
+        fields = (
+            "uuid",
+            "data_inicial",
+            "data_final",
+            "dias_semana",
+            "num_participantes",
+            "tipos_alimentacao",
         )
