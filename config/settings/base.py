@@ -369,6 +369,10 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TIMEZONE = TIME_ZONE
 
+# As tasks de PDF (WeasyPrint) têm pico de memória alto. Elas rodam em uma fila
+# própria para não derrubar o worker padrão e poderem escalar separadamente.
+CELERY_TASK_ROUTES = {"src.*pdf*": {"queue": "pdf"}}
+
 # reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1
 
