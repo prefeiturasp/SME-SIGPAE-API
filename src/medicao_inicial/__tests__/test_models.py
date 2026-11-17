@@ -7,6 +7,7 @@ from model_bakery import baker
 
 from src.medicao_inicial.models import (
     CategoriaMedicao,
+    DataFinalizaMedicaoDezembro,
     DescontoFinanceiro,
     GrupoMedicao,
     SolicitacaoMedicaoInicial,
@@ -371,3 +372,42 @@ def test_cria_desconto_financeiro_emei(
     assert desconto.faixa_etaria is None
 
     assert str(desconto) == "Alimentação - Lanche"
+
+
+def test_data_finaliza_medicao_dezembro_criada_por_migration():
+    registro = DataFinalizaMedicaoDezembro.objects.filter(id=1).first()
+
+    assert registro is not None
+    assert registro.data == datetime.date(2026, 12, 15)
+
+
+def test_data_finaliza_medicao_dezembro_permite_data_nula():
+    registro = DataFinalizaMedicaoDezembro.objects.get()
+
+    registro.data = None
+    registro.save()
+
+    registro = DataFinalizaMedicaoDezembro.objects.get()
+    assert registro.data is None
+    assert str(registro) == "Data não definida"
+
+
+def test_data_finaliza_medicao_dezembro_singleton():
+    registro = DataFinalizaMedicaoDezembro.objects.get()
+    assert registro.pk == 1
+    assert registro.data == datetime.date(2026, 12, 15)
+
+    registro.data = datetime.date(2026, 12, 20)
+    registro.save()
+
+    assert DataFinalizaMedicaoDezembro.objects.get().data == datetime.date(2026, 12, 20)
+    assert DataFinalizaMedicaoDezembro.objects.count() == 1
+
+
+def test_data_finaliza_medicao_dezembro_sempre_mantem_um_unico_registro():
+    DataFinalizaMedicaoDezembro.objects.get()
+
+    DataFinalizaMedicaoDezembro(data=datetime.date(2026, 12, 10)).save()
+
+    assert DataFinalizaMedicaoDezembro.objects.count() == 1
+    assert DataFinalizaMedicaoDezembro.objects.get().data == datetime.date(2026, 12, 10)

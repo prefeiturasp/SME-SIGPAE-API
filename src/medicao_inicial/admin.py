@@ -10,6 +10,7 @@ from .models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DataFinalizaMedicaoDezembro,
     DescontoFinanceiro,
     DiaSobremesaDoce,
     GrupoMedicao,
@@ -259,6 +260,18 @@ class RelatorioFinanceiroAdmin(admin.ModelAdmin):
 @admin.register(DescontoFinanceiro)
 class DescontoFinanceiroAdmin(admin.ModelAdmin):
     list_display = ("__str__", "relatorio_financeiro", "quantidade")
+
+
+@admin.register(DataFinalizaMedicaoDezembro)
+class DataFinalizaMedicaoDezembroAdmin(admin.ModelAdmin):
+    list_display = ("data", "alterado_em")
+    readonly_fields = ("uuid", "criado_em", "alterado_em")
+
+    def has_add_permission(self, request):
+        return not DataFinalizaMedicaoDezembro.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(MedicaoFinal)

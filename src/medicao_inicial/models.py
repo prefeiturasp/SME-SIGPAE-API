@@ -1232,3 +1232,39 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         verbose_name = "Desconto Financeiro"
         verbose_name_plural = "Descontos Financeiros"
         ordering = ["-alterado_em"]
+
+
+class DataFinalizaMedicaoDezembroManager(models.Manager):
+    def get(self, *args, **kwargs):
+        obj, _ = self.get_queryset().get_or_create(id=1)
+        return obj
+
+
+class DataFinalizaMedicaoDezembro(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """Data limite para finalizar a medição do mês de dezembro.
+
+    Modelo singleton: apenas um registro é permitido, sempre com id 1.
+    """
+
+    id = models.PositiveIntegerField(primary_key=True, editable=False)
+    data = models.DateField(
+        StringsVerboseNameModels.DATA.value,
+        default=datetime.date(2026, 12, 15),
+        null=True,
+        blank=True,
+    )
+
+    objects = DataFinalizaMedicaoDezembroManager()
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        if self.data:
+            return self.data.strftime(FORMATO_DATA_BRASILEIRO)
+        return "Data não definida"
+
+    class Meta:
+        verbose_name = "Data para finalizar medição em dezembro"
+        verbose_name_plural = "Data para finalizar medição em dezembro"
