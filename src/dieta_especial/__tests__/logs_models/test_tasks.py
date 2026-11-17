@@ -4,6 +4,7 @@ from collections import Counter
 import pytest
 from freezegun import freeze_time
 
+from src.core.models import Aluno, Escola
 from src.dados_comuns.constants import TIPOS_GESTAO
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
@@ -19,7 +20,6 @@ from src.dieta_especial.tasks.logs import (
     gera_logs_dietas_especiais_diariamente,
     gera_logs_dietas_recreio_ferias_diariamente,
 )
-from src.escola.models import Aluno, Escola
 
 pytestmark = pytest.mark.django_db
 

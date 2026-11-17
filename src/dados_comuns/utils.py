@@ -419,7 +419,7 @@ def datetime_range(start=None, end=None):
 
 
 def analisa_logs_alunos_matriculados_periodo_escola():
-    from src.escola.models import Escola
+    from src.core.models import Escola
 
     escolas = Escola.objects.all()
     for index, escola in enumerate(escolas):
@@ -437,7 +437,7 @@ def analisa_logs_alunos_matriculados_periodo_escola():
 
 
 def deletar_logs_alunos_matriculados_duplicados(escola, hoje):
-    from src.escola.models import LogAlunosMatriculadosPeriodoEscola
+    from src.core.models import LogAlunosMatriculadosPeriodoEscola
 
     for i in range(1, 8):
         data = hoje - datetime.timedelta(days=i)
@@ -462,7 +462,7 @@ def deletar_logs_alunos_matriculados_duplicados(escola, hoje):
 
 
 def criar_logs_alunos_matriculados_inexistentes(escola, hoje):
-    from src.escola.models import LogAlunosMatriculadosPeriodoEscola
+    from src.core.models import LogAlunosMatriculadosPeriodoEscola
 
     for i in range(1, 8):
         data = hoje - datetime.timedelta(days=i)
@@ -498,11 +498,11 @@ def criar_logs_alunos_matriculados_inexistentes(escola, hoje):
 
 
 def analisa_logs_quantidade_dietas_autorizadas():
+    from src.core.models import Escola
     from src.dieta_especial.logs_models.models import (
         LogQuantidadeDietasAutorizadas,
         LogQuantidadeDietasAutorizadasCEI,
     )
-    from src.escola.models import Escola
 
     escolas = Escola.objects.filter(tipo_gestao__nome=TIPOS_GESTAO.TERC_TOTAL.value)
     for index, escola in enumerate(escolas):

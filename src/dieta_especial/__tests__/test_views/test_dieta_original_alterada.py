@@ -3,6 +3,10 @@ import datetime
 import pytest
 from rest_framework import status
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    EscolaFactory,
+)
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     ContatoFactory,
 )
@@ -19,10 +23,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
 from src.dieta_especial.tasks.utils.processamentos import termina_dietas_especiais
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    EscolaFactory,
-)
 from src.produto.fixtures.factories.produto_factory import ProdutoFactory
 
 pytestmark = pytest.mark.django_db

@@ -2,9 +2,9 @@ from datetime import datetime
 
 from django.template.loader import render_to_string
 
+from src.core.models import DiretoriaRegional, Escola, Lote
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import converte_numero_em_mes
-from src.escola.models import DiretoriaRegional, Escola, Lote
 from src.relatorios.utils import html_to_pdf_file
 
 

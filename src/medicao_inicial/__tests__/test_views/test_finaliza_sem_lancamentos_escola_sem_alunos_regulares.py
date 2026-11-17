@@ -8,6 +8,9 @@ from rest_framework import status
 from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
 )
+from src.core.fixtures.factories.escola_factory import (
+    PeriodoEscolarFactory,
+)
 from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
 )
@@ -15,9 +18,6 @@ from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.fixtures.factories.escola_factory import (
-    PeriodoEscolarFactory,
-)
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     InclusaoAlimentacaoContinuaFactory,
     MotivoInclusaoContinuaFactory,

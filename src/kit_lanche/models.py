@@ -17,7 +17,6 @@ from ..dados_comuns.behaviors import (  # noqa I101
     CriadoEm,
     CriadoPor,
     Descritivel,
-    TemLogs,
     MatriculadosQuandoCriado,
     Motivo,
     Nomeavel,
@@ -26,6 +25,7 @@ from ..dados_comuns.behaviors import (  # noqa I101
     TemData,
     TemFaixaEtariaEQuantidade,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
     TemObservacao,
     TempoPasseio,
     TemPrioridade,
@@ -568,7 +568,7 @@ class SolicitacaoKitLancheUnificada(
         return escolas_quantidades
 
     def solicitacao_dict_para_relatorio(self, label_data, data_log, instituicao):
-        from src.escola.models import Escola
+        from src.core.models import Escola
 
         dict_ = {
             "lote": f"{self.rastro_lote.diretoria_regional.iniciais} - {self.rastro_lote.nome}",

@@ -7,13 +7,13 @@ from django.template.loader import render_to_string
 from pypdf import PdfReader, PdfWriter
 from weasyprint import HTML
 
-from src.dados_comuns.utils import converte_numero_em_mes
-from src.escola.models import Escola
-from src.escola.utils import (
+from src.core.models import Escola
+from src.core.utils import (
     formata_periodos_pdf_controle_frequencia,
     ordena_faixas_por_idade,
     trata_filtro_data_relatorio_controle_frequencia_pdf,
 )
+from src.dados_comuns.utils import converte_numero_em_mes
 from src.medicao_inicial.utils import (
     get_data_relatorio,
     get_pdf_merge_cabecalho,
@@ -35,7 +35,7 @@ def _total_matriculados(periodos):
 
 
 def gera_relatorio_controle_frequencia_pdf(query_params, escola_uuid):
-    from src.escola.api.viewsets import RelatorioControleDeFrequenciaViewSet
+    from src.core.api.viewsets import RelatorioControleDeFrequenciaViewSet
 
     vs_relatorio_controle = RelatorioControleDeFrequenciaViewSet()
     escola = Escola.objects.get(uuid=escola_uuid)

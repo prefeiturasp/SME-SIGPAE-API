@@ -14,7 +14,7 @@ from src.cardapio.suspensao_alimentacao.fixtures.factories.suspensao_alimentacao
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     LoteFactory,

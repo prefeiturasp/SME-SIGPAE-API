@@ -1,6 +1,7 @@
 from django.db import models
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import Escola, Lote
 from src.dados_comuns.behaviors import (
     CriadoEm,
     Nomeavel,
@@ -10,7 +11,6 @@ from src.dados_comuns.behaviors import (
 from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.escola.models import Escola, Lote
 
 
 class RecreioNasFerias(TemChaveExterna, CriadoEm, TemAlteradoEm):

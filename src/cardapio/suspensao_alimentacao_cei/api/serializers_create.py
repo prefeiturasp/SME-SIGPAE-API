@@ -4,13 +4,13 @@ from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
 from src.cardapio.suspensao_alimentacao_cei.models import (
     SuspensaoAlimentacaoDaCEI,
 )
+from src.core.models import Escola, PeriodoEscolar
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
     deve_pedir_com_antecedencia,
     deve_ser_no_mesmo_ano_corrente,
     nao_pode_ser_no_passado,
 )
-from src.escola.models import Escola, PeriodoEscolar
 
 
 class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
@@ -62,9 +62,9 @@ class SuspensaoAlimentacaodeCEICreateSerializer(serializers.ModelSerializer):
 
     def _validar_duplicidade(self, escola, data):
         STATUS_QUE_LIBERAM_DUPLICIDADE = ["ESCOLA_CANCELOU"]
-        qs = SuspensaoAlimentacaoDaCEI.objects.filter(
-            escola=escola, data=data
-        ).exclude(status__in=STATUS_QUE_LIBERAM_DUPLICIDADE)
+        qs = SuspensaoAlimentacaoDaCEI.objects.filter(escola=escola, data=data).exclude(
+            status__in=STATUS_QUE_LIBERAM_DUPLICIDADE
+        )
 
         uuid_atual = getattr(self.instance, "uuid", None)
         if uuid_atual:

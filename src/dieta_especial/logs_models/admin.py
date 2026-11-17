@@ -1,8 +1,8 @@
 from django.contrib import admin
 from rangefilter.filters import DateRangeFilter
 
+from src.core.models import FaixaEtaria
 from src.dados_comuns.constants import CRIADO_EM
-from src.escola.models import FaixaEtaria
 
 from .models import (
     LogDietasAtivasCanceladasAutomaticamente,

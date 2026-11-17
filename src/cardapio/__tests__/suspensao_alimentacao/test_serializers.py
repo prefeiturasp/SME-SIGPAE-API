@@ -7,8 +7,8 @@ from src.cardapio.suspensao_alimentacao.api.serializers_create import (
 from src.cardapio.suspensao_alimentacao.models import (
     GrupoSuspensaoAlimentacao,
 )
+from src.core.models import LISTA_TIPOS_UNIDADES
 from src.dados_comuns.constants import StringsCaminhoModelos
-from src.escola.models import LISTA_TIPOS_UNIDADES
 
 pytestmark = pytest.mark.django_db
 

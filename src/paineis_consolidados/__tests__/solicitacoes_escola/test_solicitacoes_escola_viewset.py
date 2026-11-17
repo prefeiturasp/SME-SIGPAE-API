@@ -22,6 +22,12 @@ from src.cardapio.base.fixtures.factories.base_factory import (
     TipoAlimentacaoFactory,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolarFactory,
 )
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    FaixaEtariaFactory,
+    PeriodoEscolarFactory,
+)
+from src.core.models import DiaSuspensaoAtividades
 from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
@@ -38,12 +44,6 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    FaixaEtariaFactory,
-    PeriodoEscolarFactory,
-)
-from src.escola.models import DiaSuspensaoAtividades
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     DiasMotivosInclusaoDeAlimentacaoCEIFactory,
     DiasMotivosInclusaoDeAlimentacaoCEMEIFactory,

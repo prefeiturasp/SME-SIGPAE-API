@@ -6,13 +6,13 @@ from freezegun import freeze_time
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.dias_letivos.models import DiaLetivoSIGPAE
 from src.dados_comuns import constants
 from src.dados_comuns.constants import (
     PEDIDOS_CODAE,
     PEDIDOS_DRE,
     SEM_FILTRO,
 )
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 

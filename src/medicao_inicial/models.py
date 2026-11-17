@@ -11,6 +11,8 @@ from django.utils.html import format_html
 
 from src.dados_comuns.constants import StringsCaminhoModelos, StringsVerboseNameModels
 
+from ..core.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
+from ..core.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..dados_comuns.behaviors import (
     Ativavel,
     CriadoEm,
@@ -36,8 +38,6 @@ from ..dados_comuns.fluxo_status import (
     FluxoSolicitacaoMedicaoInicial,
     LogSolicitacoesUsuario,
 )
-from ..escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
-from ..escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from ..perfil.models import Usuario
 from ..terceirizada.models import Edital
 from .recreio_nas_ferias.models import RecreioNasFerias

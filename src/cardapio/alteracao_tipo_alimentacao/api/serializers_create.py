@@ -12,6 +12,8 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolar,
 )
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import DiaCalendario, Escola, PeriodoEscolar
+from src.core.utils import eh_dia_sem_atividade_escolar
 from src.dados_comuns.constants import TIPOS_ALIMENTACAO
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
@@ -22,8 +24,6 @@ from src.dados_comuns.validators import (
     valida_dia_letivo_ou_inclusao_alimentacao_rpl,
     valida_duplicidade_solicitacoes,
 )
-from src.escola.models import DiaCalendario, Escola, PeriodoEscolar
-from src.escola.utils import eh_dia_sem_atividade_escolar
 from src.inclusao_alimentacao.models import GrupoInclusaoAlimentacaoNormal
 
 

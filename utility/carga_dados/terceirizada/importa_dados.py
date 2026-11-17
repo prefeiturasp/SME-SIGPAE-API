@@ -1,6 +1,6 @@
+from src.core.models import DiretoriaRegional
 from src.dados_comuns.models import Contato
 from src.dados_comuns.utils import secure_sample
-from src.escola.models import DiretoriaRegional
 from src.terceirizada.data.contratos import data_contratos
 from src.terceirizada.data.editais import data_editais
 from src.terceirizada.data.terceirizadas import data_terceirizadas

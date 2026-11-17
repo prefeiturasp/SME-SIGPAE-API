@@ -3,12 +3,12 @@ import datetime
 import pytest
 from model_bakery import baker
 
-from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
-from ...escola.models import (
+from ...core.models import (
     EscolaPeriodoEscolar,
     LogAlteracaoQuantidadeAlunosPorEscolaEPeriodoEscolar,
     PeriodoEscolar,
 )
+from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ..models import LancamentoDiario
 
 

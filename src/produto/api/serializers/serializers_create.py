@@ -5,6 +5,7 @@ from src.produto.utils.genericos import (
     mudancas_para_justificativa_html,
 )
 
+from ....core.models import Aluno, Escola
 from ....dados_comuns.constants import DEZ_MB
 from ....dados_comuns.models import LogSolicitacoesUsuario
 from ....dados_comuns.utils import (
@@ -15,7 +16,6 @@ from ....dados_comuns.validators import deve_ter_extensao_valida
 from ....dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from ....escola.models import Aluno, Escola
 from ....terceirizada.models import Edital, Terceirizada
 from ...models import (
     AnexoReclamacaoDeProduto,

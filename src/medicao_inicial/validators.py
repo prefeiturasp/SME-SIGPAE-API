@@ -22,8 +22,7 @@ from src.medicao_inicial.models import GrupoMedicao
 from ..cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
-from ..dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from ..escola.models import (
+from ..core.models import (
     DiaCalendario,
     DiaSuspensaoAtividades,
     Escola,
@@ -32,6 +31,7 @@ from ..escola.models import (
     LogAlunosMatriculadosPeriodoEscola,
     PeriodoEscolar,
 )
+from ..dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
 from ..inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoNormal,

@@ -17,10 +17,10 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.utils import ordem_periodos
+from src.core.models import DiaSuspensaoAtividades, Escola, PeriodoEscolar
 from src.dados_comuns.constants import PayloadVariaveis
 from src.dados_comuns.permissions import PermissaoParaRecuperarDietaEspecial
 from src.dados_comuns.utils import get_ultimo_dia_mes
-from src.escola.models import DiaSuspensaoAtividades, Escola, PeriodoEscolar
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoDeAlimentacaoCEMEI,

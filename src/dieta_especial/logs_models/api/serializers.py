@@ -1,5 +1,9 @@
 from rest_framework import serializers
 
+from src.core.api.serializers import (
+    FaixaEtariaSerializer,
+)
+from src.core.models import Escola, PeriodoEscolar
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
@@ -9,10 +13,6 @@ from src.dieta_especial.logs_models.models import (
 from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
     CLASSIFICACAO_NOME_SOURCE,
 )
-from src.escola.api.serializers import (
-    FaixaEtariaSerializer,
-)
-from src.escola.models import Escola, PeriodoEscolar
 
 
 class LogQuantidadeDietasAutorizadasSerializer(serializers.ModelSerializer):

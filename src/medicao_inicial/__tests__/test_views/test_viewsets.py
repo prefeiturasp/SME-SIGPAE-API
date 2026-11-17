@@ -4,12 +4,12 @@ from django.http import QueryDict
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
 from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     PayloadVariaveis,
 )
 from src.dados_comuns.fluxo_status import SolicitacaoMedicaoInicialWorkflow
-from src.escola.models import LogAlunosMatriculadosPeriodoEscola, TipoTurma
 from src.medicao_inicial.api.viewsets import (
     DescontoFinanceiroViewSet,
     SolicitacaoMedicaoInicialViewSet,

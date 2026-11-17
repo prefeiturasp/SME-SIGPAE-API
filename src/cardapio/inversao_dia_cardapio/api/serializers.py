@@ -6,8 +6,8 @@ from src.cardapio.base.api.serializers import (
     TipoAlimentacaoSimplesSerializer,
 )
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
+from src.core.api.serializers import EscolaSimplesSerializer
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from src.escola.api.serializers import EscolaSimplesSerializer
 from src.terceirizada.api.serializers.serializers import (
     TerceirizadaSimplesSerializer,
 )

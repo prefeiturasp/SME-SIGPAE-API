@@ -1,7 +1,7 @@
 import pytest
 from rest_framework import status
 
-from src.escola.models import Lote, TipoUnidadeEscolar
+from src.core.models import Lote, TipoUnidadeEscolar
 from src.perfil.models import Usuario
 
 pytestmark = pytest.mark.django_db

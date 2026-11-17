@@ -10,6 +10,7 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet
 from xworkflows import InvalidTransitionError
 
+from ...core.models import DiaSuspensaoAtividades
 from ...dados_comuns import constants
 from ...dados_comuns.constants import PayloadVariaveis
 from ...dados_comuns.mixins.serializer_context import DataSolicitacaoContextMixin
@@ -26,7 +27,6 @@ from ...dados_comuns.utils import (
     obter_dias_uteis_apos,
     queryset_por_data,
 )
-from ...escola.models import DiaSuspensaoAtividades
 from ...inclusao_alimentacao.api.viewsets import (
     CodaeAutoriza,
     CodaeQuestionaTerceirizadaResponde,

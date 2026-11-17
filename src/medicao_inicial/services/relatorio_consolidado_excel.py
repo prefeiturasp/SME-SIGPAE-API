@@ -6,6 +6,7 @@ import pandas as pd
 from openpyxl.workbook import Workbook
 from openpyxl.worksheet.worksheet import Worksheet
 
+from src.core.models import DiretoriaRegional, Lote
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     ORDEM_UNIDADES_GRUPO_CEI,
@@ -16,7 +17,6 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEI,
 )
 from src.dados_comuns.utils import converte_numero_em_mes
-from src.escola.models import DiretoriaRegional, Lote
 from src.medicao_inicial.services import (
     relatorio_consolidado_cei,
     relatorio_consolidado_cemei,

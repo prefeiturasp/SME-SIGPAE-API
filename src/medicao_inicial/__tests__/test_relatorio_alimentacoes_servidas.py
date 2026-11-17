@@ -9,6 +9,7 @@ from src.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.core.models import GrupoUnidadeEscolar
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -16,7 +17,6 @@ from src.dados_comuns.constants import (
     TIPOS_GESTAO,
     USUARIO_RELATORIOS,
 )
-from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.services.relatorio_alimentacoes_servidas import (
     validar_filtros_relatorio_alimentacoes_servidas,
 )

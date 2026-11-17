@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 from rest_framework import status
 
-from src.escola.__tests__.conftest import mocked_response
+from src.core.__tests__.conftest import mocked_response
 
 from ...dados_comuns.constants import (
     EMAIL_TESTE,

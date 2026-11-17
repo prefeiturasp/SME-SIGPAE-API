@@ -8,7 +8,7 @@ from rest_framework.exceptions import ValidationError
 
 from ...cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
 from ...cardapio.alteracao_tipo_alimentacao_cei.models import AlteracaoCardapioCEI
-from ...escola.dias_letivos.models import DiaLetivoSIGPAE
+from ...core.dias_letivos.models import DiaLetivoSIGPAE
 from ...inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoDaCEI,

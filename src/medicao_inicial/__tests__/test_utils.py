@@ -6,6 +6,7 @@ import pytest
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.core.models import TipoTurma
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
@@ -20,7 +21,6 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadasCEI,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.models import TipoTurma
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     DescontoFinanceiro,

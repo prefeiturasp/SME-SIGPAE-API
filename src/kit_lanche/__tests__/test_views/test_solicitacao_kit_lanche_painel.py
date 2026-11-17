@@ -4,8 +4,8 @@ import pytest
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.models import Lote, TipoUnidadeEscolar
 from src.dados_comuns.constants import PEDIDOS_CODAE, PEDIDOS_DRE, SEM_FILTRO
-from src.escola.models import Lote, TipoUnidadeEscolar
 
 pytestmark = pytest.mark.django_db
 

@@ -3,8 +3,8 @@ import datetime
 import pytest
 from model_bakery import baker
 
+from src.core.models import DiaSuspensaoAtividades
 from src.dados_comuns.constants import StringsCaminhoModelos
-from src.escola.models import DiaSuspensaoAtividades
 from src.medicao_inicial.models import (
     GrupoMedicao,
     Medicao,

@@ -11,7 +11,7 @@ from rest_framework.test import APIRequestFactory
 
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 
-from ...escola.models import TipoUnidadeEscolar
+from ...core.models import TipoUnidadeEscolar
 from ...perfil.models import Usuario
 from ..models import (
     CategoriaPerguntaFrequente,

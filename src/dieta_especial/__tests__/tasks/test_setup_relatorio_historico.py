@@ -1,3 +1,13 @@
+from src.core.fixtures.factories.escola_factory import (
+    DiretoriaRegionalFactory,
+    EscolaFactory,
+    FaixaEtariaFactory,
+    LogAlunosMatriculadosFaixaEtariaDiaFactory,
+    LogAlunosMatriculadosPeriodoEscolaFactory,
+    LoteFactory,
+    PeriodoEscolarFactory,
+    TipoUnidadeEscolarFactory,
+)
 from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_GESTAO,
@@ -11,16 +21,6 @@ from src.dieta_especial.logs_models.fixtures.factories.base import (
     LogQuantidadeDietasAutorizadasFactory,
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.fixtures.factories.escola_factory import (
-    DiretoriaRegionalFactory,
-    EscolaFactory,
-    FaixaEtariaFactory,
-    LogAlunosMatriculadosFaixaEtariaDiaFactory,
-    LogAlunosMatriculadosPeriodoEscolaFactory,
-    LoteFactory,
-    PeriodoEscolarFactory,
-    TipoUnidadeEscolarFactory,
-)
 from src.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
 )

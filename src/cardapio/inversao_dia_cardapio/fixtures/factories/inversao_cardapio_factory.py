@@ -9,7 +9,7 @@ from factory import SubFactory
 from factory.django import DjangoModelFactory
 
 from src.cardapio.inversao_dia_cardapio.models import InversaoCardapio
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     LoteFactory,

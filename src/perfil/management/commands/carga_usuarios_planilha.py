@@ -4,8 +4,8 @@ from datetime import date
 from django.core.management.base import BaseCommand
 from openpyxl import load_workbook
 
+from src.core.models import Codae
 from src.dados_comuns.constants import DJANGO_ADMIN_TREINAMENTO_PASSWORD
-from src.escola.models import Codae
 from src.perfil.models import Perfil, Usuario, Vinculo
 
 

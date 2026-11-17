@@ -12,6 +12,7 @@ from src.cardapio.base.api.serializers import (
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.core.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     TIPOS_ALIMENTACAO,
@@ -19,7 +20,6 @@ from src.dados_comuns.constants import (
 )
 from src.dados_comuns.utils import converte_numero_em_mes
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.models import FaixaEtaria, GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     ParametrizacaoFinanceira,

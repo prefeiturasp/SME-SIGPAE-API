@@ -2,6 +2,10 @@ from factory import Sequence, SubFactory
 from factory.django import DjangoModelFactory
 from faker import Faker
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    EscolaFactory,
+)
 from src.dieta_especial.protocolo_padrao.models import (
     Alimento,
     ProtocoloPadraoDietaEspecial,
@@ -12,10 +16,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     MotivoAlteracaoUE,
     SolicitacaoDietaEspecial,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    EscolaFactory,
 )
 
 fake = Faker("pt_BR")

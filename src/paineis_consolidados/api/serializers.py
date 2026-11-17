@@ -2,9 +2,9 @@ import datetime
 
 from rest_framework import serializers
 
+from ...core.models import Escola
 from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.utils import remove_tags_html_from_string
-from ...escola.models import Escola
 from ...kit_lanche.api.serializers.serializers import EscolaQuantidadeSerializerSimples
 from ..models import SolicitacoesCODAE
 from ..utils.utils import get_dias_inclusao

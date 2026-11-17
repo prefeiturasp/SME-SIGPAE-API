@@ -6,12 +6,12 @@ from django.db import IntegrityError
 from faker import Faker
 from spyne.model.primitive import Date, Integer, String
 
+from src.core.models import Escola
 from src.dados_comuns.fluxo_status import (
     GuiaRemessaWorkFlow,
     SolicitacaoRemessaWorkFlow,
 )
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.models import Escola
 from src.logistica.api.soup.models import (
     NS,
     Alimento,

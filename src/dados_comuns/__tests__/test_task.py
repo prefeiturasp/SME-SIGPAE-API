@@ -2,6 +2,7 @@ from unittest.mock import patch
 
 from freezegun import freeze_time
 
+from src.core.models import LogAlunosMatriculadosPeriodoEscola
 from src.dados_comuns.constants import (
     TIPO_UNIDADE_CEI_DIRET,
     TIPOS_UNIDADE_ESCOLAR,
@@ -19,7 +20,6 @@ from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
     LogQuantidadeDietasAutorizadasCEI,
 )
-from src.escola.models import LogAlunosMatriculadosPeriodoEscola
 
 
 def test_envia_email_unico_task(reclamacao_produto_codae_recusou, dados_html):

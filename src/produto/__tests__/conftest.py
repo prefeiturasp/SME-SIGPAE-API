@@ -24,6 +24,7 @@ from src.produto.api.viewsets import (
     ReclamacaoProdutoViewSet,
 )
 
+from ...core.models import DiretoriaRegional, TipoGestao
 from ...dados_comuns import constants
 from ...dados_comuns.constants import DJANGO_ADMIN_PASSWORD
 from ...dados_comuns.fluxo_status import (
@@ -31,7 +32,6 @@ from ...dados_comuns.fluxo_status import (
     ReclamacaoProdutoWorkflow,
 )
 from ...dados_comuns.models import LogSolicitacoesUsuario
-from ...escola.models import DiretoriaRegional, TipoGestao
 from ...terceirizada.models import Contrato
 from ..models import AnaliseSensorial, HomologacaoProduto, ProdutoEdital
 

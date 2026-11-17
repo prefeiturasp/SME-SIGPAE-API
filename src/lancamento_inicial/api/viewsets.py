@@ -5,9 +5,9 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
+from ...core.models import EscolaPeriodoEscolar
 from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from ...escola.models import EscolaPeriodoEscolar
 from ..models import LancamentoDiario
 from ..utils import (
     alteracoes_de_cardapio_por_escola_periodo_escolar_e_data,

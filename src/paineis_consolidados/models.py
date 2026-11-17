@@ -26,6 +26,7 @@ from ..cardapio.suspensao_alimentacao.api.serializers import (
 )
 from ..cardapio.suspensao_alimentacao.models import GrupoSuspensaoAlimentacao
 from ..cardapio.suspensao_alimentacao_cei.models import SuspensaoAlimentacaoDaCEI
+from ..core.models import Codae, DiretoriaRegional, Escola
 from ..dados_comuns.behaviors import TemIdentificadorExternoAmigavel, TemPrioridade
 from ..dados_comuns.constants import (
     DAQUI_A_SETE_DIAS,
@@ -41,7 +42,6 @@ from ..dados_comuns.fluxo_status import (
 )
 from ..dados_comuns.models import LogSolicitacoesUsuario
 from ..dieta_especial.solicitacao_dieta_especial.models import SolicitacaoDietaEspecial
-from ..escola.models import Codae, DiretoriaRegional, Escola
 from ..inclusao_alimentacao.api.serializers.serializers import (
     GrupoInclusaoAlimentacaoNormalSerializer,
     InclusaoAlimentacaoContinuaSerializer,

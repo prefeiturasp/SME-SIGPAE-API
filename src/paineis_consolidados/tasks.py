@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from celery import shared_task
 from django.template.loader import render_to_string
 
+from src.core.models import Escola, Lote, TipoUnidadeEscolar
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     StringsModelosGestaoAlimentacao,
@@ -17,7 +18,6 @@ from src.dados_comuns.utils import (
     atualiza_central_download_com_erro,
     gera_objeto_na_central_download,
 )
-from src.escola.models import Escola, Lote, TipoUnidadeEscolar
 from src.paineis_consolidados.api.serializers import (
     SolicitacoesExportXLSXSerializer,
 )

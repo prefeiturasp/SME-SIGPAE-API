@@ -2,10 +2,10 @@ import logging
 
 from django.core.management import BaseCommand
 
+from src.core.models import PeriodoEscolar
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
 )
-from src.escola.models import PeriodoEscolar
 
 logger = logging.getLogger("sigpae.cmd_gerar_logs_dietas_periodo_escolar")
 

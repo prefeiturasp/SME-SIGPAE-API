@@ -1,4 +1,4 @@
-from src.escola.models import Lote
+from src.core.models import Lote
 
 
 def _verifica_se_existe_dieta_valida(aluno, status_dieta, escola):

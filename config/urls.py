@@ -13,11 +13,12 @@ from drf_spectacular.views import (
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from src.cardapio.urls import urlpatterns as cardapio_urls
+from src.core.dias_letivos.urls import urlpatterns as dias_letivos_urls
+from src.core.urls import urlpatterns as escola_urls
 from src.dados_comuns.urls import urlpatterns as comuns_urls
 from src.dieta_especial.urls import urlpatterns as dieta_especial_urls
 from src.eol_servico.urls import urlpatterns as eol_servico_urls
-from src.escola.dias_letivos.urls import urlpatterns as dias_letivos_urls
-from src.escola.urls import urlpatterns as escola_urls
+from src.escola_aberta.urls import urlpatterns as escola_aberta_urls
 from src.imr.urls import urlpatterns as imr_urls
 from src.inclusao_alimentacao.urls import urlpatterns as inclusao_urls
 from src.kit_lanche.urls import urlpatterns as kit_lanche_urls
@@ -32,7 +33,6 @@ from src.produto.urls import urlpatterns as produto_urls
 from src.recebimento.urls import urlpatterns as recebimento_urls
 from src.relatorios.urls import urlpatterns as relatorio_urls
 from src.terceirizada.urls import urlpatterns as terceirizada_urls
-from src.escola_aberta.urls import urlpatterns as escola_aberta_urls
 
 env = environ.Env()
 

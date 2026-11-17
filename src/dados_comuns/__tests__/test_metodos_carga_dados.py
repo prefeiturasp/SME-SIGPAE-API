@@ -8,15 +8,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
-from src.dados_comuns.models import Contato
-from src.dieta_especial.protocolo_padrao.models import Alimento
-from src.dieta_especial.solicitacao_dieta_especial.models import (
-    AlergiaIntolerancia,
-    ClassificacaoDieta,
-    MotivoAlteracaoUE,
-    MotivoNegacao,
-)
-from src.escola.models import (
+from src.core.models import (
     DiretoriaRegional,
     Escola,
     EscolaPeriodoEscolar,
@@ -25,6 +17,14 @@ from src.escola.models import (
     Subprefeitura,
     TipoGestao,
     TipoUnidadeEscolar,
+)
+from src.dados_comuns.models import Contato
+from src.dieta_especial.protocolo_padrao.models import Alimento
+from src.dieta_especial.solicitacao_dieta_especial.models import (
+    AlergiaIntolerancia,
+    ClassificacaoDieta,
+    MotivoAlteracaoUE,
+    MotivoNegacao,
 )
 from src.inclusao_alimentacao.models import (
     MotivoInclusaoContinua,
