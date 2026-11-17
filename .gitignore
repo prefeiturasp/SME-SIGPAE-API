@@ -102,6 +102,8 @@ ENV/
 ### Node template
 # Logs
 logs
+!src/core/logs/
+!src/core/__tests__/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
