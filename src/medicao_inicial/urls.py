@@ -13,6 +13,11 @@ from .api import viewsets
 router = routers.DefaultRouter()
 
 router.register("categorias-medicao", viewsets.CategoriaMedicaoViewSet)
+router.register(
+    "data-finaliza-medicao-dezembro",
+    viewsets.DataFinalizaMedicaoDezembroViewSet,
+    basename="data-finaliza-medicao-dezembro",
+)
 router.register("dias-sobremesa-doce", viewsets.DiaSobremesaDoceViewSet)
 router.register("medicao", viewsets.MedicaoViewSet)
 router.register(

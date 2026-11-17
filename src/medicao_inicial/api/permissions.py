@@ -4,7 +4,16 @@ from src.dados_comuns.constants import (
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
     ADMINISTRADOR_MEDICAO,
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
+    TIPO_USUARIO_ESCOLA,
 )
+
+
+class UsuarioEscola(permissions.BasePermission):
+    message = "O seu perfil não tem permissão para acessar este recurso"
+
+    def has_permission(self, request, view):
+        usuario = request.user
+        return not usuario.is_anonymous and usuario.tipo_usuario == TIPO_USUARIO_ESCOLA
 
 
 class EhAdministradorMedicaoInicial(permissions.BasePermission):
