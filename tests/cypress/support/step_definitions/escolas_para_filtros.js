@@ -19,6 +19,41 @@ function referencia(contexto) {
 	})
 }
 
+function referenciaComGestao(contexto, pagina = 1) {
+	return cy.request({
+		url: `${Cypress.config('baseUrl')}api/escolas-simplissima/`,
+		qs: { page: pagina, page_size: 100 },
+		headers: { Authorization: `JWT ${globalThis.token}` }, timeout: 60000,
+	}).then((response) => {
+		expect(response.status).to.eq(200)
+		expect(response.body.results).to.be.an('array')
+		const referencias = new Map(contexto.escolas.map((escola) => [escola.uuid, escola]))
+		const escola = response.body.results.find((item) => referencias.has(item.uuid) && typeof item.tipo_gestao === 'string' && item.tipo_gestao.trim())
+		if (escola) {
+			contexto.escola = referencias.get(escola.uuid)
+			contexto.tipoGestao = escola.tipo_gestao
+			return
+		}
+		if (response.body.next) return referenciaComGestao(contexto, pagina + 1)
+		throw new Error('Pre-condicao: nenhuma escola com tipo de gestao preenchido foi encontrada em QA.')
+	})
+}
+
+function validarAmostraGestao(contexto, amostra, indice = 0) {
+	if (indice >= amostra.length) return
+	const escola = amostra[indice]
+	return cy.request({
+		url: `${Cypress.config('baseUrl')}api/escolas-simplissima/`, qs: { codigo_eol: escola.codigo_eol },
+		headers: { Authorization: `JWT ${globalThis.token}` }, timeout: 60000,
+	}).then((response) => {
+		expect(response.status).to.eq(200)
+		const detalhe = response.body.results.find((item) => item.uuid === escola.uuid)
+		expect(detalhe).to.exist
+		expect(detalhe.tipo_gestao).to.eq(contexto.tipoGestao)
+		return validarAmostraGestao(contexto, amostra, indice + 1)
+	})
+}
+
 When('consulto escolas para filtros com sucesso', function () {
 	return autenticar().then(() => consultar(this))
 })
@@ -46,31 +81,15 @@ When('consulto escolas para filtros usando {string}', function (filtro) {
 	})
 })
 When('consulto escolas para filtros pelo tipo de gestao', function () {
-	autenticar().then(() => referencia(this)).then(() => {
-		cy.request({ url: `${Cypress.config('baseUrl')}api/escolas-simplissima/`, qs: { codigo_eol: this.escola.codigo_eol }, headers: { Authorization: `JWT ${globalThis.token}` }, timeout: 60000 }).then((response) => {
-			expect(response.status).to.eq(200)
-			expect(response.body.results).to.be.an('array')
-			const escola = response.body.results.find((e) => e.uuid === this.escola.uuid)
-			expect(escola).to.exist
-			this.tipoGestao = escola.tipo_gestao
-			expect(this.tipoGestao).to.be.a('string').and.not.be.empty
-			return consultar(this, { qs: { tipo_gestao__nome: this.tipoGestao } })
-		})
-	})
+	return autenticar().then(() => referencia(this)).then(() => referenciaComGestao(this))
+		.then(() => consultar(this, { qs: { tipo_gestao__nome: this.tipoGestao } }))
 })
 Then('escolas para filtros respeita o tipo de gestao', function () {
 	expect(this.response.body.map((e) => e.uuid)).to.include(this.escola.uuid)
 	// Confirmar o tipo em uma amostra independente, pois a rota nao expoe esse campo.
 	const amostra = this.response.body.filter((e) => e.codigo_eol).slice(0, 3)
 	expect(amostra).not.to.be.empty
-	amostra.forEach((escola) => {
-		cy.request({ url: `${Cypress.config('baseUrl')}api/escolas-simplissima/`, qs: { codigo_eol: escola.codigo_eol }, headers: { Authorization: `JWT ${globalThis.token}` }, timeout: 60000 }).then((response) => {
-			expect(response.status).to.eq(200)
-			const detalhe = response.body.results.find((e) => e.uuid === escola.uuid)
-			expect(detalhe).to.exist
-			expect(detalhe.tipo_gestao).to.eq(this.tipoGestao)
-		})
-	})
+	return validarAmostraGestao(this, amostra)
 })
 When('consulto escolas para filtros com parametro {string} e valor {string}', function (campo, valor) {
 	this.campoInvalido = campo
