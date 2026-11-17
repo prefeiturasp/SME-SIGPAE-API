@@ -2,6 +2,7 @@ import datetime
 from unittest.mock import patch
 
 import pytest
+from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from model_bakery import baker
 
@@ -390,6 +391,25 @@ def test_data_finaliza_medicao_dezembro_permite_data_nula():
     registro = DataFinalizaMedicaoDezembro.objects.get()
     assert registro.data is None
     assert str(registro) == "Data não definida"
+
+
+def test_data_finaliza_medicao_dezembro_valida_mes_de_dezembro():
+    registro = DataFinalizaMedicaoDezembro.objects.get()
+
+    registro.data = datetime.date(2026, 11, 30)
+
+    with pytest.raises(ValidationError, match="A data deve ser no mês de dezembro."):
+        registro.full_clean()
+
+
+def test_data_finaliza_medicao_dezembro_aceita_data_de_dezembro_ou_nula():
+    registro = DataFinalizaMedicaoDezembro.objects.get()
+
+    registro.data = datetime.date(2026, 12, 1)
+    registro.full_clean()
+
+    registro.data = None
+    registro.full_clean()
 
 
 def test_data_finaliza_medicao_dezembro_singleton():
