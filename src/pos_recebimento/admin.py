@@ -3,9 +3,9 @@ from django.contrib import admin
 from .models import (
     AssinaturaTermoRecebimentoProvisorio,
     CronogramaTermoRecebimentoProvisorio,
-    TermoRecebimentoProvisorio,
     LoteMemorandoOcorrencia,
     MemorandoOcorrencia,
+    TermoRecebimentoProvisorio,
 )
 
 
@@ -56,10 +56,8 @@ class AssinaturaTermoRecebimentoProvisorioAdmin(admin.ModelAdmin):
     list_display = (
         "termo",
         "usuario",
-        "etapa",
         "criado_em",
     )
-    list_filter = ("etapa",)
     search_fields = ("termo__uuid", "usuario__nome", "usuario__email")
 
 

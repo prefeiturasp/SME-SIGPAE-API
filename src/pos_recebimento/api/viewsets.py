@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from src.dados_comuns.api.paginations import DefaultPagination
-from src.dados_comuns.constants import DILOG_DIRETORIA
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.relatorios.relatorios import get_pdf_termo_recebimento_provisorio
@@ -167,30 +166,14 @@ class TermoRecebimentoProvisorioViewSet(
         url_name="pendentes_assinatura",
     )
     def pendentes_assinatura(self, request):
-        """Termos aguardando assinatura.
-
-        Fiscais: termos com assinatura pendente do fiscal logado (que ainda
-        não assinou). DILOG Diretoria: termos com a etapa dos fiscais
-        concluída, aguardando a assinatura da diretoria.
+        """Termos com assinatura pendente do fiscal logado.
 
         Endpoint: ``GET /pos-recebimento/termos/pendentes-assinatura/``
         """
-        if request.user.vinculo_atual.perfil.nome == DILOG_DIRETORIA:
-            queryset = (
-                self.filter_queryset(self.get_queryset())
-                .filter(status=TermoRecebimentoProvisorio.ENVIADO_DILOG)
-                .order_by("-criado_em")
-                .distinct()
-            )
-            return self._resposta_paginada(queryset)
-
         queryset = self._termos_do_fiscal(request).filter(
             status=TermoRecebimentoProvisorio.ENVIADO_FISCAIS
         )
-        queryset = queryset.exclude(
-            assinaturas__usuario=request.user,
-            assinaturas__etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
-        )
+        queryset = queryset.exclude(assinaturas__usuario=request.user)
         return self._resposta_paginada(queryset)
 
     def _assinatura_do_fiscal(self, campo_fiscal):
@@ -203,7 +186,6 @@ class TermoRecebimentoProvisorioViewSet(
             AssinaturaTermoRecebimentoProvisorio.objects.filter(
                 termo=OuterRef("pk"),
                 usuario=OuterRef(campo_fiscal),
-                etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
             )
         )
 
@@ -215,8 +197,7 @@ class TermoRecebimentoProvisorioViewSet(
     )
     def assinados(self, request):
         """Termos dos quais o usuário logado é fiscal, com a etapa dos
-        fiscais concluída (todos os fiscais distintos assinaram) ou já
-        assinados pelo fornecedor.
+        fiscais concluída (todos os fiscais distintos assinaram).
 
         Endpoint: ``GET /pos-recebimento/termos/assinados/``
         """
@@ -226,8 +207,7 @@ class TermoRecebimentoProvisorioViewSet(
                 **{f"assinou_{campo_fiscal}": self._assinatura_do_fiscal(campo_fiscal)}
             )
         queryset = queryset.filter(
-            Q(assinou_fiscal_1=True, assinou_fiscal_2=True, assinou_fiscal_3=True)
-            | Q(status=TermoRecebimentoProvisorio.ASSINADO_FORNECEDOR)
+            assinou_fiscal_1=True, assinou_fiscal_2=True, assinou_fiscal_3=True
         )
         return self._resposta_paginada(queryset)
 
@@ -285,7 +265,6 @@ class TermoRecebimentoProvisorioViewSet(
         AssinaturaTermoRecebimentoProvisorio.objects.create(
             termo=termo,
             usuario=usuario,
-            etapa=AssinaturaTermoRecebimentoProvisorio.FISCAL_CONTRATO,
         )
         termo.salvar_log_transicao(
             status_evento=(
@@ -352,7 +331,7 @@ class TermoRecebimentoProvisorioViewSet(
 
         Disponível apenas após a conclusão das assinaturas dos três Fiscais
         do Contrato (``etapa_fiscais_concluida``), quando o termo passa ao
-        status ``ENVIADO_DILOG``.
+        status ``TERMO_ASSINADO``.
 
         Endpoint: ``GET /pos-recebimento/termos/<uuid>/gerar-pdf-termo/``
         """

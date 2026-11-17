@@ -6323,23 +6323,17 @@ class TermoRecebimentoProvisorioWorkflow(xwf_models.Workflow):
 
     RASCUNHO = "RASCUNHO"
     ENVIADO_FISCAIS = "ENVIADO_FISCAIS"
-    ENVIADO_DILOG = "ENVIADO_DILOG"
-    ENVIADO_COORDENADOR = "ENVIADO_COORDENADOR"
-    ENVIADO_FORNECEDOR = "ENVIADO_FORNECEDOR"
-    ASSINADO_FORNECEDOR = "ASSINADO_FORNECEDOR"
+    TERMO_ASSINADO = "TERMO_ASSINADO"
 
     states = (
         (RASCUNHO, "Rascunho"),
         (ENVIADO_FISCAIS, "Enviado Fiscais"),
-        (ENVIADO_DILOG, "Enviado DILOG"),
-        (ENVIADO_COORDENADOR, "Enviado Coordenador"),
-        (ENVIADO_FORNECEDOR, "Enviado Fornecedor"),
-        (ASSINADO_FORNECEDOR, "Assinado Fornecedor"),
+        (TERMO_ASSINADO, "Termo Assinado"),
     )
 
     transitions = (
         ("inicia_fluxo", RASCUNHO, ENVIADO_FISCAIS),
-        ("fiscais_assinam", ENVIADO_FISCAIS, ENVIADO_DILOG),
+        ("fiscais_assinam", ENVIADO_FISCAIS, TERMO_ASSINADO),
     )
 
     initial_state = RASCUNHO
