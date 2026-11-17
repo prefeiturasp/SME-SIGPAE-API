@@ -5,6 +5,8 @@ import uuid
 
 from django.db import migrations, models
 
+import src.medicao_inicial.models
+
 DATA_FINALIZACAO_MEDICAO_DEZEMBRO = datetime.date(2026, 12, 15)
 
 
@@ -59,8 +61,8 @@ class Migration(migrations.Migration):
                     "data",
                     models.DateField(
                         blank=True,
-                        default=datetime.date(2026, 12, 15),
                         null=True,
+                        validators=[src.medicao_inicial.models.valida_mes_de_dezembro],
                         verbose_name="Data",
                     ),
                 ),

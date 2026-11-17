@@ -5,6 +5,7 @@ import uuid
 from calendar import monthcalendar, setfirstweekday
 
 import numpy
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils.html import format_html
@@ -1240,6 +1241,11 @@ class DataFinalizaMedicaoDezembroManager(models.Manager):
         return obj
 
 
+def valida_mes_de_dezembro(data):
+    if data and data.month != 12:
+        raise ValidationError("A data deve ser no mês de dezembro.")
+
+
 class DataFinalizaMedicaoDezembro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     """Data limite para finalizar a medição do mês de dezembro.
 
@@ -1249,9 +1255,9 @@ class DataFinalizaMedicaoDezembro(TemChaveExterna, CriadoEm, TemAlteradoEm):
     id = models.PositiveIntegerField(primary_key=True, editable=False)
     data = models.DateField(
         StringsVerboseNameModels.DATA.value,
-        default=datetime.date(2026, 12, 15),
         null=True,
         blank=True,
+        validators=[valida_mes_de_dezembro],
     )
 
     objects = DataFinalizaMedicaoDezembroManager()
