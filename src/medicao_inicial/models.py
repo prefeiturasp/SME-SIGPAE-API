@@ -1258,7 +1258,15 @@ class DataFinalizaMedicaoDezembro(TemChaveExterna, CriadoEm, TemAlteradoEm):
 
     def save(self, *args, **kwargs):
         self.id = 1
+        if self._state.adding:
+            self._copia_campos_imutaveis_do_registro_existente()
         super().save(*args, **kwargs)
+
+    def _copia_campos_imutaveis_do_registro_existente(self):
+        registro_existente = type(self).objects.filter(pk=1).first()
+        if registro_existente:
+            self.criado_em = registro_existente.criado_em
+            self.uuid = registro_existente.uuid
 
     def __str__(self):
         if self.data:
