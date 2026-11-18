@@ -1,8 +1,10 @@
 import calendar
 import datetime
+from types import SimpleNamespace
 
 import pytest
 from django.utils import timezone
+from freezegun import freeze_time
 
 from src.medicao_inicial.models import (
     CategoriaMedicao,
@@ -10,7 +12,10 @@ from src.medicao_inicial.models import (
     Medicao,
     ValorMedicao,
 )
-from src.medicao_inicial.validators import validate_ultimo_dia_mes_letivo
+from src.medicao_inicial.validators import (
+    filtrar_dias_anteriores_dezembro,
+    validate_ultimo_dia_mes_letivo,
+)
 
 pytestmark = pytest.mark.django_db
 
@@ -876,7 +881,7 @@ class TestValidateUltimoDiaMesLetivo:
         escola_emei,
         regular_preenchido,
     ):
-        mes, ano = 12, 2025
+        mes, ano = 4, 2025
         ultimo_dia = _ultimo_dia(mes, ano)
         solicitacao = _setup_solicitacao(
             solicitacao_medicao_inicial_factory,
@@ -917,7 +922,8 @@ class TestValidateUltimoDiaMesLetivo:
                 {
                     "periodo_escolar": medicao_regular.nome_periodo_grupo,
                     "erro": (
-                        "O último dia do mês (31/12) é letivo " "e não foi preenchido."
+                        f"O último dia do mês ({_dia_str(ultimo_dia)}/{mes:02d}) "
+                        "é letivo e não foi preenchido."
                     ),
                 }
             ]
@@ -929,7 +935,8 @@ class TestValidateUltimoDiaMesLetivo:
         periodo_escolar_factory,
         escola_cemei,
     ):
-        mes, ano = 12, 2025
+        mes, ano = 4, 2025
+        ultimo_dia = _ultimo_dia(mes, ano)
         solicitacao = _setup_solicitacao(
             solicitacao_medicao_inicial_factory,
             dia_calendario_factory,
@@ -941,7 +948,7 @@ class TestValidateUltimoDiaMesLetivo:
         _cria_medicao_e_valores(
             solicitacao,
             periodo_escolar_factory,
-            dia=31,
+            dia=ultimo_dia,
             escola=escola_cemei,
         )
         grupo = GrupoMedicao.objects.create(nome="Infantil MANHA")
@@ -956,7 +963,55 @@ class TestValidateUltimoDiaMesLetivo:
             {
                 "periodo_escolar": medicao.nome_periodo_grupo,
                 "erro": (
-                    "O último dia do mês (31/12) é letivo " "e não foi preenchido."
+                    f"O último dia do mês ({_dia_str(ultimo_dia)}/{mes:02d}) "
+                    "é letivo e não foi preenchido."
                 ),
             }
         ]
+
+    def test_dezembro_ignora_validacao_do_ultimo_dia_letivo(
+        self,
+        solicitacao_medicao_inicial_factory,
+        dia_calendario_factory,
+        periodo_escolar_factory,
+        escola,
+    ):
+        mes, ano = 12, 2025
+        ultimo_dia = _ultimo_dia(mes, ano)
+        solicitacao = _setup_solicitacao(
+            solicitacao_medicao_inicial_factory,
+            dia_calendario_factory,
+            escola,
+            mes,
+            ano,
+            ultimo_dia_eh_letivo=True,
+        )
+        _cria_medicao_e_valores(
+            solicitacao,
+            periodo_escolar_factory,
+            dia=None,
+            escola=escola,
+        )
+
+        erros = validate_ultimo_dia_mes_letivo(solicitacao, [])
+
+        assert erros == []
+        assert ultimo_dia == 31
+
+
+@freeze_time("2025-12-15")
+def test_filtrar_dias_anteriores_dezembro():
+    solicitacao = SimpleNamespace(mes="12", ano="2025")
+
+    assert filtrar_dias_anteriores_dezembro(solicitacao, [1, 14, 15, 22]) == [1, 14]
+
+
+def test_filtrar_dias_anteriores_nao_altera_outros_meses():
+    solicitacao = SimpleNamespace(mes="11", ano="2025")
+
+    assert filtrar_dias_anteriores_dezembro(solicitacao, [1, 14, 15, 22]) == [
+        1,
+        14,
+        15,
+        22,
+    ]
