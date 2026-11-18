@@ -96,6 +96,9 @@ def get_lista_dias_letivos(solicitacao, escola, periodo_escolar=None):
     dias_letivos_uteis = [
         dia for dia in dias_letivos_uteis if f"{dia:02d}" not in dias_suspensos
     ]
+    dias_letivos_uteis = filtrar_dias_anteriores_dezembro(
+        solicitacao, dias_letivos_uteis
+    )
     return [
         str(dia) if not len(str(dia)) == 1 else ("0" + str(dia))
         for dia in dias_letivos_uteis
@@ -129,6 +132,72 @@ def erros_unicos(lista_erros):
     return list(map(dict, set(tuple(sorted(erro.items())) for erro in lista_erros)))
 
 
+def finalizando_em_dezembro(solicitacao):
+    return int(solicitacao.mes) == 12
+
+
+def filtrar_dias_anteriores_dezembro(solicitacao, dias):
+    """Em dezembro, considera somente os dias anteriores a hoje."""
+    if not finalizando_em_dezembro(solicitacao):
+        return dias
+
+    hoje = datetime.date.today()
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+
+    return [dia for dia in dias if datetime.date(ano, mes, int(dia)) < hoje]
+
+
+def filtrar_inclusoes_anteriores_dezembro(solicitacao, inclusoes):
+    if not finalizando_em_dezembro(solicitacao):
+        return inclusoes
+
+    hoje = datetime.date.today()
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+
+    return [
+        inclusao
+        for inclusao in inclusoes
+        if datetime.date(ano, mes, int(inclusao["dia"])) < hoje
+    ]
+
+
+def filtrar_queryset_anteriores_dezembro(solicitacao, queryset, campo="data"):
+    if not finalizando_em_dezembro(solicitacao):
+        return queryset
+
+    return queryset.filter(**{f"{campo}__lt": datetime.date.today()})
+
+
+def get_quantidade_dias_para_validacao(solicitacao):
+    """Quantidade de dias do mês considerada na validação da finalização."""
+    mes = int(solicitacao.mes)
+    ano = int(solicitacao.ano)
+    quantidade = calendar.monthrange(ano, mes)[1]
+
+    if not finalizando_em_dezembro(solicitacao):
+        return quantidade
+
+    hoje = datetime.date.today()
+    if (ano, mes) == (hoje.year, hoje.month):
+        return max(hoje.day - 1, 0)
+    if (ano, mes) > (hoje.year, hoje.month):
+        return 0
+    return quantidade
+
+
+def get_ultimo_dia_para_validacao(solicitacao):
+    """Último dia considerado na validação (d-1 em dezembro)."""
+    primeiro_dia = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
+    ultimo_dia = get_ultimo_dia_mes(primeiro_dia)
+
+    if finalizando_em_dezembro(solicitacao):
+        ultimo_dia = min(ultimo_dia, datetime.date.today() - datetime.timedelta(days=1))
+
+    return ultimo_dia
+
+
 CATEGORIA_ALIMENTACOES = "alimentações"
 
 EXCLUIR_MEDICOES = [
@@ -141,7 +210,7 @@ EXCLUIR_MEDICOES = [
 def validate_ultimo_dia_mes_letivo(
     instance: SolicitacaoMedicaoInicial, lista_erros: list
 ) -> list:
-    if not instance.escola.possui_alunos_regulares:
+    if finalizando_em_dezembro(instance) or not instance.escola.possui_alunos_regulares:
         return lista_erros
 
     mes = int(instance.mes)
@@ -1262,6 +1331,14 @@ def _get_dias_kit_lanche_passeio_cei(solicitacao):
         _adiciona_kits_lanche_cemei(dias_kit_lanche, escola, mes, ano, dias_inclusao)
     _adiciona_kits_lanche_unificados(dias_kit_lanche, escola, mes, ano, dias_inclusao)
 
+    if finalizando_em_dezembro(solicitacao):
+        hoje = datetime.date.today()
+        dias_kit_lanche = {
+            data: faixas_etarias
+            for data, faixas_etarias in dias_kit_lanche.items()
+            if data < hoje
+        }
+
     return dias_kit_lanche
 
 
@@ -1772,6 +1849,7 @@ def validate_lancamento_inclusoes(solicitacao, lista_erros, eh_emebs=False):
         data__year=int(solicitacao.ano),
         cancelado=False,
     ).order_by("data")
+    inclusoes = filtrar_queryset_anteriores_dezembro(solicitacao, inclusoes)
     for inclusao in inclusoes:
         grupo = inclusao.grupo_inclusao
         for periodo in grupo.quantidades_periodo.all():
@@ -1841,6 +1919,7 @@ def _get_dias_da_inclusao_emei_cemei(
         data__month=solicitacao.mes,
         data__year=solicitacao.ano,
     )
+    dias_motivos = filtrar_queryset_anteriores_dezembro(solicitacao, dias_motivos)
     for dia_motivo in dias_motivos:
         chave = (str(dia_motivo.data.day).rjust(2, "0"), tuple(linhas_da_tabela))
         if chave in inclusoes_adicionadas:
@@ -2366,6 +2445,9 @@ def validate_lancamento_inclusoes_cei(solicitacao, lista_erros):
             status="CODAE_AUTORIZADO",
         )
     )
+    inclusoes = filtrar_queryset_anteriores_dezembro(
+        solicitacao, inclusoes, "dias_motivos_da_inclusao_cei__data"
+    )
     if not inclusoes.exists():
         return lista_erros
 
@@ -2409,6 +2491,9 @@ def validate_lancamento_inclusoes_dietas_emef_emebs(
         inclusoes_normais__data__year=ano,
         inclusoes_normais__cancelado=False,
         status="CODAE_AUTORIZADO",
+    )
+    inclusoes = filtrar_queryset_anteriores_dezembro(
+        solicitacao, inclusoes, "inclusoes_normais__data"
     )
     if not inclusoes.exists():
         return lista_erros
@@ -2476,6 +2561,9 @@ def validate_lancamento_inclusoes_dietas_cei(solicitacao, lista_erros):
             dias_motivos_da_inclusao_cei__cancelado=False,
             status="CODAE_AUTORIZADO",
         )
+    )
+    inclusoes = filtrar_queryset_anteriores_dezembro(
+        solicitacao, inclusoes, "dias_motivos_da_inclusao_cei__data"
     )
     if not inclusoes.exists():
         return lista_erros
@@ -2761,6 +2849,9 @@ def validate_lancamento_dietas_cei(solicitacao, lista_erros):
     dias_letivos_uteis = [
         dia for dia in dias_letivos_uteis if f"{dia:02d}" not in dias_suspensos
     ]
+    dias_letivos_uteis = filtrar_dias_anteriores_dezembro(
+        solicitacao, dias_letivos_uteis
+    )
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas_cei(categoria)
         for dia in dias_letivos_uteis:
@@ -3089,6 +3180,7 @@ def validate_lancamento_kit_lanche(solicitacao, lista_erros):
         params, escola, uuids_solicitacoes_excluidas=uuids_somente_cei
     )
     dias_kit_lanche = list(set(dias_kit_lanche))
+    dias_kit_lanche = filtrar_dias_anteriores_dezembro(solicitacao, dias_kit_lanche)
     dias_kit_lanche = _filtra_dias_kit_lanche_por_recreio(solicitacao, dias_kit_lanche)
 
     valores_da_medicao = (
@@ -3155,6 +3247,9 @@ def validate_lanche_emergencial(solicitacao, lista_erros):
     }
     dias_lanche_emergencial = get_lista_dias_solicitacoes(params, escola)
     dias_lanche_emergencial = list(set(dias_lanche_emergencial))
+    dias_lanche_emergencial = filtrar_dias_anteriores_dezembro(
+        solicitacao, dias_lanche_emergencial
+    )
     dias_lanche_emergencial = _filtra_dias_lanche_emergencial_por_recreio(
         solicitacao, dias_lanche_emergencial
     )
@@ -3183,7 +3278,7 @@ def validate_lanche_emergencial(solicitacao, lista_erros):
 
 def get_inclusoes_programas_projetos(solicitacao):
     primeiro_dia_mes = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
-    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+    ultimo_dia_mes = get_ultimo_dia_para_validacao(solicitacao)
     inclusoes = (
         solicitacao.escola.inclusoes_alimentacao_continua.filter(
             status="CODAE_AUTORIZADO",
@@ -3198,7 +3293,7 @@ def get_inclusoes_programas_projetos(solicitacao):
 
 def get_inclusoes_etec(solicitacao):
     primeiro_dia_mes = datetime.date(int(solicitacao.ano), int(solicitacao.mes), 1)
-    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+    ultimo_dia_mes = get_ultimo_dia_para_validacao(solicitacao)
     inclusoes = solicitacao.escola.inclusoes_alimentacao_continua.filter(
         status="CODAE_AUTORIZADO",
         data_inicial__lte=ultimo_dia_mes,
@@ -3711,9 +3806,7 @@ def validate_solicitacoes_continuas(
     eh_emebs=False,
 ):
     periodo_com_erro_dieta = False
-    quantidade_dias_mes = calendar.monthrange(
-        int(solicitacao.ano), int(solicitacao.mes)
-    )[1]
+    quantidade_dias_mes = get_quantidade_dias_para_validacao(solicitacao)
     periodo_com_erro = valida_alimentacoes_solicitacoes_continuas(
         solicitacao.ano,
         solicitacao.mes,
@@ -3786,9 +3879,7 @@ def validate_solicitacoes_continuas_emei_cemei(
     escola_sem_alunos_regulares=False,
 ):
     periodo_com_erro_dieta = False
-    quantidade_dias_mes = calendar.monthrange(
-        int(solicitacao.ano), int(solicitacao.mes)
-    )[1]
+    quantidade_dias_mes = get_quantidade_dias_para_validacao(solicitacao)
 
     periodo_com_erro = valida_alimentacoes_solicitacoes_continuas_emei_cemei(
         solicitacao.ano,
@@ -3886,7 +3977,7 @@ def validate_cemei_evento_especifico_programas(solicitacao, medicao, lista_erros
     mes = int(solicitacao.mes)
     ano = int(solicitacao.ano)
     primeiro_dia_mes = datetime.date(ano, mes, 1)
-    ultimo_dia_mes = get_ultimo_dia_mes(primeiro_dia_mes)
+    ultimo_dia_mes = get_ultimo_dia_para_validacao(solicitacao)
 
     cemei_evento_qs = InclusaoDeAlimentacaoCEMEI.objects.filter(
         escola=solicitacao.escola,
@@ -4121,7 +4212,10 @@ def validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares(
     solicitacao, lista_erros
 ):
     categoria_medicao = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
-    lista_inclusoes = get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao)
+    lista_inclusoes = filtrar_inclusoes_anteriores_dezembro(
+        solicitacao,
+        get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao),
+    )
     for inclusao in lista_inclusoes:
         lista_erros = buscar_valores_lancamento_inclusoes(
             inclusao, solicitacao, categoria_medicao, lista_erros
@@ -4135,7 +4229,10 @@ def validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares(
     ano = solicitacao.ano
     mes = solicitacao.mes
     escola = solicitacao.escola
-    lista_inclusoes = get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao)
+    lista_inclusoes = filtrar_inclusoes_anteriores_dezembro(
+        solicitacao,
+        get_lista_dias_inclusoes_escola_sem_alunos_regulares(solicitacao),
+    )
     categorias_dietas = CategoriaMedicao.objects.filter(nome__icontains="dieta")
     ids_categorias_existentes_no_mes = list(
         set(
@@ -4446,6 +4543,9 @@ def _get_contexto_validacao_cemei(solicitacao):
     dias_letivos_uteis = [
         dia for dia in dias_letivos_uteis if f"{dia:02d}" not in dias_suspensos
     ]
+    dias_letivos_uteis = filtrar_dias_anteriores_dezembro(
+        solicitacao, dias_letivos_uteis
+    )
     dias_nao_letivos = list(
         DiaCalendario.objects.filter(
             escola=escola,
@@ -4455,6 +4555,7 @@ def _get_contexto_validacao_cemei(solicitacao):
             periodo_escolar__isnull=True,
         ).values_list("data__day", flat=True)
     )
+    dias_nao_letivos = filtrar_dias_anteriores_dezembro(solicitacao, dias_nao_letivos)
     inclusoes = InclusaoDeAlimentacaoCEMEI.objects.filter(
         escola=escola,
         status=InclusaoDeAlimentacaoCEMEI.workflow_class.CODAE_AUTORIZADO,
@@ -4462,6 +4563,11 @@ def _get_contexto_validacao_cemei(solicitacao):
         dias_motivos_da_inclusao_cemei__data__year=ano,
         dias_motivos_da_inclusao_cemei__cancelado=False,
     ).order_by("dias_motivos_da_inclusao_cemei__data")
+    inclusoes = filtrar_queryset_anteriores_dezembro(
+        solicitacao,
+        inclusoes,
+        "dias_motivos_da_inclusao_cemei__data",
+    )
     return {
         "escola": escola,
         "mes": mes,
@@ -4962,9 +5068,12 @@ def validate_lanches_emergenciais_diarios(
             nome_campo="lanche_emergencial"
         ).values_list("dia", flat=True)
     )
-    todos_lanches_emergencias_lancados = set(
-        solicitacao.dias_lanche_emergencial_diario
-    ).issubset(dias_lanche_emergencial_lancados)
+    dias_esperados = filtrar_dias_anteriores_dezembro(
+        solicitacao, solicitacao.dias_lanche_emergencial_diario
+    )
+    todos_lanches_emergencias_lancados = set(dias_esperados).issubset(
+        dias_lanche_emergencial_lancados
+    )
     if not todos_lanches_emergencias_lancados:
         lista_erros.append(
             {

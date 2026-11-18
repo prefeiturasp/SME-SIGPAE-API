@@ -1545,6 +1545,125 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
         return anexos_processados
 
+    CAMPOS_NAO_GERADOS_DIAS_RESTANTES_DEZEMBRO = (
+        StringsValoresMedicao.MATRICULADOS.value,
+        StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
+        StringsValoresMedicao.DIETAS_AUTORIZADAS.value,
+        StringsValoresMedicao.KIT_LANCHE.value,
+        "lanche_emergencial",
+        "observacao",
+        "observacoes",
+        "participantes",
+    )
+
+    def _obter_dias_letivos_restantes_dezembro(self, instance):
+        if int(instance.mes) != 12:
+            return []
+
+        hoje = date.today()
+        ano = int(instance.ano)
+        mes = int(instance.mes)
+
+        if (hoje.year, hoje.month) != (ano, mes):
+            return []
+
+        dias_letivos = set(
+            instance.escola.calendario.filter(
+                data__year=ano,
+                data__month=mes,
+                dia_letivo=True,
+            ).values_list("data__day", flat=True)
+        )
+        if not dias_letivos:
+            return []
+
+        ultimo_dia_letivo = max(dias_letivos)
+        return [
+            f"{dia:02d}" for dia in dias_letivos if hoje.day <= dia <= ultimo_dia_letivo
+        ]
+
+    def _valores_medicao_zerados_para_medicao(self, medicao, dias_restantes):
+        campos = self.CAMPOS_NAO_GERADOS_DIAS_RESTANTES_DEZEMBRO
+        chaves = list(
+            medicao.valores_medicao.exclude(nome_campo__in=campos)
+            .values_list(
+                "nome_campo",
+                "categoria_medicao_id",
+                "faixa_etaria_id",
+                "tipo_alimentacao_id",
+                "infantil_ou_fundamental",
+            )
+            .distinct()
+        )
+        if not chaves:
+            return []
+
+        existentes = set(
+            medicao.valores_medicao.filter(dia__in=dias_restantes)
+            .exclude(nome_campo__in=campos)
+            .values_list(
+                "dia",
+                "nome_campo",
+                "categoria_medicao_id",
+                "faixa_etaria_id",
+                "tipo_alimentacao_id",
+                "infantil_ou_fundamental",
+            )
+        )
+
+        valores_a_criar = []
+        for dia in dias_restantes:
+            for (
+                nome_campo,
+                categoria_medicao_id,
+                faixa_etaria_id,
+                tipo_alimentacao_id,
+                infantil_ou_fundamental,
+            ) in chaves:
+                chave = (
+                    dia,
+                    nome_campo,
+                    categoria_medicao_id,
+                    faixa_etaria_id,
+                    tipo_alimentacao_id,
+                    infantil_ou_fundamental,
+                )
+                if chave in existentes:
+                    continue
+                valores_a_criar.append(
+                    ValorMedicao(
+                        medicao=medicao,
+                        categoria_medicao_id=categoria_medicao_id,
+                        dia=dia,
+                        nome_campo=nome_campo,
+                        faixa_etaria_id=faixa_etaria_id,
+                        tipo_alimentacao_id=tipo_alimentacao_id,
+                        infantil_ou_fundamental=infantil_ou_fundamental,
+                        valor="0",
+                    )
+                )
+
+        return valores_a_criar
+
+    def gera_valores_zerados_dias_restantes_dezembro(self, instance):
+        """Gera valores zerados dos lançamentos dos dias letivos restantes."""
+        dias_restantes = self._obter_dias_letivos_restantes_dezembro(instance)
+        if not dias_restantes:
+            return
+
+        campos = self.CAMPOS_NAO_GERADOS_DIAS_RESTANTES_DEZEMBRO
+        valores_a_criar = []
+        for medicao in instance.medicoes.all():
+            medicao.valores_medicao.filter(dia__in=dias_restantes).exclude(
+                nome_campo__in=campos
+            ).update(valor="0")
+            valores_a_criar.extend(
+                self._valores_medicao_zerados_para_medicao(medicao, dias_restantes)
+            )
+
+        if valores_a_criar:
+            ValorMedicao.objects.bulk_create(valores_a_criar)
+
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, justificativa_sem_lancamentos
     ):
@@ -1562,6 +1681,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             self.valida_finalizar_medicao_cei(instance)
             self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
             self.valida_finalizar_medicao_emebs(instance)
+            self.gera_valores_zerados_dias_restantes_dezembro(instance)
             instance.ue_envia(user=self.context["request"].user)
             anexos = self._process_anexos(instance)
             if hasattr(instance, "ocorrencia"):
