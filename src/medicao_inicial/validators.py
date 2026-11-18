@@ -441,16 +441,14 @@ def validate_lancamento_alimentacoes_medicao_emei_cemei(
 
 
 def lista_erros_com_periodo(lista_erros, medicao, tipo_erro):
+    periodo = (
+        medicao.periodo_escolar.nome if medicao.periodo_escolar else medicao.grupo.nome
+    )
     return next(
         (
             erro
             for erro in lista_erros
-            if (
-                erro["periodo_escolar"] == medicao.periodo_escolar.nome
-                if medicao.periodo_escolar
-                else medicao.grupo.nome
-            )
-            and tipo_erro in erro["erro"]
+            if erro["periodo_escolar"] == periodo and tipo_erro in erro["erro"]
         ),
         None,
     )
@@ -1002,6 +1000,18 @@ def get_periodo_escolar_id(medicao):
         nome_periodo_escolar = medicao.grupo.nome.split(" ")[1]
         periodo_escolar_id = PeriodoEscolar.objects.get(nome=nome_periodo_escolar).id
     return periodo_escolar_id
+
+
+def _filtro_cei_ou_emei_dietas_emei_cemei(medicao):
+    """Define o log de dietas usado pelo grupo infantil da CEMEI.
+
+    ``Infantil INTEGRAL`` usa os logs ``EMEI``; MANHA/TARDE usam o total
+    (``N/A``), conforme a mesma regra aplicada no preenchimento dos valores.
+    """
+    nome_periodo = medicao.nome_periodo_grupo.upper()
+    if "INFANTIL" not in nome_periodo or "INTEGRAL" in nome_periodo:
+        return {"cei_ou_emei": TIPOS_UNIDADE_ESCOLAR.EMEI.value}
+    return {"cei_ou_emei": "N/A"}
 
 
 def validate_lancamento_alimentacoes_medicao_emei_cemei_dietas(
@@ -4603,7 +4613,7 @@ def _validate_medicao_emei_cemei(
         escola=escola,
         data__month=mes,
         data__year=ano,
-        cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+        **_filtro_cei_ou_emei_dietas_emei_cemei(medicao),
     )
     logs_dietas_autorizadas_dict = list(
         set(

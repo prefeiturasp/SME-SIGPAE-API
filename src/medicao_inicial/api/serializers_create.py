@@ -1563,6 +1563,12 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         "participantes",
     )
 
+    CAMPOS_REPLICADOS_DIAS_RESTANTES_DEZEMBRO = (
+        StringsValoresMedicao.MATRICULADOS.value,
+        StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
+        StringsValoresMedicao.DIETAS_AUTORIZADAS.value,
+    )
+
     def _obter_dias_letivos_restantes_dezembro(self, instance):
         if int(instance.mes) != 12:
             return []
@@ -1652,6 +1658,76 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
 
         return valores_a_criar
 
+    def _valores_medicao_replicados_para_medicao(self, medicao, dias_restantes):
+        """Replica matrículas e dietas autorizadas nos dias restantes.
+
+        Esses campos não são zerados, mas podem não existir nos últimos dias
+        quando a escola finaliza antecipadamente. Nesse caso, replica o último
+        valor lançado antes do período restante.
+        """
+        valores = (
+            medicao.valores_medicao.filter(
+                nome_campo__in=self.CAMPOS_REPLICADOS_DIAS_RESTANTES_DEZEMBRO
+            )
+            .order_by("dia")
+            .values_list(
+                "dia",
+                "nome_campo",
+                "categoria_medicao_id",
+                "faixa_etaria_id",
+                "tipo_alimentacao_id",
+                "infantil_ou_fundamental",
+                "valor",
+            )
+        )
+        referencias, existentes = self._referencias_valores_replicados(
+            valores, dias_restantes
+        )
+        return self._cria_valores_replicados(
+            medicao, referencias, existentes, dias_restantes
+        )
+
+    @staticmethod
+    def _referencias_valores_replicados(valores, dias_restantes):
+        primeiro_dia_restante = int(dias_restantes[0])
+        referencias = {}
+        existentes = set()
+        for dia, *chave, valor in valores:
+            chave = tuple(chave)
+            if dia in dias_restantes:
+                existentes.add((dia, chave))
+            elif int(dia) < primeiro_dia_restante:
+                referencias[chave] = valor
+        return referencias, existentes
+
+    @staticmethod
+    def _cria_valores_replicados(medicao, referencias, existentes, dias_restantes):
+        valores_a_criar = []
+        for dia in dias_restantes:
+            for chave, valor in referencias.items():
+                if (dia, chave) in existentes:
+                    continue
+                (
+                    nome_campo,
+                    categoria_medicao_id,
+                    faixa_etaria_id,
+                    tipo_alimentacao_id,
+                    infantil_ou_fundamental,
+                ) = chave
+                valores_a_criar.append(
+                    ValorMedicao(
+                        medicao=medicao,
+                        categoria_medicao_id=categoria_medicao_id,
+                        dia=dia,
+                        nome_campo=nome_campo,
+                        faixa_etaria_id=faixa_etaria_id,
+                        tipo_alimentacao_id=tipo_alimentacao_id,
+                        infantil_ou_fundamental=infantil_ou_fundamental,
+                        valor=valor,
+                    )
+                )
+        return valores_a_criar
+
     def gera_valores_zerados_dias_restantes_dezembro(self, instance):
         """Gera valores zerados dos lançamentos dos dias letivos restantes."""
         dias_restantes = self._obter_dias_letivos_restantes_dezembro(instance)
@@ -1666,6 +1742,9 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
             ).update(valor="0")
             valores_a_criar.extend(
                 self._valores_medicao_zerados_para_medicao(medicao, dias_restantes)
+            )
+            valores_a_criar.extend(
+                self._valores_medicao_replicados_para_medicao(medicao, dias_restantes)
             )
 
         if valores_a_criar:
