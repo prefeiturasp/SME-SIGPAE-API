@@ -256,6 +256,7 @@ class FormularioSupervisaoModelViewSet(
             FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE,
             FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO,
             FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
+            "TODOS_OS_RELATORIOS",
         ]
 
     def get_label(self, workflow: str, novo_painel: bool = True) -> str:
