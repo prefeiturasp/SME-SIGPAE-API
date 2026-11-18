@@ -1,4 +1,4 @@
-import { Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
+import { Before, Given, When, Then } from 'cypress-cucumber-preprocessor/steps'
 const uuidInvalido = '3ac751ee-f95d-4d5b-80da-437506b00000'
 const comandosLista = {
 	completa: 'consultar_lista_laboratorios',
@@ -40,7 +40,7 @@ function validarPermissao(response) {
 	expect(response.body.detail).to.not.be.empty
 }
 Given('que estou autenticado como DILOG qualidade para gerenciar laboratorios', () => {
-	cy.autenticar_login(Cypress.config('usuario_dilog_qualidade'), Cypress.config('senha'))
+	return autenticarLaboratorios('DILOG_QUALIDADE')
 })
 When('consulto todos os laboratorios', function () {
 	cy.consultar_laboratorios().then((response) => { this.response = response })
@@ -176,4 +176,62 @@ Then('a atualizacao invalida retorna validacao ou permissao negada e realiza lim
 	if (this.response.status === 403) return validarPermissao(this.response)
 	expect(this.response.body).to.be.an('object').and.not.be.empty
 	expect(this.exclusao.status).to.be.oneOf([204, 403, 404])
+})
+
+function autenticarLaboratorios(perfil) {
+	const usuarios = {
+		COORDENADOR_LOGISTICA: 'usuario_coordenador_logistica',
+		COORDENADOR_CODAE_DILOG_LOGISTICA: 'usuario_coordenador_codae_dilog_logistica',
+		COORDENADOR_SUPERVISAO_NUTRICAO: 'usuario_coordenador_supervisao_nutricao',
+		DILOG_CRONOGRAMA: 'usuario_dilog_cronograma', DILOG_QUALIDADE: 'usuario_dilog_qualidade',
+		ABASTECIMENTO: 'usuario_abastecimento', DIRETOR_UE: 'usuario_diretor_ue',
+		CODAE: 'usuario_codae', GPCODAE: 'usuario_gpcodae', DRE: 'usuario_dre',
+		CLASSIFICACOES_DIETA: 'usuario_classificacoes_dieta', USUARIO_ESCOLA_CEI_ADMIN: 'usuario_escola_cei_admin',
+		MEDICAO: 'usuario_medicao', DISTRIBUIDOR: 'usuario_distribuidor',
+		EMEF: 'usuario_emef', CEMEI: 'usuario_cemei', CEI: 'usuario_cei', CCI: 'usuario_cci',
+		DILOG_DIRETORIA: 'usuario_dilog_diretoria', ADMINISTRADOR_EMPRESA: 'usuario_administrador_empresa',
+	}
+	expect(usuarios).to.have.property(perfil)
+	const usuario = Cypress.env(usuarios[perfil])
+	expect(usuario, 'credencial de ' + perfil).to.be.a('string').and.not.be.empty
+	return cy.autenticar_login(usuario, Cypress.env('senha'))
+}
+
+Before({ tags: '@funcionais_laboratorios' }, () => autenticarLaboratorios('DILOG_QUALIDADE'))
+
+When('executo {string} em laboratorios na rota {string} com perfil {string}', function (method, rota, perfil) {
+	this.rotaLaboratorioPerfil = rota
+	return autenticarLaboratorios(perfil).then(() => cy.executar_laboratorios({
+		method, caminho: rota === 'principal' ? '' : rota,
+		qs: { page: 1, page_size: 2 },
+		body: ['POST', 'PUT', 'PATCH'].includes(method) ? {} : undefined,
+	})).then((response) => { this.response = response })
+})
+
+Then('laboratorios retorna status {int}', function (status) {
+	expect(this.response.status).to.eq(status)
+	if ([401, 403].includes(status)) expect(this.response.body.detail).to.be.a('string').and.not.be.empty
+})
+
+Then('laboratorios valida o retorno permitido para o perfil', function () {
+	if (this.response.status === 200) {
+		expect(this.response.body.results).to.be.an('array')
+		this.response.body.results.forEach((item) => {
+			if (this.rotaLaboratorioPerfil === 'principal') validarLaboratorio(item)
+			else if (this.rotaLaboratorioPerfil === 'lista-nomes-laboratorios/') expect(item).to.be.a('string')
+			else if (this.rotaLaboratorioPerfil === 'lista-laboratorios/') expect(item).to.include.all.keys('nome', 'cnpj')
+			else expect(item).to.include.all.keys('uuid', 'nome')
+		})
+	} else if (this.response.status === 400) {
+		for (const campo of ['nome', 'cnpj']) expect(this.response.body[campo], campo).to.be.an('array').and.not.be.empty
+	}
+})
+
+When('executo {string} em laboratorios na rota {string} com acesso {string}', function (method, rota, acesso) {
+	cy.clearCookies()
+	return cy.executar_laboratorios({
+		method, caminho: rota === 'principal' ? '' : rota,
+		token: acesso === 'ausente' ? null : 'token-invalido',
+		body: ['POST', 'PUT', 'PATCH'].includes(method) ? {} : undefined,
+	}).then((response) => { this.response = response })
 })
