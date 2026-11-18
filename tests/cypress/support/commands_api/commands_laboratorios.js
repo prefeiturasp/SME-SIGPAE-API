@@ -191,3 +191,11 @@ Cypress.Commands.add('patch_alterar_laboratorios', (uuid, dados_teste) => {
 		failOnStatusCode: false,
 	})
 })
+
+Cypress.Commands.add('executar_laboratorios', ({ method = 'GET', caminho = '', token = globalThis.token, qs, body } = {}) => {
+	return cy.request({
+		method, url: Cypress.config('baseUrl') + 'api/laboratorios/' + caminho,
+		qs, body, headers: token ? { Authorization: 'JWT ' + token } : {},
+		failOnStatusCode: false, timeout: 60000, log: false,
+	})
+})
