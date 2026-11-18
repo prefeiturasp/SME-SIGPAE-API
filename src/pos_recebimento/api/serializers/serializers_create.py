@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from src.dados_comuns.constants import DILOG_QUALIDADE
 from src.perfil.models import Usuario
+from src.pre_recebimento.base.models import UnidadeMedida
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Contrato, Terceirizada
 
@@ -216,6 +217,10 @@ class MemorandoOcorrenciaCreateSerializer(serializers.ModelSerializer):
     persistidos na ordem em que foram informados.
     """
 
+    unidade_medida = serializers.SlugRelatedField(
+        slug_field="uuid",
+        queryset=UnidadeMedida.objects.all(),
+    )
     lotes = LoteMemorandoOcorrenciaCreateSerializer(
         many=True,
         allow_empty=False,
@@ -227,8 +232,30 @@ class MemorandoOcorrenciaCreateSerializer(serializers.ModelSerializer):
             "categoria",
             "produto",
             "tipo_ocorrencia",
+            "unidade_medida",
             "lotes",
         )
+
+    def validate_lotes(self, lotes):
+        """Impede dois lotes idênticos dentro do mesmo memorando.
+
+        Duplicata = mesma combinação de ``lote``, ``marca``, ``data_fabricacao``
+        e ``data_validade``.
+        """
+        vistos = set()
+        for lote in lotes:
+            chave = (
+                lote["lote"],
+                lote["marca"],
+                lote["data_fabricacao"],
+                lote["data_validade"],
+            )
+            if chave in vistos:
+                raise serializers.ValidationError(
+                    "Não é permitido cadastrar lotes duplicados no mesmo " "memorando."
+                )
+            vistos.add(chave)
+        return lotes
 
     @transaction.atomic
     def create(self, validated_data):

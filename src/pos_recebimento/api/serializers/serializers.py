@@ -3,6 +3,9 @@ from rest_framework import serializers
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSimplesSerializer
 from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.perfil.api.serializers import UsuarioSimplesSerializer
+from src.pre_recebimento.base.api.serializers.serializers import (
+    UnidadeMedidaSimplesSerializer,
+)
 from src.pre_recebimento.cronograma_entrega.api.serializers.serializers import (
     CronogramaSerializer,
 )
@@ -219,6 +222,7 @@ class MemorandoOcorrenciaSerializer(serializers.ModelSerializer):
         source="get_tipo_ocorrencia_display",
         read_only=True,
     )
+    unidade_medida = UnidadeMedidaSimplesSerializer(read_only=True)
     lotes = LoteMemorandoOcorrenciaSerializer(many=True, read_only=True)
 
     class Meta:
@@ -230,6 +234,7 @@ class MemorandoOcorrenciaSerializer(serializers.ModelSerializer):
             "produto",
             "tipo_ocorrencia",
             "tipo_ocorrencia_display",
+            "unidade_medida",
             "lotes",
         )
         read_only_fields = fields

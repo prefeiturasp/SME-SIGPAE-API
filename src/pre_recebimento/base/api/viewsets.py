@@ -63,9 +63,9 @@ class UnidadeMedidaViewset(viewsets.ModelViewSet):
         """Lista os pares ``nome``/``abreviacao`` de todas as unidades.
 
         Endpoint ``GET /unidades-medida-logistica/lista-nomes-abreviacoes/``,
-        acessível também aos perfis ``ADMINISTRADOR_EMPRESA`` e
-        ``USUARIO_EMPRESA`` (via ``PermissaoParaVisualizarUnidadesMedida``).
-        Usado para popular seletores no frontend.
+        acessível também aos perfis ``ADMINISTRADOR_EMPRESA``,
+        ``USUARIO_EMPRESA``, ``DIRETOR_UE`` e ``ADMINISTRADOR_UE``. Usado para popular
+        seletores no frontend.
         """
         unidades_medida = self.get_queryset()
         serializer = UnidadeMedidaSimplesSerializer(unidades_medida, many=True)
