@@ -208,3 +208,6 @@ import './step_definitions/interrupcao_programada_entrega'
 
 import './commands_api/commands_inversoes_dia_cardapio'
 import './step_definitions/inversoes_dia_cardapio'
+
+import './commands_api/commands_kit_lanches'
+import './step_definitions/kit_lanches'
