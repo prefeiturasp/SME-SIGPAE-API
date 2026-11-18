@@ -2,7 +2,7 @@ from unicodedata import normalize
 
 import pandas as pd
 
-from src.escola.models import (
+from src.core.models import (
     DiretoriaRegional,
     Escola,
     TipoGestao,

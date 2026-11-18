@@ -15,11 +15,11 @@ from src.cardapio.base.models import (
     TipoAlimentacao,
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.core.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 from src.dados_comuns.utils import update_instance_from_dict
 from src.dados_comuns.validators import (
     campo_nao_pode_ser_nulo,
 )
-from src.escola.models import Escola, PeriodoEscolar, TipoUnidadeEscolar
 
 
 class HorarioDoComboDoTipoDeAlimentacaoPorUnidadeEscolarSerializerCreate(

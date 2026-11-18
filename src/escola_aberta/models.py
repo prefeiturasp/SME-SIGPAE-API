@@ -3,8 +3,8 @@ from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import Escola, Lote
 from src.dados_comuns.behaviors import CriadoEm, TemAlteradoEm, TemChaveExterna
-from src.escola.models import Escola, Lote
 
 
 class EscolaAberta(TemChaveExterna, CriadoEm, TemAlteradoEm):

@@ -6,10 +6,10 @@ from spyne.model.complex import Array, ComplexModel
 from spyne.model.primitive import Date, Integer, String
 from spyne.util.dictdoc import get_object_as_dict
 
+from ....core.models import Escola
 from ....dados_comuns.fluxo_status import GuiaRemessaWorkFlow as GuiaStatus
 from ....dados_comuns.fluxo_status import SolicitacaoRemessaWorkFlow as StatusReq
 from ....dados_comuns.models import LogSolicitacoesUsuario
-from ....escola.models import Escola
 from ....terceirizada.models import Terceirizada
 from ...models.alimento import Alimento as AlimentoModel  # noqa I001
 from ...models.alimento import Embalagem

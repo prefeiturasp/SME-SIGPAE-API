@@ -4,12 +4,12 @@ import unicodedata
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 
+from src.core.models import DiretoriaRegional, Lote
 from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.utils import get_ultimo_dia_mes
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import DiretoriaRegional, Lote
 from src.terceirizada.models import Terceirizada
 
 

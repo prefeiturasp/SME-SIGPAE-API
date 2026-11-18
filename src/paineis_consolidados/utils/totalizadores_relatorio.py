@@ -1,12 +1,12 @@
 from collections import Counter
 
+from src.core.models import Escola, Lote, TipoGestao, TipoUnidadeEscolar
 from src.dados_comuns.constants import TIPOS_GESTAO, StringsModelosGestaoAlimentacao
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     AlergiaIntolerancia,
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Escola, Lote, TipoGestao, TipoUnidadeEscolar
 
 
 def count_query_set_sem_duplicados(query_set):

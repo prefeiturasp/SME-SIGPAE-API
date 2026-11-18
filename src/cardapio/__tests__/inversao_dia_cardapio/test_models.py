@@ -5,9 +5,9 @@ from freezegun import freeze_time
 from model_bakery import baker
 from xworkflows import InvalidTransitionError
 
+from src.core.models import Escola
 from src.dados_comuns.constants import StringsCaminhoModelos
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from src.escola.models import Escola
 
 pytestmark = pytest.mark.django_db
 

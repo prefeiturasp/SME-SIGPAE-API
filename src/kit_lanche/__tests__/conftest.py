@@ -6,6 +6,7 @@ from model_bakery import baker
 
 from src.dados_comuns.constants import NomesParaTesteEscola
 
+from ...core.models import Aluno, TipoTurma
 from ...dados_comuns.behaviors import TempoPasseio
 from ...dados_comuns.constants import (
     COORDENADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -19,7 +20,6 @@ from ...dados_comuns.fluxo_status import (
     PedidoAPartirDaDiretoriaRegionalWorkflow,
     PedidoAPartirDaEscolaWorkflow,
 )
-from ...escola.models import Aluno, TipoTurma
 from .. import models
 from ..models import KitLanche
 

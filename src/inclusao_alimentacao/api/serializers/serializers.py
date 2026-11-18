@@ -1,15 +1,15 @@
 from rest_framework import serializers
 
 from ....cardapio.base.api.serializers import TipoAlimentacaoSimplesSerializer
-from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ....escola.api.serializers import (
+from ....core.api.serializers import (
     EscolaSimplesSerializer,
     EscolaSimplissimaSerializer,
     FaixaEtariaSerializer,
     PeriodoEscolarSerializer,
     PeriodoEscolarSimplesSerializer,
 )
-from ....escola.models import FaixaEtaria
+from ....core.models import FaixaEtaria
+from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from ....inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,

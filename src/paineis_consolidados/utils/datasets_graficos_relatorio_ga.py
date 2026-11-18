@@ -1,10 +1,10 @@
-from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
-from src.escola.models import (
+from src.core.models import (
     DiretoriaRegional,
     Escola,
     Lote,
     TipoUnidadeEscolar,
 )
+from src.dados_comuns.constants import StringsModelosGestaoAlimentacao
 from src.paineis_consolidados.utils.totalizadores_relatorio import (
     count_query_set_sem_duplicados,
     filtro_geral_totalizadores,

@@ -72,7 +72,7 @@ def _cria_medicao_e_valores(solicitacao, periodo_escolar_factory, dia, escola=No
 
 
 def _tornar_escola_com_alunos_regulares(escola, periodo, mes, ano):
-    from src.escola.models import (
+    from src.core.models import (
         AlunosMatriculadosPeriodoEscola,
         LogAlunosMatriculadosPeriodoEscola,
     )
@@ -917,8 +917,7 @@ class TestValidateUltimoDiaMesLetivo:
                 {
                     "periodo_escolar": medicao_regular.nome_periodo_grupo,
                     "erro": (
-                        "O último dia do mês (31/12) é letivo "
-                        "e não foi preenchido."
+                        "O último dia do mês (31/12) é letivo " "e não foi preenchido."
                     ),
                 }
             ]
@@ -957,8 +956,7 @@ class TestValidateUltimoDiaMesLetivo:
             {
                 "periodo_escolar": medicao.nome_periodo_grupo,
                 "erro": (
-                    "O último dia do mês (31/12) é letivo "
-                    "e não foi preenchido."
+                    "O último dia do mês (31/12) é letivo " "e não foi preenchido."
                 ),
             }
         ]

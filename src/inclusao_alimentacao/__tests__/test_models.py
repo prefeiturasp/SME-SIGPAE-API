@@ -5,9 +5,9 @@ import pytest
 from model_bakery import baker
 from xworkflows.base import InvalidTransitionError
 
+from ...core.models import Escola, PeriodoEscolar
 from ...dados_comuns.constants import StringsCaminhoModelos
 from ...dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from ...escola.models import Escola, PeriodoEscolar
 from ..models import (
     InclusaoAlimentacaoContinua,
     MotivoInclusaoContinua,

@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.db.models import F, Q
 from unidecode import unidecode
 
-from src.escola.models import GrupoUnidadeEscolar
+from src.core.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import DescontoFinanceiro
 from src.medicao_inicial.services.relatorio_ateste_financeiro import (
     CEM,

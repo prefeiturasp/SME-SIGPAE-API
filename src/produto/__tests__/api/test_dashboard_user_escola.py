@@ -3,12 +3,12 @@ import datetime
 import pytest
 from rest_framework import status
 
+from src.core.fixtures.factories.escola_factory import EscolaFactory
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
 )
 from src.dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
-from src.escola.fixtures.factories.escola_factory import EscolaFactory
 from src.produto.fixtures.factories.produto_factory import (
     DataHoraVinculoProdutoEditalFactory,
     HomologacaoProdutoFactory,

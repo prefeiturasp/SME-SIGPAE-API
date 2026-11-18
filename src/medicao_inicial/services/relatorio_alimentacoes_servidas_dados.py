@@ -9,6 +9,11 @@ from django.db.models import BooleanField, Case, FloatField, Q, Sum, Value, When
 from django.db.models.functions import Cast
 
 from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import (
+    DiretoriaRegional,
+    GrupoUnidadeEscolar,
+    TipoUnidadeEscolar,
+)
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
     ORDEM_UNIDADES_GRUPO_CEMEI,
@@ -17,11 +22,6 @@ from src.dados_comuns.constants import (
     ORDEM_UNIDADES_GRUPO_EMEF,
     ORDEM_UNIDADES_GRUPO_EMEI,
     TIPOS_GESTAO,
-)
-from src.escola.models import (
-    DiretoriaRegional,
-    GrupoUnidadeEscolar,
-    TipoUnidadeEscolar,
 )
 from src.medicao_inicial.models import CategoriaMedicao, ValorMedicao
 from src.medicao_inicial.services.relatorio_adesao import ORDEM_TIPOS_UNIDADE

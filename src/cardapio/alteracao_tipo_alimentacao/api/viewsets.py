@@ -20,6 +20,7 @@ from src.cardapio.alteracao_tipo_alimentacao.models import (
     AlteracaoCardapio,
     MotivoAlteracaoCardapio,
 )
+from src.core.models import Escola
 from src.dados_comuns import constants
 from src.dados_comuns.mixins.serializer_context import (
     DataSolicitacaoContextMixin,
@@ -34,7 +35,6 @@ from src.dados_comuns.permissions import (
 from src.dados_comuns.services import (
     enviar_email_ue_cancelar_pedido_parcialmente,
 )
-from src.escola.models import Escola
 from src.relatorios.relatorios import relatorio_alteracao_cardapio
 
 

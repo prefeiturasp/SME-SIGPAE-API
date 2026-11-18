@@ -6,7 +6,7 @@ from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
 from src.cardapio.suspensao_alimentacao.models import MotivoSuspensao
-from src.escola.models import PeriodoEscolar, TipoUnidadeEscolar
+from src.core.models import PeriodoEscolar, TipoUnidadeEscolar
 from utility.carga_dados.cardapio.data.motivos_alteracao_cardapio import (
     data_motivoalteracaocardapio,
 )

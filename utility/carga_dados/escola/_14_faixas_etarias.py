@@ -1,4 +1,4 @@
-from src.escola.models import FaixaEtaria
+from src.core.models import FaixaEtaria
 from utility.carga_dados.escola.helper import bcolors
 
 print(f"{bcolors.OKBLUE}Criando faixas etárias...{bcolors.ENDC}")

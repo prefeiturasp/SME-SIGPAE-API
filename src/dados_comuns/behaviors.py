@@ -263,7 +263,7 @@ class TemPrioridade(object):
     """
 
     def get_dias_suspensao_por_prioridade(self):
-        from src.escola.models import DiaSuspensaoAtividades, Escola
+        from src.core.models import DiaSuspensaoAtividades, Escola
         from src.kit_lanche.models import SolicitacaoKitLancheUnificada
         from src.paineis_consolidados.models import MoldeConsolidado
 

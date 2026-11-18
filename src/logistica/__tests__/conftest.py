@@ -23,7 +23,7 @@ from src.logistica.api.soup.models import (
 from src.logistica.models.solicitacao import SolicitacaoRemessa
 from src.terceirizada.models import Terceirizada
 
-from ...escola import models
+from ...core import models
 from ..models.guia import ConferenciaIndividualPorAlimento
 
 fake = Faker("pt_BR")

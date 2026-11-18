@@ -7,6 +7,17 @@ from celery import shared_task
 from django.db.models import Q
 from freezegun import freeze_time
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    DiretoriaRegionalFactory,
+    EscolaFactory,
+    FaixaEtariaFactory,
+    LoteFactory,
+    PeriodoEscolarFactory,
+    TipoGestaoFactory,
+    TipoUnidadeEscolarFactory,
+)
+from src.core.models import Aluno
 from src.dados_comuns.constants import (
     TIPOS_GESTAO,
     TIPOS_UNIDADE_ESCOLAR,
@@ -33,17 +44,6 @@ from src.dieta_especial.tasks.utils.logs import (
     gera_logs_dietas_recreio_ferias_escolas_comuns,
     gera_logs_dietas_recreio_ferias_parte_sem_faixa_cemei,
 )
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    DiretoriaRegionalFactory,
-    EscolaFactory,
-    FaixaEtariaFactory,
-    LoteFactory,
-    PeriodoEscolarFactory,
-    TipoGestaoFactory,
-    TipoUnidadeEscolarFactory,
-)
-from src.escola.models import Aluno
 from src.terceirizada.fixtures.factories.terceirizada_factory import (
     EmpresaFactory,
 )
@@ -57,11 +57,11 @@ def _raise_when_filter_called(*args, **kwargs):
 
 class TestLogsRecreioNasFerias:
     def setup_method(self):
+        from src.core.models import TipoGestao
         from src.dieta_especial.solicitacao_dieta_especial.models import (
             ClassificacaoDieta,
             MotivoAlteracaoUE,
         )
-        from src.escola.models import TipoGestao
 
         MotivoAlteracaoUE.objects.all().delete()
         ClassificacaoDieta.objects.all().delete()
@@ -337,7 +337,7 @@ class TestLogsRecreioNasFerias:
 
     @freeze_time("2025-01-15")
     def test_logs_escola_emebs_recreio_ferias(self):
-        from src.escola.models import Aluno
+        from src.core.models import Aluno
 
         escola = self.setup_escola_emebs()
 

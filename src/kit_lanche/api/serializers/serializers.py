@@ -2,11 +2,7 @@ import datetime
 
 from rest_framework import serializers
 
-from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
-from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
-from ....dados_comuns.utils import update_instance_from_dict
-from ....eol_servico.utils import EOLServicoSGP
-from ....escola.api.serializers import (
+from ....core.api.serializers import (
     AlunoNomeUuidCodigoEolSerializer,
     AlunoSerializer,
     AlunoSimplesSerializer,
@@ -16,7 +12,11 @@ from ....escola.api.serializers import (
     FaixaEtariaSerializer,
     TipoUnidadeEscolarSimplesSerializer,
 )
-from ....escola.models import Escola, FaixaEtaria, TipoUnidadeEscolar
+from ....core.models import Escola, FaixaEtaria, TipoUnidadeEscolar
+from ....dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
+from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO, StringsSourceSerializers
+from ....dados_comuns.utils import update_instance_from_dict
+from ....eol_servico.utils import EOLServicoSGP
 from ....perfil.api.serializers import UsuarioSerializer
 from ....terceirizada.api.serializers.serializers import (
     EditalSerializer,

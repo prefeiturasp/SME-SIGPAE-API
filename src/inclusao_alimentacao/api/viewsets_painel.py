@@ -4,6 +4,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 
+from src.core.models import DiaSuspensaoAtividades
 from src.dados_comuns import constants
 from src.dados_comuns.permissions import (
     UsuarioCODAEGestaoAlimentacao,
@@ -14,7 +15,6 @@ from src.dados_comuns.utils import (
     obter_dias_uteis_apos,
     queryset_por_data,
 )
-from src.escola.models import DiaSuspensaoAtividades
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,
     InclusaoAlimentacaoContinua,

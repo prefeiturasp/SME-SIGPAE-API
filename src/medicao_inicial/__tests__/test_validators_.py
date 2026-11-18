@@ -7,10 +7,10 @@ from model_bakery import baker
 from src.cardapio.base.models import (
     VinculoTipoAlimentacaoComPeriodoEscolarETipoUnidadeEscolar,
 )
+from src.core.models import FaixaEtaria, TipoTurma
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dieta_especial.solicitacao_dieta_especial.models import ClassificacaoDieta
-from src.escola.models import FaixaEtaria, TipoTurma
 from src.inclusao_alimentacao.models import InclusaoDeAlimentacaoCEMEI
 from src.medicao_inicial.validators import (
     _validate_solicitacoes_programas_e_projetos_emei_cemei,

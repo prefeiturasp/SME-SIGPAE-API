@@ -4,6 +4,8 @@ from copy import deepcopy
 
 from rest_framework import serializers
 
+from src.core.api.serializers import AlunoNaoMatriculadoSerializer
+from src.core.models import Aluno, Escola, Responsavel
 from src.dados_comuns.constants import (
     DEZ_MB,
     FORMATO_DATA_BRASILEIRO,
@@ -27,8 +29,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoAlteracaoUE,
     SolicitacaoDietaEspecial,
 )
-from src.escola.api.serializers import AlunoNaoMatriculadoSerializer
-from src.escola.models import Aluno, Escola, Responsavel
 
 
 class AnexoCreateSerializer(serializers.ModelSerializer):

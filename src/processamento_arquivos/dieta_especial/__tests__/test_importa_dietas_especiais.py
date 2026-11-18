@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 from openpyxl.cell import Cell
 
+from src.core.models import Escola
 from src.dados_comuns.constants import StatusProcessamentoArquivo
 from src.dieta_especial.carga_dados.models import ArquivoCargaDietaEspecial
 from src.dieta_especial.protocolo_padrao.models import SubstituicaoAlimento
@@ -9,7 +10,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Escola
 from src.processamento_arquivos.dieta_especial import (
     importa_dietas_especiais as imp_dietas,
 )

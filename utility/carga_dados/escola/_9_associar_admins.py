@@ -1,7 +1,7 @@
 import datetime
 
+from src.core.models import Codae, DiretoriaRegional, Escola
 from src.dados_comuns.constants import EmailsParaTeste
-from src.escola.models import Codae, DiretoriaRegional, Escola
 from src.perfil.models import Perfil, Usuario, Vinculo
 
 data_atual = datetime.date.today()

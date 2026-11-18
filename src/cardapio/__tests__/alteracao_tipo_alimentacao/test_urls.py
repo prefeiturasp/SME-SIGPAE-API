@@ -11,6 +11,7 @@ from src.cardapio.__tests__.utils import (
     _checa_se_terceirizada_marcou_conferencia_na_gestao_de_alimentacao,
 )
 from src.cardapio.alteracao_tipo_alimentacao.models import AlteracaoCardapio
+from src.core.dias_letivos.models import DiaLetivoSIGPAE
 from src.dados_comuns import constants
 from src.dados_comuns.constants import (
     FORMATO_DATA_BRASILEIRO,
@@ -20,7 +21,6 @@ from src.dados_comuns.constants import (
     ContentTypesParaRequests,
 )
 from src.dados_comuns.fluxo_status import PedidoAPartirDaEscolaWorkflow
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
 
 pytestmark = pytest.mark.django_db
 

@@ -1,5 +1,6 @@
 from rest_framework.permissions import BasePermission
 
+from src.core.models import Codae, DiretoriaRegional, Escola
 from src.dados_comuns.constants import (
     ADMINISTRADOR_CODAE_GABINETE,
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -15,9 +16,7 @@ from src.dados_comuns.constants import (
     DINUTRE_DIRETORIA,
     ORGAO_FISCALIZADOR,
 )
-from src.escola.models import Codae, DiretoriaRegional, Escola
 from src.terceirizada.models import Terceirizada
-
 
 PERFIS_CODAE_COM_ACESSO_A_RECLAMACAO = {
     ADMINISTRADOR_CODAE_GABINETE,

@@ -6,6 +6,7 @@ from faker import Faker
 from freezegun import freeze_time
 from model_bakery import baker
 
+from src.core.models import Aluno, FaixaEtaria, PeriodoEscolar
 from src.dados_comuns import constants
 from src.dados_comuns.fluxo_status import DietaEspecialWorkflow
 from src.dados_comuns.utils import convert_base64_to_contentfile
@@ -20,7 +21,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     MotivoNegacao,
     SolicitacaoDietaEspecial,
 )
-from src.escola.models import Aluno, FaixaEtaria, PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.perfil.models import Usuario
 from src.produto.models import Produto

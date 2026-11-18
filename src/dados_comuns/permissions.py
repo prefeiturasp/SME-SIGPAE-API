@@ -1,6 +1,6 @@
 from rest_framework.permissions import BasePermission
 
-from ..escola.models import Codae, DiretoriaRegional, Escola
+from ..core.models import Codae, DiretoriaRegional, Escola
 from ..medicao_inicial.models import (
     Medicao,
     OcorrenciaMedicaoInicial,

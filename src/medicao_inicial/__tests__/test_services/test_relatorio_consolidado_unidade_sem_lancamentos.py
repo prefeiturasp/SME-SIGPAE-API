@@ -4,6 +4,7 @@ import openpyxl
 import pandas as pd
 import pytest
 
+from src.core.models import PeriodoEscolar
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
@@ -11,7 +12,6 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     NomesParaTesteEscola,
 )
-from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_emei_emef import (
     _calcula_soma_medicao,

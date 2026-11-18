@@ -11,6 +11,7 @@ from django.test.utils import CaptureQueriesContext
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.models import GrupoUnidadeEscolar
 from src.dados_comuns.constants import (
     ADMINISTRADOR_EMPRESA,
     ADMINISTRADOR_GESTAO_ALIMENTACAO_TERCEIRIZADA,
@@ -20,7 +21,6 @@ from src.dados_comuns.constants import (
     TIPOS_GESTAO,
 )
 from src.dados_comuns.models import CentralDeDownload
-from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import CategoriaMedicao
 from src.medicao_inicial.services.relatorio_alimentacoes_servidas import (
     filtros_exportacao_relatorio_alimentacoes_servidas,

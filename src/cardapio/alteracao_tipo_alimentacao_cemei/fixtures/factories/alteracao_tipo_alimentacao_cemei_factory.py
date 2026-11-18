@@ -18,7 +18,7 @@ from src.cardapio.alteracao_tipo_alimentacao_cemei.models import (
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEICEI,
     SubstituicaoAlimentacaoNoPeriodoEscolarCEMEIEMEI,
 )
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     FaixaEtariaFactory,

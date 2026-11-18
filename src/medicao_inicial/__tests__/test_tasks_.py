@@ -10,14 +10,14 @@ from freezegun import freeze_time
 from model_bakery import baker
 from pypdf import PdfWriter
 
-from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
-from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
-from src.escola.models import (
+from src.core.models import (
     AlunoPeriodoParcial,
     Escola,
     GrupoUnidadeEscolar,
     Lote,
 )
+from src.dados_comuns.constants import TIPO_UNIDADE_CEI_DIRET, TIPOS_UNIDADE_ESCOLAR
+from src.dados_comuns.models import CentralDeDownload, LogSolicitacoesUsuario
 from src.medicao_inicial.models import Responsavel, SolicitacaoMedicaoInicial
 from src.medicao_inicial.services.relatorio_adesao import obtem_resultados
 from src.medicao_inicial.tasks import (

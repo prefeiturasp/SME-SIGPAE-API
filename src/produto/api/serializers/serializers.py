@@ -6,6 +6,13 @@ from rest_framework import serializers
 
 from src.dieta_especial.protocolo_padrao.api import serializers as des
 
+from ....core.api.serializers import (
+    AlunoSimplesSerializer,
+    DiretoriaRegionalSimplissimaSerializer,
+    EscolaSimplissimaSerializer,
+    TipoGestaoSerializer,
+)
+from ....core.models import Escola
 from ....dados_comuns.api.serializers import (
     AnexoLogSolicitacoesUsuarioSerializer,
     ContatoSerializer,
@@ -18,13 +25,6 @@ from ....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ....dados_comuns.fluxo_status import ReclamacaoProdutoWorkflow
 from ....dados_comuns.validators import objeto_nao_deve_ter_duplicidade
 from ....dieta_especial.protocolo_padrao.models import Alimento
-from ....escola.api.serializers import (
-    AlunoSimplesSerializer,
-    DiretoriaRegionalSimplissimaSerializer,
-    EscolaSimplissimaSerializer,
-    TipoGestaoSerializer,
-)
-from ....escola.models import Escola
 from ....perfil.api.serializers import UsuarioSerializer
 from ....perfil.models import Usuario
 from ....terceirizada.api.serializers.serializers import (
@@ -58,7 +58,6 @@ from ...models import (
 from ...services.historico_reclamacao_produto import (
     ServicoHistoricoReclamacaoProduto,
 )
-
 
 SOURCE_STATUS_STATE_TITLE = "status.state.title"
 
@@ -253,9 +252,7 @@ class ReclamacaoDeProdutoSerializer(serializers.ModelSerializer):
                 context=self.context,
                 many=True,
             ).data
-            acao_inicial["usuario"] = UsuarioSerializer(
-                acao_inicial["usuario"]
-            ).data
+            acao_inicial["usuario"] = UsuarioSerializer(acao_inicial["usuario"]).data
             dados_logs.insert(0, acao_inicial)
 
         return dados_logs

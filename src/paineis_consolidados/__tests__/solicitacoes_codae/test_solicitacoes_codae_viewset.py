@@ -5,6 +5,10 @@ from django.utils import timezone
 from freezegun.api import freeze_time
 from rest_framework import status
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    HistoricoEscolaFactory,
+)
 from src.dados_comuns.constants import (
     TIPOS_ALIMENTACAO,
     StringsModelosGestaoAlimentacao,
@@ -18,10 +22,6 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    HistoricoEscolaFactory,
 )
 from src.inclusao_alimentacao.fixtures.factories.base_factory import (
     GrupoInclusaoAlimentacaoNormalFactory,

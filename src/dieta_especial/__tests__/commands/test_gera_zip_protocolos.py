@@ -6,6 +6,14 @@ from unittest import mock
 from django.core.management import CommandError, call_command
 from django.test import TestCase
 
+from src.core.fixtures.factories.escola_factory import (
+    AlunoFactory,
+    DiretoriaRegionalFactory,
+    EscolaFactory,
+    LoteFactory,
+    PeriodoEscolarFactory,
+    TipoUnidadeEscolarFactory,
+)
 from src.dados_comuns.constants import TIPOS_GESTAO, TIPOS_UNIDADE_ESCOLAR
 from src.dados_comuns.fixtures.factories.dados_comuns_factories import (
     LogSolicitacoesUsuarioFactory,
@@ -16,14 +24,6 @@ from src.dieta_especial.fixtures.factories.dieta_especial_base_factory import (
 )
 from src.dieta_especial.solicitacao_dieta_especial.models import (
     SolicitacaoDietaEspecial,
-)
-from src.escola.fixtures.factories.escola_factory import (
-    AlunoFactory,
-    DiretoriaRegionalFactory,
-    EscolaFactory,
-    LoteFactory,
-    PeriodoEscolarFactory,
-    TipoUnidadeEscolarFactory,
 )
 from src.perfil.fixtures.factories.perfil_base_factories import (
     UsuarioFactory,

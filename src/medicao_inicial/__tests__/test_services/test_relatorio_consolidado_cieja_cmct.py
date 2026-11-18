@@ -6,13 +6,13 @@ import pandas as pd
 import pytest
 from model_bakery import baker
 
+from src.core.models import PeriodoEscolar
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     TIPOS_ALIMENTACAO,
     TIPOS_UNIDADE_ESCOLAR,
 )
-from src.escola.models import PeriodoEscolar
 from src.medicao_inicial.models import CategoriaMedicao, GrupoMedicao
 from src.medicao_inicial.services.relatorio_consolidado_cieja_cmct import (
     _calcula_soma_medicao,

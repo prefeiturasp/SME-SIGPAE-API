@@ -20,6 +20,19 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from unidecode import unidecode
 
+from src.core.dias_letivos.models import DiaLetivoSIGPAE
+from src.core.models import (
+    Aluno,
+    DiaCalendario,
+    Escola,
+    FaixaEtaria,
+    GrupoUnidadeEscolar,
+    LogAlunosMatriculadosFaixaEtariaDia,
+    LogAlunosMatriculadosPeriodoEscola,
+    Lote,
+    PeriodoEscolar,
+)
+from src.core.utils import string_to_faixa
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
@@ -56,19 +69,6 @@ from src.dieta_especial.solicitacao_dieta_especial.models import (
     ClassificacaoDieta,
     SolicitacaoDietaEspecial,
 )
-from src.escola.dias_letivos.models import DiaLetivoSIGPAE
-from src.escola.models import (
-    Aluno,
-    DiaCalendario,
-    Escola,
-    FaixaEtaria,
-    GrupoUnidadeEscolar,
-    LogAlunosMatriculadosFaixaEtariaDia,
-    LogAlunosMatriculadosPeriodoEscola,
-    Lote,
-    PeriodoEscolar,
-)
-from src.escola.utils import string_to_faixa
 from src.escola_aberta.services import obter_unidade_escola_aberta_por_mes_ano
 from src.inclusao_alimentacao.models import (
     GrupoInclusaoAlimentacaoNormal,

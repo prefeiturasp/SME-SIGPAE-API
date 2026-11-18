@@ -1,6 +1,8 @@
 from django.core.validators import MinLengthValidator
 from django.db import models
 
+from src.core.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
+from src.core.models import Escola
 from src.dados_comuns.behaviors import (
     CriadoEm,
     TemChaveExterna,
@@ -11,8 +13,6 @@ from src.dados_comuns.constants import (
     StringsCaminhoModelos,
     StringsVerboseNameModels,
 )
-from src.escola.constants import CEI_OU_EMEI, INFANTIL_OU_FUNDAMENTAL
-from src.escola.models import Escola
 
 
 class LogDietasAtivasCanceladasAutomaticamente(CriadoEm):

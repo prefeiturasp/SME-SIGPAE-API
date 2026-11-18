@@ -4,22 +4,25 @@ import random
 from io import BytesIO
 from itertools import product
 from unittest.mock import MagicMock
-from django.urls import reverse
 
 import pandas as pd
 import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
 from model_bakery import baker
+
+from src.cardapio.base.models import TipoAlimentacao
+from src.core.models import DiretoriaRegional, Escola, Lote, TipoUnidadeEscolar
 from src.dados_comuns.constants import (
     DJANGO_ADMIN_PASSWORD,
+    TIPOS_ALIMENTACAO,
+    TIPOS_UNIDADE_ESCOLAR,
 )
-from src.cardapio.base.models import TipoAlimentacao
-from src.dados_comuns.constants import TIPOS_ALIMENTACAO, TIPOS_UNIDADE_ESCOLAR
-from src.escola.models import DiretoriaRegional, Escola, Lote, TipoUnidadeEscolar
 from src.escola_aberta.models import (
     EscolaAberta,
     EscolaAbertaUnidadeParticipante,
 )
+
 
 @pytest.fixture
 def setup_escola_aberta_data():

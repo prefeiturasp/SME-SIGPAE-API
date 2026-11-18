@@ -26,6 +26,13 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import GenericViewSet
 from xworkflows import InvalidTransitionError
 
+from src.core.models import (
+    Aluno,
+    DiretoriaRegional,
+    Escola,
+    Lote,
+    TipoGestao,
+)
 from src.dados_comuns import constants
 from src.dados_comuns.api.paginations import HistoricoDietasPagination
 from src.dados_comuns.constants import (
@@ -114,13 +121,6 @@ from src.dieta_especial.utils.gera_dicionario_historico_dietas import (
 )
 from src.dieta_especial.utils.gerar_filtros_relatorio_historico import (
     gerar_filtros_relatorio_historico,
-)
-from src.escola.models import (
-    Aluno,
-    DiretoriaRegional,
-    Escola,
-    Lote,
-    TipoGestao,
 )
 from src.paineis_consolidados.api.constants import FILTRO_CODIGO_EOL_ALUNO
 from src.paineis_consolidados.models import SolicitacoesCODAE

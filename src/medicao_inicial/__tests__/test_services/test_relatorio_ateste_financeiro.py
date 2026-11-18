@@ -6,12 +6,12 @@ import pytest
 from model_bakery import baker
 from rest_framework import status
 
+from src.core.models import GrupoUnidadeEscolar
 from src.dados_comuns.constants import (
     DIETA_ESPECIAL_TIPO_A,
     DIETA_ESPECIAL_TIPO_B,
     StringsParametrizacaoFinanceiraTabela,
 )
-from src.escola.models import GrupoUnidadeEscolar
 from src.medicao_inicial.models import (
     CategoriaMedicao,
     GrupoMedicao,

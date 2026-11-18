@@ -6,18 +6,18 @@ from unittest.mock import Mock, patch
 import pytest
 from freezegun import freeze_time
 
-from src.dados_comuns.constants import (
-    TIPOS_GESTAO,
-    TIPOS_UNIDADE_ESCOLAR,
-    NomesParaTesteDiretoriaRegional,
-)
-from src.escola.fixtures.factories.escola_factory import (
+from src.core.fixtures.factories.escola_factory import (
     DiretoriaRegionalFactory,
     EscolaFactory,
     HistoricoEscolaFactory,
     LoteFactory,
     TipoGestaoFactory,
     TipoUnidadeEscolarFactory,
+)
+from src.dados_comuns.constants import (
+    TIPOS_GESTAO,
+    TIPOS_UNIDADE_ESCOLAR,
+    NomesParaTesteDiretoriaRegional,
 )
 from src.medicao_inicial.fixtures.factories.solicitacao_medicao_inicial_base_factory import (
     SolicitacaoMedicaoInicialFactory,

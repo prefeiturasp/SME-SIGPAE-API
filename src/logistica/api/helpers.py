@@ -10,13 +10,13 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 from xworkflows.base import InvalidTransitionError
 
+from src.core.models import Escola
 from src.dados_comuns.constants import EM_ANALISE_LABEL, StringsValidationErrors
 from src.dados_comuns.fluxo_status import (
     GuiaRemessaWorkFlow,
     SolicitacaoRemessaWorkFlow,
 )
 from src.dados_comuns.models import Notificacao
-from src.escola.models import Escola
 from src.logistica.api.serializers.serializers import (
     GuiaDaRemessaComAlimentoSerializer,
     GuiaDaRemessaSerializer,

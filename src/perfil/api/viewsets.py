@@ -15,6 +15,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
+from src.core.api.serializers import UsuarioDetalheSerializer
+from src.core.models import Codae
 from src.dados_comuns.constants import (
     ADMINISTRADOR_CONTRATOS,
     ADMINISTRADOR_EMPRESA,
@@ -34,8 +36,6 @@ from src.dados_comuns.permissions import (
     UsuarioPodeFinalizarVinculo,
     UsuarioSuperCodae,
 )
-from src.escola.api.serializers import UsuarioDetalheSerializer
-from src.escola.models import Codae
 from src.perfil.api.filters import ImportacaoPlanilhaUsuarioCoreSSOFilter, VinculoFilter
 from src.perfil.api.helpers import ofuscar_email
 from src.perfil.api.serializers import (
