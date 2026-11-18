@@ -41,11 +41,12 @@ def _cria_usuario_escola(django_user_model, nome_perfil, email):
     return usuario, escola
 
 
-def _payload_memorando():
+def _payload_memorando(unidade_medida):
     return {
         "categoria": MemorandoOcorrencia.CATEGORIA_NAO_PERECIVEIS,
         "produto": "Arroz Tipo 1",
         "tipo_ocorrencia": MemorandoOcorrencia.TIPO_RECLAMACAO_QUALIDADE,
+        "unidade_medida": str(unidade_medida.uuid),
         "lotes": [
             {
                 "lote": "LOTE-001",
@@ -63,6 +64,15 @@ def _payload_memorando():
             },
         ],
     }
+
+
+@pytest.fixture
+def unidade_medida():
+    return baker.make(
+        "pre_recebimento.UnidadeMedida",
+        nome="QUILOGRAMA",
+        abreviacao="kg",
+    )
 
 
 @pytest.fixture
@@ -84,13 +94,13 @@ def client_diretor_ue(client, usuario_diretor_ue):
     return client, usuario_diretor_ue
 
 
-def test_registrar_memorando_ocorrencia_201(client_diretor_ue):
+def test_registrar_memorando_ocorrencia_201(client_diretor_ue, unidade_medida):
     client, (usuario, escola) = client_diretor_ue
 
     response = _post_json(
         client,
         "/pos-recebimento/memorandos-ocorrencia/",
-        _payload_memorando(),
+        _payload_memorando(unidade_medida),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -106,6 +116,7 @@ def test_registrar_memorando_ocorrencia_201(client_diretor_ue):
 def test_registrar_memorando_ocorrencia_administrador_ue(
     client,
     django_user_model,
+    unidade_medida,
 ):
     usuario, escola = _cria_usuario_escola(
         django_user_model,
@@ -120,7 +131,7 @@ def test_registrar_memorando_ocorrencia_administrador_ue(
     response = _post_json(
         client,
         "/pos-recebimento/memorandos-ocorrencia/",
-        _payload_memorando(),
+        _payload_memorando(unidade_medida),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -129,7 +140,9 @@ def test_registrar_memorando_ocorrencia_administrador_ue(
     )
 
 
-def test_registrar_memorando_ocorrencia_sem_permissao(client, django_user_model):
+def test_registrar_memorando_ocorrencia_sem_permissao(
+    client, django_user_model, unidade_medida
+):
     usuario = django_user_model.objects.create_user(
         username="codae@test.com",
         password=constants.DJANGO_ADMIN_PASSWORD,
@@ -154,15 +167,17 @@ def test_registrar_memorando_ocorrencia_sem_permissao(client, django_user_model)
     response = _post_json(
         client,
         "/pos-recebimento/memorandos-ocorrencia/",
-        _payload_memorando(),
+        _payload_memorando(unidade_medida),
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_registrar_memorando_ocorrencia_campos_obrigatorios(client_diretor_ue):
+def test_registrar_memorando_ocorrencia_campos_obrigatorios(
+    client_diretor_ue, unidade_medida
+):
     client, _ = client_diretor_ue
-    payload = _payload_memorando()
+    payload = _payload_memorando(unidade_medida)
     payload.pop("produto")
     payload.pop("lotes")
 
@@ -177,9 +192,11 @@ def test_registrar_memorando_ocorrencia_campos_obrigatorios(client_diretor_ue):
     assert "lotes" in response.json()
 
 
-def test_registrar_memorando_ocorrencia_quantidade_negativa(client_diretor_ue):
+def test_registrar_memorando_ocorrencia_quantidade_negativa(
+    client_diretor_ue, unidade_medida
+):
     client, _ = client_diretor_ue
-    payload = _payload_memorando()
+    payload = _payload_memorando(unidade_medida)
     payload["lotes"][0]["quantidade_problema_devolucao"] = "-1.00"
 
     response = _post_json(
@@ -192,9 +209,11 @@ def test_registrar_memorando_ocorrencia_quantidade_negativa(client_diretor_ue):
     assert "lotes" in response.json()
 
 
-def test_registrar_memorando_ocorrencia_categoria_flv(client_diretor_ue):
+def test_registrar_memorando_ocorrencia_categoria_flv(
+    client_diretor_ue, unidade_medida
+):
     client, _ = client_diretor_ue
-    payload = _payload_memorando()
+    payload = _payload_memorando(unidade_medida)
     payload["categoria"] = MemorandoOcorrencia.CATEGORIA_FLV
 
     response = _post_json(
@@ -208,13 +227,15 @@ def test_registrar_memorando_ocorrencia_categoria_flv(client_diretor_ue):
     assert memorando.categoria == MemorandoOcorrencia.CATEGORIA_FLV
 
 
-def test_registrar_memorando_ocorrencia_datas_formato_brasileiro(client_diretor_ue):
+def test_registrar_memorando_ocorrencia_datas_formato_brasileiro(
+    client_diretor_ue, unidade_medida
+):
     client, _ = client_diretor_ue
 
     response = _post_json(
         client,
         "/pos-recebimento/memorandos-ocorrencia/",
-        _payload_memorando(),
+        _payload_memorando(unidade_medida),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
@@ -224,15 +245,78 @@ def test_registrar_memorando_ocorrencia_datas_formato_brasileiro(client_diretor_
     assert str(lote.quantidade_problema_devolucao) == "10.50"
 
 
-def test_lotes_persistidos_na_ordem_informada(client_diretor_ue):
+def test_lotes_persistidos_na_ordem_informada(client_diretor_ue, unidade_medida):
     client, _ = client_diretor_ue
 
     response = _post_json(
         client,
         "/pos-recebimento/memorandos-ocorrencia/",
-        _payload_memorando(),
+        _payload_memorando(unidade_medida),
     )
 
     assert response.status_code == status.HTTP_201_CREATED
     memorando = MemorandoOcorrencia.objects.get(uuid=response.json()["uuid"])
     assert list(memorando.lotes.values_list("ordem", flat=True)) == [1, 2]
+
+
+def test_registrar_memorando_ocorrencia_persiste_unidade_medida(
+    client_diretor_ue, unidade_medida
+):
+    """A unidade informada é salva no memorando e devolvida na resposta."""
+    client, _ = client_diretor_ue
+
+    response = _post_json(
+        client,
+        "/pos-recebimento/memorandos-ocorrencia/",
+        _payload_memorando(unidade_medida),
+    )
+
+    assert response.status_code == status.HTTP_201_CREATED
+    memorando = MemorandoOcorrencia.objects.get(uuid=response.json()["uuid"])
+    assert memorando.unidade_medida == unidade_medida
+    assert response.json()["unidade_medida"] == {
+        "uuid": str(unidade_medida.uuid),
+        "nome": unidade_medida.nome,
+        "abreviacao": unidade_medida.abreviacao,
+    }
+
+
+def test_registrar_memorando_ocorrencia_unidade_medida_inexistente(
+    client_diretor_ue, unidade_medida
+):
+    """UUID de unidade que não existe → 400."""
+    client, _ = client_diretor_ue
+    payload = _payload_memorando(unidade_medida)
+    payload["unidade_medida"] = "00000000-0000-0000-0000-000000000000"
+
+    response = _post_json(
+        client,
+        "/pos-recebimento/memorandos-ocorrencia/",
+        payload,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "unidade_medida" in response.json()
+
+
+def test_registrar_memorando_ocorrencia_lotes_duplicados(
+    client_diretor_ue, unidade_medida
+):
+    """Dois lotes com mesma combinação lote/marca/fabricação/validade → 400."""
+    client, _ = client_diretor_ue
+    payload = _payload_memorando(unidade_medida)
+    payload["lotes"][1] = {
+        **payload["lotes"][0],
+        "quantidade_problema_devolucao": "5.00",
+    }
+
+    response = _post_json(
+        client,
+        "/pos-recebimento/memorandos-ocorrencia/",
+        payload,
+    )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert "lotes" in response.json()
+    assert "duplicados" in response.json()["lotes"][0].lower()
+    assert MemorandoOcorrencia.objects.count() == 0
