@@ -110,6 +110,7 @@ from ..validators import (
     get_filtro_inclusao_continua_ativa,
     get_filtro_quantidade_periodo_ativa,
     valida_medicoes_inexistentes_cei,
+    valida_medicoes_inexistentes_cemei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
     validate_finalizacao_sem_lancamentos_escola_aberta,
@@ -408,6 +409,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = []
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
+        lista_erros = valida_medicoes_inexistentes_cemei(instance, lista_erros)
         lista_erros = validate_medicao_cemei_cei(instance, lista_erros)
         lista_erros = validate_medicao_cemei_programas_e_projetos(instance, lista_erros)
         lista_erros = validate_medicao_cemei_emei(instance, lista_erros)

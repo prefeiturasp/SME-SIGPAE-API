@@ -1150,6 +1150,126 @@ def valida_medicoes_inexistentes_cei(solicitacao, lista_erros):
     return lista_erros
 
 
+def _obter_periodos_cei_com_logs_cemei(solicitacao):
+    escola = solicitacao.escola
+
+    periodos_regular = set(
+        LogAlunosMatriculadosPeriodoEscola.objects.filter(
+            escola=escola,
+            criado_em__month=solicitacao.mes,
+            criado_em__year=solicitacao.ano,
+            tipo_turma="REGULAR",
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.CEI.value,
+            quantidade_alunos__gt=0,
+        ).values_list("periodo_escolar__nome", flat=True)
+    )
+
+    # No CEMEI o CEI é lançado no período INTEGRAL; MANHA/TARDE pertencem ao EMEI.
+    return {periodo for periodo in periodos_regular if periodo == "INTEGRAL"}
+
+
+def _obter_periodos_emei_com_logs_cemei(solicitacao):
+    escola = solicitacao.escola
+    mes = solicitacao.mes
+    ano = solicitacao.ano
+
+    logs = LogAlunosMatriculadosPeriodoEscola.objects.filter(
+        escola=escola,
+        criado_em__month=mes,
+        criado_em__year=ano,
+        tipo_turma="REGULAR",
+        quantidade_alunos__gt=0,
+    )
+
+    periodos_integral = set(
+        logs.filter(
+            cei_ou_emei=TIPOS_UNIDADE_ESCOLAR.EMEI.value,
+            periodo_escolar__nome="INTEGRAL",
+        ).values_list("periodo_escolar__nome", flat=True)
+    )
+    periodos_outros = set(
+        logs.exclude(periodo_escolar__nome="INTEGRAL").values_list(
+            "periodo_escolar__nome", flat=True
+        )
+    )
+
+    return periodos_integral | periodos_outros
+
+
+def _adiciona_erros_periodos_sem_medicao(
+    solicitacao, lista_erros, periodos, filtro_medicao, prefixo=""
+):
+    for periodo in periodos:
+        nome_periodo = f"{prefixo}{periodo}"
+        if not solicitacao.medicoes.filter(
+            **{f"{filtro_medicao}__nome": nome_periodo}
+        ).exists():
+            lista_erros.append(
+                {
+                    "periodo_escolar": nome_periodo,
+                    "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS.value,
+                }
+            )
+    return lista_erros
+
+
+def _adiciona_erro_periodo_sem_medicao(solicitacao, lista_erros, nome_periodo):
+    if not solicitacao.medicoes.filter(
+        Q(periodo_escolar__nome=nome_periodo) | Q(grupo__nome=nome_periodo)
+    ).exists():
+        lista_erros.append(
+            {
+                "periodo_escolar": nome_periodo,
+                "erro": StringsValidationErrors.RESTAM_DIAS_A_SEREM_LANCADOS.value,
+            }
+        )
+    return lista_erros
+
+
+def _adiciona_erro_grupo_autorizado_sem_medicao(
+    solicitacao, lista_erros, inclusoes, nome_grupo
+):
+    if inclusoes.exists():
+        lista_erros = _adiciona_erro_periodo_sem_medicao(
+            solicitacao, lista_erros, nome_grupo
+        )
+    return lista_erros
+
+
+def valida_medicoes_inexistentes_cemei(solicitacao, lista_erros):
+    lista_erros = _adiciona_erros_periodos_sem_medicao(
+        solicitacao,
+        lista_erros,
+        _obter_periodos_cei_com_logs_cemei(solicitacao),
+        "periodo_escolar",
+    )
+    lista_erros = _adiciona_erros_periodos_sem_medicao(
+        solicitacao,
+        lista_erros,
+        _obter_periodos_emei_com_logs_cemei(solicitacao),
+        "grupo",
+        "Infantil ",
+    )
+
+    if (
+        solicitacao.ue_possui_alunos_periodo_parcial
+        or solicitacao.escola_cei_com_inclusao_parcial_autorizada
+    ):
+        lista_erros = _adiciona_erro_periodo_sem_medicao(
+            solicitacao, lista_erros, "PARCIAL"
+        )
+
+    lista_erros = _adiciona_erro_grupo_autorizado_sem_medicao(
+        solicitacao,
+        lista_erros,
+        get_inclusoes_programas_projetos(solicitacao),
+        GrupoMedicao.PROGRAMAS_E_PROJETOS,
+    )
+    return _adiciona_erro_grupo_autorizado_sem_medicao(
+        solicitacao, lista_erros, get_inclusoes_etec(solicitacao), "ETEC"
+    )
+
+
 def _get_dias_inclusao_alimentacao_cei(solicitacao):
     escola = solicitacao.escola
     mes = int(solicitacao.mes)
