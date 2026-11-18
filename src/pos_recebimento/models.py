@@ -6,6 +6,7 @@ from src.dados_comuns.behaviors import CriadoPor, ModeloBase, TemLogs
 from src.dados_comuns.constants import StringsVerboseNameModels
 from src.dados_comuns.fluxo_status import FluxoTermoRecebimentoProvisorio
 from src.escola.models import Escola
+from src.pre_recebimento.base.models import UnidadeMedida
 from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.terceirizada.models import Contrato, Terceirizada
 
@@ -251,6 +252,12 @@ class MemorandoOcorrencia(ModeloBase, CriadoPor):
         StringsVerboseNameModels.TIPO_DE_OCORRENCIA.value,
         max_length=40,
         choices=TIPO_OCORRENCIA_CHOICES,
+    )
+    unidade_medida = models.ForeignKey(
+        UnidadeMedida,
+        on_delete=models.PROTECT,
+        verbose_name="Unidade de Medida",
+        related_name="memorandos_ocorrencia",
     )
 
     def __str__(self):
