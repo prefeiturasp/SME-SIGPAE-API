@@ -149,3 +149,45 @@ def test_gera_valores_zerados_preserva_faixa_etaria_cei(
         faixa_etaria=faixa_etaria,
     )
     assert valor_dia_nao_letivo.valor == "100"
+
+
+@freeze_time("2026-12-15")
+def test_replica_matriculados_e_dietas_autorizadas_nos_dias_restantes(
+    solicitacao_medicao_inicial_factory,
+    dia_calendario_factory,
+    periodo_escolar_factory,
+    escola,
+):
+    _cria_dias_letivos_dezembro(dia_calendario_factory, escola)
+    solicitacao = solicitacao_medicao_inicial_factory.create(
+        escola=escola,
+        mes="12",
+        ano="2026",
+    )
+    periodo = periodo_escolar_factory.create(nome="MANHA")
+    medicao = Medicao.objects.create(
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo,
+    )
+    categoria = CategoriaMedicao.objects.create(nome=CategoriaMedicao.ALIMENTACAO)
+
+    for dia in range(1, 15):
+        _cria_valor(medicao, categoria, dia, "matriculados", valor="50")
+        _cria_valor(medicao, categoria, dia, "dietas_autorizadas", valor="2")
+
+    serializador = SolicitacaoMedicaoInicialCreateSerializer()
+    serializador.gera_valores_zerados_dias_restantes_dezembro(solicitacao)
+
+    for dia in list(range(15, 20)) + list(range(21, 23)):
+        assert (
+            medicao.valores_medicao.get(
+                dia=f"{dia:02d}", nome_campo="matriculados"
+            ).valor
+            == "50"
+        )
+        assert (
+            medicao.valores_medicao.get(
+                dia=f"{dia:02d}", nome_campo="dietas_autorizadas"
+            ).valor
+            == "2"
+        )
