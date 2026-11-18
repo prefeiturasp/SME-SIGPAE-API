@@ -11,6 +11,7 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     StringsValidationErrors,
 )
+from src.dados_comuns.data_simulada import obter_data_atual
 from src.dados_comuns.utils import filtrar_dias_letivos, get_ultimo_dia_mes
 from src.dieta_especial.logs_models.models import (
     LogQuantidadeDietasAutorizadas,
@@ -141,7 +142,7 @@ def filtrar_dias_anteriores_dezembro(solicitacao, dias):
     if not finalizando_em_dezembro(solicitacao):
         return dias
 
-    hoje = datetime.date.today()
+    hoje = obter_data_atual()
     mes = int(solicitacao.mes)
     ano = int(solicitacao.ano)
 
@@ -152,7 +153,7 @@ def filtrar_inclusoes_anteriores_dezembro(solicitacao, inclusoes):
     if not finalizando_em_dezembro(solicitacao):
         return inclusoes
 
-    hoje = datetime.date.today()
+    hoje = obter_data_atual()
     mes = int(solicitacao.mes)
     ano = int(solicitacao.ano)
 
@@ -167,7 +168,7 @@ def filtrar_queryset_anteriores_dezembro(solicitacao, queryset, campo="data"):
     if not finalizando_em_dezembro(solicitacao):
         return queryset
 
-    return queryset.filter(**{f"{campo}__lt": datetime.date.today()})
+    return queryset.filter(**{f"{campo}__lt": obter_data_atual()})
 
 
 def get_quantidade_dias_para_validacao(solicitacao):
@@ -179,7 +180,7 @@ def get_quantidade_dias_para_validacao(solicitacao):
     if not finalizando_em_dezembro(solicitacao):
         return quantidade
 
-    hoje = datetime.date.today()
+    hoje = obter_data_atual()
     if (ano, mes) == (hoje.year, hoje.month):
         return max(hoje.day - 1, 0)
     if (ano, mes) > (hoje.year, hoje.month):
@@ -193,7 +194,7 @@ def get_ultimo_dia_para_validacao(solicitacao):
     ultimo_dia = get_ultimo_dia_mes(primeiro_dia)
 
     if finalizando_em_dezembro(solicitacao):
-        ultimo_dia = min(ultimo_dia, datetime.date.today() - datetime.timedelta(days=1))
+        ultimo_dia = min(ultimo_dia, obter_data_atual() - datetime.timedelta(days=1))
 
     return ultimo_dia
 
@@ -1200,7 +1201,7 @@ def _adiciona_dia_kit_lanche_passeio(
 ):
     if not faixas_etarias or data in dias_inclusao:
         return
-    if data >= datetime.date.today():
+    if data >= obter_data_atual():
         return
     if not _dia_sem_atendimento_regular(escola, data):
         return
@@ -1332,7 +1333,7 @@ def _get_dias_kit_lanche_passeio_cei(solicitacao):
     _adiciona_kits_lanche_unificados(dias_kit_lanche, escola, mes, ano, dias_inclusao)
 
     if finalizando_em_dezembro(solicitacao):
-        hoje = datetime.date.today()
+        hoje = obter_data_atual()
         dias_kit_lanche = {
             data: faixas_etarias
             for data, faixas_etarias in dias_kit_lanche.items()
@@ -3137,7 +3138,7 @@ def get_lista_dias_solicitacoes(params, escola, uuids_solicitacoes_excluidas=Non
     query_set = query_set.filter(
         data_evento__month=params["mes"], data_evento__year=params["ano"]
     )
-    query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    query_set = query_set.filter(data_evento__lt=obter_data_atual())
     if uuids_solicitacoes_excluidas:
         query_set = query_set.exclude(uuid__in=uuids_solicitacoes_excluidas)  # NOVO
     if params.get("eh_lanche_emergencial", False):
@@ -4126,7 +4127,7 @@ def _obter_dias_liberados_escola_aberta(unidade, mes, ano):
     data_inicial = max(cadastro.data_inicial, primeiro_dia_mes)
     data_final = min(cadastro.data_final, ultimo_dia_mes)
     dias_semana = {int(dia) for dia in cadastro.dias_semana}
-    hoje = datetime.date.today()
+    hoje = obter_data_atual()
     dias = []
 
     dia = data_inicial

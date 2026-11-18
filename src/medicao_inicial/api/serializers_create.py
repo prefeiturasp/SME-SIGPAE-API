@@ -26,6 +26,11 @@ from src.core.models import (
 )
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from src.dados_comuns.constants import StringsValidationErrors
+from src.dados_comuns.data_simulada import (
+    definir_data_simulada,
+    limpar_data_simulada,
+    obter_data_atual,
+)
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
@@ -1560,7 +1565,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if int(instance.mes) != 12:
             return []
 
-        hoje = date.today()
+        hoje = obter_data_atual()
         ano = int(instance.ano)
         mes = int(instance.mes)
 
@@ -1664,6 +1669,16 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if valores_a_criar:
             ValorMedicao.objects.bulk_create(valores_a_criar)
 
+    def _obter_data_simulada_requisicao(self):
+        valor = self.context["request"].data.get("data_simulada")
+        if not valor:
+            return None
+
+        try:
+            return date.fromisoformat(valor)
+        except (TypeError, ValueError):
+            return None
+
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, justificativa_sem_lancamentos
     ):
@@ -1673,23 +1688,27 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
         ):
-            self.cria_valores_medicao_logs_emef_emei(instance)
-            self.cria_valores_medicao_logs_cei(instance)
-            self.valida_finalizar_medicao_ultimo_dia_mes(instance)
-            self.valida_finalizar_medicao_emef_emei(instance)
-            self.valida_finalizar_medicao_cemei(instance)
-            self.valida_finalizar_medicao_cei(instance)
-            self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
-            self.valida_finalizar_medicao_emebs(instance)
-            self.gera_valores_zerados_dias_restantes_dezembro(instance)
-            instance.ue_envia(user=self.context["request"].user)
-            anexos = self._process_anexos(instance)
-            if hasattr(instance, "ocorrencia"):
-                instance.ocorrencia.ue_envia(
-                    user=self.context["request"].user, anexos=anexos
-                )
-            for medicao in instance.medicoes.all():
-                medicao.ue_envia(user=self.context["request"].user)
+            token = definir_data_simulada(self._obter_data_simulada_requisicao())
+            try:
+                self.cria_valores_medicao_logs_emef_emei(instance)
+                self.cria_valores_medicao_logs_cei(instance)
+                self.valida_finalizar_medicao_ultimo_dia_mes(instance)
+                self.valida_finalizar_medicao_emef_emei(instance)
+                self.valida_finalizar_medicao_cemei(instance)
+                self.valida_finalizar_medicao_cei(instance)
+                self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
+                self.valida_finalizar_medicao_emebs(instance)
+                self.gera_valores_zerados_dias_restantes_dezembro(instance)
+                instance.ue_envia(user=self.context["request"].user)
+                anexos = self._process_anexos(instance)
+                if hasattr(instance, "ocorrencia"):
+                    instance.ocorrencia.ue_envia(
+                        user=self.context["request"].user, anexos=anexos
+                    )
+                for medicao in instance.medicoes.all():
+                    medicao.ue_envia(user=self.context["request"].user)
+            finally:
+                limpar_data_simulada(token)
 
     def _checa_se_medicao_possui_algum_lancamento(
         self, instance: SolicitacaoMedicaoInicial, lista_erros: list[dict]
@@ -1780,7 +1799,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
         ):
-            if date.today() <= instance.recreio_nas_ferias.data_fim:
+            if obter_data_atual() <= instance.recreio_nas_ferias.data_fim:
                 raise serializers.ValidationError(
                     "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
                 )
