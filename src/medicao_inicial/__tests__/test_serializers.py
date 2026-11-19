@@ -221,9 +221,10 @@ def test_finaliza_recreio_nas_ferias_retorna_erro_quando_ainda_nao_pode_finaliza
     with patch.object(
         serializer, "_process_anexos", return_value=[]
     ) as processa_anexos:
-        with patch("src.medicao_inicial.api.serializers_create.date") as mock_date:
-            mock_date.today.return_value = solicitacao.recreio_nas_ferias.data_fim
-
+        with patch(
+            "src.medicao_inicial.api.serializers_create.obter_data_atual",
+            return_value=solicitacao.recreio_nas_ferias.data_fim,
+        ):
             with pytest.raises(serializers.ValidationError) as exc_info:
                 serializer._finaliza_recreio_nas_ferias(
                     solicitacao,
@@ -261,11 +262,10 @@ def test_finaliza_recreio_nas_ferias_envia_solicitacao_e_medicoes():
     with patch.object(
         serializer, "_process_anexos", return_value=[]
     ) as processa_anexos:
-        with patch("src.medicao_inicial.api.serializers_create.date") as mock_date:
-            mock_date.today.return_value = (
-                solicitacao.recreio_nas_ferias.data_fim + timedelta(days=1)
-            )
-
+        with patch(
+            "src.medicao_inicial.api.serializers_create.obter_data_atual",
+            return_value=(solicitacao.recreio_nas_ferias.data_fim + timedelta(days=1)),
+        ):
             serializer._finaliza_recreio_nas_ferias(
                 solicitacao,
                 {"com_ocorrencias": False},
