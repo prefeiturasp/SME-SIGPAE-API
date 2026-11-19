@@ -114,7 +114,7 @@ class TestEndpointUltimoDiaComSolicitacaoAutorizadaNoMes:
         assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"ultima_data": None}
 
-    def test_ignora_inclusao_continua_no_calculo_da_ultima_data(
+    def test_considera_inclusao_continua_no_calculo_da_ultima_data_por_padrao(
         self,
         client_autenticado_escola_paineis_consolidados,
         escola,
@@ -136,6 +136,31 @@ class TestEndpointUltimoDiaComSolicitacaoAutorizadaNoMes:
         )
 
         assert response.status_code == status.HTTP_200_OK
+        assert response.json() == {"ultima_data": "2025-01-30"}
+
+    def test_ignora_inclusao_continua_quando_solicitado(
+        self,
+        client_autenticado_escola_paineis_consolidados,
+        escola,
+    ):
+        client, usuario = client_autenticado_escola_paineis_consolidados
+        self._setup_solicitacoes(
+            escola,
+            usuario,
+            status=GrupoInclusaoAlimentacaoNormal.workflow_class.CODAE_AUTORIZADO,
+            status_evento=LogSolicitacoesUsuario.CODAE_AUTORIZOU,
+        )
+        self._setup_inclusao_continua(escola, usuario)
+
+        response = client.get(
+            f"/escola-solicitacoes/ultimo-dia-com-solicitacao-autorizada-no-mes/"
+            f"?escola_uuid={escola.uuid}"
+            f"&mes=01&"
+            f"ano=2025"
+            f"&excluir_inclusoes_continuas=true"
+        )
+
+        assert response.status_code == status.HTTP_200_OK
         assert response.json() == {"ultima_data": "2025-01-20"}
 
     def test_ultima_data_nula_quando_existe_apenas_inclusao_continua(
@@ -151,6 +176,7 @@ class TestEndpointUltimoDiaComSolicitacaoAutorizadaNoMes:
             f"?escola_uuid={escola.uuid}"
             f"&mes=01&"
             f"ano=2025"
+            f"&excluir_inclusoes_continuas=true"
         )
 
         assert response.status_code == status.HTTP_200_OK
