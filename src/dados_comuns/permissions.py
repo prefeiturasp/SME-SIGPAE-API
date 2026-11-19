@@ -1199,7 +1199,12 @@ class PermissaoParaVisualizarUnidadesMedida(BasePermission):
                     COORDENADOR_CODAE_DILOG_LOGISTICA,
                 ]
                 or usuario.vinculo_atual.perfil.nome
-                in [ADMINISTRADOR_EMPRESA, USUARIO_EMPRESA]
+                in [
+                    ADMINISTRADOR_EMPRESA,
+                    USUARIO_EMPRESA,
+                    DIRETOR_UE,
+                    ADMINISTRADOR_UE,
+                ]
             )
         )
 
