@@ -277,9 +277,8 @@ class LoginView(TokenObtainPairView):
     def buscar_email_usuario_sigpae(self, login):
         email = None
         usuario_sigpae = User.objects.get(username=login)
-        if usuario_sigpae:
-            if self.validar_email(usuario_sigpae.email):
-                email = usuario_sigpae.email
+        if self.validar_email(usuario_sigpae.email):
+            email = usuario_sigpae.email
 
         return email
 

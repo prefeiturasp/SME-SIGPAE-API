@@ -27,13 +27,6 @@ from .....dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 def calcular_saldo_laudo(documento_recebimento):
     from decimal import Decimal
 
-    total_recebido = (
-        DocumentoFichaDeRecebimento.objects.filter(
-            documento_recebimento=documento_recebimento,
-            ficha_recebimento__status="ASSINADA",
-        ).aggregate(total=Sum("quantidade_recebida"))["total"]
-        or 0
-    )
     total_recebido = DocumentoFichaDeRecebimento.objects.filter(
         documento_recebimento=documento_recebimento,
         ficha_recebimento__status="ASSINADA",

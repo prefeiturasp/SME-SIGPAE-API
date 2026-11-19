@@ -4334,7 +4334,6 @@ def test_url_pdf_ficha_tecnica_nao_perecivel(
     pdf_text = page.extract_text()
 
     assert ficha_tecnica.produto.nome in pdf_text
-    # assert ficha_tecnica.marca.nome in pdf_text
 
 
 def test_url_pdf_ficha_tecnica_tag_leve_leite(

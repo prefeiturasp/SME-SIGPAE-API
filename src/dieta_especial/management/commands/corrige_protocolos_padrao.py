@@ -62,7 +62,8 @@ class Command(BaseCommand):
         protocolos_a_excluir = [
             "APLV (BEBIDA DE SOJA OU LEITE DE CABRA)",
             "APLV (BEBIDA DE SOJA SABORIZADA)",
-            "APLV (APTAMIL DE SOJA)" "APLV (SUCO DE FRUTA)",
+            "APLV (APTAMIL DE SOJA)",
+            "APLV (SUCO DE FRUTA)",
         ]
         for nome_protocolo in protocolos_a_excluir:
             try:
@@ -148,7 +149,7 @@ class Command(BaseCommand):
             "DIETA PASTOSA -  ANA VICTÓRIA SOUSA LIMA",
             "DIETA PASTOSA - ISIS YU NA CHOI",
             "DIETA PASTOSA HOMOGENEA - ISIS YU NA CHOI",
-            "DIETA PASTOSA HOMOGÊNEA - RICHARD LEAL"
+            "DIETA PASTOSA HOMOGÊNEA - RICHARD LEAL",
             "SÍNDROME DE PALLISTER-KILLIAN - GIOVANNA GONÇALVES",
         ]
         qtd = ProtocoloPadraoDietaEspecial.objects.filter(

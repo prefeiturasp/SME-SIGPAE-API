@@ -348,7 +348,11 @@ def _processa_periodo_campo(
     except (TypeError, AttributeError, ValueError) as exception:
         valores.append("-")
         logger.error(
-            f"Erro ao atribuir valores para a solicitacao {solicitacao.uuid} para o campo {campo} no período {periodo} e turma {turma}:",
+            "Erro ao atribuir valores para a solicitacao %s para o campo %s no período %s e turma %s: %s",
+            solicitacao.uuid,
+            campo,
+            periodo,
+            turma,
             exception,
         )
     except Exception:

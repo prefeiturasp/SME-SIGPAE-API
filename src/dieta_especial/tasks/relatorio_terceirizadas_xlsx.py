@@ -14,6 +14,7 @@ from src.dieta_especial.solicitacao_dieta_especial.api.serializers import (
 )
 from src.dieta_especial.tasks.utils.relatorio_terceirizadas_xlsx import (
     build_xlsx_relatorio_terceirizadas,
+    nome_protocolo_da_solicitacao,
 )
 from src.perfil.models import Usuario
 
@@ -50,15 +51,7 @@ def gera_xlsx_relatorio_dietas_especiais_terceirizadas_async(
                 "nome_aluno": solicitacao.aluno.nome,
                 "nome_escola": solicitacao.escola.nome,
                 "classificacao": classificacao,
-                "protocolo_padrao": (
-                    solicitacao.nome_protocolo
-                    if solicitacao.nome_protocolo
-                    else (
-                        solicitacao.protocolo_padrao.nome_protocolo
-                        if solicitacao.protocolo_padrao
-                        else "--"
-                    )
-                ),
+                "protocolo_padrao": nome_protocolo_da_solicitacao(solicitacao),
                 "alergias_intolerancias": solicitacao.alergias_intolerancias,
             }
             if data.get("status_selecionado") == "CANCELADAS":

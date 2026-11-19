@@ -85,13 +85,10 @@ def usuario_nao_possui_vinculo_valido(usuario: Usuario):
 
 
 def usuario_com_coresso_validation(visao, subdivisao):
-    if visao == Perfil.CODAE:
-        if not subdivisao:
-            raise serializers.ValidationError(
-                {
-                    "detail": f"É necessário Informar a subdivisão da visão {Perfil.CODAE}"
-                }
-            )
+    if visao == Perfil.CODAE and not subdivisao:
+        raise serializers.ValidationError(
+            {"detail": f"É necessário Informar a subdivisão da visão {Perfil.CODAE}"}
+        )
 
 
 def checa_senha(usuario, senha):

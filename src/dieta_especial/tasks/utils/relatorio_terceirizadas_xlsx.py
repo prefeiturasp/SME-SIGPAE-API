@@ -45,6 +45,15 @@ def build_titulo(lotes, status, classificacoes, protocolos, data_inicial, data_f
     return titulo
 
 
+def nome_protocolo_da_solicitacao(solicitacao):
+    """Nome do protocolo, com fallback para o protocolo padrão e "--"."""
+    if solicitacao.nome_protocolo:
+        return solicitacao.nome_protocolo
+    if solicitacao.protocolo_padrao:
+        return solicitacao.protocolo_padrao.nome_protocolo
+    return "--"
+
+
 def build_xlsx_relatorio_terceirizadas(
     output,
     serializer,

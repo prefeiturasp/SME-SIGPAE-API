@@ -79,6 +79,8 @@ from .services import (
     obter_ocorrencia_diretor,
 )
 
+ROTULO_TODOS_OS_RELATORIOS = "Todos os Relatórios"
+
 
 class PeriodoVisitaModelViewSet(
     mixins.ListModelMixin,
@@ -268,7 +270,7 @@ class FormularioSupervisaoModelViewSet(
                     else FormularioSupervisaoWorkflow.states[workflow].title
                 )
             except KeyError:
-                return "Todos os Relatórios"
+                return ROTULO_TODOS_OS_RELATORIOS
 
         rotulos = {
             FormularioSupervisaoWorkflow.EM_PREENCHIMENTO: "Em preenchimento pela Supervisão",
@@ -277,9 +279,9 @@ class FormularioSupervisaoModelViewSet(
             FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO: "Corrigidos pela Supervisão",
             FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE: "Validados pela CODAE",
             FormularioSupervisaoWorkflow.APROVADO: "Aprovados",
-            "TODOS_OS_RELATORIOS": "Todos os Relatórios",
+            "TODOS_OS_RELATORIOS": ROTULO_TODOS_OS_RELATORIOS,
         }
-        return rotulos.get(workflow, "Todos os Relatórios")
+        return rotulos.get(workflow, ROTULO_TODOS_OS_RELATORIOS)
 
     def dados_dashboard(self, query_set: QuerySet, novo_painel: bool = True) -> list:
         sumario = []

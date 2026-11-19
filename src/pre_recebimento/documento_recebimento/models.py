@@ -15,10 +15,10 @@ from src.pre_recebimento.cronograma_entrega.models import Cronograma
 from src.relatorios.utils import merge_pdf_com_string_template
 
 from ...dados_comuns.behaviors import (
-    TemLogs,
     ModeloBase,
     TemChaveExterna,
     TemIdentificadorExternoAmigavel,
+    TemLogs,
 )
 from ...dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from ...dados_comuns.fluxo_status import (
@@ -53,9 +53,8 @@ class ArquivoDoTipoDeDocumento(TemChaveExterna):
 
     def delete(self, *args, **kwargs):
         # Antes de excluir o objeto, exclui o arquivo associado
-        if self.arquivo:
-            if os.path.isfile(self.arquivo.path):
-                os.remove(self.arquivo.path)
+        if self.arquivo and os.path.isfile(self.arquivo.path):
+            os.remove(self.arquivo.path)
         super().delete(*args, **kwargs)
 
     class Meta:
