@@ -1659,7 +1659,6 @@ def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
     logs = LogAlunosMatriculadosFaixaEtariaDia.objects.filter(
         escola=escola, data__month=mes, data__year=ano
     )
-    dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
     logs_ = list(
         set(
             logs.values_list(
@@ -1669,6 +1668,9 @@ def validate_lancamento_alimentacoes_medicao_cei(solicitacao, lista_erros):
     )
 
     for medicao in solicitacao.medicoes.all():
+        dias_letivos_geral = obter_periodos_corretos(
+            solicitacao, escola, medicao.periodo_escolar
+        )
         dias_letivos = dias_letivos_geral["default"]
         if medicao.periodo_escolar:
             dias_letivos = (
@@ -4803,10 +4805,12 @@ def validate_lancamento_alimentacoes_medicao_emebs(solicitacao, lista_erros):
     escola = solicitacao.escola
     tipo_unidade = escola.tipo_unidade
     categoria_medicao = CategoriaMedicao.objects.get(nome=CategoriaMedicao.ALIMENTACAO)
-    dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
     for periodo_escolar in escola.periodos_escolares(
         ano=solicitacao.ano, mes=solicitacao.mes
     ):
+        dias_letivos_geral = obter_periodos_corretos(
+            solicitacao, escola, periodo_escolar
+        )
         dias_letivos = (
             dias_letivos_geral["noite"]
             if periodo_escolar.nome == "NOITE"
