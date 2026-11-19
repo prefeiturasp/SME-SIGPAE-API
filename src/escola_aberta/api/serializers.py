@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 
 from src.cardapio.base.models import TipoAlimentacao
 from src.core.models import Escola, Lote
+from src.dados_comuns.constants import FORMATO_DATA_BRASILEIRO
 from src.dados_comuns.utils import parse_date
 
 from ..models import (
@@ -180,8 +181,8 @@ class EscolaAbertaUnidadeParticipanteReadSerializer(serializers.ModelSerializer)
 
 
 class EscolaAbertaReadSerializer(serializers.ModelSerializer):
-    data_inicial = serializers.DateField(format="%d/%m/%Y")
-    data_final = serializers.DateField(format="%d/%m/%Y")
+    data_inicial = serializers.DateField(format=FORMATO_DATA_BRASILEIRO)
+    data_final = serializers.DateField(format=FORMATO_DATA_BRASILEIRO)
     unidades_participantes = EscolaAbertaUnidadeParticipanteReadSerializer(many=True)
 
     class Meta:
@@ -199,10 +200,14 @@ class EscolaAbertaReadSerializer(serializers.ModelSerializer):
 class EscolaAbertaPorEscolaSerializer(serializers.ModelSerializer):
     uuid = serializers.UUIDField(source="escola_aberta.uuid", read_only=True)
     data_inicial = serializers.DateField(
-        source="escola_aberta.data_inicial", format="%d/%m/%Y", read_only=True
+        source="escola_aberta.data_inicial",
+        format=FORMATO_DATA_BRASILEIRO,
+        read_only=True,
     )
     data_final = serializers.DateField(
-        source="escola_aberta.data_final", format="%d/%m/%Y", read_only=True
+        source="escola_aberta.data_final",
+        format=FORMATO_DATA_BRASILEIRO,
+        read_only=True,
     )
     dias_semana = serializers.ListField(
         source="escola_aberta.dias_semana",

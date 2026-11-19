@@ -99,7 +99,7 @@ def remove_acentos(texto):
     return resultado
 
 
-def update_datetime_LogAlunosMatriculadosPeriodoEscola(data_referencia=None):
+def update_datetime_log_alunos_matriculados_periodo_escola(data_referencia=None):
     from src.core.models import LogAlunosMatriculadosPeriodoEscola
 
     data_referencia = _normaliza_data_referencia_matriculados(data_referencia)
@@ -170,7 +170,7 @@ def registra_quantidade_matriculados(matriculas, ontem, tipo_turma):  # noqa C90
             tipo_turma=tipo_turma, escola=escola
         ).exclude(periodo_escolar__in=periodos).delete()
     AlunosMatriculadosPeriodoEscola.objects.bulk_update(objs, ["quantidade_alunos"])
-    update_datetime_LogAlunosMatriculadosPeriodoEscola(ontem)
+    update_datetime_log_alunos_matriculados_periodo_escola(ontem)
 
 
 def create_update_objeto_escola_periodo_escolar(
@@ -202,7 +202,7 @@ def duplica_dia_anterior(dre, dois_dias_atras, ontem, tipo_turma_name):
             data=ontem,
             tipo_turma=tipo_turma_name,
         )
-    update_datetime_LogAlunosMatriculadosPeriodoEscola(ontem)
+    update_datetime_log_alunos_matriculados_periodo_escola(ontem)
 
 
 def registro_quantidade_alunos_matriculados_por_escola_periodo(
@@ -471,18 +471,16 @@ def analise_alunos_dietas_somente_uma_data(
         data_inicial is not None
         and data_final is not None
         and data_inicial == data_final
+        and datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")
+        and str(dieta.status) == "CODAE_AUTORIZADO"
     ):
-        if (
-            datetime_autorizacao < datetime.strptime(data_inicial, "%Y-%m-%d")
-            and str(dieta.status) == "CODAE_AUTORIZADO"
-        ):
-            alunos_com_dietas_autorizadas.append(
-                {
-                    "aluno": dieta.aluno.nome,
-                    "tipo_dieta": dieta.classificacao.nome,
-                    "data_autorizacao": dieta.data_autorizacao,
-                }
-            )
+        alunos_com_dietas_autorizadas.append(
+            {
+                "aluno": dieta.aluno.nome,
+                "tipo_dieta": dieta.classificacao.nome,
+                "data_autorizacao": dieta.data_autorizacao,
+            }
+        )
     return alunos_com_dietas_autorizadas
 
 

@@ -48,7 +48,7 @@ from ..utils import (
     string_to_faixa,
     string_to_meses,
     trata_filtro_data_relatorio_controle_frequencia_pdf,
-    update_datetime_LogAlunosMatriculadosPeriodoEscola,
+    update_datetime_log_alunos_matriculados_periodo_escola,
 )
 
 pytestmark = pytest.mark.django_db
@@ -150,7 +150,7 @@ def test_update_datetime_log_alunos_matriculados_periodo_escola(
         == 1
     )
 
-    update_datetime_LogAlunosMatriculadosPeriodoEscola()
+    update_datetime_log_alunos_matriculados_periodo_escola()
     assert LogAlunosMatriculadosPeriodoEscola.objects.count() == 2
     assert (
         LogAlunosMatriculadosPeriodoEscola.objects.filter(

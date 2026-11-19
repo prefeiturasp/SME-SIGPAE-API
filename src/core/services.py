@@ -206,7 +206,7 @@ class NovoSGPServicoLogado:
         """
         return self._request(
             "GET",
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/" f"{codigo_eol_aluno}/foto",
+            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
         )
 
     def atualizar_foto_aluno(self, codigo_eol_aluno, foto):
@@ -220,12 +220,12 @@ class NovoSGPServicoLogado:
 
         return self._request(
             "POST",
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/" f"{codigo_eol_aluno}/foto",
+            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
             files=files,
         )
 
     def deletar_foto_aluno(self, codigo_eol_aluno):
         return self._request(
             "DELETE",
-            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/" f"{codigo_eol_aluno}/foto",
+            f"{DJANGO_NOVO_SGP_API_URL}/v1/estudante/{codigo_eol_aluno}/foto",
         )

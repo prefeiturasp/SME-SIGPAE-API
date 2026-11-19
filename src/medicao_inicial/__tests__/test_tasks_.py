@@ -34,7 +34,7 @@ from src.medicao_inicial.tasks import (
     gera_pdf_relatorio_financeiro_async,
     gera_pdf_relatorio_solicitacao_medicao_por_escola_async,
     gera_pdf_relatorio_unificado_async,
-    processa_relatorio_lançamentos,
+    processa_relatorio_lancamentos,
     solicitacao_medicao_atual_existe,
 )
 from src.perfil.models.usuario import Usuario
@@ -587,7 +587,7 @@ def test_processa_relatorio_lancamentos(
         TIPOS_UNIDADE_ESCOLAR.CEU_CEI.value,
     ]
 
-    processa_relatorio_lançamentos(ids, tipos, merger, central)
+    processa_relatorio_lancamentos(ids, tipos, merger, central)
 
     assert len(merger.pages) == len(solicitacoes_cei_relatorio_unificado)
 
@@ -604,7 +604,7 @@ def test_processa_relatorio_lancamentos_exception(
     ids = [s.uuid for s in solicitacoes_cei_relatorio_unificado]
     tipos = ["Não", "Existe"]
     with pytest.raises(ValueError, match="Unidades inválidas"):
-        processa_relatorio_lançamentos(ids, tipos, merger, central)
+        processa_relatorio_lancamentos(ids, tipos, merger, central)
 
 
 class CriaSolicitacaoMedicaoInicialMesAtualUsuarioAdmin(TestCase):
@@ -1063,7 +1063,7 @@ def test_processa_relatorio_lancamentos_com_recreio(
         gerar_pdf_fake,
     )
 
-    processa_relatorio_lançamentos(ids, tipos, merger, central, contem_recreio=True)
+    processa_relatorio_lancamentos(ids, tipos, merger, central, contem_recreio=True)
 
     assert len(merger.pages) == 1
 
@@ -1093,7 +1093,7 @@ def test_processa_relatorio_lancamentos_com_recreio_cemei(
         gerar_pdf_fake,
     )
 
-    processa_relatorio_lançamentos(ids, tipos, merger, central, contem_recreio=True)
+    processa_relatorio_lancamentos(ids, tipos, merger, central, contem_recreio=True)
 
     assert len(merger.pages) == 1
 
@@ -1109,7 +1109,7 @@ def test_processa_relatorio_lancamentos_sem_recreio(
     ids = [solicitacao_recreio_nas_ferias.uuid]
     tipos = [TIPOS_UNIDADE_ESCOLAR.EMEF.value]
 
-    processa_relatorio_lançamentos(ids, tipos, merger, central)
+    processa_relatorio_lancamentos(ids, tipos, merger, central)
 
     assert len(merger.pages) == 1
 

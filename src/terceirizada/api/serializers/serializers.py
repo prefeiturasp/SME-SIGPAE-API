@@ -93,7 +93,6 @@ class ContratoEditalSerializer(serializers.ModelSerializer):
 class ModalidadeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Modalidade
-        # fields = "__all__"
         exclude = ("id",)
 
 

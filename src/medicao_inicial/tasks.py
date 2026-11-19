@@ -326,7 +326,7 @@ def gera_pdf_relatorio_unificado_async(
         merger_lancamentos = PdfWriter()
         merger_arquivo_final = PdfWriter()
 
-        processa_relatorio_lançamentos(
+        processa_relatorio_lancamentos(
             ids_solicitacoes,
             tipos_de_unidade,
             merger_lancamentos,
@@ -345,7 +345,7 @@ def gera_pdf_relatorio_unificado_async(
     logger.info(f"x-x-x-x Finaliza a geração do arquivo {nome_arquivo} x-x-x-x")
 
 
-def processa_relatorio_lançamentos(
+def processa_relatorio_lancamentos(
     ids_solicitacoes: list[UUID],
     tipos_de_unidade: list[str],
     merger_lancamentos: PdfWriter,

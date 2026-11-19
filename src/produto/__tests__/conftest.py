@@ -1211,7 +1211,6 @@ def mock_view_de_produtos(client_autenticado_vinculo_terceirizada, numero_editai
 
     viewset = ProdutoViewSet()
     viewset.request = mock_request
-    # viewset.kwargs = {"uuid": "uuid"}
     viewset.get_serializer = ProdutoReclamacaoSerializer
 
     return mock_request, viewset

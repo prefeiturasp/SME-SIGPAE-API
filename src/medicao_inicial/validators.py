@@ -217,11 +217,10 @@ def buscar_valores_lancamento_alimentacoes(
         if len(valores_da_medicao) != len(dias_letivos):
             diferenca = list(set(dias_letivos) - set(valores_da_medicao))
             for dia_sem_preenchimento in diferenca:
-                if nome_campo in ALIMENTACOES_LANCAMENTOS_ESPECIAIS and (
-                    (
-                        not permissoes_especiais_agrupadas_por_dia.get(
-                            dia_sem_preenchimento
-                        )
+                if (
+                    nome_campo in ALIMENTACOES_LANCAMENTOS_ESPECIAIS
+                    and not permissoes_especiais_agrupadas_por_dia.get(
+                        dia_sem_preenchimento
                     )
                 ):
                     continue

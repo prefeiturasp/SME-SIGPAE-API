@@ -4050,7 +4050,7 @@ def test_formata_unidades_sem_lancamento(informacoes_excel_writer_sem_lancamento
     workbook_openpyxl.close()
 
 
-def test_gera_relatorio_consolidado_xlsx_unidades_sem_lançamento(
+def test_gera_relatorio_consolidado_xlsx_unidades_sem_lancamento(
     solicitacao_sem_lancamento, mock_query_params_excel_recreio_emei
 ):
     mock_query_params_excel_recreio_emei["mes"] = solicitacao_sem_lancamento.mes

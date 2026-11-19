@@ -170,7 +170,7 @@ def test_tipos_ocorrencias_escola_does_not_exist(
     client.logout()
 
 
-def test_tipos_ocorrencias_edital_ou_escola_UUID_invalido(
+def test_tipos_ocorrencias_edital_ou_escola_uuid_invalido(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     escola_factory,
     edital_factory,
@@ -505,7 +505,7 @@ def test_dashboard_contagem_por_status_respeita_as_quantidades(
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
     escola = escola_factory.create()
-    
+
     quantidades_esperadas = {
         "EM_PREENCHIMENTO": 2,
         "NUTRIMANIFESTACAO_A_VALIDAR": 1,
@@ -1073,6 +1073,7 @@ def test_get_lista_nomes_nutricionistas(
     results = response.json()["results"]
     assert len(results) == 3
 
+
 @pytest.mark.parametrize(
     "nome_perfil",
     [
@@ -1108,16 +1109,19 @@ def test_perfis_codae_acessam_dashboard_novo(
         ativo=True,
     )
     client.login(username=usuario.username, password=senha)
-    resposta = client.get("/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"})
+    resposta = client.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"}
+    )
     assert resposta.status_code == status.HTTP_200_OK
 
 
-def test_diretor_escola_nao_acessa_dashboard_novo(
-    client_autenticado_diretor_escola
-):
+def test_diretor_escola_nao_acessa_dashboard_novo(client_autenticado_diretor_escola):
     cliente = client_autenticado_diretor_escola["client"]
-    resposta = cliente.get("/imr/formulario-supervisao/dashboard/",{"novo_painel": "true"})
+    resposta = cliente.get(
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "true"}
+    )
     assert resposta.status_code == status.HTTP_403_FORBIDDEN
+
 
 def test_dashboard_filtra_relatorios_por_mes(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
@@ -1125,15 +1129,9 @@ def test_dashboard_filtra_relatorios_por_mes(
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
 
-    formulario_supervisao_factory.create(
-        formulario_base__data="2026-09-01"
-    )
-    formulario_supervisao_factory.create(
-        formulario_base__data="2026-09-30"
-    )
-    formulario_supervisao_factory.create(
-        formulario_base__data="2026-10-01"
-    )
+    formulario_supervisao_factory.create(formulario_base__data="2026-09-01")
+    formulario_supervisao_factory.create(formulario_base__data="2026-09-30")
+    formulario_supervisao_factory.create(formulario_base__data="2026-10-01")
 
     resposta = cliente.get(
         "/imr/formulario-supervisao/dashboard/",
@@ -1153,28 +1151,22 @@ def test_dashboard_filtra_relatorios_por_mes(
 def test_dashboard_filtra_relatorios_por_ano(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
-    escola_factory
+    escola_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
     escola = escola_factory.create()
-    datas_visitas = [
-        "2026-01-01",
-        "2026-12-31",
-        "2025-12-31",
-        "2027-01-01"
-    ]
+    datas_visitas = ["2026-01-01", "2026-12-31", "2025-12-31", "2027-01-01"]
 
     for data_visita in datas_visitas:
         formulario_supervisao_factory.create(
             escola=escola,
             formulario_base__usuario=usuario,
-            formulario_base__data=data_visita
+            formulario_base__data=data_visita,
         )
 
     resposta = cliente.get(
-        "/imr/formulario-supervisao/dashboard/",
-        {"novo_painel": "true", "ano": 2026}
+        "/imr/formulario-supervisao/dashboard/", {"novo_painel": "true", "ano": 2026}
     )
 
     assert resposta.status_code == status.HTTP_200_OK
@@ -1190,7 +1182,7 @@ def test_dashboard_filtra_relatorios_por_dre(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
     escola_factory,
-    diretoria_regional_factory
+    diretoria_regional_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
@@ -1203,12 +1195,12 @@ def test_dashboard_filtra_relatorios_por_dre(
         formulario_supervisao_factory.create(
             escola=escola,
             formulario_base__usuario=usuario,
-            formulario_base__data="2026-09-10"
+            formulario_base__data="2026-09-10",
         )
 
     resposta = cliente.get(
         "/imr/formulario-supervisao/dashboard/",
-        {"novo_painel": "true", "diretoria_regional": str(diretoria.uuid)}
+        {"novo_painel": "true", "diretoria_regional": str(diretoria.uuid)},
     )
 
     assert resposta.status_code == status.HTTP_200_OK
@@ -1223,7 +1215,7 @@ def test_dashboard_filtra_relatorios_por_dre(
 def test_filtros_dre_mes_e_ano_mantem_dashboard_e_listagem_coerentes(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
-    escola_factory
+    escola_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
@@ -1232,34 +1224,33 @@ def test_filtros_dre_mes_e_ano_mantem_dashboard_e_listagem_coerentes(
     relatorio_inicio = formulario_supervisao_factory.create(
         escola=escola,
         formulario_base__usuario=usuario,
-        formulario_base__data="2026-09-01"
+        formulario_base__data="2026-09-01",
     )
     relatorio_fim = formulario_supervisao_factory.create(
         escola=escola,
         formulario_base__usuario=usuario,
         formulario_base__data="2026-09-30",
-        status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR
+        status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR,
     )
 
     for escola_relatorio, data_visita in [
         (escola, "2026-08-31"),
         (escola, "2025-09-10"),
-        (escola_de_outra_dre, "2026-09-10")
+        (escola_de_outra_dre, "2026-09-10"),
     ]:
         formulario_supervisao_factory.create(
             escola=escola_relatorio,
             formulario_base__usuario=usuario,
-            formulario_base__data=data_visita
+            formulario_base__data=data_visita,
         )
 
     parametros = {
         "diretoria_regional": str(escola.diretoria_regional.uuid),
         "mes": 9,
-        "ano": 2026
+        "ano": 2026,
     }
     resposta_dashboard = cliente.get(
-        "/imr/formulario-supervisao/dashboard/",
-        {**parametros, "novo_painel": "true"}
+        "/imr/formulario-supervisao/dashboard/", {**parametros, "novo_painel": "true"}
     )
 
     assert resposta_dashboard.status_code == status.HTTP_200_OK
@@ -1271,9 +1262,7 @@ def test_filtros_dre_mes_e_ano_mantem_dashboard_e_listagem_coerentes(
     assert totais["NUTRIMANIFESTACAO_A_VALIDAR"] == 1
     assert sum(totais.values()) == 2
 
-    resposta_listagem = cliente.get(
-        "/imr/formulario-supervisao/", parametros
-    )
+    resposta_listagem = cliente.get("/imr/formulario-supervisao/", parametros)
 
     assert resposta_listagem.status_code == status.HTTP_200_OK
     dados_listagem = resposta_listagem.json()
@@ -1282,21 +1271,17 @@ def test_filtros_dre_mes_e_ano_mantem_dashboard_e_listagem_coerentes(
     for resultado in dados_listagem["results"]:
         uuids_retornados.add(resultado["uuid"])
 
-    assert uuids_retornados == {
-        str(relatorio_inicio.uuid),
-        str(relatorio_fim.uuid)
-    }
+    assert uuids_retornados == {str(relatorio_inicio.uuid), str(relatorio_fim.uuid)}
 
 
 def test_dashboard_filtros_sem_correspondencia_retornam_cards_zerados(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
-    formulario_supervisao_factory
+    formulario_supervisao_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
     relatorio = formulario_supervisao_factory.create(
-        formulario_base__usuario=usuario,
-        formulario_base__data="2026-09-10"
+        formulario_base__usuario=usuario, formulario_base__data="2026-09-10"
     )
     diretoria = relatorio.escola.diretoria_regional
 
@@ -1306,8 +1291,8 @@ def test_dashboard_filtros_sem_correspondencia_retornam_cards_zerados(
             "novo_painel": "true",
             "diretoria_regional": str(diretoria.uuid),
             "mes": 10,
-            "ano": 2026
-        }
+            "ano": 2026,
+        },
     )
 
     assert resposta.status_code == status.HTTP_200_OK
@@ -1320,23 +1305,15 @@ def test_dashboard_filtros_sem_correspondencia_retornam_cards_zerados(
 @pytest.mark.parametrize(
     "rota",
     ["/imr/formulario-supervisao/dashboard/", "/imr/formulario-supervisao/"],
-    ids=["dashboard", "listagem"]
+    ids=["dashboard", "listagem"],
 )
 @pytest.mark.parametrize(
     "campo, valor",
     [("mes", 0), ("mes", 13), ("mes", "abc"), ("ano", "abc")],
-    ids=[
-        "mes_zero",
-        "mes_maior_que_doze",
-        "mes_nao_numerico",
-        "ano_nao_numerico"
-    ]
+    ids=["mes_zero", "mes_maior_que_doze", "mes_nao_numerico", "ano_nao_numerico"],
 )
 def test_filtros_rejeitam_valores_invalidos(
-    client_autenticado_vinculo_coordenador_supervisao_nutricao,
-    rota,
-    campo,
-    valor
+    client_autenticado_vinculo_coordenador_supervisao_nutricao, rota, campo, valor
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
 
@@ -1349,7 +1326,7 @@ def test_filtros_rejeitam_valores_invalidos(
 def test_dashboard_status_selecionado_nao_restringe_totais_dos_cards(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
-    escola_factory
+    escola_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
@@ -1358,13 +1335,13 @@ def test_dashboard_status_selecionado_nao_restringe_totais_dos_cards(
         2,
         escola=escola,
         formulario_base__usuario=usuario,
-        formulario_base__data="2026-09-10"
+        formulario_base__data="2026-09-10",
     )
     formulario_supervisao_factory.create(
         escola=escola,
         formulario_base__usuario=usuario,
         formulario_base__data="2026-09-10",
-        status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR
+        status=FormularioSupervisao.workflow_class.NUTRIMANIFESTACAO_A_VALIDAR,
     )
 
     resposta = cliente.get(
@@ -1374,8 +1351,8 @@ def test_dashboard_status_selecionado_nao_restringe_totais_dos_cards(
             "diretoria_regional": str(escola.diretoria_regional.uuid),
             "mes": 9,
             "ano": 2026,
-            "status": "EM_PREENCHIMENTO"
-        }
+            "status": "EM_PREENCHIMENTO",
+        },
     )
 
     assert resposta.status_code == status.HTTP_200_OK
@@ -1393,16 +1370,16 @@ def test_dashboard_status_selecionado_nao_restringe_totais_dos_cards(
     [
         ({"mes": 9}, ["10/09/2026", "10/09/2025"]),
         ({"ano": 2026}, ["10/09/2026", "10/10/2026"]),
-        ({"mes": 9, "ano": 2026}, ["10/09/2026"])
+        ({"mes": 9, "ano": 2026}, ["10/09/2026"]),
     ],
-    ids=["mes", "ano", "mes_e_ano"]
+    ids=["mes", "ano", "mes_e_ano"],
 )
 def test_listagem_filtra_relatorios_por_mes_e_ano(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
     escola_factory,
     parametros,
-    datas_esperadas
+    datas_esperadas,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
@@ -1412,7 +1389,7 @@ def test_listagem_filtra_relatorios_por_mes_e_ano(
         formulario_supervisao_factory.create(
             escola=escola,
             formulario_base__usuario=usuario,
-            formulario_base__data=data_visita
+            formulario_base__data=data_visita,
         )
 
     resposta = cliente.get("/imr/formulario-supervisao/", parametros)
@@ -1430,14 +1407,12 @@ def test_listagem_filtra_relatorios_por_mes_e_ano(
 def test_listagem_preserva_relatorios_distintos_da_mesma_escola(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
-    escola_factory
+    escola_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
     escola = escola_factory.create(
-        nome="EMEI ESCOLA DE TESTE",
-        codigo_eol="000054",
-        tipo_unidade__iniciais="EMEI"
+        nome="EMEI ESCOLA DE TESTE", codigo_eol="000054", tipo_unidade__iniciais="EMEI"
     )
     relatorios_esperados = {}
 
@@ -1447,20 +1422,20 @@ def test_listagem_preserva_relatorios_distintos_da_mesma_escola(
             "2026-09-02",
             "02/09/2026",
             "NUTRIMANIFESTACAO_A_VALIDAR",
-            "Enviado para CODAE"
+            "Enviado para CODAE",
         ),
         (
             "2026-09-03",
             "03/09/2026",
             "CORRIGIDO_PELA_SUPERVISAO",
-            "Corrigido pela Supervisão"
-        )
+            "Corrigido pela Supervisão",
+        ),
     ]:
         relatorio = formulario_supervisao_factory.create(
             escola=escola,
             formulario_base__usuario=usuario,
             formulario_base__data=data_visita,
-            status=status_relatorio
+            status=status_relatorio,
         )
         relatorios_esperados[str(relatorio.uuid)] = {
             "uuid": str(relatorio.uuid),
@@ -1469,12 +1444,12 @@ def test_listagem_preserva_relatorios_distintos_da_mesma_escola(
             "codigo_eol": "000054",
             "tipo_unidade": "EMEI",
             "data": data_formatada,
-            "status": descricao_status
+            "status": descricao_status,
         }
 
     resposta = cliente.get(
         "/imr/formulario-supervisao/",
-        {"unidade_educacional": str(escola.uuid), "mes": 9, "ano": 2026}
+        {"unidade_educacional": str(escola.uuid), "mes": 9, "ano": 2026},
     )
 
     assert resposta.status_code == status.HTTP_200_OK
@@ -1492,7 +1467,7 @@ def test_listagem_preserva_relatorios_distintos_da_mesma_escola(
 def test_alteracao_status_atualiza_listagem_e_cards_sem_duplicar_relatorio(
     client_autenticado_vinculo_coordenador_supervisao_nutricao,
     formulario_supervisao_factory,
-    escola_factory
+    escola_factory,
 ):
     cliente = client_autenticado_vinculo_coordenador_supervisao_nutricao[0]
     usuario = client_autenticado_vinculo_coordenador_supervisao_nutricao[1]
@@ -1501,24 +1476,23 @@ def test_alteracao_status_atualiza_listagem_e_cards_sem_duplicar_relatorio(
         escola=escola,
         formulario_base__usuario=usuario,
         formulario_base__data="2026-09-02",
-        status="EM_PREENCHIMENTO"
+        status="EM_PREENCHIMENTO",
     )
     outro_relatorio = formulario_supervisao_factory.create(
         escola=escola,
         formulario_base__usuario=usuario,
         formulario_base__data="2026-09-03",
-        status="NUTRIMANIFESTACAO_A_VALIDAR"
+        status="NUTRIMANIFESTACAO_A_VALIDAR",
     )
     parametros = {
         "diretoria_regional": str(escola.diretoria_regional.uuid),
         "mes": 9,
-        "ano": 2026
+        "ano": 2026,
     }
 
     resposta_listagem = cliente.get("/imr/formulario-supervisao/", parametros)
     resposta_dashboard = cliente.get(
-        "/imr/formulario-supervisao/dashboard/",
-        {**parametros, "novo_painel": "true"}
+        "/imr/formulario-supervisao/dashboard/", {**parametros, "novo_painel": "true"}
     )
 
     assert resposta_listagem.status_code == status.HTTP_200_OK
@@ -1528,19 +1502,15 @@ def test_alteracao_status_atualiza_listagem_e_cards_sem_duplicar_relatorio(
     for resultado in resposta_listagem.json()["results"]:
         relatorios_esperados[resultado["uuid"]] = resultado
 
-    assert set(relatorios_esperados) == {
-        str(relatorio.uuid), str(outro_relatorio.uuid)
-    }
-    assert (
-        relatorios_esperados[str(relatorio.uuid)]["status"] == "Em Preenchimento"
-    )
+    assert set(relatorios_esperados) == {str(relatorio.uuid), str(outro_relatorio.uuid)}
+    assert relatorios_esperados[str(relatorio.uuid)]["status"] == "Em Preenchimento"
 
     totais_esperados = {
         "EM_PREENCHIMENTO": 1,
         "NUTRIMANIFESTACAO_A_VALIDAR": 1,
         "COM_COMENTARIOS_DE_CODAE": 0,
         "CORRIGIDO_PELA_SUPERVISAO": 0,
-        "VALIDADO_POR_CODAE": 0
+        "VALIDADO_POR_CODAE": 0,
     }
     totais_iniciais = {}
     for resultado in resposta_dashboard.json()["results"]:
@@ -1554,8 +1524,7 @@ def test_alteracao_status_atualiza_listagem_e_cards_sem_duplicar_relatorio(
 
     resposta_listagem = cliente.get("/imr/formulario-supervisao/", parametros)
     resposta_dashboard = cliente.get(
-        "/imr/formulario-supervisao/dashboard/",
-        {**parametros, "novo_painel": "true"}
+        "/imr/formulario-supervisao/dashboard/", {**parametros, "novo_painel": "true"}
     )
 
     assert resposta_listagem.status_code == status.HTTP_200_OK

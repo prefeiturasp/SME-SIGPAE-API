@@ -438,9 +438,8 @@ class AnexosFormularioBase(ModeloBase):
         return f"{self.anexo.name} - {self.formulario_base.__str__()}"
 
     def delete(self, *args, **kwargs):
-        if self.anexo:
-            if os.path.isfile(self.anexo.path):
-                os.remove(self.anexo.path)
+        if self.anexo and os.path.isfile(self.anexo.path):
+            os.remove(self.anexo.path)
         super().delete(*args, **kwargs)
 
     class Meta:

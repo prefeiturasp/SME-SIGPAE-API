@@ -756,13 +756,13 @@ class RequisicoesExcelService(object):
             if (
                 requisicao["guias__alimentos__embalagens__tipo_embalagem"]
                 == "FRACIONADA"
+                and "reposicao_alimento" in requisicao
             ):
-                if "reposicao_alimento" in requisicao:
-                    ws.cell(
-                        row=ind,
-                        column=32,
-                        value=requisicao["reposicao_alimento"].qtd_recebido,
-                    )
+                ws.cell(
+                    row=ind,
+                    column=32,
+                    value=requisicao["reposicao_alimento"].qtd_recebido,
+                )
             if "primeira_reposicao" in requisicao:
                 ws.cell(
                     row=ind,
@@ -1203,13 +1203,13 @@ class RequisicoesExcelService(object):
             if (
                 requisicao["guias__alimentos__embalagens__tipo_embalagem"]
                 == "FRACIONADA"
+                and "reposicao_alimento" in requisicao
             ):
-                if "reposicao_alimento" in requisicao:
-                    ws.cell(
-                        row=ind,
-                        column=offset + 33,
-                        value=requisicao["reposicao_alimento"].qtd_recebido,
-                    )
+                ws.cell(
+                    row=ind,
+                    column=offset + 33,
+                    value=requisicao["reposicao_alimento"].qtd_recebido,
+                )
             if "primeira_reposicao" in requisicao:
                 ws.cell(
                     row=ind,

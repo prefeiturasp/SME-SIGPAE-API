@@ -149,13 +149,13 @@ def processar_situacao_a_receber(
     fichas_finais,
 ):
     """Processa o filtro de situação \"A Receber\" nas fichas de recebimento."""
-    if "A Receber" in situacoes:
-        if not fichas_recebimento or (
-            tem_fichas_com_ocorrencia and not tem_fichas_sem_ocorrencia
-        ):
-            incluir_etapa = True
-            if "Ocorrência" not in situacoes:
-                fichas_finais = []
+    if "A Receber" in situacoes and (
+        not fichas_recebimento
+        or (tem_fichas_com_ocorrencia and not tem_fichas_sem_ocorrencia)
+    ):
+        incluir_etapa = True
+        if "Ocorrência" not in situacoes:
+            fichas_finais = []
     return incluir_etapa, fichas_finais
 
 

@@ -27,15 +27,11 @@ def get_nome_periodo(medicao: Medicao) -> str:
     Returns:
         str: _Nome do período formatado de acordo com as regras descritas.
     """
-    return (
-        medicao.periodo_escolar.nome
-        if not medicao.grupo
-        else (
-            f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
-            if medicao.periodo_escolar
-            else medicao.grupo.nome
-        )
-    )
+    if not medicao.grupo:
+        return medicao.periodo_escolar.nome
+    if medicao.periodo_escolar:
+        return f"{medicao.grupo.nome} - {medicao.periodo_escolar.nome}"
+    return medicao.grupo.nome
 
 
 def eh_medicao_extraordinaria(medicao: Medicao) -> bool:

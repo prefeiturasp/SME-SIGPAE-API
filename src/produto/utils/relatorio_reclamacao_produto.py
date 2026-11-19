@@ -49,7 +49,6 @@ def gerar_relatorio_reclamacao_produto_excel(
         dados=dados_reclamacao,
         titulo="Relatório de Acompanhamento de Reclamação de Produtos",
         subtitulo=subtitulo,
-        # titulo_sheet='Produtos',
         colunas=colunas,
     )
     return output

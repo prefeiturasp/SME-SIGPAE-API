@@ -360,13 +360,13 @@ def retorna_dados_normalizados_excel_entregas_distribuidor(queryset):  # noqa C9
                 if guia.conferencias.first():
                     conferencias = guia.conferencias.all().order_by("criado_em")
                     requisicao["primeira_conferencia"] = conferencias[0]
-                    conferencia_alimento = alinhaAlimentos(requisicao, conferencias[0])
+                    conferencia_alimento = alinha_alimentos(requisicao, conferencias[0])
                     if conferencia_alimento:
                         requisicao["conferencia_alimento"] = conferencia_alimento
                     for conferencia in conferencias:
                         if conferencia.eh_reposicao:
                             requisicao["primeira_reposicao"] = conferencia
-                            reposicao_alimento = alinhaAlimentos(
+                            reposicao_alimento = alinha_alimentos(
                                 requisicao, conferencia
                             )
                             if reposicao_alimento:
@@ -375,7 +375,7 @@ def retorna_dados_normalizados_excel_entregas_distribuidor(queryset):  # noqa C9
     return requisicoes
 
 
-def alinhaAlimentos(requisicao, conferencia):
+def alinha_alimentos(requisicao, conferencia):
     for conf_alim in conferencia.conferencia_dos_alimentos.all():
         if conf_alim.nome_alimento == requisicao["guias__alimentos__nome_alimento"]:
             return conf_alim

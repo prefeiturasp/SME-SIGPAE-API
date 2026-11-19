@@ -1448,8 +1448,8 @@ def grupos_da_dre(tipo_unidade_escolar):
     baker.make("Escola", diretoria_regional=dre, tipo_unidade=tipo_unidade_escolar)
     grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_1)
     grupo.tipos_unidades.add(tipo_unidade_escolar)
-    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_2)
-    grupo = baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_3)
+    baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_2)
+    baker.make("GrupoUnidadeEscolar", nome=models.GrupoUnidadeEscolar.GRUPO_3)
     return dre
 
 

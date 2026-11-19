@@ -3669,11 +3669,10 @@ def _popula_faixas_dias_recreio(
     primeira_faixa,
     logs_dietas,
 ):
-    if primeira_faixa:
-        if categoria_corrente == CHAVE_ALIMENTACAO_REGULAR:
-            valores_dia += [
-                _get_participantes_recreio_cei(solicitacao, tabela, indice_periodo, dia)
-            ]
+    if primeira_faixa and categoria_corrente == CHAVE_ALIMENTACAO_REGULAR:
+        valores_dia += [
+            _get_participantes_recreio_cei(solicitacao, tabela, indice_periodo, dia)
+        ]
     if categoria_corrente != CHAVE_ALIMENTACAO_REGULAR:
         popula_campo_aprovadas_cei(
             solicitacao,
