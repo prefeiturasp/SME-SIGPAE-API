@@ -25,6 +25,7 @@ from src.medicao_inicial.validators import (
     validate_lancamento_alimentacoes_medicao_cei,
     validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias,
     validate_lancamento_alimentacoes_medicao_emebs,
+    validate_lancamento_dietas_emef,
     validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_inclusoes_cei,
     validate_lancamento_inclusoes_dietas_emef_emebs,
@@ -109,6 +110,51 @@ def test_valida_medicoes_inexistentes_cemei_com_medicoes_lancadas(escola_cemei):
     lista_erros = valida_medicoes_inexistentes_cemei(solicitacao, [])
 
     assert lista_erros == []
+
+
+@freeze_time("2026-12-15")
+def test_validate_lancamento_dietas_emef_considera_logs_do_periodo_da_medicao(
+    escola_emef, categoria_medicao_dieta_a
+):
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes="12", ano="2026", escola=escola_emef
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo_manha,
+    )
+    baker.make(
+        "DiaCalendario",
+        escola=escola_emef,
+        data="2026-12-01",
+        dia_letivo=True,
+    )
+    baker.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola_emef,
+        criado_em="2026-12-01",
+        periodo_escolar=periodo_manha,
+        quantidade_alunos=100,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+    baker.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emef,
+        data="2026-12-01",
+        periodo_escolar=periodo_manha,
+        classificacao=classificacao,
+        quantidade=2,
+    )
+
+    lista_erros = validate_lancamento_dietas_emef(solicitacao, [])
+
+    assert any(
+        erro["periodo_escolar"] == "MANHA" and "dietas" in erro["erro"]
+        for erro in lista_erros
+    )
 
 
 def test_validate_lancamento_alimentacoes_medicao_cei(solicitacao_medicao_inicial_cei):
