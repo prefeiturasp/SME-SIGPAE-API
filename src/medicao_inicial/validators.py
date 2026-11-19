@@ -2851,11 +2851,13 @@ def validate_lancamento_dietas_emef(solicitacao, lista_erros):
             ).distinct()
         )
     )
-    dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
 
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
         for medicao in solicitacao.medicoes.all():
+            dias_letivos_geral = obter_periodos_corretos(
+                solicitacao, escola, medicao.periodo_escolar
+            )
             eh_noite = (
                 medicao.periodo_escolar and medicao.periodo_escolar.nome == "NOITE"
             )
@@ -5096,10 +5098,12 @@ def validate_lancamento_dietas_emebs(solicitacao, lista_erros):
         )
     )
 
-    dias_letivos_geral = obter_periodos_corretos(solicitacao, escola)
     for categoria in categorias:
         classificacoes = get_classificacoes_dietas(categoria)
         for medicao in solicitacao.medicoes.all():
+            dias_letivos_geral = obter_periodos_corretos(
+                solicitacao, escola, medicao.periodo_escolar
+            )
             eh_noite = (
                 medicao.periodo_escolar and medicao.periodo_escolar.nome == "NOITE"
             )
