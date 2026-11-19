@@ -256,6 +256,7 @@ class FormularioSupervisaoModelViewSet(
             FormularioSupervisaoWorkflow.COM_COMENTARIOS_DE_CODAE,
             FormularioSupervisaoWorkflow.CORRIGIDO_PELA_SUPERVISAO,
             FormularioSupervisaoWorkflow.VALIDADO_POR_CODAE,
+            "TODOS_OS_RELATORIOS",
         ]
 
     def get_label(self, workflow: str, novo_painel: bool = True) -> str:
@@ -392,6 +393,17 @@ class FormularioSupervisaoModelViewSet(
         )
         response = {"results": queryset}
         return Response(response)
+
+    @action(detail=False, methods=["GET"], url_path="meses-anos")
+    def meses_anos(self, request):
+        datas = self._filtrar_relatorios_dashboard(request).dates(
+            "formulario_base__data", "month", order="DESC"
+        )
+        meses_anos = []
+        for data in datas:
+            meses_anos.append({"mes": data.month, "ano": data.year})
+
+        return Response({"results": meses_anos})
 
     @action(
         detail=True,
