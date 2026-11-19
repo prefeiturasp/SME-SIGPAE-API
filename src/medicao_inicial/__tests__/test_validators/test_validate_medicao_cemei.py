@@ -3,8 +3,10 @@ from unittest.mock import patch
 import pytest
 from model_bakery import baker
 
+from src.inclusao_alimentacao.models import InclusaoDeAlimentacaoCEMEI
 from src.medicao_inicial.models import GrupoMedicao
 from src.medicao_inicial.validators import (
+    _validate_medicao_emei_cemei,
     validate_medicao_cemei_cei,
     validate_medicao_cemei_emei,
     validate_medicao_cemei_programas_e_projetos,
@@ -148,3 +150,54 @@ class TestValidateMedicaoCemeiEmei:
             validate_medicao_cemei_emei(solicitacao, [])
 
         assert mock_validate.call_count == 0
+
+    def test_gera_erro_de_dietas_para_infantil_manha_com_log_na(
+        self, escola_cemei, categoria_medicao
+    ):
+        solicitacao = _cria_solicitacao(escola_cemei)
+        medicao = _cria_medicao_com_grupo(solicitacao, GrupoMedicao.INFANTIL_MANHA)
+        periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+        classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+        baker.make("CategoriaMedicao", nome="DIETA ESPECIAL - TIPO A")
+        baker.make(
+            "LogQuantidadeDietasAutorizadas",
+            escola=escola_cemei,
+            data="2026-12-01",
+            periodo_escolar=periodo_manha,
+            classificacao=classificacao,
+            quantidade=2,
+            cei_ou_emei="N/A",
+        )
+
+        with patch(
+            "src.medicao_inicial.validators."
+            "validate_lancamento_alimentacoes_medicao_emei_cemei",
+            side_effect=lambda solicitacao, lista_erros, *args: lista_erros,
+        ), patch(
+            "src.medicao_inicial.validators."
+            "validate_lancamento_inclusoes_emei_cemei",
+            side_effect=lambda solicitacao, lista_erros, *args: lista_erros,
+        ):
+            lista_erros = _validate_medicao_emei_cemei(
+                [
+                    {
+                        "periodo_escolar": "INTEGRAL",
+                        "erro": "Restam dias a serem lançados nas dietas.",
+                    }
+                ],
+                solicitacao,
+                escola_cemei,
+                categoria_medicao,
+                [1],
+                InclusaoDeAlimentacaoCEMEI.objects.none(),
+                medicao,
+                "12",
+                "2026",
+                [],
+            )
+
+        assert any(
+            erro["periodo_escolar"] == GrupoMedicao.INFANTIL_MANHA
+            and "dietas" in erro["erro"]
+            for erro in lista_erros
+        )

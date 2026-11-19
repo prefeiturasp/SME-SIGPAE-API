@@ -54,6 +54,7 @@ from src.dados_comuns.constants import (
     TIPOS_UNIDADE_ESCOLAR,
     StringsHeadersTabelasSolicitacaoMedicaoPDF,
 )
+from src.dados_comuns.data_simulada import obter_data_atual
 from src.dados_comuns.models import LogSolicitacoesUsuario
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
@@ -2807,7 +2808,7 @@ def get_alteracoes_lanche_emergencial(solicitacao):
     ano = solicitacao.ano
     query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
     query_set = query_set.filter(data_evento__month=mes, data_evento__year=ano)
-    query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    query_set = query_set.filter(data_evento__lt=obter_data_atual())
     query_set = query_set.filter(motivo__icontains="Emergencial")
     aux = []
     sem_uuid_repetido = []
@@ -2870,7 +2871,7 @@ def get_kit_lanche(solicitacao):
     ano = solicitacao.ano
     query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
     query_set = query_set.filter(data_evento__month=mes, data_evento__year=ano)
-    query_set = query_set.filter(data_evento__lt=datetime.date.today())
+    query_set = query_set.filter(data_evento__lt=obter_data_atual())
     query_set = query_set.filter(desc_doc__icontains="Kit Lanche")
     query_set = remover_duplicados(query_set)
 
@@ -6814,7 +6815,7 @@ def get_periodos_escolares_comuns_com_inclusoes_normais(solicitacao):
         inclusoes_normais__cancelado=False,
         inclusoes_normais__data__month=mes,
         inclusoes_normais__data__year=ano,
-        inclusoes_normais__data__lt=datetime.date.today(),
+        inclusoes_normais__data__lt=obter_data_atual(),
     ).values_list("uuid", flat=True)
 
     periodos_escolares_inclusoes = PeriodoEscolar.objects.filter(

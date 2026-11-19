@@ -1619,6 +1619,9 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         ano = request.query_params.get("ano")
 
         primeiro_dia_mes = datetime.date(int(ano), int(mes), 1)
+        ultimo_dia_mes = datetime.date(
+            int(ano), int(mes), monthrange(int(ano), int(mes))[1]
+        )
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
@@ -1626,9 +1629,15 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
         query_set = query_set.filter(
             Q(data_evento__month=mes, data_evento__year=ano)
             | Q(data_evento__lt=primeiro_dia_mes, data_evento_2__gte=primeiro_dia_mes)
-        ).order_by("-data_evento")
+        )
 
-        response = {"ultima_data": None}
-        if query_set:
-            response["ultima_data"] = query_set.first().data_evento
-        return Response(response, status=status.HTTP_200_OK)
+        ultima_data = None
+        for solicitacao in query_set:
+            data_final = solicitacao.data_evento_2 or solicitacao.data_evento
+            candidato = min(max(solicitacao.data_evento, data_final), ultimo_dia_mes)
+            if candidato >= primeiro_dia_mes and (
+                ultima_data is None or candidato > ultima_data
+            ):
+                ultima_data = candidato
+
+        return Response({"ultima_data": ultima_data}, status=status.HTTP_200_OK)

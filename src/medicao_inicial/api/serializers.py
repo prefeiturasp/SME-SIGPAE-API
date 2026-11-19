@@ -29,6 +29,7 @@ from src.medicao_inicial.models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DataFinalizaMedicaoDezembro,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
@@ -62,6 +63,12 @@ class TipoSobremesaDoceSerializer(serializers.ModelSerializer):
     class Meta:
         model = TipoSobremesaDoce
         fields = ("uuid", "nome")
+
+
+class DataFinalizaMedicaoDezembroSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DataFinalizaMedicaoDezembro
+        fields = ("uuid", "data")
 
 
 class DiaSobremesaDoceSerializer(serializers.ModelSerializer):

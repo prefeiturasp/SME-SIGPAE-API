@@ -26,6 +26,11 @@ from src.core.models import (
 )
 from src.dados_comuns.api.serializers import LogSolicitacoesUsuarioSerializer
 from src.dados_comuns.constants import StringsValidationErrors
+from src.dados_comuns.data_simulada import (
+    definir_data_simulada,
+    limpar_data_simulada,
+    obter_data_atual,
+)
 from src.dados_comuns.utils import (
     convert_base64_to_contentfile,
     update_instance_from_dict,
@@ -105,6 +110,7 @@ from ..validators import (
     get_filtro_inclusao_continua_ativa,
     get_filtro_quantidade_periodo_ativa,
     valida_medicoes_inexistentes_cei,
+    valida_medicoes_inexistentes_cemei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
     validate_finalizacao_sem_lancamentos_escola_aberta,
@@ -403,6 +409,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         lista_erros = []
         lista_erros = validate_lancamento_kit_lanche(instance, lista_erros)
         lista_erros = validate_lanche_emergencial(instance, lista_erros)
+        lista_erros = valida_medicoes_inexistentes_cemei(instance, lista_erros)
         lista_erros = validate_medicao_cemei_cei(instance, lista_erros)
         lista_erros = validate_medicao_cemei_programas_e_projetos(instance, lista_erros)
         lista_erros = validate_medicao_cemei_emei(instance, lista_erros)
@@ -1545,6 +1552,214 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
                 )
         return anexos_processados
 
+    CAMPOS_NAO_GERADOS_DIAS_RESTANTES_DEZEMBRO = (
+        StringsValoresMedicao.MATRICULADOS.value,
+        StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
+        StringsValoresMedicao.DIETAS_AUTORIZADAS.value,
+        StringsValoresMedicao.KIT_LANCHE.value,
+        "lanche_emergencial",
+        "observacao",
+        "observacoes",
+        "participantes",
+    )
+
+    CAMPOS_REPLICADOS_DIAS_RESTANTES_DEZEMBRO = (
+        StringsValoresMedicao.MATRICULADOS.value,
+        StringsValoresMedicao.NUMERO_DE_ALUNOS.value,
+        StringsValoresMedicao.DIETAS_AUTORIZADAS.value,
+    )
+
+    def _obter_dias_letivos_restantes_dezembro(self, instance):
+        if int(instance.mes) != 12:
+            return []
+
+        hoje = obter_data_atual()
+        ano = int(instance.ano)
+        mes = int(instance.mes)
+
+        if (hoje.year, hoje.month) != (ano, mes):
+            return []
+
+        dias_letivos = set(
+            instance.escola.calendario.filter(
+                data__year=ano,
+                data__month=mes,
+                dia_letivo=True,
+            ).values_list("data__day", flat=True)
+        )
+        if not dias_letivos:
+            return []
+
+        ultimo_dia_letivo = max(dias_letivos)
+        return [
+            f"{dia:02d}" for dia in dias_letivos if hoje.day <= dia <= ultimo_dia_letivo
+        ]
+
+    def _valores_medicao_zerados_para_medicao(self, medicao, dias_restantes):
+        campos = self.CAMPOS_NAO_GERADOS_DIAS_RESTANTES_DEZEMBRO
+        chaves = list(
+            medicao.valores_medicao.exclude(nome_campo__in=campos)
+            .values_list(
+                "nome_campo",
+                "categoria_medicao_id",
+                "faixa_etaria_id",
+                "tipo_alimentacao_id",
+                "infantil_ou_fundamental",
+            )
+            .distinct()
+        )
+        if not chaves:
+            return []
+
+        existentes = set(
+            medicao.valores_medicao.filter(dia__in=dias_restantes)
+            .exclude(nome_campo__in=campos)
+            .values_list(
+                "dia",
+                "nome_campo",
+                "categoria_medicao_id",
+                "faixa_etaria_id",
+                "tipo_alimentacao_id",
+                "infantil_ou_fundamental",
+            )
+        )
+
+        valores_a_criar = []
+        for dia in dias_restantes:
+            for (
+                nome_campo,
+                categoria_medicao_id,
+                faixa_etaria_id,
+                tipo_alimentacao_id,
+                infantil_ou_fundamental,
+            ) in chaves:
+                chave = (
+                    dia,
+                    nome_campo,
+                    categoria_medicao_id,
+                    faixa_etaria_id,
+                    tipo_alimentacao_id,
+                    infantil_ou_fundamental,
+                )
+                if chave in existentes:
+                    continue
+                valores_a_criar.append(
+                    ValorMedicao(
+                        medicao=medicao,
+                        categoria_medicao_id=categoria_medicao_id,
+                        dia=dia,
+                        nome_campo=nome_campo,
+                        faixa_etaria_id=faixa_etaria_id,
+                        tipo_alimentacao_id=tipo_alimentacao_id,
+                        infantil_ou_fundamental=infantil_ou_fundamental,
+                        valor="0",
+                    )
+                )
+
+        return valores_a_criar
+
+    def _valores_medicao_replicados_para_medicao(self, medicao, dias_restantes):
+        """Replica matrículas e dietas autorizadas nos dias restantes.
+
+        Esses campos não são zerados, mas podem não existir nos últimos dias
+        quando a escola finaliza antecipadamente. Nesse caso, replica o último
+        valor lançado antes do período restante.
+        """
+        valores = (
+            medicao.valores_medicao.filter(
+                nome_campo__in=self.CAMPOS_REPLICADOS_DIAS_RESTANTES_DEZEMBRO
+            )
+            .order_by("dia")
+            .values_list(
+                "dia",
+                "nome_campo",
+                "categoria_medicao_id",
+                "faixa_etaria_id",
+                "tipo_alimentacao_id",
+                "infantil_ou_fundamental",
+                "valor",
+            )
+        )
+        referencias, existentes = self._referencias_valores_replicados(
+            valores, dias_restantes
+        )
+        return self._cria_valores_replicados(
+            medicao, referencias, existentes, dias_restantes
+        )
+
+    @staticmethod
+    def _referencias_valores_replicados(valores, dias_restantes):
+        primeiro_dia_restante = int(dias_restantes[0])
+        referencias = {}
+        existentes = set()
+        for dia, *chave, valor in valores:
+            chave = tuple(chave)
+            if dia in dias_restantes:
+                existentes.add((dia, chave))
+            elif int(dia) < primeiro_dia_restante:
+                referencias[chave] = valor
+        return referencias, existentes
+
+    @staticmethod
+    def _cria_valores_replicados(medicao, referencias, existentes, dias_restantes):
+        valores_a_criar = []
+        for dia in dias_restantes:
+            for chave, valor in referencias.items():
+                if (dia, chave) in existentes:
+                    continue
+                (
+                    nome_campo,
+                    categoria_medicao_id,
+                    faixa_etaria_id,
+                    tipo_alimentacao_id,
+                    infantil_ou_fundamental,
+                ) = chave
+                valores_a_criar.append(
+                    ValorMedicao(
+                        medicao=medicao,
+                        categoria_medicao_id=categoria_medicao_id,
+                        dia=dia,
+                        nome_campo=nome_campo,
+                        faixa_etaria_id=faixa_etaria_id,
+                        tipo_alimentacao_id=tipo_alimentacao_id,
+                        infantil_ou_fundamental=infantil_ou_fundamental,
+                        valor=valor,
+                    )
+                )
+        return valores_a_criar
+
+    def gera_valores_zerados_dias_restantes_dezembro(self, instance):
+        """Gera valores zerados dos lançamentos dos dias letivos restantes."""
+        dias_restantes = self._obter_dias_letivos_restantes_dezembro(instance)
+        if not dias_restantes:
+            return
+
+        campos = self.CAMPOS_NAO_GERADOS_DIAS_RESTANTES_DEZEMBRO
+        valores_a_criar = []
+        for medicao in instance.medicoes.all():
+            medicao.valores_medicao.filter(dia__in=dias_restantes).exclude(
+                nome_campo__in=campos
+            ).update(valor="0")
+            valores_a_criar.extend(
+                self._valores_medicao_zerados_para_medicao(medicao, dias_restantes)
+            )
+            valores_a_criar.extend(
+                self._valores_medicao_replicados_para_medicao(medicao, dias_restantes)
+            )
+
+        if valores_a_criar:
+            ValorMedicao.objects.bulk_create(valores_a_criar)
+
+    def _obter_data_simulada_requisicao(self):
+        valor = self.context["request"].data.get("data_simulada")
+        if not valor:
+            return None
+
+        try:
+            return date.fromisoformat(valor)
+        except (TypeError, ValueError):
+            return None
+
     def _finaliza_medicao_se_necessario(
         self, instance, validated_data, justificativa_sem_lancamentos
     ):
@@ -1554,22 +1769,27 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
         ):
-            self.cria_valores_medicao_logs_emef_emei(instance)
-            self.cria_valores_medicao_logs_cei(instance)
-            self.valida_finalizar_medicao_ultimo_dia_mes(instance)
-            self.valida_finalizar_medicao_emef_emei(instance)
-            self.valida_finalizar_medicao_cemei(instance)
-            self.valida_finalizar_medicao_cei(instance)
-            self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
-            self.valida_finalizar_medicao_emebs(instance)
-            instance.ue_envia(user=self.context["request"].user)
-            anexos = self._process_anexos(instance)
-            if hasattr(instance, "ocorrencia"):
-                instance.ocorrencia.ue_envia(
-                    user=self.context["request"].user, anexos=anexos
-                )
-            for medicao in instance.medicoes.all():
-                medicao.ue_envia(user=self.context["request"].user)
+            token = definir_data_simulada(self._obter_data_simulada_requisicao())
+            try:
+                self.cria_valores_medicao_logs_emef_emei(instance)
+                self.cria_valores_medicao_logs_cei(instance)
+                self.valida_finalizar_medicao_ultimo_dia_mes(instance)
+                self.valida_finalizar_medicao_emef_emei(instance)
+                self.valida_finalizar_medicao_cemei(instance)
+                self.valida_finalizar_medicao_cei(instance)
+                self.valida_finalizar_medicao_escola_sem_alunos_regulares(instance)
+                self.valida_finalizar_medicao_emebs(instance)
+                self.gera_valores_zerados_dias_restantes_dezembro(instance)
+                instance.ue_envia(user=self.context["request"].user)
+                anexos = self._process_anexos(instance)
+                if hasattr(instance, "ocorrencia"):
+                    instance.ocorrencia.ue_envia(
+                        user=self.context["request"].user, anexos=anexos
+                    )
+                for medicao in instance.medicoes.all():
+                    medicao.ue_envia(user=self.context["request"].user)
+            finally:
+                limpar_data_simulada(token)
 
     def _checa_se_medicao_possui_algum_lancamento(
         self, instance: SolicitacaoMedicaoInicial, lista_erros: list[dict]
@@ -1660,7 +1880,7 @@ class SolicitacaoMedicaoInicialCreateSerializer(serializers.ModelSerializer):
         if key_com_ocorrencias is not None and self.context["request"].data.get(
             "finaliza_medicao"
         ):
-            if date.today() <= instance.recreio_nas_ferias.data_fim:
+            if obter_data_atual() <= instance.recreio_nas_ferias.data_fim:
                 raise serializers.ValidationError(
                     "A medição só pode ser finalizada 1 dia após a data fim do Recreio nas Férias."
                 )

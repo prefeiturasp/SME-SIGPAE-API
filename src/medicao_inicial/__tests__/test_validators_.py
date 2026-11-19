@@ -18,12 +18,14 @@ from src.medicao_inicial.validators import (
     get_quantidade_dietas_autorizadas,
     obter_periodos_corretos,
     valida_medicoes_inexistentes_cei,
+    valida_medicoes_inexistentes_cemei,
     valida_medicoes_inexistentes_emebs,
     valida_medicoes_inexistentes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_alimentacoes_medicao_cei,
     validate_lancamento_alimentacoes_medicao_cei_cemei_faixas_etarias,
     validate_lancamento_alimentacoes_medicao_emebs,
+    validate_lancamento_dietas_emef,
     validate_lancamento_dietas_inclusoes_escola_sem_alunos_regulares,
     validate_lancamento_inclusoes_cei,
     validate_lancamento_inclusoes_dietas_emef_emebs,
@@ -52,6 +54,106 @@ def test_valida_medicoes_inexistentes_cei(
             (erro for erro in lista_erros if erro["periodo_escolar"] == "PARCIAL"), None
         )
         is not None
+    )
+
+
+def _cria_log_cemei(escola, periodo_escolar, cei_ou_emei, quantidade=10):
+    return baker.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola,
+        criado_em="2023-04-10",
+        periodo_escolar=periodo_escolar,
+        quantidade_alunos=quantidade,
+        tipo_turma=TipoTurma.REGULAR.name,
+        cei_ou_emei=cei_ou_emei,
+    )
+
+
+def test_valida_medicoes_inexistentes_cemei_sem_medicao(escola_cemei):
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial",
+        mes=4,
+        ano=2023,
+        escola=escola_cemei,
+        ue_possui_alunos_periodo_parcial=True,
+    )
+    _cria_log_cemei(escola_cemei, periodo_integral, "CEI")
+    _cria_log_cemei(escola_cemei, periodo_manha, "N/A")
+
+    lista_erros = valida_medicoes_inexistentes_cemei(solicitacao, [])
+
+    periodos_com_erro = {erro["periodo_escolar"] for erro in lista_erros}
+    assert periodos_com_erro == {"INTEGRAL", "Infantil MANHA", "PARCIAL"}
+
+
+def test_valida_medicoes_inexistentes_cemei_com_medicoes_lancadas(escola_cemei):
+    periodo_integral = baker.make("PeriodoEscolar", nome="INTEGRAL")
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes=4, ano=2023, escola=escola_cemei
+    )
+    _cria_log_cemei(escola_cemei, periodo_integral, "CEI")
+    _cria_log_cemei(escola_cemei, periodo_manha, "N/A")
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo_integral,
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        grupo=baker.make("GrupoMedicao", nome="Infantil MANHA"),
+    )
+
+    lista_erros = valida_medicoes_inexistentes_cemei(solicitacao, [])
+
+    assert lista_erros == []
+
+
+@freeze_time("2026-12-15")
+def test_validate_lancamento_dietas_emef_considera_logs_do_periodo_da_medicao(
+    escola_emef, categoria_medicao_dieta_a
+):
+    periodo_manha = baker.make("PeriodoEscolar", nome="MANHA")
+    solicitacao = baker.make(
+        "SolicitacaoMedicaoInicial", mes="12", ano="2026", escola=escola_emef
+    )
+    baker.make(
+        "Medicao",
+        solicitacao_medicao_inicial=solicitacao,
+        periodo_escolar=periodo_manha,
+    )
+    baker.make(
+        "DiaCalendario",
+        escola=escola_emef,
+        data="2026-12-01",
+        dia_letivo=True,
+    )
+    baker.make(
+        "LogAlunosMatriculadosPeriodoEscola",
+        escola=escola_emef,
+        criado_em="2026-12-01",
+        periodo_escolar=periodo_manha,
+        quantidade_alunos=100,
+        tipo_turma=TipoTurma.REGULAR.name,
+    )
+    classificacao = baker.make("ClassificacaoDieta", nome="Tipo A")
+    baker.make(
+        "LogQuantidadeDietasAutorizadas",
+        escola=escola_emef,
+        data="2026-12-01",
+        periodo_escolar=periodo_manha,
+        classificacao=classificacao,
+        quantidade=2,
+    )
+
+    lista_erros = validate_lancamento_dietas_emef(solicitacao, [])
+
+    assert any(
+        erro["periodo_escolar"] == "MANHA" and "dietas" in erro["erro"]
+        for erro in lista_erros
     )
 
 

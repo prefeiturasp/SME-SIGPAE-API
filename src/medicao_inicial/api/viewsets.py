@@ -104,6 +104,7 @@ from ..models import (
     AlimentacaoLancamentoEspecial,
     CategoriaMedicao,
     ClausulaDeDesconto,
+    DataFinalizaMedicaoDezembro,
     DescontoFinanceiro,
     DiaParaCorrigir,
     DiaSobremesaDoce,
@@ -164,12 +165,16 @@ from .filters import (
     SolicitacaoMedicaoInicialFilter,
     ValorMedicaoFilter,
 )
-from .permissions import EhAdministradorMedicaoInicialOuGestaoAlimentacao
+from .permissions import (
+    EhAdministradorMedicaoInicialOuGestaoAlimentacao,
+    UsuarioEscola,
+)
 from .serializers import (
     AlimentacaoLancamentoEspecialSerializer,
     CategoriaMedicaoSerializer,
     ClausulaDeDescontoSerializer,
     DadosParametrizacaoFinanceiraSerializer,
+    DataFinalizaMedicaoDezembroSerializer,
     DescontoFinanceiroSerializer,
     DiaParaCorrigirSerializer,
     DiaSobremesaDoceSerializer,
@@ -1719,6 +1724,16 @@ class CategoriaMedicaoViewSet(mixins.ListModelMixin, GenericViewSet):
     queryset = CategoriaMedicao.objects.filter(ativo=True)
     serializer_class = CategoriaMedicaoSerializer
     pagination_class = None
+
+
+class DataFinalizaMedicaoDezembroViewSet(GenericViewSet):
+    serializer_class = DataFinalizaMedicaoDezembroSerializer
+    permission_classes = [UsuarioEscola]
+
+    def list(self, request):
+        registro = DataFinalizaMedicaoDezembro.objects.get()
+        serializer = self.get_serializer(registro)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ValorMedicaoViewSet(

@@ -5,6 +5,7 @@ import uuid
 from calendar import monthcalendar, setfirstweekday
 
 import numpy
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 from django.utils.html import format_html
@@ -1232,3 +1233,52 @@ class DescontoFinanceiro(TemChaveExterna, CriadoEm, TemAlteradoEm):
         verbose_name = "Desconto Financeiro"
         verbose_name_plural = "Descontos Financeiros"
         ordering = ["-alterado_em"]
+
+
+class DataFinalizaMedicaoDezembroManager(models.Manager):
+    def get(self, *args, **kwargs):
+        obj, _ = self.get_queryset().get_or_create(id=1)
+        return obj
+
+
+def valida_mes_de_dezembro(data):
+    if data and data.month != 12:
+        raise ValidationError("A data deve ser no mês de dezembro.")
+
+
+class DataFinalizaMedicaoDezembro(TemChaveExterna, CriadoEm, TemAlteradoEm):
+    """Data limite para finalizar a medição do mês de dezembro.
+
+    Modelo singleton: apenas um registro é permitido, sempre com id 1.
+    """
+
+    id = models.PositiveIntegerField(primary_key=True, editable=False)
+    data = models.DateField(
+        StringsVerboseNameModels.DATA.value,
+        null=True,
+        blank=True,
+        validators=[valida_mes_de_dezembro],
+    )
+
+    objects = DataFinalizaMedicaoDezembroManager()
+
+    def save(self, *args, **kwargs):
+        self.id = 1
+        if self._state.adding:
+            self._copia_campos_imutaveis_do_registro_existente()
+        super().save(*args, **kwargs)
+
+    def _copia_campos_imutaveis_do_registro_existente(self):
+        registro_existente = type(self).objects.filter(pk=1).first()
+        if registro_existente:
+            self.criado_em = registro_existente.criado_em
+            self.uuid = registro_existente.uuid
+
+    def __str__(self):
+        if self.data:
+            return self.data.strftime(FORMATO_DATA_BRASILEIRO)
+        return "Data não definida"
+
+    class Meta:
+        verbose_name = "Data para finalizar medição em dezembro"
+        verbose_name_plural = "Data para finalizar medição em dezembro"
