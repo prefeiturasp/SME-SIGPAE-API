@@ -211,3 +211,6 @@ import './step_definitions/inversoes_dia_cardapio'
 
 import './commands_api/commands_kit_lanches'
 import './step_definitions/kit_lanches'
+
+import './commands_api/commands_lancamento_diario'
+import './step_definitions/lancamento_diario'
