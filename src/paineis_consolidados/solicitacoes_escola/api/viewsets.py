@@ -1622,10 +1622,6 @@ class EscolaSolicitacoesViewSet(SolicitacoesViewSet):
 
         query_set = SolicitacoesEscola.get_autorizados(escola_uuid=escola_uuid)
         query_set = SolicitacoesEscola.busca_filtro(query_set, request.query_params)
-        # Inclusão contínua não deve influenciar a data de finalização da medição.
-        query_set = query_set.exclude(
-            tipo_doc=SolicitacoesEscola.TP_SOL_INC_ALIMENTA_CONTINUA
-        )
         query_set = query_set.distinct()
         query_set = query_set.filter(
             Q(data_evento__month=mes, data_evento__year=ano)
